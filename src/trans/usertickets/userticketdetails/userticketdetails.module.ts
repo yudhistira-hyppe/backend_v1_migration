@@ -18,8 +18,7 @@ import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
     imports: [
 
         UserbasicsModule, OssModule, UserticketsModule, UtilsModule, SeaweedfsModule, LogticketsModule, MediaprofilepictsModule, NestjsFormDataModule, ConfigService, ConfigModule.forRoot(),
-        MongooseModule.forFeature([{ name: Userticketdetails.name, schema: UserticketdetailsSchema }], 'SERVER_FULL'),
-        UserticketdetailsModule, UserbasicnewModule
+        MongooseModule.forFeature([{ name: Userticketdetails.name, schema: UserticketdetailsSchema }], 'SERVER_FULL'), UserbasicnewModule
     ],
     controllers: [UserticketdetailsController],
     exports: [UserticketdetailsService],
