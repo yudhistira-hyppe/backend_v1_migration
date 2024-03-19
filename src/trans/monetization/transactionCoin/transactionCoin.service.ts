@@ -56,22 +56,22 @@ export class transactionCoinService {
         // }
         let userData = await this.basic2SS.findBymail(email);
         if (await this.utilsService.ceckData(userData)) {
-            // if (userData.pin != undefined) {
-            //     let decryptPin = await this.utilsService.decrypt(userData.pin.toString());
-            //     if (body.pin != decryptPin) {
-            //         var timestamps_end = await this.utilsService.getDateTimeString();
-            //         this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
-            //         return this.errorHandler.generateNotAcceptableException(
-            //             "Unable to proceed, PIN does not match",
-            //         );
-            //     }
-            // } else {
-            //     var timestamps_end = await this.utilsService.getDateTimeString();
-            //     this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
-            //     return this.errorHandler.generateNotAcceptableException(
-            //         "Unable to proceed, user has not created PIN",
-            //     );
-            // }
+            if (userData.pin != undefined) {
+                let decryptPin = await this.utilsService.decrypt(userData.pin.toString());
+                if (body.pin != decryptPin) {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+                    return this.errorHandler.generateNotAcceptableException(
+                        "Unable to proceed, PIN does not match",
+                    );
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+                return this.errorHandler.generateNotAcceptableException(
+                    "Unable to proceed, user has not created PIN",
+                );
+            }
         } else {
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
