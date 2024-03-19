@@ -34,60 +34,59 @@ export class MonetizationService {
         return data;
     }
 
-    async detailOne(id:string): Promise<Monetize> 
-    {
+    async detailOne(id: string): Promise<Monetize> {
         var mongo = require('mongoose');
         var data = await this.monetData.aggregate([
             {
                 "$match":
                 {
-                    _id:new mongo.Types.ObjectId(id)
+                    _id: new mongo.Types.ObjectId(id)
                 }
             },
             {
                 "$project":
                 {
-                    name:1,
-                    price:1,
-                    amount:1,
-                    stock:1,
-                    thumbnail:1,
-                    used_stock:1,
-                    last_stock:1,
+                    name: 1,
+                    price: 1,
+                    amount: 1,
+                    stock: 1,
+                    thumbnail: 1,
+                    used_stock: 1,
+                    last_stock: 1,
                     audiens:
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$cond":
+                            [
                                 {
-                                    if:
+                                    "$cond":
                                     {
-                                        "$eq":
-                                        [
-                                            "$type","CREDIT"
-                                        ]
-                                    },
-                                    then:
-                                    {
-                                        "$cond":
+                                        if:
                                         {
-                                            if:
-                                            {
-                                                "$eq":
+                                            "$eq":
                                                 [
-                                                    "$audiens", "EXCLUSIVE"
+                                                    "$type", "CREDIT"
                                                 ]
-                                            },
-                                            then:"Ekslusif",
-                                            else:"Publik"
-                                        }
-                                    },
-                                    else:"$$REMOVE"
-                                }
-                            },
-                            "$$REMOVE"
-                        ]
+                                        },
+                                        then:
+                                        {
+                                            "$cond":
+                                            {
+                                                if:
+                                                {
+                                                    "$eq":
+                                                        [
+                                                            "$audiens", "EXCLUSIVE"
+                                                        ]
+                                                },
+                                                then: "Ekslusif",
+                                                else: "Publik"
+                                            }
+                                        },
+                                        else: "$$REMOVE"
+                                    }
+                                },
+                                "$$REMOVE"
+                            ]
                     },
                     total_transaction:
                     {
@@ -96,15 +95,15 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type","CREDIT"
-                                ]
+                                    [
+                                        "$type", "CREDIT"
+                                    ]
                             },
                             then:
                             {
-                                "$toInt":69
+                                "$toInt": 69
                             },
-                            else:"$$REMOVE"
+                            else: "$$REMOVE"
                         }
                     },
                 }
@@ -388,6 +387,17 @@ export class MonetizationService {
 
         var data = await this.monetData.aggregate(pipeline);
         return data;
+    }
+
+    async updateStock(id: string, quantity: number, reduce: boolean) {
+        let packageData = await this.monetData.findById(id);
+        let currentStock = packageData.stock;
+        let usedStock = packageData.used_stock;
+        if (reduce) {
+            return this.monetData.findByIdAndUpdate(id, { stock: currentStock - quantity, used_stock: usedStock + quantity, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
+        } else {
+            return this.monetData.findByIdAndUpdate(id, { stock: currentStock + quantity, used_stock: usedStock - quantity, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
+        }
     }
 
     async deactivate(id: string) {
