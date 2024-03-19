@@ -391,12 +391,12 @@ export class MonetizationService {
 
     async updateStock(id: string, quantity: number, reduce: boolean) {
         let packageData = await this.monetData.findById(id);
-        let currentStock = packageData.stock;
+        let currentStock = packageData.last_stock;
         let usedStock = packageData.used_stock;
         if (reduce) {
-            return this.monetData.findByIdAndUpdate(id, { stock: currentStock - quantity, used_stock: usedStock + quantity, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
+            return this.monetData.findByIdAndUpdate(id, { last_stock: currentStock - quantity, used_stock: usedStock + quantity, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
         } else {
-            return this.monetData.findByIdAndUpdate(id, { stock: currentStock + quantity, used_stock: usedStock - quantity, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
+            return this.monetData.findByIdAndUpdate(id, { last_stock: currentStock + quantity, used_stock: usedStock - quantity, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
         }
     }
 

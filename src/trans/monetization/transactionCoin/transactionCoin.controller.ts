@@ -24,5 +24,16 @@ export class transactionCoinController {
     return this.transactionCoinSS.find();
   }
 
-  
+  @Post('/create')
+  @UseGuards(JwtAuthGuard)
+  async createTransaction(@Headers() headers, @Body() body) {
+    return this.transactionCoinSS.createTransaction(headers, body);
+  }
+
+  @Post('/cancel')
+  @UseGuards(JwtAuthGuard)
+  async cancelTransaction(@Headers() headers, @Body() body) {
+    return this.transactionCoinSS.cancelTransaction(headers, body);
+  }
+
 }
