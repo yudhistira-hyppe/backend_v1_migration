@@ -130,8 +130,10 @@ import { FiltercategoryModule } from './assets/filtercategory/filtercategory.mod
 import { GuidelineModule } from './trans/guideline/guideline.module';
 import { AppController } from './app.controller';
 import { MonetizationModule } from './trans/monetization/monetization.module';
+import { TransactionsV2Module } from './trans/transactionsv2/transactionsv2.module';
 @Module({
   imports: [
+    TransactionsV2Module,
     ChallengeReadModule,
     SettingsReadModule,
     PostsReadModule,
