@@ -11,6 +11,10 @@ import { UtilsModule } from 'src/utils/utils.module';
 import { TransactionsCoaController } from './coa/transactionscoa.controller';
 import { TransactionsCoaService } from './coa/transactionscoa.service';
 import { TransactionsCoa, TransactionsCoaSchema } from './coa/schema/transactionscoa.schema';
+import { BalancedsService } from './balanceds/balanceds.service';
+import { BalancedsController } from './balanceds/balanceds.controller';
+import { Balanceds, BalancedsSchema } from './balanceds/schema/balanceds.schema';
+import { transactionsV2, transactionsV2Schema } from './schema/transactionsv2.schema';
 
 @Module({
 
@@ -20,11 +24,13 @@ import { TransactionsCoa, TransactionsCoaSchema } from './coa/schema/transaction
         ConfigModule.forRoot(),
         MongooseModule.forFeature([
             { name: TransactionsCategorys.name, schema: TransactionsCategorysSchema },
-            { name: TransactionsCoa.name, schema: TransactionsCoaSchema }
+            { name: TransactionsCoa.name, schema: TransactionsCoaSchema }, 
+            { name: Balanceds.name, schema: BalancedsSchema },
+            { name: transactionsV2.name, schema: transactionsV2Schema }
         ], 'SERVER_FULL')
     ],
-    controllers: [TransactionsV2Controller, TransactionsCategorysController, TransactionsCoaController],
-    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService],
-    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService],
+    controllers: [TransactionsV2Controller, TransactionsCategorysController, TransactionsCoaController, BalancedsController],
+    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, BalancedsService],
+    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, BalancedsService],
 })
 export class TransactionsV2Module { }
