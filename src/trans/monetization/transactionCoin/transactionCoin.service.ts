@@ -146,6 +146,12 @@ export class transactionCoinService {
             return this.errorHandler.generateNotAcceptableException(
                 "Unable to proceed, coin transaction data not found",
             );
+        } else if (trxData.status == "CANCEL") {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+            return this.errorHandler.generateNotAcceptableException(
+                "Coin transaction already cancelled",
+            );
         }
         await this.monetService.updateStock(trxData.idPackage.toString(), trxData.qty, false);
         let data = await this.trans.findByIdAndUpdate(body.idTransactionCoin, { status: "CANCEL", updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
