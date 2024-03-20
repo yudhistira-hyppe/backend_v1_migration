@@ -385,6 +385,58 @@ export class MonetizationService {
             pipeline.push({ $limit: limit });
         }
 
+        pipeline.push(
+            {
+                "$project":
+                {
+                    _id:1,
+                    type:1,
+                    name:1,
+                    package_id:1,
+                    price:1,
+                    amount:1,
+                    stock:"$last_stock",
+                    thumbnail:1,
+                    audiens:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "CREDIT"
+                                ]
+                            },
+                            then:"$audiens",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    audiens_user:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "CREDIT"
+                                ]
+                            },
+                            then:"$audiens_user",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    createdAt:1,
+                    updatedAt:1,
+                    used_stock:1,
+                    last_stock:1,
+                    active:1,
+                    status:1,
+                }
+            }
+        );
+
         var data = await this.monetData.aggregate(pipeline);
         return data;
     }
