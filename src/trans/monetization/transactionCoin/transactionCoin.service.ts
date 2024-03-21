@@ -92,7 +92,7 @@ export class transactionCoinService {
                 "Unable to proceed, package data not found",
             );
         }
-        if (packageData.stock < body.quantity) {
+        if (packageData.last_stock < body.quantity) {
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
             return this.errorHandler.generateNotAcceptableException("Quantity exceeds available stock");
