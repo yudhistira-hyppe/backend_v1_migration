@@ -3321,7 +3321,6 @@ export class UtilsService {
     //Year Code
     const CurrentDate = new Date();
     const Year = CurrentDate.getFullYear();
-    TransactionCode += "/"+Year.toString();
 
     //Platform Code
     let PlatformCode = "UNKNOWN";
@@ -3383,10 +3382,9 @@ export class UtilsService {
     } else if ((No.toString().length) == 1) {
       TransactionNumber += "00000" + No.toString();
     }
-    
-    TransactionCode += "/" + PlatformCode;
-    TransactionCode += "/" + categoryProduct;
-    return 
+
+    TransactionCode += Year.toString() + "/" + PlatformCode + "/" + categoryProduct + "/" + TransactionNumber;
+    return TransactionCode;
   }
 }
 

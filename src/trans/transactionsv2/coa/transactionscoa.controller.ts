@@ -137,8 +137,16 @@ export class TransactionsCoaController {
             let subCoa = TransactionsCoa_.subCoa[k];
             if (subCoa.Detail != undefined) {
                 for (let j = 0; j < subCoa.Detail.length; j++) {
-                    if (existingData.subCoa[k].Detail[j].createdAt != undefined) {
-                        TransactionsCoa_.subCoa[k].Detail[j].createdAt = existingData.subCoa[k].Detail[j].createdAt;
+                    if (existingData.subCoa[k]!=undefined){
+                        if (existingData.subCoa[k].Detail[j] != undefined) {
+                            if (existingData.subCoa[k].Detail[j].createdAt != undefined) {
+                                TransactionsCoa_.subCoa[k].Detail[j].createdAt = existingData.subCoa[k].Detail[j].createdAt;
+                            } else {
+                                TransactionsCoa_.subCoa[k].Detail[j].createdAt = currentDate;
+                            }
+                        } else {
+                            TransactionsCoa_.subCoa[k].Detail[j].createdAt = currentDate;
+                        }
                     } else {
                         TransactionsCoa_.subCoa[k].Detail[j].createdAt = currentDate;
                     }
