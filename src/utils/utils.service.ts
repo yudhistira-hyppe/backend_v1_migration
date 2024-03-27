@@ -3314,5 +3314,77 @@ export class UtilsService {
       return null;
     }
   }
+
+  async generateTransactionCode(Platform: string, categoryProduct: string, codeProduct: string, No: number) {
+    let TransactionCode = "";
+
+    //Year Code
+    const CurrentDate = new Date();
+    const Year = CurrentDate.getFullYear();
+
+    //Platform Code
+    let PlatformCode = "UNKNOWN";
+    if (Platform == "App") {
+      PlatformCode = "APP";
+    } else if (Platform == "Business") {
+      PlatformCode = "BUS";
+    } else if (Platform == "Console") {
+      PlatformCode = "CON";
+    }else{
+      PlatformCode = "UNKNOWN";
+    }
+
+    //Category Code
+    if (categoryProduct == "PBC" || 
+      categoryProduct == "PNC" ||
+      categoryProduct == "PTC" ||
+      categoryProduct == "RFN" ||
+      categoryProduct == "PGC" ||
+      categoryProduct == "PGH" ||
+      categoryProduct == "PMC" ||
+      categoryProduct == "PCM" ||
+      categoryProduct == "PCR" ||
+      categoryProduct == "PCH" ||
+      categoryProduct == "PCB" ||
+      categoryProduct == "PCN" ||
+      categoryProduct == "UPH"){
+      categoryProduct = categoryProduct;
+    }else{
+      categoryProduct = "UNKNOWN";
+    }
+
+    //Product Code
+    if (codeProduct == "NN" || 
+      codeProduct == "CO" ||
+      codeProduct == "CM" ||
+      codeProduct == "BP" ||
+      codeProduct == "CN" ||
+      codeProduct == "CR" ||
+      codeProduct == "GF" ||
+      codeProduct == "AD") {
+      codeProduct = codeProduct;
+    } else {
+      codeProduct = "UNKNOWN";
+    }
+
+    //Transaction Code
+    let TransactionNumber = "UNKNOWN"
+    if ((No.toString().length) == 6) {
+      TransactionNumber += No.toString();
+    } else if ((No.toString().length) == 5) {
+      TransactionNumber += "0" + No.toString();
+    } else if ((No.toString().length) == 4) {
+      TransactionNumber += "00" + No.toString();
+    } else if ((No.toString().length) == 3) {
+      TransactionNumber += "000" + No.toString();
+    } else if ((No.toString().length) == 2) {
+      TransactionNumber += "0000" + No.toString();
+    } else if ((No.toString().length) == 1) {
+      TransactionNumber += "00000" + No.toString();
+    }
+
+    TransactionCode += Year.toString() + "/" + PlatformCode + "/" + categoryProduct + "/" + TransactionNumber;
+    return TransactionCode;
+  }
 }
 
