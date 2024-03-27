@@ -2447,6 +2447,8 @@ export class UtilsService {
               insertdata.push(
                 {
                   "key": arraySetting[i].key,
+                  "textID": arraySetting[i].textID,
+                  "textEn": arraySetting[i].textEn,
                   "status": true,  
                 }
               );
