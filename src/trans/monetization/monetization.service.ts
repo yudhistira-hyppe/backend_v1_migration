@@ -119,27 +119,35 @@ export class MonetizationService {
 
     async createCoin(file: Express.Multer.File, request: any): Promise<Monetize> {
         let id = new mongoose.Types.ObjectId();
-        let image_information = await sharp(file.buffer).metadata();
-        let extension = image_information.format;
+        let url_filename = "";
         let now = await this.utilsService.getDateTimeString();
 
-        let filename = id + "." + extension;
-        let path_file = "images/coin/" + id + "/" + filename;
+        if(request.isUploadIcon == 'true' || request.isUploadIcon == true)
+        {
+            let image_information = await sharp(file.buffer).metadata();
+            let extension = image_information.format;
 
-        let file_upload = await this.postContentService.generate_upload_noresize(file, extension);
-        let upload_file_upload = await this.uploadOss(file_upload, path_file);
+            let filename = id + "." + extension;
+            let path_file = "images/coin/" + id + "/" + filename;
 
-        let url_filename = "";
+            let file_upload = await this.postContentService.generate_upload_noresize(file, extension);
+            let upload_file_upload = await this.uploadOss(file_upload, path_file);
 
-        if (upload_file_upload != undefined) {
-            if (upload_file_upload.res != undefined) {
-                if (upload_file_upload.res.statusCode != undefined) {
-                    if (upload_file_upload.res.statusCode == 200) {
-                        url_filename = upload_file_upload.res.requestUrls[0];
+            if (upload_file_upload != undefined) {
+                if (upload_file_upload.res != undefined) {
+                    if (upload_file_upload.res.statusCode != undefined) {
+                        if (upload_file_upload.res.statusCode == 200) {
+                            url_filename = upload_file_upload.res.requestUrls[0];
+                        }
                     }
                 }
             }
         }
+        else
+        {
+            url_filename = 'http://be-staging.oss-ap-southeast-5.aliyuncs.com/images/coin/default.jpg';
+        }
+
         let createCoinDto = {
             _id: id,
             name: request.name,

@@ -6,7 +6,10 @@ import { UtilsService } from 'src/utils/utils.service';
 import { LogapisService } from '../logapis/logapis.service';
 import { Monetize } from './schemas/monetization.schema';
 import { TemplatesRepoService } from 'src/infra/templates_repo/templates_repo.service';
+import { PostContentService } from 'src/content/posts/postcontent.service';
+import { OssContentPictService } from 'src/content/posts/osscontentpict.service';
 import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
+const sharp = require('sharp');
 
 @Controller('api/monetization')
 export class MonetizationController {
@@ -16,6 +19,8 @@ export class MonetizationController {
     private readonly LogAPISS: LogapisService,
     private readonly repoSS: TemplatesRepoService,
     private readonly basic2SS: UserbasicnewService,
+    private readonly postContentService: PostContentService,
+    private readonly ossContentPictService: OssContentPictService,
   ) { }
 
   @Get(':id')
@@ -60,6 +65,37 @@ export class MonetizationController {
     return {
       response_code: 202,
       data: data,
+      message: {
+        "info": ["The process was successful"],
+      }
+    }
+  }
+
+  @Post("/thumbnail")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('coinThumb'))
+  async uploadthumbnail(@UploadedFile() file: Express.Multer.File, @Headers() headers, @Body() body) {
+    let timestamps_start = await this.utilService.getDateTimeString();
+    let url = headers.host + "/api/monetization/thumbnail";
+    let token = headers['x-auth-token'];
+    let auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    let email = auth.email;
+    let toLog = body;
+    delete toLog['coinThumb'];
+    
+    let image_information = await sharp(file.buffer).metadata();
+    let extension = image_information.format;
+    let path_file = "images/coin/default.jpg";
+
+    let file_upload = await this.postContentService.generate_upload_noresize(file, extension);
+    
+    await this.ossContentPictService.uploadFileBuffer(file_upload, path_file);
+
+    let timestamps_end = await this.utilService.getDateTimeString();
+    this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, toLog);
+
+    return {
+      response_code: 202,
       message: {
         "info": ["The process was successful"],
       }
