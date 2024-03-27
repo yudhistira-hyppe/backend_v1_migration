@@ -4,4 +4,8 @@ import { Injectable } from '@nestjs/common';
 export class TransactionsV2Service {
     constructor(
     ) { }
+
+    async insertTransaction(categoryProduct:string,){
+
+    }
 }
