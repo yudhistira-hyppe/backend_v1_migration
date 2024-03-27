@@ -1355,7 +1355,7 @@ export class NewPostController {
         return { response_code: 202, messages, data };
     }
 
-    @Post('api/posts/analityc/v2')
+    @Post('posts/analityc/v2')
     @UseGuards(JwtAuthGuard)
     async getByChart(@Req() request: Request, @Headers() headers): Promise<any> {
         var timestamps_start = await this.utilsService.getDateTimeString();
@@ -1444,7 +1444,7 @@ export class NewPostController {
         return { response_code: 202, messages, data: arrdataview };
     }
 
-    @Post('api/posts/interaksi/v2')
+    @Post('posts/interaksi/v2')
     @UseGuards(JwtAuthGuard)
     async getByCharti(@Req() request: Request, @Headers() headers): Promise<any> {
         var token = headers['x-auth-token'];
