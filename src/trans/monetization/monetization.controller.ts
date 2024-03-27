@@ -1,4 +1,4 @@
-import { Body, Headers, Controller, Delete, Get, Param, Post, UseGuards, HttpCode, HttpStatus, Req, Logger, UploadedFile, UseInterceptors, BadRequestException, Header, NotAcceptableException } from '@nestjs/common';
+import { Body, Headers, Controller, Delete, Get, Param, Post, UseGuards, HttpCode, HttpStatus, Req, Res, Logger, UploadedFile, UseInterceptors, BadRequestException, Header, NotAcceptableException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { MonetizationService } from './monetization.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -100,6 +100,16 @@ export class MonetizationController {
         "info": ["The process was successful"],
       }
     }
+  }
+
+  @Get('/thumbnail/thumbnail')
+  async defaultThumbURL(@Res() res)
+  {
+    var defaulturl = 'images/coin/default.jpg';
+
+    var data2 = await this.ossContentPictService.readFile(defaulturl);
+    res.set("Content-Type", "image/jpeg");
+    res.send(data2);
   }
 
   @Post("/list")
