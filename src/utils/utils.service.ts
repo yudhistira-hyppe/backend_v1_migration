@@ -2412,6 +2412,8 @@ export class UtilsService {
             ProfileDTO_.statusKyc = "unverified";
           }
         }
+        
+        var data_ = null;
         if (get_userbasic.tutor != undefined) {
           const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
           const getSettingTutor = await this.getSettingMixed(SETTING_TUTOR);
@@ -2420,7 +2422,7 @@ export class UtilsService {
               if (getSettingTutor.value.length == get_userbasic.tutor.length) {
                 let arrayTutor = get_userbasic.tutor;
                 let arraySetting = getSettingTutor.value;
-                var data_ = await Promise.all(arrayTutor.map(async (item, index) => {
+                data_ = await Promise.all(arrayTutor.map(async (item, index) => {
                   console.log();
                   return {
                     "key": item.key,
@@ -2429,11 +2431,34 @@ export class UtilsService {
                     "status": item.status,
                   }
                 }));
-                ProfileDTO_.tutor = data_;
               }
             }
           }
         }
+        else
+        {
+          const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
+          const getSettingTutor = await this.getSettingMixed(SETTING_TUTOR);
+          if (await this.ceckData(getSettingTutor)) {
+            var insertdata = [];
+            let arraySetting = JSON.parse(JSON.stringify(getSettingTutor.value));
+            for(var i = 0; i < arraySetting.length; i++)
+            {
+              insertdata.push(
+                {
+                  "key": arraySetting[i].key,
+                  "textID": arraySetting[i].textID,
+                  "textEn": arraySetting[i].textEn,
+                  "status": true,  
+                }
+              );
+            }
+            
+            data_ = insertdata;
+          }
+        }
+        ProfileDTO_.tutor = data_;
+        
         if (get_userbasic.creator != undefined) {
           ProfileDTO_.creator = get_userbasic.creator;
         }
