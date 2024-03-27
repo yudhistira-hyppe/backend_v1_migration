@@ -15,11 +15,15 @@ import { BalancedsService } from './balanceds/balanceds.service';
 import { BalancedsController } from './balanceds/balanceds.controller';
 import { Balanceds, BalancedsSchema } from './balanceds/schema/balanceds.schema';
 import { transactionsV2, transactionsV2Schema } from './schema/transactionsv2.schema';
-
+import { MethodepaymentsModule } from '../methodepayments/methodepayments.module';
+import { SettingsModule } from '../settings/settings.module';
+import { BanksModule } from '../banks/banks.module';
+import { OyPgModule } from '../../paymentgateway/oypg/oypg.module';
+import { UserbasicnewModule } from '../userbasicnew/userbasicnew.module';
 @Module({
 
     imports: [
-        UtilsModule,
+        UtilsModule,SettingsModule,MethodepaymentsModule,BanksModule,OyPgModule,UserbasicnewModule,
         LogapisModule,
         ConfigModule.forRoot(),
         MongooseModule.forFeature([

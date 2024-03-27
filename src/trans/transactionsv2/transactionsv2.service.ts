@@ -24,8 +24,29 @@ import { transactionsV2, transactionsV2Document } from './schema/transactionsv2.
 @Injectable()
 export class TransactionsV2Service {
     constructor(
-    ) { }
 
+        @InjectModel(transactionsV2.name, 'SERVER_FULL')
+        private readonly transactionsModel: Model<transactionsV2Document>,
+    ) { }
+    async findAll(): Promise<transactionsV2[]> {
+        return this.transactionsModel.find().exec();
+    }
+    async findExpired(iduserbuyer: ObjectId): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({ status: "WAITING_PAYMENT", iduserbuyer: iduserbuyer }).exec();
+    }
+    async createNew(transactionsV2_: transactionsV2): Promise<transactionsV2> {
+        let data = await this.transactionsModel.create(transactionsV2_);
+
+        if (!data) {
+            throw new Error('Todo is not found!');
+        }
+        return data;
+    }
+    async updatestatuscancel(id: Types.ObjectId): Promise<Object> {
+        let data = await this.transactionsModel.updateOne({ "_id": id },
+            { $set: { "status": "Cancel", "description": "VA expired time" } });
+        return data;
+    }
     async insertTransaction(categoryProduct:string,){
 
     }
