@@ -7859,40 +7859,6 @@ export class NewPostService {
               }
             }
           },
-          hasAppeal:
-          {
-            "$ifNull":
-            [
-              {
-                '$cond': {
-                  if: {
-                    '$or': [
-                      { '$eq': ['$reportedUserHandle', null] },
-                      { '$eq': ['$reportedUserHandle', ''] },
-                      { '$eq': ['$reportedUserHandle', {}] },
-                    ]
-                  },
-                  then:[],
-                  else:
-                  {
-                    "$filter":
-                    {
-                      input:"$reportedUserHandle",
-                      as:"checkpernahappeal",
-                      cond:
-                      {
-                        "$eq":
-                        [
-                          "$$checkpernahappeal.status","BARU" 
-                        ]
-                      }
-                    }
-                  }
-                }
-              },
-              []
-            ]
-          }
         }
       },
       {
@@ -7941,24 +7907,6 @@ export class NewPostService {
               },
               then: 'Lainnya',
               else: { '$last': '$reportedUserHandle.reason' }
-            }
-          },
-          hasAppeal:
-          {
-            "$cond":
-            {
-              if:
-              {
-                "$eq":
-                [
-                  {
-                    "$size":"$hasAppeal"
-                  },
-                  0
-                ]
-              },
-              then:false,
-              else:true
             }
           },
           reportStatusLast: {
@@ -8046,9 +7994,6 @@ export class NewPostService {
                 $ne: null
               },
             },
-            {
-              hasAppeal: true
-            }
           ]
         }
       },);
