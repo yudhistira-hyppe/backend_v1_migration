@@ -2614,7 +2614,7 @@ export class ReportuserController {
                 }
                 else
                 {
-                    if(query[i].reportStatusLast == "BARU" && query[i].reportedUserCount != 0)
+                    if(query[i].reportStatusLast == "BARU" && query[i].reportedUserHandle.length > 0)
                     {
                         outputresult["reportStatusLast"] = "DITANGGUHKAN";
                     }
