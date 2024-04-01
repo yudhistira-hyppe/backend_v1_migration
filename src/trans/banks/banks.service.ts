@@ -80,7 +80,7 @@ export class BanksService {
     }
 
     async findbankcode(bankcode: string): Promise<Banks> {
-        return this.settingsModel.findOne({ bankcode: bankcode }).exec();
+        return this.settingsModel.findOne({ bankcode: bankcode, isActive:true }).exec();
     }
 
     async create(CreateBanksDto: CreateBanksDto): Promise<Banks> {

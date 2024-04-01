@@ -8,11 +8,15 @@ import { isEmpty } from 'rxjs';
 import { FriendListDto } from 'src/content/friend_list/dto/create-friend_list.dto';
 import { FriendListService } from 'src/content/friend_list/friend_list.service';
 import { LogapisService } from '../logapis/logapis.service';
+import { LogMigrationsService } from '../logmigrations/logmigrations.service';
+import { LogMigrations } from '../logmigrations/schema/logmigrations.schema';
+import mongoose from 'mongoose';
 
 @Controller('api/userbasics')
 export class UserbasicsController {
   constructor(private readonly userbasicsService: UserbasicsService,
     private readonly friendlistService: FriendListService,
+    private readonly logMigrationsService: LogMigrationsService,
     private readonly logapiSS: LogapisService) { }
 
   @Post()
@@ -411,7 +415,17 @@ export class UserbasicsController {
 
   @Post('migration')
   async runMigrationDBNewUserBasic(@Body() mingrionRun_: mingrionRun){
-    this.userbasicsService.migrationRun(mingrionRun_);
+    let LogMigrations_ = new LogMigrations();
+    let _id = new mongoose.Types.ObjectId();
+    LogMigrations_._id = _id;
+    LogMigrations_.limit = mingrionRun_.limit;
+    LogMigrations_.limitstop = mingrionRun_.limitstop;
+    LogMigrations_.skip = mingrionRun_.skip;
+    LogMigrations_.startAt = (await this.userbasicsService.getDate()).dateString;
+    LogMigrations_.type = "USER";
+    LogMigrations_.status = "RUNNING";
+    this.logMigrationsService.create(LogMigrations_);
+    this.userbasicsService.migrationRun(mingrionRun_, _id.toString());
     return { response_code: 202, messages: "Success" };
   }
 }

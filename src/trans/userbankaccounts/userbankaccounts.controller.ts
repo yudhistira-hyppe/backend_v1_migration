@@ -124,6 +124,10 @@ export class UserbankaccountsController {
         var ubasic = await this.userbasicsService.findOne(email);
 
         var iduser = ubasic._id;
+
+        var stringSimilarity = require("string-similarity");
+
+        var similarity = stringSimilarity.compareTwoStrings("healed", "sealed");
         try {
             proofPict_json = JSON.parse(JSON.stringify(ubasic.proofPict));
         } catch (e) {
@@ -137,6 +141,8 @@ export class UserbankaccountsController {
             datamediaprof = null;
             namamediaprof = "";
         }
+       
+
 
         if (language === "id") {
             messageRespon = "Nama yang Anda masukkan salah, pastikan nama yang Anda masukkan sesuai dengan ID yang terdaftar di Hyppe, nama yang sudah terdaftar adalah " + namamediaprof.toUpperCase();;

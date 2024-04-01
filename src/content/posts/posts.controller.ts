@@ -52,6 +52,9 @@ import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service
 
 import { MediastikerService } from 'src/content/mediastiker/mediastiker.service';
 import { NewpostService } from '../disqus/newpost/newpost.service';
+import { mingrionRun } from 'src/trans/userbasics/dto/create-userbasic.dto';
+import { LogMigrationsService } from 'src/trans/logmigrations/logmigrations.service';
+import { LogMigrations } from 'src/trans/logmigrations/schema/logmigrations.schema';
 @Controller()
 export class PostsController {
   private readonly logger = new Logger(PostsController.name);
@@ -82,6 +85,7 @@ export class PostsController {
     private readonly basic2SS: UserbasicnewService,
     private readonly MediastikerService: MediastikerService,
     private readonly methodepaymentsService: MethodepaymentsService,
+    private readonly logMigrationsService: LogMigrationsService,
     private readonly NewPostService: NewpostService) { }
 
   @Post()
@@ -4815,5 +4819,21 @@ export class PostsController {
 
   async scorepostrequest(iduser: string, idevent: string, namatabel: string, event: string, postID: string,listchallenge:any[]) {
     await this.contenteventsService.scorepostrequest(iduser, idevent, namatabel, event, postID,listchallenge);
+  }
+
+  @Post('api/posts/migration')
+  async runMigrationDBNewUserBasic(@Body() mingrionRun_: mingrionRun) {
+    let LogMigrations_ = new LogMigrations();
+    let _id = new mongoose.Types.ObjectId();
+    LogMigrations_._id = _id;
+    LogMigrations_.limit = mingrionRun_.limit;
+    LogMigrations_.limitstop = mingrionRun_.limitstop;
+    LogMigrations_.skip = mingrionRun_.skip;
+    LogMigrations_.startAt = (await this.PostsService.getDate()).dateString;
+    LogMigrations_.status = "RUNNING";
+    LogMigrations_.type = "POST";
+    this.logMigrationsService.create(LogMigrations_);
+    this.PostsService.migrationRun(mingrionRun_, _id.toString());
+    return { response_code: 202, messages: "Success" };
   }
 }

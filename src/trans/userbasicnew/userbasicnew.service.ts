@@ -7825,18 +7825,18 @@ export class UserbasicnewService {
     async gettotalyopmail(skip: number, limit: number) {
         var pipeline = [];
 
-        pipeline.push(
-            {
-                "$match":
-                {
-                    "email":
-                    {
-                        "$regex": "yopmail.com",
-                        "$options": "i"
-                    }
-                }
-            }
-        );
+        // pipeline.push(
+        //     {
+        //         "$match":
+        //         {
+        //             "email":
+        //             {
+        //                 "$regex": "yopmail.com",
+        //                 "$options": "i"
+        //             }
+        //         }
+        //     }
+        // );
 
         if (skip != null && skip != undefined && skip > 0) {
             pipeline.push(

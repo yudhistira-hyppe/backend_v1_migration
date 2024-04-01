@@ -11,6 +11,8 @@ export class CreateBanksDto {
     readonly internetBanking: string;
     readonly mobileBanking: string;
     isActive : boolean;
+    cekDigit: boolean
+    jmlDigit: number
 
 
 }

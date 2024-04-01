@@ -101,6 +101,7 @@ export class SearchUserbasicDto {
 
 export class mingrionRun {
   out: string;
+  skip: number;
   limit: number;
   limitstop: number;
 }

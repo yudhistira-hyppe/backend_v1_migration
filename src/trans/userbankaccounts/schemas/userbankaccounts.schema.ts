@@ -35,7 +35,8 @@ export class Userbankaccounts {
     @Prop() updatedAt: string;
     @Prop()
     SupportUploadSource: string
-
+    @Prop()
+    similarity: number
 
 
 

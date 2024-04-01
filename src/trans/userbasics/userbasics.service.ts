@@ -9,6 +9,8 @@ import { MediaproofpictsService } from '../../content/mediaproofpicts/mediaproof
 import { MediaprofilepictsService } from '../../content/mediaprofilepicts/mediaprofilepicts.service';
 import { LogapisService } from '../logapis/logapis.service';
 import { skip } from 'rxjs';
+import { LogMigrationsService } from '../logmigrations/logmigrations.service';
+import { LogMigrations } from '../logmigrations/schema/logmigrations.schema';
 
 @Injectable()
 export class UserbasicsService {
@@ -19,8 +21,8 @@ export class UserbasicsService {
     private readonly interestsRepoService: InterestsRepoService,
     private readonly mediaprofilepictsService: MediaprofilepictsService,
     private readonly mediaproofpictsService: MediaproofpictsService,
-    private readonly logapiSS: LogapisService
-
+    private readonly logapiSS: LogapisService,
+    private readonly logMigrationsService: LogMigrationsService,
   ) { }
 
   async create(CreateUserbasicDto: CreateUserbasicDto): Promise<Userbasic> {
@@ -8469,11 +8471,11 @@ export class UserbasicsService {
     return data;
   }
 
-  async migrationRun(mingrionRun_: mingrionRun){
+  async migrationRun(mingrionRun_: mingrionRun, _id:string){
     let countData = await this.userbasicModel.countDocuments();
     if (mingrionRun_.limitstop != undefined){
-      if (mingrionRun_.limitstop > mingrionRun_.limit) {
-        if (countData > mingrionRun_.limitstop) {
+      if (mingrionRun_.limitstop >= mingrionRun_.limit) {
+        if (countData >= mingrionRun_.limitstop) {
           countData = mingrionRun_.limitstop;
         } else {
           throw new BadRequestException({
@@ -8493,8 +8495,11 @@ export class UserbasicsService {
       }
     }
     console.log("countData",countData)
-    if (mingrionRun_.limit!=undefined){
+    if (mingrionRun_.limit != undefined) {
       let skip = 0;
+      if (mingrionRun_.skip != undefined) {
+        skip = mingrionRun_.skip;
+      } 
       let limit = mingrionRun_.limit;
       let modulus = countData % limit;
       let dataLoop = 0;
@@ -8507,21 +8512,41 @@ export class UserbasicsService {
       console.log("modulus", modulus)
 
       for (let i = 0; i < dataLoop; i++) {
+        if (mingrionRun_.skip != undefined) {
+          skip = mingrionRun_.skip;
+        }else{
+          skip = 0;
+        }
         if (modulus == 0) {
-          skip = i * mingrionRun_.limit;
+          skip += i * mingrionRun_.limit;
         }else{
           if ((dataLoop - 1) == i) {
-            skip = (limit * mingrionRun_.limit) + modulus;
+            skip += (i * mingrionRun_.limit) + modulus;
           } else {
-            skip = limit * mingrionRun_.limit;
+            skip += i * mingrionRun_.limit;
           }
         }
-        console.log("skip", skip)
-        console.log("limit", limit)
-        await this.migrtionQuery(mingrionRun_.out,skip, limit);
+        console.log("modulus userbasic", modulus)
+        console.log("i userbasic", i)
+        console.log("skip userbasic", skip)
+        console.log("limit userbasic", limit)
+        await this.migrtionQuery(mingrionRun_.out, skip, limit);
+        console.log("migrtionQuery End userbasic")
       }
+      console.log("-----------------------------------------FINISH-----------------------------------------");
+      console.log("-------------PARAM-------------", JSON.stringify(mingrionRun_));
+      let LogMigrations_ = new LogMigrations();
+      LogMigrations_.finishAt = (await this.getDate()).dateString;
+      LogMigrations_.status = "FINISH";
+      this.logMigrationsService.update(_id,LogMigrations_);
     } else {
       await this.migrtionQuery();
+      console.log("-----------------------------------------FINISH-----------------------------------------");
+      console.log("-------------PARAM-------------", JSON.stringify(mingrionRun_));
+      let LogMigrations_ = new LogMigrations();
+      LogMigrations_.finishAt = (await this.getDate()).dateString;
+      LogMigrations_.status = "FINISH";
+      this.logMigrationsService.update(_id, LogMigrations_);
     }
   }
 
@@ -8529,15 +8554,11 @@ export class UserbasicsService {
     let aggregate = [];
     aggregate.push({
       $sort: {
-        createdAt: - 1
+        createdAt: 1
       }
     });
 
     if ((skip != undefined) && (limit != undefined)) {
-      console.log("--------------------------------------------------------------------------------------------------")
-      console.log("skip", skip)
-      console.log("limit", limit)
-      console.log("--------------------------------------------------------------------------------------------------")
       aggregate.push(
         {
           $skip: skip
@@ -9171,7 +9192,7 @@ export class UserbasicsService {
       },
       {
         $merge: {
-          into: out,
+          into: "newUserBasics",
           on: "_id",
           whenMatched: "replace",
           whenNotMatched: "insert"
@@ -9181,5 +9202,14 @@ export class UserbasicsService {
     // console.log(JSON.stringify(aggregate));
     // console.log("--------------------------------------------------------------------------------------------------")
     await this.userbasicModel.aggregate(aggregate);
+  }
+
+  async getDate(): Promise<any> {
+    var date = new Date();
+    var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+    return {
+      date: date,
+      dateString: DateTime.substring(0, DateTime.lastIndexOf('.')),
+    }
   }
 }

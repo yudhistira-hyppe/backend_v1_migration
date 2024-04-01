@@ -24,7 +24,10 @@ export class Banks {
     mobileBanking: string
     @Prop()
     isActive: boolean
-
+    @Prop()
+    cekDigit: boolean
+    @Prop()
+    jmlDigit: number
 
 
 

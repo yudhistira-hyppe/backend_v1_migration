@@ -11,10 +11,12 @@ import { MediaproofpictsModule } from '../../content/mediaproofpicts/mediaproofp
 import { MediaprofilepictsModule } from '../../content/mediaprofilepicts/mediaprofilepicts.module';
 import { FriendListModule } from 'src/content/friend_list/friend_list.module';
 import { LogapisModule } from '../logapis/logapis.module';
+import { LogMigrationsModule } from '../logmigrations/logmigrations.module';
 
 @Module({
 
     imports: [
+        LogMigrationsModule,
         MediaprofilepictsModule,
         MediaproofpictsModule,
         InterestsRepoModule,

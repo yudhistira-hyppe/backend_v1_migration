@@ -691,6 +691,19 @@ export class NotificationReadService {
                 },
             );
         }
+        pipeline.push(
+            {
+                $sort: {
+                    createdAt: - 1
+                }
+            },
+            {
+                $skip: (skip * limit)
+            },
+            {
+                $limit: limit
+            },
+        );
 
         pipeline.push(
             {
@@ -743,17 +756,17 @@ export class NotificationReadService {
                     preserveNullAndEmptyArrays: true
                 }
             },
-            {
-                $sort: {
-                    createdAt: - 1
-                }
-            },
-            {
-                $skip: (skip * limit)
-            },
-            {
-                $limit: limit
-            },
+            // {
+            //     $sort: {
+            //         createdAt: - 1
+            //     }
+            // },
+            // {
+            //     $skip: (skip * limit)
+            // },
+            // {
+            //     $limit: limit
+            // },
             {
                 $project: {
                     active: 1,

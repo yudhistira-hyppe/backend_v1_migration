@@ -4,7 +4,7 @@ import mongoose, { Document } from 'mongoose';
 export type UserbasicDocument = Userbasic & Document;
 
 //@Schema()
-@Schema({ collection: 'oldUserBasics' })
+@Schema({ collection: 'userbasics' })
 export class Userbasic {
   @Prop({ type: Object })
   _id: { oid: String };

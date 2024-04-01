@@ -8772,20 +8772,20 @@ export class ContenteventsController {
   }
 
   async scoreunlikerequest(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string,listchallenge: any[]) {
-    // await this.contenteventsService.scoreunlikerequest(idevent, namatabel, event, postID, email_user, email_receiverParty,listchallenge)
+     await this.contenteventsService.scoreunlikerequest(idevent, namatabel, event, postID, email_user, email_receiverParty,listchallenge)
   }
   async scorelikerequest(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string, listchallenge: any[]) {
-    // await this.contenteventsService.scorelikerequest(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge)
+     await this.contenteventsService.scorelikerequest(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge)
   }
 
   async scoreviewrequest(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string,listchallenge: any[]) {
-    // await this.contenteventsService.scoreviewrequest(idevent, namatabel, event, postID, email_user, email_receiverParty,listchallenge)
+     await this.contenteventsService.scoreviewrequest(idevent, namatabel, event, postID, email_user, email_receiverParty,listchallenge)
   }
   async scorefollowrequest(iduser: string, idevent: string, namatabel: string, event: string,listchallenge: any[]) {
-    // await this.contenteventsService.scorefollowrequest(iduser, idevent, namatabel, event,listchallenge)
+     await this.contenteventsService.scorefollowrequest(iduser, idevent, namatabel, event,listchallenge)
   }
 
   async scoreunfollowrequest(iduser: string, idevent: string, namatabel: string, event: string, listchallenge: any[]) {
-    // await this.contenteventsService.scoreunfollowrequest(iduser, idevent, namatabel, event,listchallenge)
+     await this.contenteventsService.scoreunfollowrequest(iduser, idevent, namatabel, event,listchallenge)
   }
 }
