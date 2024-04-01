@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose';
 
 export type BalancedsDocument = Balanceds & Document;
 
-@Schema({ collection: 'balanceds' })
+@Schema({ collection: 'transactionsBalanceds' })
 export class Balanceds {
     _id: mongoose.Types.ObjectId;
     @Prop()
