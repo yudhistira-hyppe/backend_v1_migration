@@ -973,23 +973,28 @@ export class MediaController {
         @Headers() headers) {
         if (!(await this.utilsService.validasiTokenEmail(headers))) {
             await this.errorHandler.generateNotAcceptableException(
-                'Unabled to proceed token and email not match',
+                'Unable to proceed, token and email do not match',
             );
         }
         if (CreateMediaproofpictsDto_.idcardnumber == undefined) {
             await this.errorHandler.generateNotAcceptableException(
-                'Unabled to proceed idcardnumber is required',
+                'Unable to proceed, idcardnumber is required',
             );
         } else {
             if (CreateMediaproofpictsDto_.idcardnumber.length < 16) {
                 await this.errorHandler.generateNotAcceptableException(
-                    'Unabled to proceed idcardnumber must length 16 digit',
+                    'Unable to proceed, idcardnumber must be 16 digits long',
+                );
+            }
+            if (await this.basic2SS.getDuplicateIdCardNumber(CreateMediaproofpictsDto_.idcardnumber.toString())) {
+                await this.errorHandler.generateNotAcceptableException(
+                    'Unable to proceed, found duplicate idcardnumber',
                 );
             }
         }
         if (headers['x-auth-token'] == undefined) {
             await this.errorHandler.generateNotAcceptableException(
-                'Unabled to proceed email is required',
+                'Unable to proceed, email is required',
             );
         }
         var listAddKyc = [];
@@ -3249,6 +3254,11 @@ export class MediaController {
             loaddatakyc['tglLahir'] = tglLahir;
             loaddatakyc['tempatLahir'] = tempatLahir;
             loaddatakyc['jenisKelamin'] = jenisKelamin;
+
+            let hasduplicateidcardnumber = await this.basic2SS.getDuplicateIdCardNumber(noktp);
+            if (hasduplicateidcardnumber) {
+                throw new BadRequestException("Unable to proceed, found duplicate ID card number")
+            }
         } catch (e) {
             dataemailuser = null;
             email = "";
@@ -3288,7 +3298,7 @@ export class MediaController {
                 return { response_code: 202, data: loaddatakyc.kycHandle[0], messages };
 
             } catch (e) {
-                throw new BadRequestException("Unabled to proceed " + e);
+                throw new BadRequestException("Unable to proceed, " + e);
 
             }
         } else if (status === "DITOLAK") {
@@ -3317,7 +3327,7 @@ export class MediaController {
                 return { response_code: 202, data: loaddatakyc.kycHandle[0], messages };
 
             } catch (e) {
-                throw new BadRequestException("Unabled to proceed " + e);
+                throw new BadRequestException("Unable to proceed, " + e);
 
 
             }

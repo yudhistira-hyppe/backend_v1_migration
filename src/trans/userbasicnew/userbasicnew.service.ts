@@ -669,56 +669,56 @@ export class UserbasicnewService {
                     {
                         "fk_id": "$email"
                     },
-                    as:"invitation",
-                    pipeline: 
-                    [
-                        {
-                            "$match":
+                    as: "invitation",
+                    pipeline:
+                        [
                             {
-                                "$expr":
+                                "$match":
                                 {
-                                    "$eq":
-                                    [
-                                        "$children",
-                                        "$$fk_id"
-                                    ]
+                                    "$expr":
+                                    {
+                                        "$eq":
+                                            [
+                                                "$children",
+                                                "$$fk_id"
+                                            ]
+                                    }
+                                }
+                            },
+                            {
+                                "$sort":
+                                {
+                                    createdAt: 1
+                                }
+                            },
+                            {
+                                "$limit": 1
+                            },
+                            {
+                                $lookup:
+                                {
+                                    from: 'newUserBasics',
+                                    localField: 'parent',
+                                    foreignField: 'email',
+                                    as: 'detail_user',
+                                },
+                            },
+                            {
+                                "$unwind":
+                                {
+                                    path: "$detail_user"
+                                }
+                            },
+                            {
+                                "$project":
+                                {
+                                    _id: "$detail_user._id",
+                                    fullName: "$detail_user.fullName",
+                                    email: "$detail_user.email",
+                                    username: "$detail_user.username",
                                 }
                             }
-                        },
-                        {
-                            "$sort":
-                            {
-                                createdAt:1
-                            }
-                        },
-                        {
-                            "$limit":1
-                        },
-                        {
-                            $lookup:
-                            {
-                                from: 'newUserBasics',
-                                localField: 'parent',
-                                foreignField: 'email',
-                                as: 'detail_user',
-                            },
-                        },
-                        {
-                            "$unwind":
-                            {
-                                path:"$detail_user"
-                            }
-                        },
-                        {
-                            "$project":
-                            {
-                                _id:"$detail_user._id",
-                                fullName:"$detail_user.fullName",
-                                email:"$detail_user.email",
-                                username:"$detail_user.username",
-                            }
-                        }
-                    ]
+                        ]
                 }
             },
             {
@@ -854,32 +854,32 @@ export class UserbasicnewService {
                                     referralCount:
                                     {
                                         "$ifNull":
-                                        [
-                                            {
-                                                "$size":"$total_referral"
-                                            }, 0
-                                        ]
+                                            [
+                                                {
+                                                    "$size": "$total_referral"
+                                                }, 0
+                                            ]
                                     },
                                     loginSrc:
                                     {
                                         "$ifNull":
-                                        [
-                                            "$loginSrc",
-                                            "-"
-                                        ]
+                                            [
+                                                "$loginSrc",
+                                                "-"
+                                            ]
                                     },
                                     invitation:
                                     {
                                         "$ifNull":
-                                        [
-                                            {
-                                                "$arrayElemAt":
-                                                [
-                                                    "$invitation", 0
-                                                ]
-                                            },
-                                            null
-                                        ]
+                                            [
+                                                {
+                                                    "$arrayElemAt":
+                                                        [
+                                                            "$invitation", 0
+                                                        ]
+                                                },
+                                                null
+                                            ]
                                     },
                                     avatar:
                                     {
@@ -1066,7 +1066,7 @@ export class UserbasicnewService {
                                 {
                                     "kyc":
                                     {
-                                        "$ne":{}
+                                        "$ne": {}
                                     }
                                 }
                             },
@@ -6639,8 +6639,7 @@ export class UserbasicnewService {
         if (getdata != null) {
             try {
                 listpertemanan = (type == "FOLLOWING" ? getdata.following : getdata.follower);
-                if(listpertemanan == null)
-                {
+                if (listpertemanan == null) {
                     listpertemanan = [];
                 }
             }
@@ -6672,8 +6671,7 @@ export class UserbasicnewService {
         if (getdata != null) {
             try {
                 listpertemanan = (type == "FOLLOWING" ? getdata.following : getdata.follower);
-                if(listpertemanan == null)
-                {
+                if (listpertemanan == null) {
                     listpertemanan = [];
                 }
             }
@@ -6703,12 +6701,10 @@ export class UserbasicnewService {
         var listarray = null;
         try {
             //bermasalah disini
-            if(convertdata.friend != null && convertdata.friend != undefined && convertdata.friend.length != 0)
-            {
+            if (convertdata.friend != null && convertdata.friend != undefined && convertdata.friend.length != 0) {
                 listarray = convertdata.friend;
             }
-            else
-            {
+            else {
                 listarray = [];
             }
         }
@@ -6742,7 +6738,7 @@ export class UserbasicnewService {
                     {
                         "$set":
                         {
-                            "friend":listarray
+                            "friend": listarray
                         }
                     },
                     function (err, docs) {
@@ -7804,7 +7800,7 @@ export class UserbasicnewService {
         ];
         let getUser = await this.findBymail(email);
         console.log(getUser.tutor)
-        if (getUser.tutor.length>0){
+        if (getUser.tutor.length > 0) {
             this.UserbasicnewModel.updateOne({ 'tutor.key': key, email: email }, {
                 '$set': {
                     'tutor.$.status': value
@@ -7818,7 +7814,7 @@ export class UserbasicnewService {
                     }
                 },
             ).clone().exec();
-        }else{
+        } else {
             let objIndex = tutor.findIndex(obj => obj.key == key);
             tutor[objIndex].status = value;
             await this.UserbasicnewModel.updateOne({ "_id": new Types.ObjectId(getUser._id.toString()) },
@@ -7890,5 +7886,17 @@ export class UserbasicnewService {
         var result = await this.UserbasicnewModel.aggregate(pipeline);
 
         return result;
+    }
+
+    async getDuplicateIdCardNumber(idcardnumber: string) {
+        var result = await this.UserbasicnewModel.find({
+            kyc: {
+                $elemMatch: {
+                    "idcardnumber": idcardnumber
+                }
+            }
+        })
+        if (result.length > 0) return true;
+        else return false;
     }
 }
