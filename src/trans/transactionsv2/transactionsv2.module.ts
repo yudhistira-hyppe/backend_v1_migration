@@ -20,6 +20,9 @@ import { SettingsModule } from '../settings/settings.module';
 import { BanksModule } from '../banks/banks.module';
 import { OyPgModule } from '../../paymentgateway/oypg/oypg.module';
 import { UserbasicnewModule } from '../userbasicnew/userbasicnew.module';
+import { ProductsService } from './products/products.service';
+import { ProductsController } from './products/products.controller';
+import { Products, ProductsSchema } from './products/schema/products.schema';
 @Module({
 
     imports: [
@@ -30,11 +33,12 @@ import { UserbasicnewModule } from '../userbasicnew/userbasicnew.module';
             { name: TransactionsCategorys.name, schema: TransactionsCategorysSchema },
             { name: TransactionsCoa.name, schema: TransactionsCoaSchema }, 
             { name: Balanceds.name, schema: BalancedsSchema },
+            { name: Products.name, schema: ProductsSchema },
             { name: transactionsV2.name, schema: transactionsV2Schema }
         ], 'SERVER_FULL')
     ],
-    controllers: [TransactionsV2Controller, TransactionsCategorysController, TransactionsCoaController, BalancedsController],
-    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, BalancedsService],
-    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, BalancedsService],
+    controllers: [TransactionsV2Controller, TransactionsCategorysController, TransactionsCoaController, BalancedsController, ProductsController],
+    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, BalancedsService, ProductsService],
+    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, BalancedsService, ProductsService],
 })
 export class TransactionsV2Module { }

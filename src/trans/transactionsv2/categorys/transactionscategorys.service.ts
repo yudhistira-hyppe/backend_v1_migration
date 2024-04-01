@@ -27,6 +27,14 @@ export class TransactionsCategorysService {
         return await this.transactionsCategorysModel.findOne({ _id: new mongoose.Types.ObjectId(id), isDelete:false }).exec();
     }
 
+    async findOneByCode(code: string): Promise<TransactionsCategorys> {
+        return await this.transactionsCategorysModel.findOne({ code: code, isDelete: false }).exec();
+    }
+
+    async findByType(type: string): Promise<TransactionsCategorys[]> {
+        return await this.transactionsCategorysModel.find({ "type": type, isDelete: false }).exec();
+    }
+
     async delete(id: string) {
         let TransactionsCategorys_ = new TransactionsCategorys();
         TransactionsCategorys_.isDelete = true;
