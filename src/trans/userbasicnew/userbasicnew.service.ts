@@ -7888,15 +7888,20 @@ export class UserbasicnewService {
         return result;
     }
 
-    async getDuplicateIdCardNumber(idcardnumber: string) {
-        var result = await this.UserbasicnewModel.find({
+    async getDuplicateIdCardNumber(idcardnumber: string, email: string) {
+        var result = await this.UserbasicnewModel.findOne({
             kyc: {
                 $elemMatch: {
                     "idcardnumber": idcardnumber
                 }
+            },
+            email: {
+                $not: {
+                    $regex: email
+                }
             }
         })
-        if (result.length > 0) return true;
+        if (result && result != null) return true;
         else return false;
     }
 }

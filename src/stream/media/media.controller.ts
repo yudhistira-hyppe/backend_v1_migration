@@ -986,11 +986,6 @@ export class MediaController {
                     'Unable to proceed, idcardnumber must be 16 digits long',
                 );
             }
-            if (await this.basic2SS.getDuplicateIdCardNumber(CreateMediaproofpictsDto_.idcardnumber.toString())) {
-                await this.errorHandler.generateNotAcceptableException(
-                    'Unable to proceed, found duplicate idcardnumber',
-                );
-            }
         }
         if (headers['x-auth-token'] == undefined) {
             await this.errorHandler.generateNotAcceptableException(
@@ -1050,6 +1045,12 @@ export class MediaController {
             }
             emailuserbasic = datauserbasicsService.email;
             iduserbasic = datauserbasicsService._id.toString();
+
+            if (await this.basic2SS.getDuplicateIdCardNumber(CreateMediaproofpictsDto_.idcardnumber.toString(), emailuserbasic)) {
+                await this.errorHandler.generateNotAcceptableException(
+                    'Unable to proceed, found duplicate idcardnumber',
+                );
+            }
 
             //Ceck cardPict
             if (files.cardPict != undefined) {
@@ -3255,7 +3256,7 @@ export class MediaController {
             loaddatakyc['tempatLahir'] = tempatLahir;
             loaddatakyc['jenisKelamin'] = jenisKelamin;
 
-            let hasduplicateidcardnumber = await this.basic2SS.getDuplicateIdCardNumber(noktp);
+            let hasduplicateidcardnumber = await this.basic2SS.getDuplicateIdCardNumber(noktp, dataemailuser.email);
             if (hasduplicateidcardnumber) {
                 throw new BadRequestException("Unable to proceed, found duplicate ID card number")
             }
