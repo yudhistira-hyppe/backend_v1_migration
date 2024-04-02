@@ -501,12 +501,12 @@ export class ActivityeventsService {
             },
 
           },
-          creator:{
+          creator: {
             "$ifNull":
-            [
-              { $arrayElemAt: ["$user.creator", 0] },
-              false   
-            ]
+              [
+                { $arrayElemAt: ["$user.creator", 0] },
+                false
+              ]
           },
           username: {
             $arrayElemAt: ["$userName.username", 0]
@@ -619,7 +619,7 @@ export class ActivityeventsService {
           fullName: 1,
           gender: 1,
           username: 1,
-          creator:1,
+          creator: 1,
           role: 1,
           countries: 1,
           cities: 1,
@@ -705,7 +705,7 @@ export class ActivityeventsService {
         var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
         var dateend = currentdate.toISOString().split("T")[0];
       } catch (e) {
-        dateend = enddate.substring(0,10);
+        dateend = enddate.substring(0, 10);
       }
       pipeline.push({ $match: { createdAt: { $lt: dateend } } });
     }
@@ -834,14 +834,14 @@ export class ActivityeventsService {
         $match:
         {
           "$or":
-          [
-            {
-              "event": "LOGIN"
-            },
-            {
-              "event": "LOGIN_GUEST"
-            }
-          ]
+            [
+              {
+                "event": "LOGIN"
+              },
+              {
+                "event": "LOGIN_GUEST"
+              }
+            ]
         }
       },);
     }
@@ -868,138 +868,138 @@ export class ActivityeventsService {
         }
       },
       {
-          '$lookup': 
-          {
-              from: 'newUserBasics',
-              localField: 'email',
-              foreignField: 'email',
-              as: 'user'
-          }
+        '$lookup':
+        {
+          from: 'newUserBasics',
+          localField: 'email',
+          foreignField: 'email',
+          as: 'user'
+        }
       },
       {
-          '$set': {
-              age: {
-                  '$cond': {
-                      if: {
-                          '$and': 
+        '$set': {
+          age: {
+            '$cond': {
+              if: {
+                '$and':
+                  [
+                    {
+                      '$arrayElemAt':
+                        [
+                          '$user.dob', 0
+                        ]
+                    },
+                    {
+                      '$ne':
+                        [
+                          {
+                            '$arrayElemAt':
+                              [
+                                '$user.dob', 0
+                              ]
+                          },
+                          ''
+                        ]
+                    }
+                  ]
+              },
+              then: {
+                '$toInt': {
+                  '$divide':
+                    [
+                      {
+                        '$subtract':
                           [
-                              { 
-                                  '$arrayElemAt': 
-                                  [ 
-                                      '$user.dob', 0 
-                                  ] 
-                              },
+                            new Date(),
+                            {
+                              '$toDate':
                               {
-                                  '$ne': 
-                                  [ 
-                                      { 
-                                          '$arrayElemAt': 
-                                          [ 
-                                              '$user.dob', 0 
-                                          ] 
-                                      }, 
-                                      '' 
+                                '$arrayElemAt':
+                                  [
+                                    '$user.dob', 0
                                   ]
                               }
+                            }
                           ]
                       },
-                      then: {
-                          '$toInt': {
-                              '$divide': 
-                              [
-                                  {
-                                      '$subtract': 
-                                      [
-                                          new Date(),
-                                          {
-                                              '$toDate': 
-                                              { 
-                                                  '$arrayElemAt': 
-                                                  [ 
-                                                      '$user.dob', 0 
-                                                  ] 
-                                              }
-                                          }
-                                      ]
-                                  },
-                                  31536000000
-                              ]
-                          }
-                      },
-                      else: 0
-                  }
-              }
+                      31536000000
+                    ]
+                }
+              },
+              else: 0
+            }
           }
+        }
       },
       {
-        '$project': 
+        '$project':
         {
-          iduser: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user._id', 0 
-              ] 
+          iduser:
+          {
+            '$arrayElemAt':
+              [
+                '$user._id', 0
+              ]
           },
-          jenis: 
+          jenis:
           {
             "$switch":
             {
               branches:
-              [
-                {
-                  case:
+                [
                   {
-                    "$eq":
-                    [
-                      {
-                        "$arrayElemAt":
+                    case:
+                    {
+                      "$eq":
                         [
-                          "$user.guestMode", 0
+                          {
+                            "$arrayElemAt":
+                              [
+                                "$user.guestMode", 0
+                              ]
+                          },
+                          true
                         ]
-                      },
-                      true
-                    ]
+                    },
+                    then: "GUEST"
                   },
-                  then:"GUEST"
-                },
-                {
-                  case:
                   {
-                    '$eq': 
-                    [ 
-                        { 
-                            '$arrayElemAt': 
-                            [ 
-                                '$user.isIdVerified', 0 
-                            ] 
-                        }, 
-                        true 
-                    ]
+                    case:
+                    {
+                      '$eq':
+                        [
+                          {
+                            '$arrayElemAt':
+                              [
+                                '$user.isIdVerified', 0
+                              ]
+                          },
+                          true
+                        ]
+                    },
+                    then: "PREMIUM"
                   },
-                  then:"PREMIUM"
-                },
-              ],
-              default:"BASIC"
+                ],
+              default: "BASIC"
             }
           },
           age: 1,
           email: 1,
-          createdAt: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.createdAt', 0 
-              ] 
+          createdAt:
+          {
+            '$arrayElemAt':
+              [
+                '$user.createdAt', 0
+              ]
           },
-          fullName: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.fullName', 0 
-              ] 
+          fullName:
+          {
+            '$arrayElemAt':
+              [
+                '$user.fullName', 0
+              ]
           },
-          gender: 
+          gender:
           {
             $switch: {
               branches: [
@@ -1065,178 +1065,178 @@ export class ActivityeventsService {
 
             },
           },
-          username: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.username', 0 
-              ] 
-          },
-          role: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.roles', 0 
-              ] 
-          },
-          countries: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.countriesName', 0 
-              ] 
-          },
-          cities: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.citiesName', 0 
-              ] 
-          },
-          areas: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.statesName', 0 
-              ] 
-          },
-          areasId: 
-          { 
-              '$arrayElemAt': 
-              [ 
-                  '$user.states.$id', 0 
-              ] 
-          },
-          avatar: 
+          username:
           {
-              mediaBasePath: 
-              {
-                  "$ifNull":
-                  [
-                      { '$arrayElemAt': [ '$user.mediaBasePath', 0 ] },
-                      null
-                  ]
-              },
-              mediaUri:
-              {
-                  "$ifNull":
-                  [
-                      { '$arrayElemAt': [ '$user.mediaUri', 0 ] },
-                      null
-                  ]
-              },
-              mediaType: 
-              {
-                  "$ifNull":
-                  [
-                      { '$arrayElemAt': [ '$user.mediaType', 0 ] },
-                      null
-                  ]
-              },
-              mediaEndpoint: 
-              {
-                  "$ifNull":
-                  [
-                      { '$arrayElemAt': [ '$user.mediaEndpoint', 0 ] },
-                      null
-                  ]
-              },
+            '$arrayElemAt':
+              [
+                '$user.username', 0
+              ]
+          },
+          role:
+          {
+            '$arrayElemAt':
+              [
+                '$user.roles', 0
+              ]
+          },
+          countries:
+          {
+            '$arrayElemAt':
+              [
+                '$user.countriesName', 0
+              ]
+          },
+          cities:
+          {
+            '$arrayElemAt':
+              [
+                '$user.citiesName', 0
+              ]
+          },
+          areas:
+          {
+            '$arrayElemAt':
+              [
+                '$user.statesName', 0
+              ]
+          },
+          areasId:
+          {
+            '$arrayElemAt':
+              [
+                '$user.states.$id', 0
+              ]
+          },
+          avatar:
+          {
+            mediaBasePath:
+            {
+              "$ifNull":
+                [
+                  { '$arrayElemAt': ['$user.mediaBasePath', 0] },
+                  null
+                ]
+            },
+            mediaUri:
+            {
+              "$ifNull":
+                [
+                  { '$arrayElemAt': ['$user.mediaUri', 0] },
+                  null
+                ]
+            },
+            mediaType:
+            {
+              "$ifNull":
+                [
+                  { '$arrayElemAt': ['$user.mediaType', 0] },
+                  null
+                ]
+            },
+            mediaEndpoint:
+            {
+              "$ifNull":
+                [
+                  { '$arrayElemAt': ['$user.mediaEndpoint', 0] },
+                  null
+                ]
+            },
           },
           lastlogin: '$createdAt',
           creator:
           {
-              "$arrayElemAt":
+            "$arrayElemAt":
               [
-                  "$user.creator", 0
+                "$user.creator", 0
               ]
           },
-          urluserBadge: 
+          urluserBadge:
           {
-              '$ifNull': 
+            '$ifNull':
               [
+                {
+                  '$filter':
                   {
-                      '$filter': 
-                      {
-                          input: { '$arrayElemAt': [ '$user.userBadge', 0 ] },
-                          as: 'listbadge',
-                          cond: 
+                    input: { '$arrayElemAt': ['$user.userBadge', 0] },
+                    as: 'listbadge',
+                    cond:
+                    {
+                      '$and':
+                        [
                           {
-                              '$and': 
+                            '$eq':
                               [
-                                  { 
-                                      '$eq': 
-                                      [ 
-                                          '$$listbadge.isActive', true 
-                                      ] 
-                                  },
+                                '$$listbadge.isActive', true
+                              ]
+                          },
+                          {
+                            '$lte':
+                              [
+                                {
+                                  '$dateToString':
                                   {
-                                      '$lte': 
-                                      [
-                                          {
-                                              '$dateToString': 
-                                              {
-                                                  format: '%Y-%m-%d %H:%M:%S',
-                                                  date: 
-                                                  {
-                                                      '$add': 
-                                                      [ 
-                                                          new Date(), 25200000 
-                                                      ]
-                                                  }
-                                              }
-                                          },
-                                          '$$listbadge.endDatetime'
-                                      ]
+                                    format: '%Y-%m-%d %H:%M:%S',
+                                    date:
+                                    {
+                                      '$add':
+                                        [
+                                          new Date(), 25200000
+                                        ]
+                                    }
                                   }
+                                },
+                                '$$listbadge.endDatetime'
                               ]
                           }
-                      }
-                  },
-                  []
+                        ]
+                    }
+                  }
+                },
+                []
               ]
           }
         }
       },
       {
-          '$project': 
+        '$project':
+        {
+          iduser: 1,
+          jenis: 1,
+          age: 1,
+          email: 1,
+          createdAt: 1,
+          fullName: 1,
+          gender: 1,
+          username: 1,
+          role: 1,
+          countries: 1,
+          cities: 1,
+          areas: 1,
+          areasId: 1,
+          avatar: 1,
+          lastlogin: 1,
+          creator:
           {
-              iduser: 1,
-              jenis: 1,
-              age: 1,
-              email: 1,
-              createdAt: 1,
-              fullName: 1,
-              gender: 1,
-              username: 1,
-              role: 1,
-              countries: 1,
-              cities: 1,
-              areas: 1,
-              areasId: 1,
-              avatar: 1,
-              lastlogin: 1,
-              creator: 
-              {
-                "$ifNull":
-                [
-                  "$creator",
-                  false
-                ]
-              },
-              urluserBadge: 
-              {
-                  '$ifNull': 
-                  [ 
-                      { 
-                          '$arrayElemAt': 
-                          [ 
-                              '$urluserBadge', 0 
-                          ] 
-                      }, 
-                      null 
-                  ]
-              }
+            "$ifNull":
+              [
+                "$creator",
+                false
+              ]
+          },
+          urluserBadge:
+          {
+            '$ifNull':
+              [
+                {
+                  '$arrayElemAt':
+                    [
+                      '$urluserBadge', 0
+                    ]
+                },
+                null
+              ]
           }
+        }
       },
       {
         $sort: {
@@ -1249,10 +1249,20 @@ export class ActivityeventsService {
 
       pipeline.push({
         $match: {
-          username: {
-            $regex: username,
-            $options: 'i'
-          },
+          $or: [
+            {
+              username: {
+                $regex: username,
+                $options: 'i'
+              },
+            },
+            {
+              email: {
+                $regex: username,
+                $options: 'i'
+              },
+            }
+          ]
 
         }
       },);
@@ -1264,7 +1274,7 @@ export class ActivityeventsService {
       pipeline.push({
         $match: {
           creator: {
-            "$in":listcreator
+            "$in": listcreator
           },
 
         }
@@ -1465,7 +1475,7 @@ export class ActivityeventsService {
         $project: {
           event: 1,
           createdAt: 1,
-          email:/@hyppe.id/i
+          email: /@hyppe.id/i
         }
       },
       {

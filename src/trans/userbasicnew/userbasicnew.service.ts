@@ -2016,6 +2016,7 @@ export class UserbasicnewService {
         );
 
         if (startdate != null && startdate != undefined) {
+            startdate += " 00:00:00"
             firstmatch.push(
                 {
                     "kyc.createdAt":
@@ -2027,11 +2028,12 @@ export class UserbasicnewService {
         }
 
         if (enddate != null && enddate != undefined) {
+            enddate += " 23:59:59"
             firstmatch.push(
                 {
                     "kyc.createdAt":
                     {
-                        "$lte": dateend
+                        "$lte": enddate
                     }
                 }
             );
