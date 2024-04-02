@@ -4945,7 +4945,7 @@ export class NewPostController {
         return response;
     }
 
-    //@UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard)
     @Get('posts/music')
     async getMusic(@Query('musicId') musicId: string,){
         if (musicId ==undefined){
