@@ -44,6 +44,7 @@ export class CreateuserbasicnewDto {
     $db: String;
   };
   userInterests: any[];
+  referral: any[];
   authUsers: {
     "devices": any[],
   };

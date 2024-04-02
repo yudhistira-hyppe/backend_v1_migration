@@ -230,6 +230,8 @@ export class Userbasicnew {
     @Prop()
     kyc: any[]
     @Prop()
+    referral: any[]
+    @Prop()
     guestMode: boolean;
     @Prop()
     uploadSource: string;

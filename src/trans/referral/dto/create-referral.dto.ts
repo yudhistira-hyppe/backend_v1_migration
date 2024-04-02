@@ -3,6 +3,7 @@ export class CreateReferralDto {
     parent: String;
     children: String;
     active: boolean;
+    status: String;
     verified: boolean;
     imei: String;
     createdAt: String;

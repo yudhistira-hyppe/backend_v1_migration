@@ -14,6 +14,8 @@ export class Referral {
   @Prop()
   active: boolean
   @Prop()
+  status: String
+  @Prop()
   verified: boolean
   @Prop()
   imei: String
