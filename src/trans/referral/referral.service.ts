@@ -52,6 +52,14 @@ export class ReferralService {
     return this.referralModel.findOne({ imei: imei }).exec();
   }
 
+  async updateOne(id: string, updatedata: CreateReferralDto): Promise<Referral> {
+      let data = await this.referralModel.findByIdAndUpdate(id, updatedata, { new: true });
+      if (!data) {
+          throw new Error('Data is not found!');
+      }
+      return data;
+  }
+
   async delete(id: string) {
     const deletedCat = await this.referralModel
       .findByIdAndRemove({ _id: id })

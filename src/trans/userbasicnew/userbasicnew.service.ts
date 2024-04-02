@@ -6698,6 +6698,38 @@ export class UserbasicnewService {
         return true;
     }
 
+    async updateReferralSystem(email_target: any, email_source: string) {
+        var getdata = await this.UserbasicnewModel.findOne({ email: email_source });
+        var listreferrral = null;
+
+        if (getdata != null) {
+            try {
+                listreferrral = getdata.referral;
+                if(listreferrral == null)
+                {
+                    listreferrral = [];
+                }
+            }
+            catch (e) {
+                listreferrral = [];
+            }
+            var filterpertemanan = listreferrral.filter(emaildata => emaildata.email == email_target.email);
+            if(filterpertemanan.length == 0)
+            {
+                listreferrral.push(email_target)
+            }
+
+            var update = new CreateuserbasicnewDto();
+            update.referral = listreferrral;
+            var result = await this.UserbasicnewModel.findByIdAndUpdate(getdata._id.toString(), update, { new: true });
+            if (!result) {
+                throw new Error('Data is not found!');
+            }
+        }
+
+        return true;
+    }
+
     async addFriendList(email_target: Userbasicnew, email_source: Userbasicnew) {
         var convertdata = JSON.parse(JSON.stringify(email_source));
         var listarray = null;
