@@ -7,7 +7,8 @@ import { UtilsService } from 'src/utils/utils.service';
 import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 import { ProductsService } from './products/products.service';
 import { TransactionsCategorysService } from './categorys/transactionscategorys.service';
-import { TransactionsCategorys } from './categorys/schema/transactionscategorys.schema';
+import { Balanceds } from './balanceds/schema/balanceds.schema';
+import { BalancedsService } from './balanceds/balanceds.service';
 
 @Injectable()
 export class TransactionsV2Service {
@@ -20,6 +21,7 @@ export class TransactionsV2Service {
         private readonly userbasicnewService: UserbasicnewService, 
         private readonly productsService: ProductsService, 
         private readonly transactionsCategorysService: TransactionsCategorysService,
+        private readonly balancedsService: BalancedsService,
     ) { }
 
     async insertTransaction(platform: string, categoryProduct: string, coin: number, idUser: string, idVoucher: string, discountCoin: number = 0, detail: any[]) {
@@ -71,7 +73,8 @@ export class TransactionsV2Service {
             let categoryTransaction = getCategoryTransaction[cat];
             let generateInvoice = await this.generateInvoice(platform, categoryTransaction.code, categoryProduct, TransactionCount);
             let transactionsV2_ = new transactionsV2();
-            transactionsV2_._id = new mongoose.Types.ObjectId();
+            let transactionsV2_id = new mongoose.Types.ObjectId();
+            transactionsV2_._id = transactionsV2_id;
             transactionsV2_.type = categoryTransaction.user;
             transactionsV2_.idTransaction = idTransaction;
             transactionsV2_.noInvoice = generateInvoice;
@@ -92,6 +95,28 @@ export class TransactionsV2Service {
             }
             transactionsV2_.status = "PENDING";
             transactionsV2_.detail = detail;
+            await this.transactionsModel.create(transactionsV2_);
+
+            //Insert Balanceds
+            let Balanceds_ = new Balanceds();
+            Balanceds_._id = new mongoose.Types.ObjectId();
+            Balanceds_.idTransaction = transactionsV2_id;
+            if (categoryTransaction.user == "HYPPE") {
+                Balanceds_.user = getDataUserHyppe._id;
+            }
+            if (categoryTransaction.user == "USER") {
+                Balanceds_.user = getDataUser._id;
+            }
+            Balanceds_.noInvoice = generateInvoice;
+            Balanceds_.createdAt = currentDate;
+            Balanceds_.updatedAt = currentDate;
+            Balanceds_.userType = categoryTransaction.user;
+            Balanceds_.coa = [];
+            Balanceds_.debet = 0;
+            Balanceds_.kredit = 0;
+            Balanceds_.saldo = 0;
+            Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
+            await this.balancedsService.create(Balanceds_);
         }
     }
 

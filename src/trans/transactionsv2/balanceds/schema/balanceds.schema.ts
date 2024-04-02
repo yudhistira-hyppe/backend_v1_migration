@@ -19,7 +19,7 @@ export class Balanceds {
     @Prop()
     user: mongoose.Types.ObjectId;
     @Prop()
-    coa: mongoose.Types.ObjectId;
+    coa: any[];
     @Prop()
     debet: number;
     @Prop()

@@ -28,6 +28,7 @@ import { DisquslogsService } from '../disquslogs/disquslogs.service';
 import { TagPeople } from '../posts/dto/create-posts.dto'; 
 import { PostsService } from '../../content/posts/posts.service';
 import { NewPostModService } from './new_post_mod.service';
+import { newPosts } from './schemas/newPost.schema';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -50,7 +51,7 @@ export class NewPostController {
         private readonly musicSS:MediamusicService,
         private readonly usercontentService:GetusercontentsService,
         private readonly disqusLogSS: DisquslogsService,
-        private readonly newPostModService: NewPostModService
+        private readonly newPostModService: NewPostModService,
         
     ) { }
 
@@ -4942,5 +4943,22 @@ export class NewPostController {
             }
         }
         return response;
+    }
+
+    //@UseGuards(JwtAuthGuard)
+    @Get('posts/music')
+    async getMusic(@Query('musicId') musicId: string,){
+        if (musicId ==undefined){
+            await this.errorHandler.generateNotAcceptableException(
+                "Param musicId is required",
+            );
+        }
+
+        const dataApsaraMusic = await this.musicSS.getVideoApsaraSingle(musicId);
+        const apsaraMusicData = {
+            PlayURL: dataApsaraMusic.PlayInfoList.PlayInfo[0].PlayURL,
+            Duration: dataApsaraMusic.PlayInfoList.PlayInfo[0].Duration,
+        }
+        return apsaraMusicData;
     }
 }
