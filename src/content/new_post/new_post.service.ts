@@ -53848,7 +53848,10 @@ export class NewPostService {
                     "active": true
                   },
                   {
-                    "postType": "vid"
+                    // "postType": "vid"
+                    "postType": {
+                      $in: ["vid", "diary"]
+                    }
                   },
                   {
                     "$expr": {
@@ -53956,7 +53959,10 @@ export class NewPostService {
                     "active": true
                   },
                   {
-                    "postType": "vid"
+                    // "postType": "vid"
+                    "postType": {
+                      $in: ["vid", "diary"]
+                    }
                   },
                   {
                     "timeStart": null
