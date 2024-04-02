@@ -32,6 +32,10 @@ export class ReferralService {
     return this.referralModel.find({ children: children }).exec();
   }
 
+  async findPendingStatusByChildren(children: string): Promise<Referral[]> {
+    return this.referralModel.find({ children: children, status:"PENDING" }).exec();
+  }
+
   async findbyparent(parent: string): Promise<Referral> {
     return this.referralModel.findOne({ parent: parent }).exec();
   }

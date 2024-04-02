@@ -26,6 +26,10 @@ import { ConfigService } from "@nestjs/config";
 import { createWriteStream } from "fs";
 import { UserbasicnewService } from "src/trans/userbasicnew/userbasicnew.service";
 import { CreateuserbasicnewDto } from "src/trans/userbasicnew/dto/Createuserbasicnew-dto";
+import { ReferralService } from "src/trans/referral/referral.service";
+import { CreateContenteventsDto } from "src/content/contentevents/dto/create-contentevents.dto";
+import { InsightsService } from "src/content/insights/insights.service";
+import { CreateReferralDto } from "src/trans/referral/dto/create-referral.dto";
 
 //import FormData from "form-data";
 const multer = require('multer');
@@ -85,6 +89,8 @@ export class MediaController {
         private readonly userauthsService: UserauthsService,
         private readonly seaweedfsService: SeaweedfsService,
         private readonly basic2SS: UserbasicnewService,
+        private readonly referralSS: ReferralService,
+        private readonly insightsService: InsightsService,
         private readonly configService: ConfigService) { }
 
     @UseGuards(JwtAuthGuard)
@@ -1429,6 +1435,12 @@ export class MediaController {
                     await this.basic2SS.updateIdVerifiedUser(iduserbasic, true, 'verified');
                     await this.basic2SS.update(iduserbasic.toString(), updatedata);
                     //await this.utilsService.sendFcm(emailuserbasic, titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event);
+
+                    var checkreferraldata = await this.referralSS.findPendingStatusByChildren(datauserbasicsService.email.toString());
+                    if(await this.utilsService.ceckData(checkreferraldata) == true)
+                    {
+                        this.followUser(datauserbasicsService, checkreferraldata);
+                    }
 
                     await this.utilsService.sendFcmV2(emailuserbasic, emailuserbasic, 'KYC', 'REQUEST', 'KYC_VERIFIED');
                     return {
@@ -3258,7 +3270,10 @@ export class MediaController {
 
             let hasduplicateidcardnumber = await this.basic2SS.getDuplicateIdCardNumber(noktp, dataemailuser.email);
             if (hasduplicateidcardnumber) {
-                throw new BadRequestException("Unable to proceed, found duplicate ID card number")
+                return { 
+                    response_code: 400, 
+                    "info": ["Unable to proceed, found duplicate ID card number"], 
+                };
             }
         } catch (e) {
             dataemailuser = null;
@@ -3295,6 +3310,11 @@ export class MediaController {
 
                 await this.basic2SS.updateStatusKycName(nama, jenisKelamin, email, true, "verified", tglLahir, [loaddatakyc]);
                 await this.utilsService.sendFcmV2(email.toString(), email.toString(), 'KYC', 'REQUEST', 'KYC_VERIFIED');
+                var checkreferraldata = await this.referralSS.findPendingStatusByChildren(dataemailuser.email.toString());
+                if(await this.utilsService.ceckData(checkreferraldata) == true)
+                {
+                    this.followUser(dataemailuser, checkreferraldata);
+                }
 
                 return { response_code: 202, data: loaddatakyc.kycHandle[0], messages };
 
@@ -4267,5 +4287,123 @@ export class MediaController {
                 'Unable to proceed, user not found',
             );
         }
+    }
+
+    async followUser(data:any, list:any)
+    {
+        console.log('Proses follow orang buat referral');
+        var tempfollow = data.following;
+        for(var i = 0; i < list.length; i++)
+        {
+            var gettempdata = list[i];
+
+            var checkfollowing = tempfollow.filter(emaildata => emaildata == gettempdata.parent);
+            if(checkfollowing.length == 0)
+            {
+                var current_date = await this.utilsService.getDateTimeString()
+                var _id_1 = (await this.utilsService.generateId());
+                var _id_2 = (await this.utilsService.generateId());
+                var _id_3 = (await this.utilsService.generateId());
+                var _id_4 = (await this.utilsService.generateId());
+
+                // var CreateContenteventsDto1 = new CreateContenteventsDto();
+                // CreateContenteventsDto1._id = _id_1
+                // CreateContenteventsDto1.contentEventID = (await this.utilsService.generateId())
+                // CreateContenteventsDto1.email = req.body.referral
+                // CreateContenteventsDto1.eventType = "FOLLOWER"
+                // CreateContenteventsDto1.active = true
+                // CreateContenteventsDto1.event = "REQUEST"
+                // CreateContenteventsDto1.createdAt = current_date
+                // CreateContenteventsDto1.updatedAt = current_date
+                // CreateContenteventsDto1.sequenceNumber = 0
+                // CreateContenteventsDto1.flowIsDone = true
+                // CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
+                // CreateContenteventsDto1.senderParty = req.body.email
+                // CreateContenteventsDto1.transitions = [{
+                //   $ref: 'contentevents',
+                //   $id: Object(_id_2),
+                //   $db: 'hyppe_trans_db',
+                // }]
+
+                var CreateContenteventsDto2 = new CreateContenteventsDto();
+                CreateContenteventsDto2._id = _id_2
+                CreateContenteventsDto2.contentEventID = (await this.utilsService.generateId())
+                CreateContenteventsDto2.email = gettempdata.parent
+                CreateContenteventsDto2.eventType = "FOLLOWER"
+                CreateContenteventsDto2.active = true
+                CreateContenteventsDto2.event = "ACCEPT"
+                CreateContenteventsDto2.createdAt = current_date
+                CreateContenteventsDto2.updatedAt = current_date
+                CreateContenteventsDto2.sequenceNumber = 1
+                CreateContenteventsDto2.flowIsDone = true
+                CreateContenteventsDto2._class = "io.melody.hyppe.content.domain.ContentEvent"
+                CreateContenteventsDto2.receiverParty = gettempdata.children
+
+                // var CreateContenteventsDto3 = new CreateContenteventsDto();
+                // CreateContenteventsDto3._id = _id_3
+                // CreateContenteventsDto3.contentEventID = (await this.utilsService.generateId())
+                // CreateContenteventsDto3.email = req.body.email
+                // CreateContenteventsDto3.eventType = "FOLLOWING"
+                // CreateContenteventsDto3.active = true
+                // CreateContenteventsDto3.event = "INITIAL"
+                // CreateContenteventsDto3.createdAt = current_date
+                // CreateContenteventsDto3.updatedAt = current_date
+                // CreateContenteventsDto3.sequenceNumber = 0
+                // CreateContenteventsDto3.flowIsDone = true
+                // CreateContenteventsDto3._class = "io.melody.hyppe.content.domain.ContentEvent"
+                // CreateContenteventsDto3.receiverParty = req.body.referral
+                // CreateContenteventsDto3.transitions = [{
+                //   $ref: 'contentevents',
+                //   $id: Object(_id_4),
+                //   $db: 'hyppe_trans_db',
+                // }]
+
+                var CreateContenteventsDto4 = new CreateContenteventsDto();
+                CreateContenteventsDto4._id = _id_4
+                CreateContenteventsDto4.contentEventID = (await this.utilsService.generateId())
+                CreateContenteventsDto4.email = gettempdata.children
+                CreateContenteventsDto4.eventType = "FOLLOWING"
+                CreateContenteventsDto4.active = true
+                CreateContenteventsDto4.event = "ACCEPT"
+                CreateContenteventsDto4.createdAt = current_date
+                CreateContenteventsDto4.updatedAt = current_date
+                CreateContenteventsDto4.sequenceNumber = 1
+                CreateContenteventsDto4.flowIsDone = true
+                CreateContenteventsDto4._class = "io.melody.hyppe.content.domain.ContentEvent"
+                CreateContenteventsDto4.senderParty = gettempdata.parent
+
+                //await this.contenteventsService.create(CreateContenteventsDto1);
+                await this.contenteventsService.create(CreateContenteventsDto2);
+                //await this.contenteventsService.create(CreateContenteventsDto3);
+                await this.contenteventsService.create(CreateContenteventsDto4);
+                await this.insightsService.updateFollower(gettempdata.parent);
+                await this.insightsService.updateFollowing(gettempdata.children);
+                await this.basic2SS.updatefollowSystem(gettempdata.children, gettempdata.parent, "FOLLOWER");
+                tempfollow.push(gettempdata.parent);
+            }
+
+            var insertreferraldata = {
+                "_id": gettempdata._id,
+                "active":gettempdata.active,
+                "verified":gettempdata.verified,
+                "imei":gettempdata.imei,
+                "createdAt":gettempdata.createdAt,
+                "updatedAt":current_date,
+                "email":gettempdata.children
+            };
+
+            var updatereferral = new CreateReferralDto();
+            updatereferral.status = 'ACTIVE';
+            updatereferral.updatedAt = await this.utilsService.getDateTimeString();
+
+            await this.referralSS.updateOne(gettempdata._id.toString(), updatereferral);
+            await this.basic2SS.updateReferralSystem(insertreferraldata, gettempdata.parent);
+            console.log(data.email + ' berhasil follow si ' + gettempdata.parent);
+        }
+
+        var updateuserbasic = new CreateuserbasicnewDto();
+        updateuserbasic.following = tempfollow;
+
+        await this.basic2SS.update(data._id.toString(), updateuserbasic);
     }
 }

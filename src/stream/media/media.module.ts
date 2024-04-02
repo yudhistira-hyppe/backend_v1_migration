@@ -15,8 +15,12 @@ import { ContenteventsModule } from "../../content/contentevents/contentevents.m
 import { OssModule } from '../oss/oss.module';
 import { FriendListModule } from "../../content/friend_list/friend_list.module";
 import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
+import { ReferralModule } from 'src/trans/referral/referral.module';
+import { InsightsModule } from 'src/content/insights/insights.module';
 @Module({
   imports: [
+    InsightsModule,
+    ReferralModule,
     OssModule,
     FriendListModule,
     UserauthsModule,
