@@ -45350,84 +45350,248 @@ export class NewPostService {
     var mongo = require('mongoose');
     var pipeline = [];
     if (email == emailLogin) {
-      pipeline.push(
-        {
-          "$match": {
-            "$and": [
-              {
-                "active": (active != null ? active : true)
-              },
-              {
-                "postType": type
-              },
-              {
-                "email": email
-              },
-              {
-                "$or": [
-                  {
-                    "reportedUser": {
-                      "$elemMatch": {
-                        "email": email,
-                        "active": false
-                      }
-                    }
-                  },
-                  {
-                    "reportedUser.email": {
-                      "$not": {
-                        "$regex": email
-                      }
-                    }
+      // pipeline.push(
+      //   {
+      //     "$match": {
+      //       "$and": [
+      //         {
+      //           "active": (active != null ? active : true)
+      //         },
+      //         {
+      //           "postType": type
+      //         },
+      //         {
+      //           "email": email
+      //         },
+      //         {
+      //           "$or": [
+      //             {
+      //               "reportedUser": {
+      //                 "$elemMatch": {
+      //                   "email": email,
+      //                   "active": false
+      //                 }
+      //               }
+      //             },
+      //             {
+      //               "reportedUser.email": {
+      //                 "$not": {
+      //                   "$regex": email
+      //                 }
+      //               }
+      //             }
+      //           ]
+      //         }
+      //       ]
+      //     }
+      //   },
+      // );
+      if (type == "vid") {
+        pipeline.push(
+          {
+            "$match": {
+              "$and": [
+                {
+                  "active": (active != null ? active : true)
+                },
+                {
+                  "postType": {
+                    $in: ["vid", "diary"]
                   }
-                ]
-              }
-            ]
-          }
-        },
-      );
-    } else {
-      pipeline.push(
-        {
-          "$match": {
-            "$and": [
-              {
-                "active": (active != null ? active : true)
-              },
-              {
-                "postType": type
-              },
-              {
-                "email": email
-              },
-              {
-                "reportedStatus": {
-                  $ne: "OWNED"
+                },
+                {
+                  "email": email
+                },
+                {
+                  "$or": [
+                    {
+                      "reportedUser": {
+                        "$elemMatch": {
+                          "email": email,
+                          "active": false
+                        }
+                      }
+                    },
+                    {
+                      "reportedUser.email": {
+                        "$not": {
+                          "$regex": email
+                        }
+                      }
+                    }
+                  ]
                 }
-              },
-              {
-                "$or": [
-                  {
-                    "reportedUser": {
-                      "$elemMatch": {
-                        "email": emailLogin,
-                        "active": false
+              ]
+            }
+          },
+        );
+      } else {
+        pipeline.push(
+          {
+            "$match": {
+              "$and": [
+                {
+                  "active": (active != null ? active : true)
+                },
+                {
+                  "postType": type
+                },
+                {
+                  "email": email
+                },
+                {
+                  "$or": [
+                    {
+                      "reportedUser": {
+                        "$elemMatch": {
+                          "email": email,
+                          "active": false
+                        }
+                      }
+                    },
+                    {
+                      "reportedUser.email": {
+                        "$not": {
+                          "$regex": email
+                        }
                       }
                     }
-                  },
-                  {
-                    "reportedUser.email": {
-                      "$not": {
-                        "$regex": emailLogin
-                      }
-                    }
+                  ]
+                }
+              ]
+            }
+          },
+        );
+      }
+    } else {
+      // pipeline.push(
+      //   {
+      //     "$match": {
+      //       "$and": [
+      //         {
+      //           "active": (active != null ? active : true)
+      //         },
+      //         {
+      //           "postType": type
+      //         },
+      //         {
+      //           "email": email
+      //         },
+      //         {
+      //           "reportedStatus": {
+      //             $ne: "OWNED"
+      //           }
+      //         },
+      //         {
+      //           "$or": [
+      //             {
+      //               "reportedUser": {
+      //                 "$elemMatch": {
+      //                   "email": emailLogin,
+      //                   "active": false
+      //                 }
+      //               }
+      //             },
+      //             {
+      //               "reportedUser.email": {
+      //                 "$not": {
+      //                   "$regex": emailLogin
+      //                 }
+      //               }
+      //             }
+      //           ]
+      //         }
+      //       ]
+      //     }
+      //   },
+      // );
+      if (type == "vid") {
+        pipeline.push(
+          {
+            "$match": {
+              "$and": [
+                {
+                  "active": (active != null ? active : true)
+                },
+                {
+                  "postType": {
+                    $in: ["vid", "diary"]
                   }
-                ]
-              }
-            ]
-          }
-        },
-      );
+                },
+                {
+                  "email": email
+                },
+                {
+                  "reportedStatus": {
+                    $ne: "OWNED"
+                  }
+                },
+                {
+                  "$or": [
+                    {
+                      "reportedUser": {
+                        "$elemMatch": {
+                          "email": emailLogin,
+                          "active": false
+                        }
+                      }
+                    },
+                    {
+                      "reportedUser.email": {
+                        "$not": {
+                          "$regex": emailLogin
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+        );
+      } else {
+        pipeline.push(
+          {
+            "$match": {
+              "$and": [
+                {
+                  "active": (active != null ? active : true)
+                },
+                {
+                  "postType": type
+                },
+                {
+                  "email": email
+                },
+                {
+                  "reportedStatus": {
+                    $ne: "OWNED"
+                  }
+                },
+                {
+                  "$or": [
+                    {
+                      "reportedUser": {
+                        "$elemMatch": {
+                          "email": emailLogin,
+                          "active": false
+                        }
+                      }
+                    },
+                    {
+                      "reportedUser.email": {
+                        "$not": {
+                          "$regex": emailLogin
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+        );
+      }
     }
 
     if (postid != null && postid != undefined) {
