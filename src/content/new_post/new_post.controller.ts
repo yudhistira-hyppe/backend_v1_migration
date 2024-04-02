@@ -4959,6 +4959,15 @@ export class NewPostController {
             PlayURL: dataApsaraMusic.PlayInfoList.PlayInfo[0].PlayURL,
             Duration: dataApsaraMusic.PlayInfoList.PlayInfo[0].Duration,
         }
-        return apsaraMusicData;
+        const Response = {
+            data: apsaraMusicData,
+            response_code: 202,
+            messages: {
+                info: [
+                    "Get music succesfully"
+                ]
+            }
+        }
+        return Response;
     }
 }
