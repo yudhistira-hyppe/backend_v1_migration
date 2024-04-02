@@ -1315,11 +1315,9 @@ export class ReportuserController {
 
                 // }
 
-                if(datahandel.length > 0)
-                {
-                    var lastdata =  datahandel[datahandel.length - 1];
-                    if(lastdata.status === "BARU")
-                    {
+                if (datahandel.length > 0) {
+                    var lastdata = datahandel[datahandel.length - 1];
+                    if (lastdata.status === "BARU") {
                         throw new BadRequestException("Appeal sudah diajukan...!");
                     }
                 }
@@ -2605,9 +2603,10 @@ export class ReportuserController {
                     createdAtReportLast: query[i].createdAtReportLast,
                     createdAtAppealLast: query[i].createdAtAppealLast,
                     statusLast: query[i].statusLast,
+                    statusReportLast: query[i].reportStatusLast,
                     media: dataquery[i].media
                 };
-             
+
                 arrdata.push(outputresult);
             }
 
@@ -6180,22 +6179,22 @@ export class ReportuserController {
             post_type = posts.postType.toString();
             email_post = posts.email.toString();
             var settype = null;
-            switch(post_type) {
-            case "pict":
-                settype = "HyppePict";
-                break;
-            case "vid":
-                settype = "HyppeVid";
-                break;
-            case "story":
-                settype = "HyppeStory";
-                break;
-            default:
-                settype = "HyppePict";
-                break;
+            switch (post_type) {
+                case "pict":
+                    settype = "HyppePict";
+                    break;
+                case "vid":
+                    settype = "HyppeVid";
+                    break;
+                case "story":
+                    settype = "HyppeStory";
+                    break;
+                default:
+                    settype = "HyppePict";
+                    break;
             }
-            var tempbodyEN = bodyen_get.replace("${post_type}", settype); 
-            var tempbodyID = bodyin_get.replace("${post_type}", settype); 
+            var tempbodyEN = bodyen_get.replace("${post_type}", settype);
+            var tempbodyID = bodyin_get.replace("${post_type}", settype);
             bodyin_get = tempbodyID;
             bodyen_get = tempbodyEN;
         }
