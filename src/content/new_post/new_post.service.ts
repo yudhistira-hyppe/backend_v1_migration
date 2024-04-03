@@ -45729,6 +45729,15 @@ export class NewPostService {
         }
       },
       {
+        "$lookup":
+        {
+          from: "friend_list",
+          localField: "email",
+          foreignField: "email",
+          as: "friendList"
+        }
+      },
+      {
         "$lookup": {
           from: "mediamusic",
           as: "music",
@@ -46212,8 +46221,11 @@ export class NewPostService {
           },
           comment: "$comment",
           interest: "$categoryInt",
+          // friends: {
+          //   $arrayElemAt: ["$friend.friend", 0]
+          // },
           friends: {
-            $arrayElemAt: ["$friend.friend", 0]
+            $arrayElemAt: ["$friendList.friendlist", 0]
           },
           "insight": (withinsight != null && withinsight == true ? "$setinsight" : "$$REMOVE"),
           "userProfile": "$userProfile",
