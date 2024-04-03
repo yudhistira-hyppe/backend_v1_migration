@@ -18703,7 +18703,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -19690,7 +19690,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -20681,7 +20681,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -21501,7 +21501,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -22132,7 +22132,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -23532,7 +23532,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -24406,7 +24406,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -24951,7 +24951,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -26879,7 +26879,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -27359,7 +27359,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -28132,7 +28132,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -29035,7 +29035,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {
@@ -29809,7 +29809,7 @@ export class NewPostService {
                               "active": true
                             },
                             {
-                              "postType": "vid"
+                              "postType": { $in: ["vid", "diary"] }
                             },
                             {
                               "reportedUser.email": {

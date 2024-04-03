@@ -2117,56 +2117,56 @@ export class NewPostController {
             vid = [];
         }
 
-        var tempdatadiary = [];
-        // console.log(lengdiary);
-        if (lengdiary > 0) {
+        // var tempdatadiary = [];
+        // // console.log(lengdiary);
+        // if (lengdiary > 0) {
 
-            if (arrdiary[0]._id !== undefined) {
+        //     if (arrdiary[0]._id !== undefined) {
 
-                for (let i = 0; i < lengdiary; i++) {
-                    if (arrdiary[i].isApsara == true) {
-                        tempdatadiary.push(arrdiary[i].apsaraId);
-                    }
-                }
+        //         for (let i = 0; i < lengdiary; i++) {
+        //             if (arrdiary[i].isApsara == true) {
+        //                 tempdatadiary.push(arrdiary[i].apsaraId);
+        //             }
+        //         }
 
-                // console.log(tempdatavid);
-                var resultdiaryapsara = await this.PostContentService.getVideoApsara(tempdatadiary);
-                var gettempresultdiaryapsara = resultdiaryapsara.VideoList;
-                for (var i = 0; i < lengdiary; i++) {
-                    var checkdiaryketemu = false;
-                    for (var j = 0; j < gettempresultdiaryapsara.length; j++) {
-                        if (gettempresultdiaryapsara[j].VideoId == arrdiary[i].apsaraId) {
-                            checkdiaryketemu = true;
-                            arrdiary[i].media =
-                            {
-                                "VideoList": [gettempresultdiaryapsara[j]]
-                            }
-                            arrdiary[i].mediaThumbEndpoint = gettempresultdiaryapsara[j].CoverURL;
-                        }
-                    }
+        //         // console.log(tempdatavid);
+        //         var resultdiaryapsara = await this.PostContentService.getVideoApsara(tempdatadiary);
+        //         var gettempresultdiaryapsara = resultdiaryapsara.VideoList;
+        //         for (var i = 0; i < lengdiary; i++) {
+        //             var checkdiaryketemu = false;
+        //             for (var j = 0; j < gettempresultdiaryapsara.length; j++) {
+        //                 if (gettempresultdiaryapsara[j].VideoId == arrdiary[i].apsaraId) {
+        //                     checkdiaryketemu = true;
+        //                     arrdiary[i].media =
+        //                     {
+        //                         "VideoList": [gettempresultdiaryapsara[j]]
+        //                     }
+        //                     arrdiary[i].mediaThumbEndpoint = gettempresultdiaryapsara[j].CoverURL;
+        //                 }
+        //             }
 
-                    if (checkdiaryketemu == false) {
-                        arrdiary[i].apsaraId = "";
-                        arrdiary[i].isApsara = false;
-                        arrdiary[i].media =
-                        {
-                            "VideoList": []
-                        };
-                    }
-                    diary.push(arrdiary[i]);
-                }
-            } else {
-                diary = [];
-            }
+        //             if (checkdiaryketemu == false) {
+        //                 arrdiary[i].apsaraId = "";
+        //                 arrdiary[i].isApsara = false;
+        //                 arrdiary[i].media =
+        //                 {
+        //                     "VideoList": []
+        //                 };
+        //             }
+        //             diary.push(arrdiary[i]);
+        //         }
+        //     } else {
+        //         diary = [];
+        //     }
 
 
-        } else {
-            diary = [];
-        }
+        // } else {
+        //     diary = [];
+        // }
 
         data = [{
 
-            user, picts, vid, diary, tags
+            user, picts, vid, tags
         }];
 
         var timestamps_end = await this.utilsService.getDateTimeString();
