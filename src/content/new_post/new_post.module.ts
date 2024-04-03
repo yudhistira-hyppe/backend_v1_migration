@@ -31,9 +31,12 @@ import { InterestdayModule } from '../interestday/interestday.module';
 import { DisqusModule } from '../disqus/disqus.module';
 import { NewPostModService } from './new_post_mod.service';
 import { SocketModule } from '../socket/socket.module';
-
+import { PosttaskModule } from '../../content/posttask/posttask.module';
+import { ScheduleinjectModule } from '../../schedule/scheduleinject/scheduleinject.module';
 @Module({
   imports: [
+    ScheduleinjectModule,
+    PosttaskModule,
     SocketModule,
     DisqusModule, 
     DisquslogsModule,

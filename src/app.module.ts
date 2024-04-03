@@ -184,9 +184,9 @@ import { TransactionsV2Module } from './trans/transactionsv2/transactionsv2.modu
     // MongooseModule.forRoot(process.env.SERVER_CONTENT, {
     //   connectionName: 'SERVER_CONTENT',
     // }),
-    // MongooseModule.forRoot(process.env.SERVER_INFRA, {
-    //   connectionName: 'SERVER_INFRA',
-    // }),
+    MongooseModule.forRoot(process.env.SERVER_FULL_CRON, {
+      connectionName: 'SERVER_FULL_CRON',
+    }),
     PostDisqusModule,
     MongooseModule.forRoot(process.env.SERVER_FULL, {
       connectionName: 'SERVER_FULL',

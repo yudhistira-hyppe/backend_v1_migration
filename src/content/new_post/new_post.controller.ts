@@ -25,10 +25,14 @@ import { PostContentService } from '../../content/posts/postcontent.service';
 import { MediamusicService } from '../mediamusic/mediamusic.service';
 import { GetusercontentsService } from 'src/trans/getusercontents/getusercontents.service';
 import { DisquslogsService } from '../disquslogs/disquslogs.service';
-import { TagPeople } from '../posts/dto/create-posts.dto'; 
+import { TagPeople } from '../posts/dto/create-posts.dto';
 import { PostsService } from '../../content/posts/posts.service';
 import { NewPostModService } from './new_post_mod.service';
 import { newPosts } from './schemas/newPost.schema';
+import { Posttask } from '../../content/posttask/schemas/posttask.schema';
+import { PosttaskService } from '../../content/posttask/posttask.service';
+import { ScheduleinjectService } from '../../schedule/scheduleinject/scheduleinject.service';
+import { Scheduleinject } from '../../schedule/scheduleinject/schemas/scheduleinject.schema';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -48,25 +52,28 @@ export class NewPostController {
         private readonly interestCountService: InterestCountService,
         private readonly interestdayService: InterestdayService,
         private readonly PostContentService: PostContentService,
-        private readonly musicSS:MediamusicService,
-        private readonly usercontentService:GetusercontentsService,
+        private readonly musicSS: MediamusicService,
+        private readonly usercontentService: GetusercontentsService,
         private readonly disqusLogSS: DisquslogsService,
         private readonly newPostModService: NewPostModService,
-        
+        private readonly PosttaskService: PosttaskService,
+        private readonly ScheduleinjectService: ScheduleinjectService,
+
     ) { }
 
     @UseGuards(JwtAuthGuard)
     @Post('posts/createpost/v2')
     @UseInterceptors(FileInterceptor('postContent'))
-    async createPostV4new(@UploadedFile() file: Express.Multer.File, @Body() CreatePostRequest_: CreatePostRequest, @Headers() headers,@Req() request: Request): Promise<CreatePostResponse> {
+    async createPostV4new(@UploadedFile() file: Express.Multer.File, @Body() CreatePostRequest_: CreatePostRequest, @Headers() headers, @Req() request: Request): Promise<CreatePostResponse> {
         console.log('============================================== CREATE POST HEADERS ==============================================', JSON.stringify(headers));
         console.log('============================================== CREATE POST BODY ==============================================', JSON.stringify(CreatePostRequest_));
         var request_json = JSON.parse(JSON.stringify(request.body));
-        var listchallenge=null;
+        var listchallenge = null;
+        var current_date = await this.utilsService.getDateTimeString();
         if (request_json["listchallenge"] !== undefined) {
             listchallenge = request_json["listchallenge"];
         }
-       
+
         if (CreatePostRequest_.stiker !== undefined && CreatePostRequest_.image !== undefined && CreatePostRequest_.type !== undefined && CreatePostRequest_.position !== undefined) {
 
             var arrayStiker = [];
@@ -141,7 +148,16 @@ export class NewPostController {
             var postID = data.data.postID;
 
             var email = data.data.email;
+            try {
+                this.posttask(postID, email, current_date);
+            } catch (e) {
 
+            }
+            try {
+                this.schedul(postID, email);
+            } catch (e) {
+
+            }
             const databasic = await this.basic2SS.findBymail(
                 email
             );
@@ -149,13 +165,13 @@ export class NewPostController {
             if (databasic !== null) {
                 iduser = databasic._id;
                 if (listchallenge !== null && listchallenge !== undefined) {
-                    var parseChallenge=JSON.parse(listchallenge);
+                    var parseChallenge = JSON.parse(listchallenge);
                     console.log(parseChallenge)
                     if (parseChallenge.length > 0) {
-                        this.scorepostrequest(iduser.toString(), postID.toString(), "posts", "POST", postID,parseChallenge);
+                        this.scorepostrequest(iduser.toString(), postID.toString(), "posts", "POST", postID, parseChallenge);
                     }
-                  }
-                
+                }
+
             }
         }
 
@@ -190,7 +206,7 @@ export class NewPostController {
         if (await this.utilsService.ceckData(dataTransaction)) {
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
-            if (((dataUser.languagesLangIso != undefined ? dataUser.languagesLangIso:"id")) == "id") {
+            if (((dataUser.languagesLangIso != undefined ? dataUser.languagesLangIso : "id")) == "id") {
                 await this.errorHandler.generateNotAcceptableException(
                     "Tidak bisa mengedit postingan karena sedang dalam proses pembayaran",
                 );
@@ -405,7 +421,7 @@ export class NewPostController {
 
                 //}
             }
-        }else {
+        } else {
             var datapostawal = null;
             var tags = [];
             var arrtag = [];
@@ -722,7 +738,7 @@ export class NewPostController {
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
 
                 return data;
-            }else {
+            } else {
                 var datenow = new Date(Date.now());
                 startDatetime = datapostchallenge.startDatetime;
                 endDatetime = datapostchallenge.endDatetime;
@@ -734,7 +750,7 @@ export class NewPostController {
                     await this.errorHandler.generateNotAcceptableException(
                         'Unabled to proceed, content is participating in the challenge',
                     );
-                }else {
+                } else {
                     if (tags.length > 0) {
                         if (body.tags !== undefined && body.tags !== "") {
                             var tag = body.tags;
@@ -1094,13 +1110,11 @@ export class NewPostController {
             }
         }
 
-        if(body.pageRow != null && body.pageRow != undefined)
-        {
+        if (body.pageRow != null && body.pageRow != undefined) {
             setPagerow = parseInt(body.pageRow);
         }
 
-        if(body.pageNumber != null && body.pageNumber != undefined)
-        {
+        if (body.pageNumber != null && body.pageNumber != undefined) {
             setPagenumber = parseInt(body.pageNumber);
         }
 
@@ -1134,22 +1148,19 @@ export class NewPostController {
         var listmusic = [];
         var tempresult = null;
         var tempdata = null;
-        if(data.length != 0)
-        {
+        if (data.length != 0) {
             for (var i = 0; i < data.length; i++) {
                 tempdata = data[i];
                 if (tempdata.isApsara == true) {
                     var gettypedata = tempdata.mediaType;
-                    if(gettypedata == "video" || gettypedata == "videos")
-                    {
+                    if (gettypedata == "video" || gettypedata == "videos") {
                         listdatavideo.push(tempdata.apsaraId);
                     }
-                    else
-                    {
+                    else {
                         listdatagambar.push(tempdata.apsaraId);
                     }
                 }
-    
+
                 var getmusicapsara = null;
                 try {
                     getmusicapsara = tempdata.music.apsaraThumnail;
@@ -1160,8 +1171,7 @@ export class NewPostController {
                 listmusic.push(getmusicapsara);
             }
 
-            if(listdatagambar.length != 0)
-            {
+            if (listdatagambar.length != 0) {
                 // console.log(listdatagambar);
                 var apsaraimagedata = await this.newPostContentService.getImageApsara(listdatagambar);
                 // console.log(apsaraimagedata);
@@ -1182,8 +1192,7 @@ export class NewPostController {
                 }
             }
 
-            if(listdatavideo.length != 0)
-            {
+            if (listdatavideo.length != 0) {
                 // console.log(listdatavideo);
                 var apsaravideodata = await this.newPostContentService.getVideoApsara(listdatavideo);
                 // console.log(apsaravideodata);
@@ -1207,16 +1216,14 @@ export class NewPostController {
 
         tempresult = apsaramusic.ImageInfo;
         for (var i = 0; i < data.length; i++) {
-            try
-            {
+            try {
                 for (var j = 0; j < tempresult.length; j++) {
                     if (tempresult[j].ImageId == data[i].music.apsaraThumnail) {
                         data[i].music.apsaraThumnailUrl = tempresult[j].URL;
                     }
                 }
             }
-            catch(e)
-            {
+            catch (e) {
                 // data[i].music.apsaraThumnailUrl = null;
             }
         }
@@ -2494,8 +2501,8 @@ export class NewPostController {
 
         return { response_code: 202, data, messages };
     }
-    async scorepostrequest(iduser: string, idevent: string, namatabel: string, event: string, postID: string,listchallenge:any[]) {
-        await this.contenteventsService.scorepostrequest(iduser, idevent, namatabel, event, postID,listchallenge);
+    async scorepostrequest(iduser: string, idevent: string, namatabel: string, event: string, postID: string, listchallenge: any[]) {
+        await this.contenteventsService.scorepostrequest(iduser, idevent, namatabel, event, postID, listchallenge);
     }
 
     @HttpCode(HttpStatus.ACCEPTED)
@@ -2527,7 +2534,7 @@ export class NewPostController {
         const datapostsService = await this.newPostService.findid(
             CreateGetcontenteventsDto_.postID.toString(),
         );
-        
+
         if (await this.utilsService.ceckData(datapostsService)) {
             CreateGetcontenteventsDto_.receiverParty = datapostsService.email;
             CreateGetcontenteventsDto_.active = true;
@@ -2568,18 +2575,16 @@ export class NewPostController {
         var active = null;
         var exp = null;
         var withinsight = null;
-        
+
         if (body.postID !== undefined) {
             postid = body.postID;
         }
 
-        if(body.pageRow != null && body.pageRow != undefined)
-        {
+        if (body.pageRow != null && body.pageRow != undefined) {
             pageRow = parseInt(body.pageRow);
         }
 
-        if(body.pageNumber != null && body.pageNumber != undefined)
-        {
+        if (body.pageNumber != null && body.pageNumber != undefined) {
             pageNumber = parseInt(body.pageNumber);
         }
 
@@ -2588,36 +2593,28 @@ export class NewPostController {
         }
 
         if (body.withActive !== undefined) {
-            if(body.withActive == "true" || body.withActive == true)
-            {
+            if (body.withActive == "true" || body.withActive == true) {
                 active = true;
             }
-            else
-            {
+            else {
                 active = false;
             }
         }
 
-        if(body.withExp !== undefined)
-        {
-            if(body.withExp == "true" || body.withExp == true)
-            {
+        if (body.withExp !== undefined) {
+            if (body.withExp == "true" || body.withExp == true) {
                 exp = true;
             }
-            else
-            {
+            else {
                 exp = false;
             }
         }
 
-        if(body.withInsight !== undefined)
-        {
-            if(body.withInsight == "true" || body.withInsight == true)
-            {
+        if (body.withInsight !== undefined) {
+            if (body.withInsight == "true" || body.withInsight == true) {
                 withinsight = true;
             }
-            else
-            {
+            else {
                 withinsight = false;
             }
         }
@@ -2661,7 +2658,7 @@ export class NewPostController {
         // console.log(lengpict);
         if (lengpict > 0) {
             var tempapsaraId_result = null;
-            var tempapsaraThumbId_result = null; 
+            var tempapsaraThumbId_result = null;
             var tempapsaraMusicThumbId_result = null;
 
             var resultpictapsara = null;
@@ -3104,42 +3101,35 @@ export class NewPostController {
                 var listdata = [];
                 var tempresult = null;
                 var tempdata = null;
-                for(var i = 0; i < lengpict; i++)
-                {
+                for (var i = 0; i < lengpict; i++) {
                     tempdata = arrpict[i];
-                    if(tempdata.isApsara == true)
-                    {
+                    if (tempdata.isApsara == true) {
                         listdata.push(tempdata.apsaraId);
                     }
-                    else
-                    {
+                    else {
                         listdata.push(undefined);
                     }
                 }
 
                 var apsaraimage = await this.PostContentService.getImageApsara(listdata);
                 tempresult = apsaraimage.ImageInfo;
-                for(var loopimage = 0; loopimage < arrpict.length; loopimage++)
-                {
-                    for(var loopapsara = 0; loopapsara < tempresult.length; loopapsara++)
-                    {
-                        if(tempresult[loopapsara].ImageId == arrpict[loopimage].apsaraId)
-                        {
-                            arrpict[loopimage].media = 
+                for (var loopimage = 0; loopimage < arrpict.length; loopimage++) {
+                    for (var loopapsara = 0; loopapsara < tempresult.length; loopapsara++) {
+                        if (tempresult[loopapsara].ImageId == arrpict[loopimage].apsaraId) {
+                            arrpict[loopimage].media =
                             {
                                 "ImageInfo": [tempresult[loopapsara]]
                             }
                         }
-                        else if(arrpict[loopimage].isApsara == false && (arrpict[loopimage].mediaType == "image" || arrpict[loopimage].mediaType == "images"))
-                        {
-                            arrpict[loopimage].media = 
+                        else if (arrpict[loopimage].isApsara == false && (arrpict[loopimage].mediaType == "image" || arrpict[loopimage].mediaType == "images")) {
+                            arrpict[loopimage].media =
                             {
-                                "ImageInfo":[]
+                                "ImageInfo": []
                             }
                         }
 
                     }
-                    
+
                     picts.push(arrpict[loopimage]);
                 }
             } else {
@@ -3157,39 +3147,31 @@ export class NewPostController {
                 var listdata = [];
                 var tempresult = null;
                 var tempdata = null;
-                for(var i = 0; i < lengvid; i++)
-                {
+                for (var i = 0; i < lengvid; i++) {
                     tempdata = arrvid[i];
-                    if(tempdata.isApsara == true)
-                    {
+                    if (tempdata.isApsara == true) {
                         listdata.push(tempdata.apsaraId);
                     }
-                    else
-                    {
+                    else {
                         listdata.push(undefined);
                     }
                 }
 
                 var apsaravideo = await this.PostContentService.getVideoApsara(listdata);
                 tempresult = apsaravideo.VideoList;
-                for(var loopvid = 0; loopvid < arrvid.length; loopvid++)
-                {
-                    for(var loopapsara = 0; loopapsara < tempresult.length; loopapsara++)
-                    {
-                        if(loopapsara == loopvid)
-                        {
-                            if(tempresult[loopapsara].VideoId == arrvid[loopvid].apsaraId)
-                            {
-                                arrvid[loopvid].media = 
+                for (var loopvid = 0; loopvid < arrvid.length; loopvid++) {
+                    for (var loopapsara = 0; loopapsara < tempresult.length; loopapsara++) {
+                        if (loopapsara == loopvid) {
+                            if (tempresult[loopapsara].VideoId == arrvid[loopvid].apsaraId) {
+                                arrvid[loopvid].media =
                                 {
                                     "VideoList": [tempresult[loopapsara]]
                                 }
                             }
-                            else if(arrvid[loopvid].isApsara == false && arrvid[loopvid].mediaType == "video")
-                            {
-                                arrvid[loopvid].media = 
+                            else if (arrvid[loopvid].isApsara == false && arrvid[loopvid].mediaType == "video") {
+                                arrvid[loopvid].media =
                                 {
-                                    "VideoList":[]
+                                    "VideoList": []
                                 }
                             }
 
@@ -3209,39 +3191,31 @@ export class NewPostController {
                 var listdata = [];
                 var tempresult = null;
                 var tempdata = null;
-                for(var i = 0; i < lengvid; i++)
-                {
+                for (var i = 0; i < lengvid; i++) {
                     tempdata = arrdiary[i];
-                    if(tempdata.isApsara == true)
-                    {
+                    if (tempdata.isApsara == true) {
                         listdata.push(tempdata.apsaraId);
                     }
-                    else
-                    {
+                    else {
                         listdata.push(undefined);
                     }
                 }
 
                 var apsaravideo = await this.PostContentService.getVideoApsara(listdata);
                 tempresult = apsaravideo.VideoList;
-                for(var loopvid = 0; loopvid < arrdiary.length; loopvid++)
-                {
-                    for(var loopapsara = 0; loopapsara < tempresult.length; loopapsara++)
-                    {
-                        if(loopapsara == loopvid)
-                        {
-                            if(tempresult[loopapsara].VideoId == arrdiary[loopvid].apsaraId)
-                            {
-                                arrdiary[loopvid].media = 
+                for (var loopvid = 0; loopvid < arrdiary.length; loopvid++) {
+                    for (var loopapsara = 0; loopapsara < tempresult.length; loopapsara++) {
+                        if (loopapsara == loopvid) {
+                            if (tempresult[loopapsara].VideoId == arrdiary[loopvid].apsaraId) {
+                                arrdiary[loopvid].media =
                                 {
                                     "VideoList": [tempresult[loopapsara]]
                                 }
                             }
-                            else if(arrdiary[loopvid].isApsara == false && arrdiary[loopvid].mediaType == "video")
-                            {
-                                arrdiary[loopvid].media = 
+                            else if (arrdiary[loopvid].isApsara == false && arrdiary[loopvid].mediaType == "video") {
+                                arrdiary[loopvid].media =
                                 {
-                                    "VideoList":[]
+                                    "VideoList": []
                                 }
                             }
 
@@ -3349,28 +3323,28 @@ export class NewPostController {
         var fullurl = request.get("Host") + request.originalUrl;
 
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-        var timestamps_end = await this.utilsService.getDateTimeString();
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
 
-        await this.errorHandler.generateNotAcceptableException(
-            'Unauthorized',
-        );
+            await this.errorHandler.generateNotAcceptableException(
+                'Unauthorized',
+            );
         }
         if (!(await this.utilsService.validasiTokenEmail(headers))) {
-        var timestamps_end = await this.utilsService.getDateTimeString();
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
 
-        await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed email header dan token not match',
-        );
+            await this.errorHandler.generateNotAcceptableException(
+                'Unabled to proceed email header dan token not match',
+            );
         }
         if (id == undefined) {
-        var timestamps_end = await this.utilsService.getDateTimeString();
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
 
-        await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed param id is required',
-        );
+            await this.errorHandler.generateNotAcceptableException(
+                'Unabled to proceed param id is required',
+            );
         }
 
         var data = await this.newPostService.findByMusicId(id);
@@ -3390,13 +3364,13 @@ export class NewPostController {
         //   }
         // }
         var Response = {
-        data: data,
-        response_code: 202,
-        messages: {
-            info: [
-            "Get music succesfully"
-            ]
-        }
+            data: data,
+            response_code: 202,
+            messages: {
+                info: [
+                    "Get music succesfully"
+                ]
+            }
         }
 
         var timestamps_end = await this.utilsService.getDateTimeString();
@@ -3454,7 +3428,7 @@ export class NewPostController {
             lengviews = datadetail[0].summary.length;
             startboost = datadetail[0].data[0].start;
             endboost = datadetail[0].data[0].end;
-            
+
         } catch (e) {
             datadetail = null;
             lengdetail = 0;
@@ -3741,12 +3715,10 @@ export class NewPostController {
                     let tp = atp[x];
                     if (tp != null && tp != undefined) {
                         let oid = null;
-                        if(tp.oid != null && tp.oid != undefined)
-                        {
+                        if (tp.oid != null && tp.oid != undefined) {
                             oid = tp.oid;
                         }
-                        else
-                        {
+                        else {
                             oid = tp;
                         }
                         let ua = await this.basic2SS.findbyidboth(oid.toString());
@@ -3758,40 +3730,32 @@ export class NewPostController {
                             let ub = await this.basic2SS.finddetail(String(ua.email));
                             if (ub != undefined) {
                                 var tempprofile = {};
-                                
-                                try
-                                {
+
+                                try {
                                     tempprofile['mediaBasePath'] = ub.mediaBasePath;
                                 }
-                                catch(e)
-                                {
+                                catch (e) {
                                     tempprofile['mediaBasePath'] = null;
                                 }
 
-                                try
-                                {
+                                try {
                                     tempprofile['mediaUri'] = ub.mediaUri;
                                 }
-                                catch(e)
-                                {
+                                catch (e) {
                                     tempprofile['mediaUri'] = null;
                                 }
 
-                                try
-                                {
+                                try {
                                     tempprofile['mediaType'] = ub.mediaType;
                                 }
-                                catch(e)
-                                {
+                                catch (e) {
                                     tempprofile['mediaType'] = null;
                                 }
 
-                                try
-                                {
+                                try {
                                     tempprofile['mediaEndpoint'] = ub.mediaEndpoint;
                                 }
-                                catch(e)
-                                {
+                                catch (e) {
                                     tempprofile['mediaEndpoint'] = null;
                                 }
 
@@ -3810,8 +3774,7 @@ export class NewPostController {
                                 tp1.status = "UNLINK";
                             } else {
                                 var checkexist = data_userbasic.following.find((element) => element == tp1.email);
-                                if(checkexist != null && checkexist != undefined)
-                                {
+                                if (checkexist != null && checkexist != undefined) {
                                     tp1.status = 'FOLLOWING'
                                 }
                             }
@@ -4947,8 +4910,8 @@ export class NewPostController {
 
     @UseGuards(JwtAuthGuard)
     @Get('posts/music')
-    async getMusic(@Query('musicId') musicId: string,){
-        if (musicId ==undefined){
+    async getMusic(@Query('musicId') musicId: string,) {
+        if (musicId == undefined) {
             await this.errorHandler.generateNotAcceptableException(
                 "Param musicId is required",
             );
@@ -4969,5 +4932,96 @@ export class NewPostController {
             }
         }
         return Response;
+    }
+
+    async posttask(postID: string, email: string, createdAt: string) {
+        var Posttask_ = new Posttask();
+        Posttask_.postID = postID;
+        Posttask_.email = email;
+        Posttask_.viewCount = 0;
+        Posttask_.likeCount = 0;
+        Posttask_.totalInject = 0;
+        Posttask_.active = true;
+        Posttask_.createdAt = createdAt;
+        Posttask_.updatedAt = createdAt;
+        try {
+            await this.PosttaskService.create(Posttask_);
+        } catch (e) {
+
+        }
+    }
+
+    async schedul(postID: string, email: string) {
+        var arr = [];
+        var rd = null;
+        var dataschedule = null;
+        var current_date = await this.utilsService.getDateTimeString();
+        var rndInt = Math.floor(Math.random() * 59) + 1
+        console.log(rndInt)
+
+        if (rndInt == 1) {
+            rd = "01"
+        }
+        else if (rndInt == 2) {
+            rd = "02"
+        }
+        else if (rndInt == 3) {
+            rd = "03"
+        }
+        else if (rndInt == 4) {
+            rd = "04"
+        }
+        else if (rndInt == 5) {
+            rd = "05"
+        }
+        else if (rndInt == 6) {
+            rd = "06"
+        }
+        else if (rndInt == 7) {
+            rd = "07"
+        }
+        else if (rndInt == 8) {
+            rd = "08"
+        }
+        else if (rndInt == 9) {
+            rd = "09"
+        } else {
+            rd = rndInt.toString();
+        }
+        let t1 = "07:" + rd + ":00";
+        let t2 = "08:" + rd + ":00";
+        let t3 = "09:" + rd + ":00";
+        let t4 = "10:" + rd + ":00";
+        let t5 = "11:" + rd + ":00";
+        let t6 = "12:" + rd + ":00";
+        let t7 = "13:" + rd + ":00";
+        let t8 = "14:" + rd + ":00";
+        let t9 = "15:" + rd + ":00";
+        let t10 = "16:" + rd + ":00";
+        let t11 = "17:" + rd + ":00";
+        let t12 = "18:" + rd + ":00";
+        let t13 = "19:" + rd + ":00";
+        let t14 = "20:" + rd + ":00";
+        let t15 = "21:" + rd + ":00";
+        arr = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15]
+
+        try {
+            dataschedule = await this.ScheduleinjectService.findBypostID(postID);
+        } catch (e) {
+            dataschedule = null;
+        }
+        if (dataschedule == null) {
+            var Scheduleinject_ = new Scheduleinject();
+            Scheduleinject_.postID = postID;
+            Scheduleinject_.time = arr;
+            Scheduleinject_.emailPost = email;
+            Scheduleinject_.createdAt = current_date;
+            Scheduleinject_.updatedAt = current_date;
+            try {
+                await this.ScheduleinjectService.create(Scheduleinject_);
+            } catch (e) {
+
+            }
+        }
     }
 }
