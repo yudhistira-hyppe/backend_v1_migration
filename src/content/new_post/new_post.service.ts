@@ -52040,7 +52040,7 @@ export class NewPostService {
         },
         {
           "$lookup": {
-            from: "newUserBasics",
+            from: "friend_list",
             as: "friend",
             let: {
               localID: '$email',
@@ -52060,7 +52060,7 @@ export class NewPostService {
                         },
                         {
                           $expr: {
-                            $in: ['$$user', '$friend']
+                            $in: ['$$user', '$friendlist']
                           }
                         },
                       ]
@@ -54117,7 +54117,7 @@ export class NewPostService {
         },
         {
           "$lookup": {
-            from: "newUserBasics",
+            from: "friend_list",
             as: "friend",
             let: {
               localID: '$email',
@@ -54137,7 +54137,7 @@ export class NewPostService {
                         },
                         {
                           $expr: {
-                            $in: ['$$user', '$friend']
+                            $in: ['$$user', '$friendlist']
                           }
                         },
                       ]
@@ -56189,7 +56189,7 @@ export class NewPostService {
         },
         {
           "$lookup": {
-            from: "newUserBasics",
+            from: "friend_list",
             as: "friend",
             let: {
               localID: '$email',
@@ -56209,7 +56209,7 @@ export class NewPostService {
                         },
                         {
                           $expr: {
-                            $in: ['$$user', '$friend']
+                            $in: ['$$user', '$friendlist']
                           }
                         },
                       ]
