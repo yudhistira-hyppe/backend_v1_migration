@@ -4951,59 +4951,70 @@ export class NewPostController {
     }
 
     async schedul(postID: string, email: string) {
-        var arr = [];
-        var rd = null;
+        let arr = [];
+        let rd = null;
+        let arrin=[];
+        var rndInt=0;
         var dataschedule = null;
         var current_date = await this.utilsService.getDateTimeString();
-        var rndInt = Math.floor(Math.random() * 59) + 1
-        console.log(rndInt)
+        for(let x=0;x<15;x++){
+            var rndInt = Math.floor(Math.random() * 59) + 1
+            console.log(rndInt)
 
-        if (rndInt == 1) {
-            rd = "01"
+            if (rndInt == 1) {
+                rd = "01"
+            }
+            else if (rndInt == 2) {
+                rd = "02"
+            }
+            else if (rndInt == 3) {
+                rd = "03"
+            }
+            else if (rndInt == 4) {
+                rd = "04"
+            }
+            else if (rndInt == 5) {
+                rd = "05"
+            }
+            else if (rndInt == 6) {
+                rd = "06"
+            }
+            else if (rndInt == 7) {
+                rd = "07"
+            }
+            else if (rndInt == 8) {
+                rd = "08"
+            }
+            else if (rndInt == 9) {
+                rd = "09"
+            } else {
+                rd = rndInt.toString();
+            }
+            arrin.push(rd);
         }
-        else if (rndInt == 2) {
-            rd = "02"
-        }
-        else if (rndInt == 3) {
-            rd = "03"
-        }
-        else if (rndInt == 4) {
-            rd = "04"
-        }
-        else if (rndInt == 5) {
-            rd = "05"
-        }
-        else if (rndInt == 6) {
-            rd = "06"
-        }
-        else if (rndInt == 7) {
-            rd = "07"
-        }
-        else if (rndInt == 8) {
-            rd = "08"
-        }
-        else if (rndInt == 9) {
-            rd = "09"
-        } else {
-            rd = rndInt.toString();
-        }
-        let t1 = "07:" + rd + ":00";
-        let t2 = "08:" + rd + ":00";
-        let t3 = "09:" + rd + ":00";
-        let t4 = "10:" + rd + ":00";
-        let t5 = "11:" + rd + ":00";
-        let t6 = "12:" + rd + ":00";
-        let t7 = "13:" + rd + ":00";
-        let t8 = "14:" + rd + ":00";
-        let t9 = "15:" + rd + ":00";
-        let t10 = "16:" + rd + ":00";
-        let t11 = "17:" + rd + ":00";
-        let t12 = "18:" + rd + ":00";
-        let t13 = "19:" + rd + ":00";
-        let t14 = "20:" + rd + ":00";
-        let t15 = "21:" + rd + ":00";
-        arr = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15]
+        console.log(arrin);
 
+        if(arrin.length>0){
+            
+            let t1 = "07:" + arrin[0] + ":00";
+            let t2 = "08:" + arrin[1] + ":00";
+            let t3 = "09:" + arrin[2] + ":00";
+            let t4 = "10:" + arrin[3] + ":00";
+            let t5 = "11:" + arrin[4] + ":00";
+            let t6 = "12:" + arrin[5] + ":00";
+            let t7 = "13:" + arrin[6] + ":00";
+            let t8 = "14:" + arrin[7] + ":00";
+            let t9 = "15:" + arrin[8] + ":00";
+            let t10 = "16:" + arrin[9] + ":00";
+            let t11 = "17:" + arrin[10] + ":00";
+            let t12 = "18:" + arrin[11] + ":00";
+            let t13 = "19:" + arrin[12] + ":00";
+            let t14 = "20:" + arrin[13] + ":00";
+            let t15 = "21:" + arrin[14] + ":00";
+            arr = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15]
+        }
+        
+       
         try {
             dataschedule = await this.ScheduleinjectService.findBypostID(postID);
         } catch (e) {
@@ -5013,9 +5024,9 @@ export class NewPostController {
             var Scheduleinject_ = new Scheduleinject();
             Scheduleinject_.postID = postID;
             Scheduleinject_.time = arr;
-            Scheduleinject_.emailPost = email;
-            Scheduleinject_.createdAt = current_date;
-            Scheduleinject_.updatedAt = current_date;
+            Scheduleinject_.emailPost=email;
+            Scheduleinject_.createdAt=current_date;
+            Scheduleinject_.updatedAt=current_date;
             try {
                 await this.ScheduleinjectService.create(Scheduleinject_);
             } catch (e) {
