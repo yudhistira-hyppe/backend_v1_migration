@@ -11847,14 +11847,12 @@ export class AuthService {
                       await this.referralService.updateOne(data_imei._id.toString(), updatereferral);
                     }
                   }
-                  else
+                  else if(req.body.referral != undefined && req.body.imei != undefined)
                   {
-                    if(req.body.referral != undefined)
+                    var data_refferal = await this.referralService.findOneInChild(req.body.email);
+                    var checkexistreferral = await this.utilsService.ceckData(data_refferal);
+                    if(checkexistreferral == false)
                     {
-                      var data_refferal = await this.referralService.findOneInChild(req.body.email);
-                      var checkexistreferral = await this.utilsService.ceckData(data_refferal);
-                      if(checkexistreferral == false)
-                      {
                         setreferral = req.body.referral;
                       
                         var CreateReferralDto_ = new CreateReferralDto();
@@ -11867,123 +11865,10 @@ export class AuthService {
                         CreateReferralDto_.updatedAt = current_date;
                         CreateReferralDto_.imei = req.body.imei;
                         CreateReferralDto_._class = "io.melody.core.domain.Referral";
+                        CreateReferralDto_.status = 'PENDING';
 
                         datareferral = CreateReferralDto_;
-                        var insertdata = await this.referralService.create(CreateReferralDto_);
-
-                        const databasic = await this.basic2SS.findbyemail(
-                          setreferral,
-                        );
-
-                        // if (databasic !== null) {
-                        //   var idref = insertdata._id;
-                        //   this.userChallenge(databasic._id.toString(), idref.toString(), "referral", "REFERAL");
-                        // }
-
-
-
-                        if (databasic !== null) {
-                          var idref = insertdata._id;
-                          try {
-                            //this.userChallenge(databasic._id.toString(), idref.toString(), "referral", "REFERAL");
-                            this.scorereferralrequest(databasic._id.toString(), idref.toString(), "referral", "REFERAL", listchallenge)
-
-                          } catch (e) {
-
-                          }
-                        }
-
-                        var _id_1 = (await this.utilsService.generateId());
-                        var _id_2 = (await this.utilsService.generateId());
-                        var _id_3 = (await this.utilsService.generateId());
-                        var _id_4 = (await this.utilsService.generateId());
-
-                        // var CreateContenteventsDto1 = new CreateContenteventsDto();
-                        // CreateContenteventsDto1._id = _id_1
-                        // CreateContenteventsDto1.contentEventID = (await this.utilsService.generateId())
-                        // CreateContenteventsDto1.email = req.body.referral
-                        // CreateContenteventsDto1.eventType = "FOLLOWER"
-                        // CreateContenteventsDto1.active = true
-                        // CreateContenteventsDto1.event = "REQUEST"
-                        // CreateContenteventsDto1.createdAt = current_date
-                        // CreateContenteventsDto1.updatedAt = current_date
-                        // CreateContenteventsDto1.sequenceNumber = 0
-                        // CreateContenteventsDto1.flowIsDone = true
-                        // CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
-                        // CreateContenteventsDto1.senderParty = req.body.email
-                        // CreateContenteventsDto1.transitions = [{
-                        //   $ref: 'contentevents',
-                        //   $id: Object(_id_2),
-                        //   $db: 'hyppe_trans_db',
-                        // }]
-
-                        var CreateContenteventsDto2 = new CreateContenteventsDto();
-                        CreateContenteventsDto2._id = _id_2
-                        CreateContenteventsDto2.contentEventID = (await this.utilsService.generateId())
-                        CreateContenteventsDto2.email = setreferral
-                        CreateContenteventsDto2.eventType = "FOLLOWER"
-                        CreateContenteventsDto2.active = true
-                        CreateContenteventsDto2.event = "ACCEPT"
-                        CreateContenteventsDto2.createdAt = current_date
-                        CreateContenteventsDto2.updatedAt = current_date
-                        CreateContenteventsDto2.sequenceNumber = 1
-                        CreateContenteventsDto2.flowIsDone = true
-                        CreateContenteventsDto2._class = "io.melody.hyppe.content.domain.ContentEvent"
-                        CreateContenteventsDto2.receiverParty = req.body.email
-
-                        // var CreateContenteventsDto3 = new CreateContenteventsDto();
-                        // CreateContenteventsDto3._id = _id_3
-                        // CreateContenteventsDto3.contentEventID = (await this.utilsService.generateId())
-                        // CreateContenteventsDto3.email = req.body.email
-                        // CreateContenteventsDto3.eventType = "FOLLOWING"
-                        // CreateContenteventsDto3.active = true
-                        // CreateContenteventsDto3.event = "INITIAL"
-                        // CreateContenteventsDto3.createdAt = current_date
-                        // CreateContenteventsDto3.updatedAt = current_date
-                        // CreateContenteventsDto3.sequenceNumber = 0
-                        // CreateContenteventsDto3.flowIsDone = true
-                        // CreateContenteventsDto3._class = "io.melody.hyppe.content.domain.ContentEvent"
-                        // CreateContenteventsDto3.receiverParty = req.body.referral
-                        // CreateContenteventsDto3.transitions = [{
-                        //   $ref: 'contentevents',
-                        //   $id: Object(_id_4),
-                        //   $db: 'hyppe_trans_db',
-                        // }]
-
-                        var CreateContenteventsDto4 = new CreateContenteventsDto();
-                        CreateContenteventsDto4._id = _id_4
-                        CreateContenteventsDto4.contentEventID = (await this.utilsService.generateId())
-                        CreateContenteventsDto4.email = req.body.email
-                        CreateContenteventsDto4.eventType = "FOLLOWING"
-                        CreateContenteventsDto4.active = true
-                        CreateContenteventsDto4.event = "ACCEPT"
-                        CreateContenteventsDto4.createdAt = current_date
-                        CreateContenteventsDto4.updatedAt = current_date
-                        CreateContenteventsDto4.sequenceNumber = 1
-                        CreateContenteventsDto4.flowIsDone = true
-                        CreateContenteventsDto4._class = "io.melody.hyppe.content.domain.ContentEvent"
-                        CreateContenteventsDto4.senderParty = setreferral
-
-                        //await this.contenteventsService.create(CreateContenteventsDto1);
-                        await this.contenteventsService.create(CreateContenteventsDto2);
-                        //await this.contenteventsService.create(CreateContenteventsDto3);
-                        await this.contenteventsService.create(CreateContenteventsDto4);
-                        await this.insightsService.updateFollower(setreferral);
-                        await this.insightsService.updateFollowing(req.body.email);
-                        await this.basic2SS.updatefollowSystem(req.body.email, setreferral, "FOLLOWER");
-                        await this.basic2SS.updatefollowSystem(setreferral, req.body.email, "FOLLOWING");
-
-                        var insertreferraldata = {
-                          "_id": datareferral._id,
-                          "active":datareferral.active,
-                          "verified":datareferral.verified,
-                          "imei":datareferral.imei,
-                          "createdAt":datareferral.createdAt,
-                          "updatedAt":datareferral.updatedAt,
-                          "email":req.body.email
-                        };
-                        await this.basic2SS.updateReferralSystem(insertreferraldata, setreferral);
-                      }
+                        await this.referralService.create(CreateReferralDto_);
                     }
                   }
                 }

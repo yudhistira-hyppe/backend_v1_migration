@@ -17,8 +17,12 @@ import { FriendListModule } from "../../content/friend_list/friend_list.module";
 import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 import { ReferralModule } from 'src/trans/referral/referral.module';
 import { InsightsModule } from 'src/content/insights/insights.module';
+import { ChallengeModule } from 'src/trans/challenge/challenge.module';
+import { UserchallengesModule } from 'src/trans/userchallenges/userchallenges.module';
 @Module({
   imports: [
+    ChallengeModule,
+    UserchallengesModule,
     InsightsModule,
     ReferralModule,
     OssModule,

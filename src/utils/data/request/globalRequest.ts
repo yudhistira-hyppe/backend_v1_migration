@@ -63,6 +63,8 @@ export class GuestRequest {
     regSrc: string; 
     deviceId: string;
     langIso: string;
+    imei: string;
+    referral: string;
     location: {
         longitude: string,
         latitude: string

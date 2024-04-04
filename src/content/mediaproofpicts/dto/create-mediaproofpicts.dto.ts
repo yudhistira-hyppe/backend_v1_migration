@@ -73,6 +73,7 @@ export class CreateMediaproofpictsDto {
     $db: String;
   };
   state: String;
+  listchallenge: any[];
 }
 
 export class CreateMediaproofpicts2Dto {

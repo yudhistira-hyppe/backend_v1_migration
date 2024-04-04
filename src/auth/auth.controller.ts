@@ -72,6 +72,8 @@ import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 import { CreateuserbasicnewDto, SearchUserbasicDto } from '../trans/userbasicnew/dto/Createuserbasicnew-dto';
 import { CreateInsightsDto } from 'src/content/insights/dto/create-insights.dto';
+import { CreateReferralDto } from 'src/trans/referral/dto/create-referral.dto';
+import { ReferralService } from 'src/trans/referral/referral.service';
 const sharp = require('sharp');
 const convert = require('heic-convert');
 
@@ -106,6 +108,7 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly logapiSS: LogapisService,
     private readonly basic2SS: UserbasicnewService,
+    private readonly referralService: ReferralService,
     private readonly NewPostService: NewPostService
   ) { }
 
@@ -8711,6 +8714,30 @@ export class AuthController {
       ProfileDTO_.token = 'Bearer ' + token;
       ProfileDTO_.refreshToken = refresh_token;
       ProfileDTO_.listSetting = datasetting;
+
+      if(GuestRequest_.referral != undefined && GuestRequest_.imei != undefined)
+      {
+        var data_refferal = await this.referralService.findOneInIme(GuestRequest_.imei);
+        var checkexistreferral = await this.utilsService.ceckData(data_refferal);
+        var data_user = await this.basic2SS.findBymail(GuestRequest_.referral);
+        var checkexistuser = await this.utilsService.ceckData(data_user);
+        if(checkexistreferral == false && checkexistuser == true)
+        {
+            var CreateReferralDto_ = new CreateReferralDto();
+            CreateReferralDto_._id = (await this.utilsService.generateId())
+            CreateReferralDto_.parent = GuestRequest_.referral;
+            CreateReferralDto_.children = GuestRequest_.email;
+            CreateReferralDto_.active = true;
+            CreateReferralDto_.verified = true;
+            CreateReferralDto_.createdAt = await this.utilsService.getDateTimeString();
+            CreateReferralDto_.updatedAt = await this.utilsService.getDateTimeString();
+            CreateReferralDto_.imei = GuestRequest_.imei;
+            CreateReferralDto_._class = "io.melody.core.domain.Referral";
+            CreateReferralDto_.status = 'PENDING';
+
+            await this.referralService.create(CreateReferralDto_);
+        }
+      }
 
       //GENERATE RESPONSE
       let GlobalResponse_ = new GlobalResponse();
