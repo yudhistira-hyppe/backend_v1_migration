@@ -3482,15 +3482,15 @@ export class NewPostController {
                 datakomentar = [];
             }
             try {
-                datacountlike = await this.contenteventsService.countLikeBoost(postID, dtstart, dtend);
+                datacountlike = datadetail[0].data[0].totalLike;
             } catch (e) {
-                datacountlike = null;
+                datacountlike = [];
             }
 
             if (datacountlike.length === 0) {
                 like = 0;
             } else {
-                like = datacountlike[0].count;
+                like = datacountlike.length;
             }
 
             try {

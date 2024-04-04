@@ -5645,6 +5645,14 @@ export class NewPostService {
                   description: 1,
                   title: 1,
                   likes: 1,
+                  totalLike:
+                  {
+                    "$ifNull":
+                    [
+                      "$userLike",
+                      0
+                    ]
+                  },
                   views: 1,
                   active: 1,
                   datenow: 1,
@@ -5795,6 +5803,7 @@ export class NewPostService {
                   email: 1,
                   likes: 1,
                   views: 1,
+                  totalLike:1,
                   comments: 1,
                   jangkauan: 1,
                   interval: 1,
@@ -5884,6 +5893,7 @@ export class NewPostService {
                   jangkauan: 1,
                   interval: 1,
                   likes: 1,
+                  totalLike:1,
                   views: 1,
                   comments: 1,
                   start: 1,
@@ -5981,6 +5991,7 @@ export class NewPostService {
                   jangkauan: 1,
                   interval: 1,
                   likes: 1,
+                  totalLike:1,
                   views: 1,
                   comments: 1,
                   start: 1,
@@ -45819,8 +45830,22 @@ export class NewPostService {
           from: "newUserBasics",
           as: "userTag",
           let: {
-            localID: '$tagPeople.$id',
-            localID2: '$tagPeople'
+            localID: 
+            {
+              "$ifNull":
+              [
+                '$tagPeople.$id',
+                []
+              ]
+            },
+            localID2: 
+            {
+              "$ifNull":
+              [
+                '$tagPeople',
+                []
+              ]
+            }
           },
           pipeline: [
             {
@@ -46060,19 +46085,19 @@ export class NewPostService {
           },
           "setinsight":
           {
-            "likes": "$likes",
-            "views":
-            {
-              "$ifNull":
-                [
-                  {
-                    "$size": "$userView"
-                  },
-                  0
-                ]
-            },
-            "shares": "$shares",
-            "comments": "$comments",
+              "likes": "$likes",
+              "views":
+              {
+                "$ifNull":
+                  [
+                    {
+                      "$size": "$userView"
+                    },
+                    0
+                  ]
+              },
+              "shares": "$shares",
+              "comments": "$comments",
           },
           "isLiked":
           {
@@ -46098,23 +46123,23 @@ export class NewPostService {
           "isViewed":
           {
             "$ifNull":
-              [
+            [
+              {
+                "$filter":
                 {
-                  "$filter":
+                  input:"$userView",
+                  as:"listuser",
+                  cond:
                   {
-                    input: "$userView",
-                    as: "listuser",
-                    cond:
-                    {
-                      "$eq":
-                        [
-                          "$$listuser", emailLogin
-                        ]
-                    }
+                    "$eq":
+                    [
+                      "$$listuser", emailLogin
+                    ]
                   }
-                },
-                []
-              ]
+                }
+              },
+              []
+            ]
           },
         },
       },
@@ -46508,8 +46533,8 @@ export class NewPostService {
       },
     );
 
-    // var util = require('util');
-    // console.log(util.inspect(pipeline, { depth: null, showHidden: false }));
+    var util = require('util');
+    console.log(util.inspect(pipeline, { depth: null, showHidden: false }));
 
     var data = await this.loaddata.aggregate(pipeline);
     return data;
