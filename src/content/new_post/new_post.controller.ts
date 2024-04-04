@@ -5025,6 +5025,7 @@ export class NewPostController {
             Scheduleinject_.postID = postID;
             Scheduleinject_.time = arr;
             Scheduleinject_.emailPost=email;
+            Scheduleinject_.type="CREATEPOST";
             Scheduleinject_.createdAt=current_date;
             Scheduleinject_.updatedAt=current_date;
             try {

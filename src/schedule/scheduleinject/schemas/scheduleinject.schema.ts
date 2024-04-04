@@ -16,5 +16,7 @@ export class Scheduleinject {
     createdAt: string;
     @Prop()
     updatedAt: string;
+    @Prop()
+    type: string;
 }
 export const ScheduleinjectSchema = SchemaFactory.createForClass(Scheduleinject)
