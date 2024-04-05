@@ -5591,7 +5591,7 @@ export class AuthService {
           this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, head['x-auth-user'], null, null, null);
 
           await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed',
+            'Unabled to proceed' + error,
           );
         }
       } else {

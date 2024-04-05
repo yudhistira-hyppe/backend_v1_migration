@@ -3287,12 +3287,11 @@ export class MediaController {
 
             let hasduplicateidcardnumber = await this.basic2SS.getDuplicateIdCardNumber(noktp, dataemailuser.email);
             if (hasduplicateidcardnumber) {
-                return { 
-                    response_code: 400, 
-                    "info": ["Unable to proceed, found duplicate ID card number"], 
-                };
+                throw new BadRequestException("error, found duplicate ID card number");
             }
         } catch (e) {
+            throw new BadRequestException("Unable to proceed!!, " + e);
+
             dataemailuser = null;
             email = "";
             loaddatakyc =

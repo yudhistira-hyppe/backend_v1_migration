@@ -41,18 +41,15 @@ export class ReferralService {
     return this.referralModel.find(
       {
         "parent":email,
-        "status":
-        {
-          "$or":
-          [
-            {
-              "status":null
-            },
-            {
-              "status":"ACTIVE"
-            },
-          ]
-        }
+        "$or":
+        [
+          {
+            "status":null
+          },
+          {
+            "status":"ACTIVE"
+          },
+        ]
       }
     );
   }
