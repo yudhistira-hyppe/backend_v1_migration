@@ -5568,7 +5568,7 @@ export class AuthService {
       if (await this.utilsService.ceckData(datauserbasicsService)) {
         try {
           // var data_referral = await this.referralService.findAllByParent(user_email);
-          var data_referral = await this.referralService.findAllByParent(user_email);
+          var data_referral = await this.referralService.newlisting(user_email);
           // var data_referral_parent = await this.referralService.findAllByChildren(user_email);
           var data_referral_parent = await this.referralService.findAllByChildren(user_email);
 
@@ -11831,46 +11831,59 @@ export class AuthService {
                   mualaf dari guest ke user
                 */
 
-                if(req.body.imei != undefined)
+                try
                 {
-                  var data_imei = await this.referralService.findOneInIme(req.body.imei);
-                  var checkexistimei = await this.utilsService.ceckData(data_imei); 
-                  if(checkexistimei)
+                  if(req.body.imei != undefined)
                   {
-                    // untuk ngecek data ini pernah direplace ama user atau belum
-                    var getname = data_imei.children.search('hyppeguest.com');
-                    if(data_imei.status == "PENDING" && getname >= 0)
+                    var checkdouble = await this.referralService.checkBothparentandChild(req.body.referral, req.body.email);
+                    if(checkdouble.length == 0)
                     {
-                      var updatereferral = new CreateReferralDto();
-                      updatereferral.children = req.body.email;
+                      var data_imei = await this.referralService.findOneInIme(req.body.imei);
+                      var checkexistimei = await this.utilsService.ceckData(data_imei); 
+                      if(checkexistimei)
+                      {
+                        // untuk ngecek data ini pernah direplace ama user atau belum
+                        var getname = data_imei.children.search('hyppeguest.com');
+                        if(data_imei.status == "PENDING" && getname >= 0)
+                        {
+                          var updatereferral = new CreateReferralDto();
+                          updatereferral.children = req.body.email;
 
-                      await this.referralService.updateOne(data_imei._id.toString(), updatereferral);
+                          await this.referralService.updateOne(data_imei._id.toString(), updatereferral);
+                        }
+                      }
+                      else if(req.body.referral != undefined && checkexistimei == false)
+                      {
+                        var data_refferal = await this.referralService.findOneInChild(req.body.email);
+                        var checkexistreferral = await this.utilsService.ceckData(data_refferal);
+                        if(checkexistreferral == false)
+                        {
+                            setreferral = req.body.referral;
+                          
+                            var CreateReferralDto_ = new CreateReferralDto();
+                            CreateReferralDto_._id = (await this.utilsService.generateId())
+                            CreateReferralDto_.parent = setreferral;
+                            CreateReferralDto_.children = req.body.email;
+                            CreateReferralDto_.active = true;
+                            CreateReferralDto_.verified = true;
+                            CreateReferralDto_.createdAt = current_date;
+                            CreateReferralDto_.updatedAt = current_date;
+                            CreateReferralDto_.imei = req.body.imei;
+                            CreateReferralDto_._class = "io.melody.core.domain.Referral";
+                            CreateReferralDto_.status = 'PENDING';
+
+                            datareferral = CreateReferralDto_;
+                            await this.referralService.create(CreateReferralDto_);
+                        }
+                      }
                     }
                   }
-                  else if(req.body.referral != undefined && req.body.imei != undefined)
-                  {
-                    var data_refferal = await this.referralService.findOneInChild(req.body.email);
-                    var checkexistreferral = await this.utilsService.ceckData(data_refferal);
-                    if(checkexistreferral == false)
-                    {
-                        setreferral = req.body.referral;
-                      
-                        var CreateReferralDto_ = new CreateReferralDto();
-                        CreateReferralDto_._id = (await this.utilsService.generateId())
-                        CreateReferralDto_.parent = setreferral;
-                        CreateReferralDto_.children = req.body.email;
-                        CreateReferralDto_.active = true;
-                        CreateReferralDto_.verified = true;
-                        CreateReferralDto_.createdAt = current_date;
-                        CreateReferralDto_.updatedAt = current_date;
-                        CreateReferralDto_.imei = req.body.imei;
-                        CreateReferralDto_._class = "io.melody.core.domain.Referral";
-                        CreateReferralDto_.status = 'PENDING';
-
-                        datareferral = CreateReferralDto_;
-                        await this.referralService.create(CreateReferralDto_);
-                    }
-                  }
+                }
+                catch (error) {
+                  await this.errorHandler.generateNotAcceptableException(
+                    'Unabled to proceed referral data. Error:' +
+                    error,
+                  );
                 }
                 
                 // old

@@ -36,6 +36,27 @@ export class ReferralService {
     return this.referralModel.find({ children: children, status:"PENDING" }).exec();
   }
 
+  async newlisting(email:string): Promise<Referral[]> 
+  {
+    return this.referralModel.find(
+      {
+        "parent":email,
+        "status":
+        {
+          "$or":
+          [
+            {
+              "status":null
+            },
+            {
+              "status":"ACTIVE"
+            },
+          ]
+        }
+      }
+    );
+  }
+
   async findbyparent(parent: string): Promise<Referral> {
     return this.referralModel.findOne({ parent: parent }).exec();
   }
@@ -54,6 +75,36 @@ export class ReferralService {
 
   async findOneInIme(imei: string): Promise<Referral> {
     return this.referralModel.findOne({ imei: imei }).exec();
+  }
+
+  async checkBothparentandChild(parent:string, child:string): Promise<Referral[]> {
+    return this.referralModel.find({
+      "$or":
+      [
+        {
+          "$and":
+          [
+            {
+              "parent":parent
+            },
+            {
+              "parent":child
+            },
+          ]
+        },
+        {
+          "$and":
+          [
+            {
+              "parent":child
+            },
+            {
+              "parent":parent
+            },
+          ]
+        }
+      ]
+    }).exec();
   }
 
   async updateOne(id: string, updatedata: CreateReferralDto): Promise<Referral> {
