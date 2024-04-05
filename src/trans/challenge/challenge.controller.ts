@@ -717,9 +717,9 @@ export class ChallengeController {
         request_json['konten_hyppepic_createpost'] = 0;
       }
 
-      if (request_json["konten_hyppediary_createpost"] == undefined && request_json["konten_hyppediary_createpost"] == null) {
-        request_json['konten_hyppediary_createpost'] = 0;
-      }
+      // if (request_json["konten_hyppediary_createpost"] == undefined && request_json["konten_hyppediary_createpost"] == null) {
+      //   request_json['konten_hyppediary_createpost'] = 0;
+      // }
 
       if (request_json["konten_hyppevid_likepost"] == undefined && request_json["konten_hyppevid_likepost"] == null) {
         request_json['konten_hyppevid_likepost'] = 0;
@@ -729,30 +729,30 @@ export class ChallengeController {
         request_json['konten_hyppepic_likepost'] = 0;
       }
 
-      if (request_json["konten_hyppediary_likepost"] == undefined && request_json["konten_hyppediary_likepost"] == null) {
-        request_json['konten_hyppediary_likepost'] = 0;
-      }
+      // if (request_json["konten_hyppediary_likepost"] == undefined && request_json["konten_hyppediary_likepost"] == null) {
+      //   request_json['konten_hyppediary_likepost'] = 0;
+      // }
 
       if (request_json["konten_hyppevid_viewpost"] == undefined && request_json["konten_hyppevid_viewpost"] == null) {
         request_json['konten_hyppevid_viewpost'] = 0;
       }
 
-      if (request_json["konten_hyppediary_viewpost"] == undefined && request_json["konten_hyppediary_viewpost"] == null) {
-        request_json['konten_hyppediary_viewpost'] = 0;
-      }
+      // if (request_json["konten_hyppediary_viewpost"] == undefined && request_json["konten_hyppediary_viewpost"] == null) {
+      //   request_json['konten_hyppediary_viewpost'] = 0;
+      // }
 
       var setinteraksikonten = {
         "suka": [
           {
             "HyppeVid": Number(request_json['konten_hyppevid_likepost']),
             "HyppePic": Number(request_json['konten_hyppepic_likepost']),
-            "HyppeDiary": Number(request_json['konten_hyppediary_likepost'])
+            // "HyppeDiary": Number(request_json['konten_hyppediary_likepost'])
           }
         ],
         "tonton": [
           {
             "HyppeVid": Number(request_json['konten_hyppevid_viewpost']),
-            "HyppeDiary": Number(request_json['konten_hyppediary_viewpost'])
+            // "HyppeDiary": Number(request_json['konten_hyppediary_viewpost'])
           }
         ],
       }
@@ -765,7 +765,7 @@ export class ChallengeController {
           {
             "HyppeVid": Number(request_json['konten_hyppevid_createpost']),
             "HyppePic": Number(request_json['konten_hyppepic_createpost']),
-            "HyppeDiary": Number(request_json['konten_hyppediary_createpost'])
+            // "HyppeDiary": Number(request_json['konten_hyppediary_createpost'])
           }
         ];
       }
@@ -1220,6 +1220,27 @@ export class ChallengeController {
     }
 
     var data = await this.challengeService.detailchallenge(id);
+    var getmetrik = data.metrik[0].InteraksiKonten[0];
+    data.metrik[0].InteraksiKonten[0] = {
+      "suka": [
+          {
+              "HyppeVid": getmetrik.suka[0].HyppeVid,
+              "HyppePic": getmetrik.suka[0].HyppePic,
+          }
+      ],
+      "tonton": [
+          {
+              "HyppeVid": getmetrik.tonton[0].HyppeVid,
+              "HyppePic": getmetrik.tonton[0].HyppePic,
+          }
+      ],
+      "buatKonten": [
+          {
+            "HyppeVid": getmetrik.buatKonten[0].HyppeVid,
+            "HyppePic": getmetrik.buatKonten[0].HyppePic,
+          }
+      ]
+  };
 
     var timestamps_end = await this.util.getDateTimeString();
     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, null);
@@ -2009,9 +2030,9 @@ export class ChallengeController {
           request_json['konten_hyppepic_createpost'] = 0;
         }
 
-        if (request_json["konten_hyppediary_createpost"] == undefined && request_json["konten_hyppediary_createpost"] == null) {
-          request_json['konten_hyppediary_createpost'] = 0;
-        }
+        // if (request_json["konten_hyppediary_createpost"] == undefined && request_json["konten_hyppediary_createpost"] == null) {
+        //   request_json['konten_hyppediary_createpost'] = 0;
+        // }
 
         if (request_json["konten_hyppevid_likepost"] == undefined && request_json["konten_hyppevid_likepost"] == null) {
           request_json['konten_hyppevid_likepost'] = 0;
@@ -2021,30 +2042,30 @@ export class ChallengeController {
           request_json['konten_hyppepic_likepost'] = 0;
         }
 
-        if (request_json["konten_hyppediary_likepost"] == undefined && request_json["konten_hyppediary_likepost"] == null) {
-          request_json['konten_hyppediary_likepost'] = 0;
-        }
+        // if (request_json["konten_hyppediary_likepost"] == undefined && request_json["konten_hyppediary_likepost"] == null) {
+        //   request_json['konten_hyppediary_likepost'] = 0;
+        // }
 
         if (request_json["konten_hyppevid_viewpost"] == undefined && request_json["konten_hyppevid_viewpost"] == null) {
           request_json['konten_hyppevid_viewpost'] = 0;
         }
 
-        if (request_json["konten_hyppediary_viewpost"] == undefined && request_json["konten_hyppediary_viewpost"] == null) {
-          request_json['konten_hyppediary_viewpost'] = 0;
-        }
+        // if (request_json["konten_hyppediary_viewpost"] == undefined && request_json["konten_hyppediary_viewpost"] == null) {
+        //   request_json['konten_hyppediary_viewpost'] = 0;
+        // }
 
         var setinteraksikonten = {
           "suka": [
             {
               "HyppeVid": Number(request_json['konten_hyppevid_likepost']),
               "HyppePic": Number(request_json['konten_hyppepic_likepost']),
-              "HyppeDiary": Number(request_json['konten_hyppediary_likepost'])
+              //"HyppeDiary": Number(request_json['konten_hyppediary_likepost'])
             }
           ],
           "tonton": [
             {
               "HyppeVid": Number(request_json['konten_hyppevid_viewpost']),
-              "HyppeDiary": Number(request_json['konten_hyppediary_viewpost'])
+              //"HyppeDiary": Number(request_json['konten_hyppediary_viewpost'])
             }
           ],
         }
@@ -2057,7 +2078,7 @@ export class ChallengeController {
             {
               "HyppeVid": Number(request_json['konten_hyppevid_createpost']),
               "HyppePic": Number(request_json['konten_hyppepic_createpost']),
-              "HyppeDiary": Number(request_json['konten_hyppediary_createpost'])
+              //"HyppeDiary": Number(request_json['konten_hyppediary_createpost'])
             }
           ];
         }

@@ -5862,7 +5862,7 @@ export class NewPostService {
                           'case': {
                             '$eq': ['$postType', 'diary']
                           },
-                          'then': "HyppeDiary"
+                          'then': "HyppeVid"
                         },
                         {
                           'case': {
@@ -5892,7 +5892,39 @@ export class NewPostService {
                   createdAt: 1,
                   updatedAt: 1,
                   postID: 1,
-                  postType: 1,
+                  postType: 
+                  {
+                    $switch: {
+                      branches: [
+                        {
+                          'case': {
+                            '$eq': ['$postType', 'pict']
+                          },
+                          'then': "pict"
+                        },
+                        {
+                          'case': {
+                            '$eq': ['$postType', 'vid']
+                          },
+                          'then': "vid"
+                        },
+                        {
+                          'case': {
+                            '$eq': ['$postType', 'diary']
+                          },
+                          'then': "vid"
+                        },
+                        {
+                          'case': {
+                            '$eq': ['$postType', 'story']
+                          },
+                          'then': "story"
+                        },
+
+                      ],
+                      default: ''
+                    }
+                  },
                   email: 1,
                   type: 1,
                   description: 1,
@@ -12158,7 +12190,7 @@ export class NewPostService {
                   'case': {
                     '$eq': ['$postType', 'diary']
                   },
-                  'then': "HyppeDiary"
+                  'then': "HyppeVid"
                 },
                 {
                   'case': {
@@ -12249,7 +12281,39 @@ export class NewPostService {
           createdAt: 1,
           updatedAt: 1,
           postID: 1,
-          postType: 1,
+          postType: 
+          {
+            $switch: {
+              branches: [
+                {
+                  'case': {
+                    '$eq': ['$postType', 'pict']
+                  },
+                  'then': "pict"
+                },
+                {
+                  'case': {
+                    '$eq': ['$postType', 'vid']
+                  },
+                  'then': "vid"
+                },
+                {
+                  'case': {
+                    '$eq': ['$postType', 'diary']
+                  },
+                  'then': "vid"
+                },
+                {
+                  'case': {
+                    '$eq': ['$postType', 'story']
+                  },
+                  'then': "story"
+                },
+
+              ],
+              default: ''
+            }
+          },
           email: 1,
           type: 1,
           description: 1,
@@ -12558,7 +12622,7 @@ export class NewPostService {
                         'case': {
                           '$eq': ['$postType', 'diary']
                         },
-                        'then': "HyppeDiary"
+                        'then': "HyppeVid"
                       },
                       {
                         'case': {
@@ -12584,7 +12648,38 @@ export class NewPostService {
                 createdAt: 1,
                 updatedAt: 1,
                 postID: 1,
-                postType: 1,
+                postType: {
+                  $switch: {
+                    branches: [
+                      {
+                        'case': {
+                          '$eq': ['$postType', 'pict']
+                        },
+                        'then': "pict"
+                      },
+                      {
+                        'case': {
+                          '$eq': ['$postType', 'vid']
+                        },
+                        'then': "vid"
+                      },
+                      {
+                        'case': {
+                          '$eq': ['$postType', 'diary']
+                        },
+                        'then': "vid"
+                      },
+                      {
+                        'case': {
+                          '$eq': ['$postType', 'story']
+                        },
+                        'then': "story"
+                      },
+
+                    ],
+                    default: ''
+                  }
+                },
                 email: 1,
                 type: 1,
                 description: 1,
