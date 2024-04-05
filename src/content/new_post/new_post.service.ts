@@ -1847,16 +1847,24 @@ export class NewPostService {
                 },
                 {
                   'case': {
-                    '$eq': ['$postType', 'vid']
+                    // '$eq': ['$postType', 'vid']
+                    '$or': [
+                      {
+                        '$eq': ['$postType', 'vid']
+                      },
+                      {
+                        '$eq': ['$postType', 'diary']
+                      }
+                    ]
                   },
                   'then': "HyppeVid"
                 },
-                {
-                  'case': {
-                    '$eq': ['$postType', 'diary']
-                  },
-                  'then': "HyppeDiary"
-                },
+                // {
+                //   'case': {
+                //     '$eq': ['$postType', 'diary']
+                //   },
+                //   'then': "HyppeDiary"
+                // },
                 {
                   'case': {
                     '$eq': ['$postType', 'story']
@@ -2000,20 +2008,20 @@ export class NewPostService {
                   },
                   "then": "$mediaSource.mediaThumb"
                 },
-                {
-                  "case": {
-                    "$eq": [
-                      "$type",
-                      "HyppeDiary"
-                    ]
-                  },
-                  "then": {
-                    "$concat": [
-                      "/thumb/",
-                      "$postID"
-                    ]
-                  }
-                },
+                // {
+                //   "case": {
+                //     "$eq": [
+                //       "$type",
+                //       "HyppeDiary"
+                //     ]
+                //   },
+                //   "then": {
+                //     "$concat": [
+                //       "/thumb/",
+                //       "$postID"
+                //     ]
+                //   }
+                // },
                 {
                   "case": {
                     "$eq": [
@@ -5648,10 +5656,10 @@ export class NewPostService {
                   totalLike:
                   {
                     "$ifNull":
-                    [
-                      "$userLike",
-                      0
-                    ]
+                      [
+                        "$userLike",
+                        0
+                      ]
                   },
                   views: 1,
                   active: 1,
@@ -5803,7 +5811,7 @@ export class NewPostService {
                   email: 1,
                   likes: 1,
                   views: 1,
-                  totalLike:1,
+                  totalLike: 1,
                   comments: 1,
                   jangkauan: 1,
                   interval: 1,
@@ -5893,7 +5901,7 @@ export class NewPostService {
                   jangkauan: 1,
                   interval: 1,
                   likes: 1,
-                  totalLike:1,
+                  totalLike: 1,
                   views: 1,
                   comments: 1,
                   start: 1,
@@ -5991,7 +5999,7 @@ export class NewPostService {
                   jangkauan: 1,
                   interval: 1,
                   likes: 1,
-                  totalLike:1,
+                  totalLike: 1,
                   views: 1,
                   comments: 1,
                   start: 1,
@@ -7604,7 +7612,16 @@ export class NewPostService {
           updatedAt: 1,
           postID: 1,
           email: 1,
-          postType: 1,
+          // postType: 1,
+          postType: {
+            '$cond': {
+              if: {
+                "$eq": ["$postType", "diary"]
+              },
+              then: "vid",
+              else: "$postType"
+            }
+          },
           description: 1,
           title: 1,
           active: 1,
@@ -8041,12 +8058,28 @@ export class NewPostService {
     }
 
     if (postType && postType !== undefined) {
-      pipeline.push({
-        $match: {
-          postType: postType
+      // pipeline.push({
+      //   $match: {
+      //     postType: postType
 
-        }
-      },);
+      //   }
+      // },);
+      if (postType == "vid") {
+        pipeline.push({
+          $match: {
+            postType: {
+              $in: ['vid', 'diary']
+            }
+          }
+        },);
+      } else {
+        pipeline.push({
+          $match: {
+            postType: postType
+
+          }
+        },);
+      }
     }
     if (startdate && startdate !== undefined) {
       if (jenis === "report") {
@@ -8675,7 +8708,16 @@ export class NewPostService {
           updatedAt: 1,
           postID: 1,
           email: 1,
-          postType: 1,
+          // postType: 1,
+          postType: {
+            '$cond': {
+              if: {
+                "$eq": ["$postType", "diary"]
+              },
+              then: "vid",
+              else: "$postType"
+            }
+          },
           description: 1,
           title: 1,
           active: 1,
@@ -12828,7 +12870,16 @@ export class NewPostService {
             _id: 1,
             postID: 1,
             email: 1,
-            postType: 1,
+            // postType: 1,
+            postType: {
+              '$cond': {
+                if: {
+                  "$eq": ["$postType", "diary"]
+                },
+                then: "vid",
+                else: "$postType"
+              }
+            },
             description: 1,
             active: 1,
             createdAt: 1,
@@ -13299,16 +13350,24 @@ export class NewPostService {
                   },
                   {
                     'case': {
-                      '$eq': ['$postType', 'vid']
+                      // '$eq': ['$postType', 'vid']
+                      '$or': [
+                        {
+                          '$eq': ['$postType', 'vid']
+                        },
+                        {
+                          '$eq': ['$postType', 'diary']
+                        }
+                      ]
                     },
                     'then': "HyppeVid"
                   },
-                  {
-                    'case': {
-                      '$eq': ['$postType', 'diary']
-                    },
-                    'then': "HyppeDiary"
-                  },
+                  // {
+                  //   'case': {
+                  //     '$eq': ['$postType', 'diary']
+                  //   },
+                  //   'then': "HyppeDiary"
+                  // },
                   {
                     'case': {
                       '$eq': ['$postType', 'story']
@@ -13865,16 +13924,24 @@ export class NewPostService {
                   },
                   {
                     'case': {
-                      '$eq': ['$postType', 'vid']
+                      // '$eq': ['$postType', 'vid']
+                      '$or': [
+                        {
+                          '$eq': ['$postType', 'vid']
+                        },
+                        {
+                          '$eq': ['$postType', 'diary']
+                        }
+                      ]
                     },
                     'then': "HyppeVid"
                   },
-                  {
-                    'case': {
-                      '$eq': ['$postType', 'diary']
-                    },
-                    'then': "HyppeDiary"
-                  },
+                  // {
+                  //   'case': {
+                  //     '$eq': ['$postType', 'diary']
+                  //   },
+                  //   'then': "HyppeDiary"
+                  // },
                   {
                     'case': {
                       '$eq': ['$postType', 'story']
@@ -45830,21 +45897,21 @@ export class NewPostService {
           from: "newUserBasics",
           as: "userTag",
           let: {
-            localID: 
+            localID:
             {
               "$ifNull":
-              [
-                '$tagPeople.$id',
-                []
-              ]
+                [
+                  '$tagPeople.$id',
+                  []
+                ]
             },
-            localID2: 
+            localID2:
             {
               "$ifNull":
-              [
-                '$tagPeople',
-                []
-              ]
+                [
+                  '$tagPeople',
+                  []
+                ]
             }
           },
           pipeline: [
@@ -46085,19 +46152,19 @@ export class NewPostService {
           },
           "setinsight":
           {
-              "likes": "$likes",
-              "views":
-              {
-                "$ifNull":
-                  [
-                    {
-                      "$size": "$userView"
-                    },
-                    0
-                  ]
-              },
-              "shares": "$shares",
-              "comments": "$comments",
+            "likes": "$likes",
+            "views":
+            {
+              "$ifNull":
+                [
+                  {
+                    "$size": "$userView"
+                  },
+                  0
+                ]
+            },
+            "shares": "$shares",
+            "comments": "$comments",
           },
           "isLiked":
           {
@@ -46123,23 +46190,23 @@ export class NewPostService {
           "isViewed":
           {
             "$ifNull":
-            [
-              {
-                "$filter":
+              [
                 {
-                  input:"$userView",
-                  as:"listuser",
-                  cond:
+                  "$filter":
                   {
-                    "$eq":
-                    [
-                      "$$listuser", emailLogin
-                    ]
+                    input: "$userView",
+                    as: "listuser",
+                    cond:
+                    {
+                      "$eq":
+                        [
+                          "$$listuser", emailLogin
+                        ]
+                    }
                   }
-                }
-              },
-              []
-            ]
+                },
+                []
+              ]
           },
         },
       },

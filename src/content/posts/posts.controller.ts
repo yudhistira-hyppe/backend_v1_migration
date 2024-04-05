@@ -2738,31 +2738,24 @@ export class PostsController {
     const insightsService_data = await this.insightsService.findemail(headers['x-auth-user']);
     const userbasicsService_data = await this.basic2SS.findbyemail(headers['x-auth-user']);
     let contenteventsService_data = [];
-    if(eventType_ == "FOLLOWER" || eventType_ == "FOLLOWING")
-    {
+    if (eventType_ == "FOLLOWER" || eventType_ == "FOLLOWING") {
       contenteventsService_data = (eventType_ == "FOLLOWING" ? userbasicsService_data.following : userbasicsService_data.follower);
     }
-    else if (eventType_ == "UNFOLLOW" || eventType_ == "REACTION" || eventType_ == "VIEW")
-    {
+    else if (eventType_ == "UNFOLLOW" || eventType_ == "REACTION" || eventType_ == "VIEW") {
       //UNFOLLOW nih yang mau dicari apa ya ???
       const contenteventsService_data_ = await this.contenteventsService.findByCriteria2(headers['x-auth-user'], postID_, eventType_, withEvents_, pageRow_, pageNumber_);
-      if(contenteventsService_data_ != null && contenteventsService_data_.length != 0)
-      {
-        for(var i = 0; i < contenteventsService_data_.length; i++)
-        {
-          if(eventType_ == "UNFOLLOW")
-          {
+      if (contenteventsService_data_ != null && contenteventsService_data_.length != 0) {
+        for (var i = 0; i < contenteventsService_data_.length; i++) {
+          if (eventType_ == "UNFOLLOW") {
             contenteventsService_data.push(contenteventsService_data_[i].receiverParty);
           }
-          else
-          {
+          else {
             contenteventsService_data.push(contenteventsService_data_[i].senderParty);
           }
         }
       }
     }
-    else
-    {
+    else {
       await this.errorHandler.generateNotAcceptableException("Unabled to proceed. eventType field is required");
     }
     // console.log(contenteventsService_data);
@@ -2799,11 +2792,11 @@ export class PostsController {
     //   var listuser = await this.basic2SS.findInbyemail(contenteventsService_data);
     //   for (let i = 0; i < listuser.length; i++) {
     //     var emailSenderorreceiver = (contenteventsService_data[i].senderParty != undefined) ? contenteventsService_data[i].senderParty : (contenteventsService_data[i].receiverParty != undefined) ? contenteventsService_data[i].receiverParty : null;
-  
+
     //     if (emailSenderorreceiver != null) {
     //       var getProfile = await this.utilsService.generateProfile2(emailSenderorreceiver.toString(), 'PROFILE');
     //     }
-  
+
     //     var datas = {}
     //     var senderOrReceiverInfo = {}
     //     var avatar = {}
@@ -2831,7 +2824,7 @@ export class PostsController {
     //         }
     //       }
     //     }
-  
+
     //     if (getProfile != null || getProfile != undefined) {
     //       Object.assign(senderOrReceiverInfo, {
     //         "fullName": (getProfile != null) ? (getProfile.fullName != undefined) ? getProfile.fullName : "" : "",
@@ -2878,7 +2871,7 @@ export class PostsController {
     //     data_response.push(datas);
     //   }
     // }
-    
+
     // let data_filter = [];
     // console.log("senderOrReceiver_", senderOrReceiver_);
     // if (senderOrReceiver_ != "") {
@@ -2892,24 +2885,21 @@ export class PostsController {
     if (senderOrReceiver_ != "") {
       getlist = contenteventsService_data.filter((element) => element == senderOrReceiver_);
     }
-    else{
+    else {
       getlist = contenteventsService_data;
     }
 
-    if(eventType_ == "FOLLOWER" || eventType_ == "FOLLOWING")
-    {
+    if (eventType_ == "FOLLOWER" || eventType_ == "FOLLOWING") {
       var before = Number(pageNumber_) * pageRow_;
       var after = (Number(pageNumber_) + 1) * pageRow_;
       getlist = getlist.slice(before, after);
     }
 
     var data_response = null;
-    if(getlist.length != 0)
-    {
+    if (getlist.length != 0) {
       data_response = await this.basic2SS.listfilterInteractive(headers['x-auth-user'], getlist, eventType_, withDetail_);
     }
-    else
-    {
+    else {
       data_response = [];
     }
 
@@ -3227,8 +3217,8 @@ export class PostsController {
       if (await this.utilsService.validasiTokenEmailParam(token, email)) {
         var dataMedia = await this.NewPostService.findOnepostID2(id);
         if (await this.utilsService.ceckData(dataMedia)) {
-          if (dataMedia.mediaSource!=undefined){
-            if (dataMedia.mediaSource.length>0) {
+          if (dataMedia.mediaSource != undefined) {
+            if (dataMedia.mediaSource.length > 0) {
               if (dataMedia.mediaSource[0].uploadSource !== undefined) {
                 console.log("OSS");
                 if (dataMedia.mediaSource[0].uploadSource == "OSS") {
@@ -3278,12 +3268,12 @@ export class PostsController {
                     response.send(null);
                   }
                 } else {
-                  let thum=null;
+                  let thum = null;
 
-                  try{
-                    thum=dataMedia.mediaSource[0].fsTargetThumbUri;
-                  }catch(e){
-                    thum=null
+                  try {
+                    thum = dataMedia.mediaSource[0].fsTargetThumbUri;
+                  } catch (e) {
+                    thum = null
                   }
                   if (thum != undefined && thum != null) {
                     thum_data = dataMedia.mediaSource[0].fsTargetThumbUri;
@@ -3683,12 +3673,12 @@ export class PostsController {
                   response.send(null);
                 }
               } else {
-                let thum=null;
+                let thum = null;
 
-                try{
-                  thum=dataMedia.mediaSource[0].fsTargetThumbUri;
-                }catch(e){
-                  thum=null
+                try {
+                  thum = dataMedia.mediaSource[0].fsTargetThumbUri;
+                } catch (e) {
+                  thum = null
                 }
                 if (thum != undefined && thum != null) {
                   thum_data = dataMedia.mediaSource[0].fsTargetThumbUri;
@@ -4117,13 +4107,13 @@ export class PostsController {
         var splitdt = dt.toISOString();
         var dts = splitdt.split('T');
         var stdt = dts[0].toString();
-        var diary = 0;
+        // var diary = 0;
         var pict = 0;
         var vid = 0;
         var story = 0;
         for (var j = 0; j < lengviews; j++) {
           if (datasummary[j].date == stdt) {
-            diary = datasummary[j].diary;
+            // diary = datasummary[j].diary;
             pict = datasummary[j].pict;
             vid = datasummary[j].vid;
             story = datasummary[j].story;
@@ -4132,7 +4122,7 @@ export class PostsController {
         }
         arrdataview.push({
           'date': stdt,
-          'diary': diary,
+          // 'diary': diary,
           'pict': pict,
           'vid': vid,
           'story': story
@@ -4817,8 +4807,8 @@ export class PostsController {
     return await this.MediastikerService.updatedata(list, "used");
   }
 
-  async scorepostrequest(iduser: string, idevent: string, namatabel: string, event: string, postID: string,listchallenge:any[]) {
-    await this.contenteventsService.scorepostrequest(iduser, idevent, namatabel, event, postID,listchallenge);
+  async scorepostrequest(iduser: string, idevent: string, namatabel: string, event: string, postID: string, listchallenge: any[]) {
+    await this.contenteventsService.scorepostrequest(iduser, idevent, namatabel, event, postID, listchallenge);
   }
 
   @Post('api/posts/migration')

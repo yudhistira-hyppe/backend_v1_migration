@@ -217,7 +217,15 @@ export class NewpostService {
                                             {
                                                 "case":
                                                 {
-                                                    "$eq": ["$postType", "vid"]
+                                                    // "$eq": ["$postType", "vid"]
+                                                    "$or": [
+                                                        {
+                                                            "$eq": ["$postType", "vid"]
+                                                        },
+                                                        {
+                                                            "$eq": ["$postType", "diary"]
+                                                        }
+                                                    ]
                                                 },
                                                 "then": 1
                                             }
@@ -246,26 +254,26 @@ export class NewpostService {
                                 }
                             }
                         },
-                        diary:
-                        {
-                            "$sum":
-                            {
-                                "$switch":
-                                {
-                                    branches:
-                                        [
-                                            {
-                                                "case":
-                                                {
-                                                    "$eq": ["$postType", "diary"]
-                                                },
-                                                "then": 1
-                                            }
-                                        ],
-                                    "default": 0
-                                }
-                            }
-                        },
+                        // diary:
+                        // {
+                        //     "$sum":
+                        //     {
+                        //         "$switch":
+                        //         {
+                        //             branches:
+                        //                 [
+                        //                     {
+                        //                         "case":
+                        //                         {
+                        //                             "$eq": ["$postType", "diary"]
+                        //                         },
+                        //                         "then": 1
+                        //                     }
+                        //                 ],
+                        //             "default": 0
+                        //         }
+                        //     }
+                        // },
                     }
                 },
 
@@ -273,7 +281,7 @@ export class NewpostService {
                     $project: {
                         _id: 0,
                         date: "$_id",
-                        diary: "$diary",
+                        // diary: "$diary",
                         pict: "$pict",
                         vid: "$vid",
                         story: "$story"
@@ -446,7 +454,7 @@ export class NewpostService {
                 "$match":
                 {
                     $and: [
-                      
+
                         {
                             "$expr":
                             {
@@ -582,50 +590,50 @@ export class NewpostService {
             },
             {
                 "$lookup": {
-                  from: "contentevents",
-                  as: "isView",
-                  let: {
-        
-                    storys: '$postID',
-        
-                  },
-                  pipeline: [
-                    {
-                      $match:
-                      {
-                        $or: [
-        
-                          {
-                            $and: [
-                              {
-                                $expr: {
-                                  $eq: ['$postID', '$$storys']
-                                }
-                              },
-                              {
-                                "email": email,
-        
-                              },
-                              {
-                                "eventType": "VIEW"
-                              }
-                            ]
-                          },
-        
-                        ]
-                      }
+                    from: "contentevents",
+                    as: "isView",
+                    let: {
+
+                        storys: '$postID',
+
                     },
-                    {
-                      $project: {
-                        "email": 1,
-                        "postID": 1,
-        
-                      }
-                    }
-                  ],
-        
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $or: [
+
+                                    {
+                                        $and: [
+                                            {
+                                                $expr: {
+                                                    $eq: ['$postID', '$$storys']
+                                                }
+                                            },
+                                            {
+                                                "email": email,
+
+                                            },
+                                            {
+                                                "eventType": "VIEW"
+                                            }
+                                        ]
+                                    },
+
+                                ]
+                            }
+                        },
+                        {
+                            $project: {
+                                "email": 1,
+                                "postID": 1,
+
+                            }
+                        }
+                    ],
+
                 }
-              },
+            },
             {
                 $project: {
                     "storyDate": 1,
@@ -740,7 +748,7 @@ export class NewpostService {
                     "statusCB": 1,
                     mediaEndpoint: {
                         "$concat": ["/pict/", "$postID"]
-                      },
+                    },
                     "privacy": {
                         "isCelebrity":
                         {
