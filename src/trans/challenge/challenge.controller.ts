@@ -1220,27 +1220,31 @@ export class ChallengeController {
     }
 
     var data = await this.challengeService.detailchallenge(id);
-    var getmetrik = data.metrik[0].InteraksiKonten[0];
-    data.metrik[0].InteraksiKonten[0] = {
-      "suka": [
+    if (data.metrik[0].InteraksiKonten && data.metrik[0].InteraksiKonten.length > 0) {
+      var getmetrik = data.metrik[0].InteraksiKonten[0];
+      data.metrik[0].InteraksiKonten[0] = {
+        "suka": [
           {
-              "HyppeVid": getmetrik.suka[0].HyppeVid,
-              "HyppePic": getmetrik.suka[0].HyppePic,
+            "HyppeVid": getmetrik.suka[0].HyppeVid,
+            "HyppePic": getmetrik.suka[0].HyppePic,
           }
-      ],
-      "tonton": [
+        ],
+        "tonton": [
           {
-              "HyppeVid": getmetrik.tonton[0].HyppeVid,
-              "HyppePic": getmetrik.tonton[0].HyppePic,
+            "HyppeVid": getmetrik.tonton[0].HyppeVid,
+            "HyppePic": getmetrik.tonton[0].HyppePic,
           }
-      ],
-      "buatKonten": [
+        ],
+        "buatKonten": [
           {
             "HyppeVid": getmetrik.buatKonten[0].HyppeVid,
             "HyppePic": getmetrik.buatKonten[0].HyppePic,
           }
-      ]
-  };
+        ]
+      };
+    } else {
+      data.metrik[0].InteraksiKonten[0] = {};
+    }
 
     var timestamps_end = await this.util.getDateTimeString();
     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, null);
