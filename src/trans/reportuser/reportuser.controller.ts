@@ -2603,7 +2603,7 @@ export class ReportuserController {
                     createdAtReportLast: query[i].createdAtReportLast,
                     createdAtAppealLast: query[i].createdAtAppealLast,
                     statusLast: query[i].statusLast,
-                    statusReportLast: query[i].reportStatusLast,
+                    reportStatusLast: query[i].reportStatusLast,
                     media: dataquery[i].media
                 };
 
