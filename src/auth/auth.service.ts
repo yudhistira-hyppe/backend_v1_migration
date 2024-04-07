@@ -9525,17 +9525,20 @@ export class AuthService {
             isguest = true;
           }
 
-          var insertdata = await this.referralService.create(CreateReferralDto_);
-          var idref = insertdata._id;
+          if(isguest == true)
+          {
+            var insertdata = await this.referralService.create(CreateReferralDto_);
+            //var idref = insertdata._id;
+          }
 
           if(isguest == false)
           {
-            try {
+            // try {
               //this.userChallenge(userid.toString(), idref.toString(), "referral", "REFERAL");
-              await this.contenteventsService.scorereferralrequest(userid.toString(), idref.toString(), "referral", "REFERAL", listchallenge)
-            } catch (e) {
+              //await this.contenteventsService.scorereferralrequest(userid.toString(), idref.toString(), "referral", "REFERAL", listchallenge)
+            // } catch (e) {
   
-            }
+            // }
   
             var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(user_email_parent, "FOLLOWER", "ACCEPT", user_email_children, "", "");
             var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(user_email_children, "FOLLOWING", "ACCEPT", "", user_email_parent, "");
