@@ -1225,20 +1225,20 @@ export class ChallengeController {
       data.metrik[0].InteraksiKonten[0] = {
         "suka": [
           {
-            "HyppeVid": getmetrik.suka[0].HyppeVid,
-            "HyppePic": getmetrik.suka[0].HyppePic,
+            "HyppeVid": (getmetrik.suka[0] && getmetrik.suka[0].HyppeVid) ? getmetrik.suka[0].HyppeVid : 0,
+            "HyppePic": (getmetrik.suka[0] && getmetrik.suka[0].HyppePic) ? getmetrik.suka[0].HyppePic : 0,
           }
         ],
         "tonton": [
           {
-            "HyppeVid": getmetrik.tonton[0].HyppeVid,
-            "HyppePic": getmetrik.tonton[0].HyppePic,
+            "HyppeVid": (getmetrik.tonton[0] && getmetrik.tonton[0].HyppeVid) ? getmetrik.tonton[0].HyppeVid : 0,
+            "HyppePic": (getmetrik.tonton[0] && getmetrik.tonton[0].HyppePic) ? getmetrik.tonton[0].HyppePic : 0,
           }
         ],
         "buatKonten": [
           {
-            "HyppeVid": getmetrik.buatKonten[0].HyppeVid,
-            "HyppePic": getmetrik.buatKonten[0].HyppePic,
+            "HyppeVid": (getmetrik.buatKonten[0] && getmetrik.buatKonten[0].HyppeVid) ? getmetrik.buatKonten[0].HyppeVid : 0,
+            "HyppePic": (getmetrik.buatKonten[0] && getmetrik.buatKonten[0].HyppePic) ? getmetrik.buatKonten[0].HyppePic : 0,
           }
         ]
       };
