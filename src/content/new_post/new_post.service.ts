@@ -5892,7 +5892,7 @@ export class NewPostService {
                   createdAt: 1,
                   updatedAt: 1,
                   postID: 1,
-                  postType: 
+                  postType:
                   {
                     $switch: {
                       branches: [
@@ -12281,7 +12281,7 @@ export class NewPostService {
           createdAt: 1,
           updatedAt: 1,
           postID: 1,
-          postType: 
+          postType:
           {
             $switch: {
               branches: [
@@ -45559,7 +45559,7 @@ export class NewPostService {
       //     }
       //   },
       // );
-      if (type == "vid") {
+      if (type == "vid" || type == "diary") {
         pipeline.push(
           {
             "$match": {
@@ -45678,7 +45678,7 @@ export class NewPostService {
       //     }
       //   },
       // );
-      if (type == "vid") {
+      if (type == "vid" || type == "diary") {
         pipeline.push(
           {
             "$match": {
