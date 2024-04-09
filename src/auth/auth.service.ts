@@ -11233,6 +11233,10 @@ export class AuthService {
   }
 
   async signup3(req: any): Promise<any> {
+    var timestamps_start = await this.utilsService.getDateTimeString();
+    var fullurl = req.get("Host") + req.originalUrl;
+    var request_json = JSON.parse(JSON.stringify(req.body));
+
     var user_email = null;
     var emailLogin = null;
     var user_password = null;
@@ -11267,6 +11271,9 @@ export class AuthService {
     var current_date = await this.utilsService.getDateTimeString();
 
     if (req.body.email == undefined) {
+      var timestamps_end = await this.utilsService.getDateTimeString();
+      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
       throw new NotAcceptableException({
         response_code: 406,
         messages: {
@@ -11278,6 +11285,9 @@ export class AuthService {
     console.log(req.body.email);
 
     if (!(await this.utilsService.validasiEmail(req.body.email))) {
+      var timestamps_end = await this.utilsService.getDateTimeString();
+      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
       throw new NotAcceptableException({
         response_code: 406,
         messages: {
@@ -11289,6 +11299,9 @@ export class AuthService {
     //CECk signup/verify
     if (req.body.otp == undefined) {
       if (req.body.password == undefined) {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11297,6 +11310,8 @@ export class AuthService {
         });
       } else {
         if (req.body.password == req.body.email) {
+          var timestamps_end = await this.utilsService.getDateTimeString();
+          this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
           if (lang == "en") {
             await this.errorHandler.generateNotAcceptableException(
               'Sorry! Password cannot be the same as email.',
@@ -11309,6 +11324,9 @@ export class AuthService {
         }
       }
       if (req.body.password == '') {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11317,6 +11335,9 @@ export class AuthService {
         });
       } else {
         if (req.body.password == req.body.email) {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
           if (lang == "en") {
             await this.errorHandler.generateNotAcceptableException(
               'Sorry! Password cannot be the same as email.',
@@ -11329,6 +11350,9 @@ export class AuthService {
         }
       }
       if (req.body.deviceId == undefined) {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11337,6 +11361,9 @@ export class AuthService {
         });
       }
       if (req.body.deviceId == '') {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11359,6 +11386,9 @@ export class AuthService {
       }
     } else {
       if (req.body.otp == undefined) {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11367,6 +11397,9 @@ export class AuthService {
         });
       }
       if (req.body.otp == '') {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11375,6 +11408,9 @@ export class AuthService {
         });
       }
       if (req.body.status == undefined) {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11383,6 +11419,9 @@ export class AuthService {
         });
       }
       if (req.body.status == '') {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11391,6 +11430,9 @@ export class AuthService {
         });
       }
       if (req.body.event == undefined) {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11399,6 +11441,9 @@ export class AuthService {
         });
       }
       if (req.body.event == '') {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         throw new NotAcceptableException({
           response_code: 406,
           messages: {
@@ -11857,32 +11902,39 @@ export class AuthService {
                       }
                       else if(req.body.referral != undefined && checkexistimei == false)
                       {
-                        var data_refferal = await this.referralService.findOneInChild(req.body.email);
-                        var checkexistreferral = await this.utilsService.ceckData(data_refferal);
-                        if(checkexistreferral == false)
+                        var checkuserexist = await this.basic2SS.findBymail(req.body.referral);
+                        if(checkuserexist != null && checkuserexist != undefined)
                         {
-                            setreferral = req.body.referral;
-                          
-                            var CreateReferralDto_ = new CreateReferralDto();
-                            CreateReferralDto_._id = (await this.utilsService.generateId())
-                            CreateReferralDto_.parent = setreferral;
-                            CreateReferralDto_.children = req.body.email;
-                            CreateReferralDto_.active = true;
-                            CreateReferralDto_.verified = true;
-                            CreateReferralDto_.createdAt = current_date;
-                            CreateReferralDto_.updatedAt = current_date;
-                            CreateReferralDto_.imei = req.body.imei;
-                            CreateReferralDto_._class = "io.melody.core.domain.Referral";
-                            CreateReferralDto_.status = 'PENDING';
+                          var data_refferal = await this.referralService.findOneInChild(req.body.email);
+                          var checkexistreferral = await this.utilsService.ceckData(data_refferal);
+                          if(checkexistreferral == false)
+                          {
+                              setreferral = req.body.referral;
+                            
+                              var CreateReferralDto_ = new CreateReferralDto();
+                              CreateReferralDto_._id = (await this.utilsService.generateId())
+                              CreateReferralDto_.parent = setreferral;
+                              CreateReferralDto_.children = req.body.email;
+                              CreateReferralDto_.active = true;
+                              CreateReferralDto_.verified = true;
+                              CreateReferralDto_.createdAt = current_date;
+                              CreateReferralDto_.updatedAt = current_date;
+                              CreateReferralDto_.imei = req.body.imei;
+                              CreateReferralDto_._class = "io.melody.core.domain.Referral";
+                              CreateReferralDto_.status = 'PENDING';
 
-                            datareferral = CreateReferralDto_;
-                            await this.referralService.create(CreateReferralDto_);
+                              datareferral = CreateReferralDto_;
+                              await this.referralService.create(CreateReferralDto_);
+                          }
                         }
                       }
                     }
                   }
                 }
                 catch (error) {
+                  var timestamps_end = await this.utilsService.getDateTimeString();
+                  this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                   await this.errorHandler.generateNotAcceptableException(
                     'Unabled to proceed referral data. Error:' +
                     error,
@@ -12029,6 +12081,9 @@ export class AuthService {
                 //   console.log("Create User Ads", e);
                 // }
 
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+                
                 return {
                   response_code: 202,
                   data,
@@ -12053,11 +12108,17 @@ export class AuthService {
                       updateotp.otpNextAttemptAllow = Long.fromString(OTP_expires.toString());
                       this.basic2SS.update(user_email, updateotp);
                     } catch (e) {
+                      var timestamps_end = await this.utilsService.getDateTimeString();
+                      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                       await this.errorHandler.generateNotAcceptableException(
                         'Unabled to proceed, Failed Update newUserBasics. Error : ' + e,
                       );
                     }
                   }
+                  var timestamps_end = await this.utilsService.getDateTimeString();
+                  this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                   if (lang == "en") {
                     await this.errorHandler.generateNotAcceptableException(
                       'The OTP code you entered is incorrect; please check again.',
@@ -12068,6 +12129,9 @@ export class AuthService {
                     );
                   }
                 } else {
+                  var timestamps_end = await this.utilsService.getDateTimeString();
+                  this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                   if (lang == "en") {
                     await this.errorHandler.generateNotAcceptableException(
                       'No users were found. Please check again.',
@@ -12135,6 +12199,9 @@ export class AuthService {
                     data_CreateActivityeventsDto_child,
                   );
                 } catch (error) {
+                  var timestamps_end = await this.utilsService.getDateTimeString();
+                  this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                   await this.errorHandler.generateNotAcceptableException(
                     'Unabled to proceed Create Activity events Child. Error: ' +
                     error,
@@ -12160,6 +12227,9 @@ export class AuthService {
                     },
                   );
                 } catch (error) {
+                  var timestamps_end = await this.utilsService.getDateTimeString();
+                  this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                   await this.errorHandler.generateNotAcceptableException(
                     'Unabled to proceed Update Activity events Parent. Error:' +
                     error,
@@ -12179,6 +12249,9 @@ export class AuthService {
 
                   this.basic2SS.updatebyemail(user_email, updatedata);
                 } catch (error) {
+                  var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                   await this.errorHandler.generateNotAcceptableException(
                     'Unabled to proceed Failed Update newUserBasics. Error:' +
                     error,
@@ -12188,6 +12261,9 @@ export class AuthService {
                 try {
                   await this.sendemailOTP2(user_email, OTP.toString(), 'ENROL', "id");
                 } catch (error) {
+                  var timestamps_end = await this.utilsService.getDateTimeString();
+                  this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                   await this.errorHandler.generateNotAcceptableException(
                     'Unabled to proceed Failed Send Email. Error:' +
                     error,
@@ -12201,6 +12277,9 @@ export class AuthService {
                   messages = "Permintaan pemulihan kata sandi berhasil";
                 }
 
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                 return {
                   response_code: 202,
                   messages: {
@@ -12208,6 +12287,9 @@ export class AuthService {
                   },
                 };
               } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
                 if (lang == "en") {
                   await this.errorHandler.generateNotAcceptableException(
                     'OTP max attempt exceeded, please try after ' +
@@ -12246,6 +12328,9 @@ export class AuthService {
           }
         }
       } else {
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         await this.errorHandler.generateNotAcceptableException(
           'Unabled to proceed, Log activity events parent signup not axist',
         );
@@ -12301,6 +12386,9 @@ export class AuthService {
               }
             }
           } catch (error) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+            
             await this.errorHandler.generateNotAcceptableException(
               'Unabled to proceed Get Id Language. Error: ' + error,
             );
@@ -12326,6 +12414,9 @@ export class AuthService {
               }
             }
           } catch (error) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
             await this.errorHandler.generateNotAcceptableException(
               'Unabled to proceed Get Id Interest. Error: ' + error,
             );
@@ -12374,6 +12465,9 @@ export class AuthService {
               );
               ID_device = datauserdevicesService._id;
             } catch (error) {
+              var timestamps_end = await this.utilsService.getDateTimeString();
+              this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
               await this.errorHandler.generateNotAcceptableException(
                 'Unabled to proceed Get Userdevices. Error:' + error,
               );
@@ -12393,6 +12487,9 @@ export class AuthService {
               //Insert User Userdevices
               await this.userdevicesService.create(data_CreateUserdeviceDto);
             } catch (error) {
+              var timestamps_end = await this.utilsService.getDateTimeString();
+              this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
               await this.errorHandler.generateNotAcceptableException(
                 'Unabled to proceed Create Userdevices. Error:' + error,
               );
@@ -12503,6 +12600,9 @@ export class AuthService {
             //Insert UserBasic
             await this.basic2SS.create(data_CreateUserbasicDto);
           } catch (error) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
             await this.errorHandler.generateNotAcceptableException(
               'Unabled to proceed Create UserBasic. Error: ' + error,
             );
@@ -12556,6 +12656,9 @@ export class AuthService {
               data_CreateActivityeventsDto_parent,
             );
           } catch (error) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
             await this.errorHandler.generateNotAcceptableException(
               'Unabled to proceed Create Activity events Parent. Error: ' +
               error,
@@ -12600,6 +12703,9 @@ export class AuthService {
               data_CreateActivityeventsDto_child,
             );
           } catch (error) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
             await this.errorHandler.generateNotAcceptableException(
               'Unabled to proceed Create Activity events Child. Error: ' +
               error,
@@ -12609,11 +12715,17 @@ export class AuthService {
           try {
             await this.sendemailOTP2(user_email, OTP.toString(), 'ENROL', "id");
           } catch (error) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
             await this.errorHandler.generateNotAcceptableException(
               'Unabled to proceed Failed Send Email. Error:' +
               error,
             );
           }
+
+          var timestamps_end = await this.utilsService.getDateTimeString();
+          this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
 
           return {
             response_code: 202,
@@ -12706,6 +12818,10 @@ export class AuthService {
               info: [messages],
             },
           }
+
+          var timestamps_end = await this.utilsService.getDateTimeString();
+          this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
           return response;
           // if (lang == "en") {
           //   await this.errorHandler.generateNotAcceptableException(
@@ -12734,6 +12850,10 @@ export class AuthService {
             info: [messages],
           },
         }
+
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, request_json);
+
         return response;
         // if (lang == "en") {
         //   await this.errorHandler.generateNotAcceptableException(

@@ -2199,32 +2199,39 @@ export class SocmedService {
               }
               else if(req.body.referral != undefined && checkexistimei == false)
               {
-                var data_refferal = await this.referralService.findOneInChild(req.body.email);
-                var checkexistreferral = await this.utilsService.ceckData(data_refferal);
-                if(checkexistreferral == false)
+                var checkuserexist = await this.userbasicsnewService.findBymail(req.body.referral);
+                if(checkuserexist != null && checkuserexist != undefined)
                 {
-                    setreferral = req.body.referral;
-                  
-                    var CreateReferralDto_ = new CreateReferralDto();
-                    CreateReferralDto_._id = (await this.utilsService.generateId())
-                    CreateReferralDto_.parent = setreferral;
-                    CreateReferralDto_.children = req.body.email;
-                    CreateReferralDto_.active = true;
-                    CreateReferralDto_.verified = true;
-                    CreateReferralDto_.createdAt = current_date;
-                    CreateReferralDto_.updatedAt = current_date;
-                    CreateReferralDto_.imei = req.body.imei;
-                    CreateReferralDto_._class = "io.melody.core.domain.Referral";
-                    CreateReferralDto_.status = 'PENDING';
+                  var data_refferal = await this.referralService.findOneInChild(req.body.email);
+                  var checkexistreferral = await this.utilsService.ceckData(data_refferal);
+                  if(checkexistreferral == false)
+                  {
+                      setreferral = req.body.referral;
+                    
+                      var CreateReferralDto_ = new CreateReferralDto();
+                      CreateReferralDto_._id = (await this.utilsService.generateId())
+                      CreateReferralDto_.parent = setreferral;
+                      CreateReferralDto_.children = req.body.email;
+                      CreateReferralDto_.active = true;
+                      CreateReferralDto_.verified = true;
+                      CreateReferralDto_.createdAt = current_date;
+                      CreateReferralDto_.updatedAt = current_date;
+                      CreateReferralDto_.imei = req.body.imei;
+                      CreateReferralDto_._class = "io.melody.core.domain.Referral";
+                      CreateReferralDto_.status = 'PENDING';
 
-                    datareferral = CreateReferralDto_;
-                    await this.referralService.create(CreateReferralDto_);
+                      datareferral = CreateReferralDto_;
+                      await this.referralService.create(CreateReferralDto_);
+                  }
                 }
               }
             }
           }
         }
         catch (error) {
+          var timestamps_end = await this.utilsService.getDateTimeString();
+          this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, req.body.email, null, null, reqbody);
+
           await this.errorHandler.generateNotAcceptableException(
             'Unabled to proceed referral data. Error:' +
             error,
