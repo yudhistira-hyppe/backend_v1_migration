@@ -23661,6 +23661,29 @@ export class TagCountService {
                 }
             },
             {
+                $unwind: {
+                    path: "$listdata",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $skip: (skip * limit)
+            },
+            {
+                $limit: 80 + (skip * limit)
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    total: {
+                        $last: "$total"
+                    },
+                    listdata: {
+                        $push: "$listdata"
+                    }
+                }
+            },
+            {
                 $lookup: {
                     from: "newPosts",
                     let: {
