@@ -35,6 +35,10 @@ export class TransactionsCategorysService {
         return await this.transactionsCategorysModel.find({ "type": type, isDelete: false }).exec();
     }
 
+    async findByProduct(idProduct: string): Promise<TransactionsCategorys[]> {
+        return await this.transactionsCategorysModel.find({ "idProduct": idProduct, isDelete: false }).exec();
+    }
+
     async delete(id: string) {
         let TransactionsCategorys_ = new TransactionsCategorys();
         TransactionsCategorys_.isDelete = true;
