@@ -1815,6 +1815,26 @@ export class SocmedService {
             }
           }
         }
+        else
+        {
+          const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
+          const getSettingTutor = await this.utilsService.getSettingMixed(SETTING_TUTOR);
+          if (await this.utilsService.ceckData(getSettingTutor)) {
+            var insertdata = [];
+            let arraySetting = JSON.parse(JSON.stringify(getSettingTutor.value));
+            for(var i = 0; i < arraySetting.length; i++)
+            {
+              arrayTutor.push(
+                {
+                  "key": arraySetting[i].key,
+                  "textID": arraySetting[i].textID,
+                  "textEn": arraySetting[i].textEn,
+                  "status": true,  
+                }
+              );
+            }
+          }
+        }
         return {
           response_code: 202,
           data: {
