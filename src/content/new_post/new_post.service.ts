@@ -58176,4 +58176,71 @@ export class NewPostService {
     let data = await this.contentEventService.updatesaleview(postid);
     return data;
   }
+
+  async temppost() {
+  
+    var query = await this.loaddata.aggregate(
+      [
+        {
+          '$set': {
+              dateMonth: {
+                  '$dateToString': {
+                      format: '%Y-%m-%d %H:%M:%S',
+                      date: {
+                          '$add': [new Date(), - 6048000000]
+                      }
+                  }
+              }
+          }
+      },
+      {
+          '$lookup': {
+              from: 'newUserBasics',
+              as: 'tag2',
+              let: {
+                  localID: {
+                      '$ifNull': ['$tagPeople', []]
+                  }
+              },
+              pipeline: [
+                  {
+                      '$match': 
+                         { '$expr': { '$in': [ '$_id', '$$localID' ] } },
+                         
+                  },
+                  {
+                      '$project': {
+                          username: 1
+                      }
+                  }
+              ]
+          }
+      },
+      {
+          $match: 
+          {
+              '$expr': {
+                  '$gte': ['$createdAt', '$dateMonth']
+              }
+          },
+      },
+      {
+          $set:{
+              tagPeople:
+                  "$tag2.username"
+          }
+      },
+      {
+          $sort:{
+              createdAt:-1,
+          }
+      },
+      {
+          $out : "tempPosts"
+      },
+      ]
+    );
+    return query;
+
+  }
 }
