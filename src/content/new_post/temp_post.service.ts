@@ -20,6 +20,7 @@ import { DisqusService } from '../disqus/disqus.service';
 import { DisquslogsService } from '../disquslogs/disquslogs.service';
 import { pipeline } from 'stream';
 import { CreateUserplaylistDto } from 'src/trans/userplaylist/dto/create-userplaylist.dto';
+import { NewPostService } from './new_post.service';
 
 @Injectable()
 export class TempPOSTService {
@@ -29,6 +30,7 @@ export class TempPOSTService {
     @InjectModel(tempposts.name, 'SERVER_FULL')
     private readonly loaddata: Model<temppostsDocument>,
     private readonly postContentService: PostContentService,
+    private readonly newPostService: NewPostService,
     private readonly utilService: UtilsService,
     private readonly logapiSS: LogapisService,
     private readonly errorHandler: ErrorHandler,
@@ -51,6 +53,11 @@ export class TempPOSTService {
   async duplicatedata(CreatePostsDto: tempposts, id: string, target: string) {
     let result = null;
     if (target == 'create') {
+        var getpost = await this.newPostService.findByPostId(CreatePostsDto.postID.toString());
+        var insertdata = new tempposts;
+        insertdata = JSON.parse(JSON.stringify(getpost));
+        insertdata.tag2 = [];
+
         if(CreatePostsDto.tagPeople != null && CreatePostsDto.tagPeople != undefined)
         {
             if(CreatePostsDto.tagPeople.length != 0)
@@ -69,13 +76,13 @@ export class TempPOSTService {
                     );
                 }
 
-                CreatePostsDto.tagPeople = dummyuser;
-                CreatePostsDto.tag2 = dummytag2;
+                insertdata.tagPeople = dummyuser;
+                insertdata.tag2 = dummytag2;
             }
         }
 
         // console.log(CreatePostsDto);
-        result = await this.loaddata.create(CreatePostsDto);
+        result = await this.loaddata.create(insertdata);
     }
     else {
       let result = await this.loaddata.findByIdAndUpdate(id, CreatePostsDto, { new: true });
