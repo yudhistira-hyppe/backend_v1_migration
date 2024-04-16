@@ -19,7 +19,7 @@ import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service
 import { CreateInsightlogsDto } from '../insightlogs/dto/create-insightlogs.dto';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-// import { TempPOSTService } from '../new_post/temp_post.service';
+ import { TemppostService } from '../temppost/temppost.service';
 @Injectable()
 export class PosttaskService {
 
@@ -38,7 +38,7 @@ export class PosttaskService {
         private readonly basic2SS: UserbasicnewService,
         private readonly httpService: HttpService,
         private readonly configService: ConfigService,
-        //private readonly TempPOSTService: TempPOSTService,
+        private readonly TemppostService: TemppostService,
     ) { }
 
     async create(Posttask_: Posttask): Promise<Posttask> {
@@ -1165,6 +1165,11 @@ export class PosttaskService {
                                                         } catch (e) {
 
                                                         }
+                                                        try {
+                                                            await this.TemppostService.updateLike(email_receiverParty, email_user, postID);
+                                                        } catch (e) {
+
+                                                        }
 
                                                         try {
 
@@ -1285,6 +1290,11 @@ export class PosttaskService {
 
                                                         }
                                                         try {
+                                                            await this.TemppostService.updateView(email_receiverParty, email_user, postID);
+                                                        } catch (e) {
+
+                                                        }
+                                                        try {
                                                             this.requestChallengeView(_id_3.toString(), postID, email_user, email_receiverParty)
                                                         } catch (e) {
 
@@ -1397,6 +1407,11 @@ export class PosttaskService {
 
                                                                     try {
                                                                         await this.NewpostService.updateView(email_receiverParty, user, postID);
+                                                                    } catch (e) {
+
+                                                                    }
+                                                                    try {
+                                                                        await this.TemppostService.updateView(email_receiverParty, user, postID);
                                                                     } catch (e) {
 
                                                                     }

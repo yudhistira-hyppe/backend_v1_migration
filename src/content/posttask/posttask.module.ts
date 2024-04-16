@@ -14,11 +14,12 @@ import { InsightsModule } from '../insights/insights.module';
 import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 import { InsightlogsModule } from '../insightlogs/insightlogs.module';
 import { HttpModule } from '@nestjs/axios';
+import { TemppostModule } from '../temppost/temppost.module';
 @Module({
 
 
   imports: [
-    UtilsModule, ScheduleinjectModule,DummyuserModule,HistoryuserModule,NewpostModule,ContenteventsModule,InsightsModule,UserbasicnewModule,InsightlogsModule,HttpModule,
+    UtilsModule, ScheduleinjectModule,DummyuserModule,HistoryuserModule,NewpostModule,ContenteventsModule,InsightsModule,UserbasicnewModule,InsightlogsModule,HttpModule,TemppostModule,
     ConfigModule.forRoot(),
     MongooseModule.forFeature([{ name: Posttask.name, schema: PosttaskSchema }], 'SERVER_FULL_CRON'),
     
