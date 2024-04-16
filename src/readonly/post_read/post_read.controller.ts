@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, Post, UseGuards, BadRequestException, Req, UseInterceptors, Logger } from '@nestjs/common';
+import { Body, Controller, Headers, Post, UseGuards, BadRequestException, Req, UseInterceptors, Logger, InternalServerErrorException } from '@nestjs/common';
 import { PostsReadService } from './post_read.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { LogapisService } from 'src/trans/logapis/logapis.service';
@@ -11,6 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { NotificationReadService } from './notification_read.service';
 import { NewPostService } from 'src/content/new_post/new_post.service';
 import { NewPostContentService } from 'src/content/new_post/new_postcontent.service';
+import { TempPOSTService } from 'src/content/new_post/temp_post.service';
 
 @Controller()
 export class PostsReadController {
@@ -24,7 +25,8 @@ export class PostsReadController {
         private readonly contenteventsService: ContenteventsService,
         private readonly notificationReadService: NotificationReadService,
         private readonly post2SS: NewPostService,
-        private readonly postContent2SS: NewPostContentService
+        private readonly postContent2SS: NewPostContentService,
+        private readonly tempPOSTss: TempPOSTService
     ) { }
 
     @Post('api/posts/getuserposts/my')
@@ -1234,7 +1236,11 @@ export class PostsReadController {
 
         try {
             // data = await this.postsService.landingpage(email, type, skip, limit);
-            data = await this.postsReadService.landingpage7(email, type, skip, limit);
+            data = await this.tempPOSTss.landingPagebaru(email, type, skip, limit);
+            if(data.length < 5)
+            {
+                data = await this.postsReadService.landingpage7(email, type, skip, limit);
+            }
             lengpict = data.length;
 
         } catch (e) {

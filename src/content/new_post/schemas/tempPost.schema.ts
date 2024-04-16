@@ -86,6 +86,8 @@ export class tempposts {
   @Prop()
   tagPeople: any[];
   @Prop()
+  tag2: any[];
+  @Prop()
   contentModerationDate: string
   @Prop()
   moderationReason: string;
