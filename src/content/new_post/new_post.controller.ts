@@ -33,6 +33,7 @@ import { Posttask } from '../../content/posttask/schemas/posttask.schema';
 import { PosttaskService } from '../../content/posttask/posttask.service';
 import { ScheduleinjectService } from '../../schedule/scheduleinject/scheduleinject.service';
 import { Scheduleinject } from '../../schedule/scheduleinject/schemas/scheduleinject.schema';
+import { TempPOSTService } from './temp_post.service';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -58,6 +59,7 @@ export class NewPostController {
         private readonly newPostModService: NewPostModService,
         private readonly PosttaskService: PosttaskService,
         private readonly ScheduleinjectService: ScheduleinjectService,
+        private readonly TempPostService: TempPOSTService
 
     ) { }
 
@@ -183,7 +185,7 @@ export class NewPostController {
     @UseInterceptors(FileInterceptor('postContent'))
     async updatePostnew(@Body() body, @Headers() headers): Promise<CreatePostResponse> {
         var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + "/api/posts/updatepost";
+        var fullurl = headers.host + "/api/posts/updatepost/v2";
         var reqbody = body;
 
         this.logger.log("updatePost >>> start");
@@ -306,6 +308,7 @@ export class NewPostController {
                     }
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                this.TempPostService.updateByPostId(body, headers, dataUser);
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postID', body.postID.toString());
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postType', posts.postType.toString());
                 if (saleAmount > 0) {
@@ -382,6 +385,7 @@ export class NewPostController {
                     }
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                this.TempPostService.updateByPostId(body, headers, dataUser);
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postID', body.postID.toString());
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postType', posts.postType.toString());
                 // if (saleAmount > 0) {
@@ -531,6 +535,7 @@ export class NewPostController {
 
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                this.TempPostService.updateByPostId(body, headers, dataUser);
                 //tags
                 if (body.tags !== undefined && body.tags.length > 0) {
                     var tag2 = body.tags;
@@ -842,6 +847,7 @@ export class NewPostController {
 
                     }
                     data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                    this.TempPostService.updateByPostId(body, headers, dataUser);
                     //tags
                     if (body.tags !== undefined && body.tags.length > 0) {
                         var tag2 = body.tags;
@@ -4953,11 +4959,11 @@ export class NewPostController {
     async schedul(postID: string, email: string) {
         let arr = [];
         let rd = null;
-        let arrin=[];
-        var rndInt=0;
+        let arrin = [];
+        var rndInt = 0;
         var dataschedule = null;
         var current_date = await this.utilsService.getDateTimeString();
-        for(let x=0;x<15;x++){
+        for (let x = 0; x < 15; x++) {
             var rndInt = Math.floor(Math.random() * 59) + 1
             console.log(rndInt)
 
@@ -4994,8 +5000,8 @@ export class NewPostController {
         }
         console.log(arrin);
 
-        if(arrin.length>0){
-            
+        if (arrin.length > 0) {
+
             let t1 = "07:" + arrin[0] + ":00";
             let t2 = "08:" + arrin[1] + ":00";
             let t3 = "09:" + arrin[2] + ":00";
@@ -5013,8 +5019,8 @@ export class NewPostController {
             let t15 = "21:" + arrin[14] + ":00";
             arr = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15]
         }
-        
-       
+
+
         try {
             dataschedule = await this.ScheduleinjectService.findBypostID(postID);
         } catch (e) {
@@ -5024,10 +5030,10 @@ export class NewPostController {
             var Scheduleinject_ = new Scheduleinject();
             Scheduleinject_.postID = postID;
             Scheduleinject_.time = arr;
-            Scheduleinject_.emailPost=email;
-            Scheduleinject_.type="CREATEPOST";
-            Scheduleinject_.createdAt=current_date;
-            Scheduleinject_.updatedAt=current_date;
+            Scheduleinject_.emailPost = email;
+            Scheduleinject_.type = "CREATEPOST";
+            Scheduleinject_.createdAt = current_date;
+            Scheduleinject_.updatedAt = current_date;
             try {
                 await this.ScheduleinjectService.create(Scheduleinject_);
             } catch (e) {
