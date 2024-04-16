@@ -75,6 +75,10 @@ export class NewPostService {
     return data;
   }
 
+  async findByPostid(postID: string): Promise<newPosts> {
+    return this.loaddata.findOne({postID:postID}).exec();
+}
+
   async findid(id: string): Promise<newPosts> {
     return this.loaddata.findOne({ _id: id }).exec();
   }
@@ -86,6 +90,13 @@ export class NewPostService {
   async findNewpostid(id: string): Promise<newPosts> {
     return this.loaddata.findOne({ _id: id }).exec();
   }
+
+  async findbyviewmail(email:string,postID:string): Promise<newPosts[]> {
+    return this.loaddata.find({ userView: { "$in" : [email]},"postID": postID, }).exec();
+}
+async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
+    return this.loaddata.find({ userLike: { "$in" : [email]},"postID": postID, }).exec();
+}
 
   async databasenew(buy: string, report: string, iduser: Object, username: string, description: string, kepemilikan: any[], statusjual: any[], postType: any[], kategori: any[], hashtag: any[], startdate: string, enddate: string, startmount: number, endmount: number, descending: boolean, page: number, limit: number, popular: any) {
 
@@ -10839,6 +10850,61 @@ export class NewPostService {
     ]);
     return query;
   }
+
+  async updateView(email: string, email_target: string, postID: string) {
+    var getdata = await this.loaddata.findOne({ postID: postID }).exec();
+    var setinput = {};
+    setinput['$inc'] = {
+        views: 1
+    };
+    var setCEViewer = getdata.userView;
+    setCEViewer.push(email_target);
+    setinput["$set"] = {
+        "userView": setCEViewer
+    }
+
+    this.loaddata.updateOne(
+        {
+            email: email,
+            postID: postID,
+        },
+        setinput,
+        function (err, docs) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(docs);
+            }
+        },
+    );
+}
+  async updateLike(email: string, email_target: string, postID: string) {
+    var getdata = await this.loaddata.findOne({ postID: postID }).exec();
+    var setinput = {};
+    setinput['$inc'] = {
+        likes: 1
+    };
+    var setCELike = getdata.userLike;
+    setCELike.push(email_target);
+    setinput["$set"] = {
+        "userLike": setCELike
+    }
+
+    this.loaddata.updateOne(
+        {
+            email: email,
+            postID: postID,
+        },
+        setinput,
+        function (err, docs) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(docs);
+            }
+        },
+    );
+}
 
   async updateNoneActive(email: string) {
     this.loaddata.updateMany(
@@ -58227,7 +58293,7 @@ export class NewPostService {
       {
           $set:{
               tagPeople:
-                  "$tag2.username"
+                  "$tag2"
           }
       },
       {

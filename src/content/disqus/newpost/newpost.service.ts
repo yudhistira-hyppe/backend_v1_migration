@@ -26,7 +26,7 @@ export class NewpostService {
     async findByPostId(postID: string): Promise<Newpost> {
         return this.PostsModel.findOne({ postID: postID }).exec();
     }
-
+  
     async findid(id: string): Promise<Newpost> {
         return this.PostsModel.findOne({ _id: id }).exec();
     }
@@ -876,5 +876,10 @@ export class NewpostService {
 
         return query;
     }
-
+    async findbyviewmail(email:string,postID:string): Promise<Newpost[]> {
+        return this.PostsModel.find({ userView: { "$in" : [email]},"postID": postID, }).exec();
+    }
+    async findbylikemail(email:string,postID:string): Promise<Newpost[]> {
+        return this.PostsModel.find({ userLike: { "$in" : [email]},"postID": postID, }).exec();
+    }
 }

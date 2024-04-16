@@ -6283,5 +6283,155 @@ export class ChallengeService {
       // return array;
     }
   }
+  async challengeKontenNew() {
+    var pipeline = [];
 
+    pipeline.push( {
+      $set: {
+          "timenow": 
+          {
+              "$dateToString": {
+                  "format": "%Y-%m-%d %H:%M:%S",
+                  "date": {
+                      $add: [
+                          new Date(),
+                          25200000
+                      ]
+                  }
+              }
+          }
+      }
+  },
+  {
+      "$match": 
+      {
+          "$and": 
+          [
+              
+              {
+                  $expr: 
+                  {
+                      $gte: 
+                      [
+                          "$timenow",
+                          "$startChallenge",
+                          
+                      ]
+                  },
+                  
+              },
+              {
+                  $expr: 
+                  {
+                      $lte: 
+                      [
+                          "$timenow",
+                          "$endChallenge",
+                          
+                      ]
+                  },
+                  
+              },
+              
+          ]
+      }
+  },
+   {
+    $match: {
+      "statusChallenge": "PUBLISH"
+    }
+  },
+    {
+      $project: {
+        "statusChallenge": 1,
+        "nameChallenge": 1,
+        "jenisChallenge": 1,
+        "description": 1,
+        "createdAt": 1,
+        "updatedAt": 1,
+        "durasi": 1,
+        "endChallenge": 1,
+        "startChallenge": 1,
+        "tampilStatusPengguna": 1,
+        "objectChallenge": 1,
+        "Aktivitas": {
+          $arrayElemAt: ['$metrik.Aktivitas', 0]
+        },
+        "Interaksi": {
+          $arrayElemAt: ['$metrik.Interaksi', 0]
+        },
+        "InteraksiKonten": {
+          $arrayElemAt: ['$metrik.InteraksiKonten', 0]
+        },
+
+      }
+    },
+    {
+      $project: {
+        "idChallenge":"$_id",
+        "statusChallenge": 1,
+        "nameChallenge": 1,
+        "jenisChallenge": 1,
+        "description": 1,
+        "createdAt": 1,
+        "updatedAt": 1,
+        "durasi": 1,
+        "endChallenge": 1,
+        "startChallenge": 1,
+        "tampilStatusPengguna": 1,
+        "objectChallenge": 1,
+        "Aktivitas": 1,
+        "Interaksi": 1,
+        "InteraksiKonten": 1,
+
+      }
+    },
+    {
+      $match: {
+        "InteraksiKonten": {
+          $ne: []
+        },
+        "Interaksi": true
+      }
+    },
+    {
+      $unwind: "$InteraksiKonten"
+    },
+    {
+      $project: {
+        "idChallenge":1,
+        "statusChallenge": 1,
+        "nameChallenge": 1,
+        "jenisChallenge": 1,
+        "description": 1,
+        "createdAt": 1,
+        "updatedAt": 1,
+        "durasi": 1,
+        "endChallenge": 1,
+        "startChallenge": 1,
+        "tampilStatusPengguna": 1,
+        "objectChallenge": 1,
+        "Aktivitas": 1,
+        "Interaksi": 1,
+        "tagar": {
+          $ifNull: ['$InteraksiKonten.tagar', ""]
+        },
+        "buatKonten":
+        {
+          $ifNull: ['$InteraksiKonten.buatKonten', []]
+        },
+        "suka": {
+          $ifNull: ['$InteraksiKonten.suka', []]
+        },
+        "tonton": {
+          $ifNull: ['$InteraksiKonten.tonton', []]
+        },
+
+
+
+      }
+    });
+    var query = await this.ChallengeModel.aggregate(pipeline);
+    return query;
+  }
 }

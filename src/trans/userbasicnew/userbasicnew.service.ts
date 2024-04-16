@@ -47,7 +47,9 @@ export class UserbasicnewService {
     async findbyemail(email: string): Promise<Userbasicnew> {
         return this.UserbasicnewModel.findOne({ email: email }).exec();
     }
-
+    async findOneBymail(email: string): Promise<Userbasicnew> {
+        return this.UserbasicnewModel.findOne({ email: email }).exec();
+    }
     async findbyemailLogin(email: string): Promise<Userbasicnew> {
         return this.UserbasicnewModel.findOne({ emailLogin: email }).exec();
     }

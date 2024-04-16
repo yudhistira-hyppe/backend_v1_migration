@@ -26,8 +26,12 @@ import { HttpModule } from '@nestjs/axios';
 import { MediastreamingModule } from '../mediastreaming/mediastreaming.module';
 import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 import { NewpostModule } from '../disqus/newpost/newpost.module';
+import { Settings2Module } from 'src/trans/settings2/settings2.module';
+import { PostmigrationModule } from 'src/content/postmigration/postmigration.module';
 @Module({
     imports: [
+        PostmigrationModule,
+        Settings2Module,
         MediastreamingModule,
         HttpModule,
         PostchallengeModule,
