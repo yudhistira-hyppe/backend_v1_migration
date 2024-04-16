@@ -2,7 +2,7 @@ import { Logger, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import mongoose, { Model, Types } from 'mongoose';
-import { temppost, temppostDocument } from './schemas/tempPost.schema';
+import { temppost, temppostDocument } from './schemas/temppost.schema';
 
 
 @Injectable()
