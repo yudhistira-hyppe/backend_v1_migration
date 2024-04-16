@@ -175,6 +175,9 @@ export class NewPostController {
                 }
 
             }
+
+            //untuk temppost
+            this.TempPostService.duplicatedata(data.data, null, "create");
         }
 
         return data;
