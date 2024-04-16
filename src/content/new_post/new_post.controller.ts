@@ -614,7 +614,7 @@ export class NewPostController {
                 const mongoose = require('mongoose');
                 var ObjectId = require('mongodb').ObjectId;
 
-                if (body.cats !== undefined) {
+                if (body.cats != undefined && body.cats.length > 0) {
                     let cats = body.cats;
                     var splitcats = cats.split(',');
                     for (let i = 0; i < splitcats.length; i++) {
