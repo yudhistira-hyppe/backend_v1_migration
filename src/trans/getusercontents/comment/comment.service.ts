@@ -393,7 +393,16 @@ export class CommentService {
                     receiver: "$receiver",
                     active: "$active",
                     eventInsight: "$eventInsight",
-                    postType: "$postType",
+                    // postType: "$postType",
+                    postType: {
+                        '$cond': {
+                            if: {
+                                "$eq": ["$postType", "diary"]
+                            },
+                            then: "vid",
+                            else: "$postType"
+                        }
+                    },
                     postID: "$postID",
                     createdAt: "$createdAt",
                     updatedAt: "$updatedAt",

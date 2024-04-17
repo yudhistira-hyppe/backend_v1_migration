@@ -14639,7 +14639,16 @@ export class NewPostService {
                 updatedAt: 1,
                 postID: 1,
                 email: 1,
-                postType: 1,
+                // postType: 1,
+                postType: {
+                  '$cond': {
+                    if: {
+                      "$eq": ["$postType", "diary"]
+                    },
+                    then: "vid",
+                    else: "$postType"
+                  }
+                },
                 description: 1,
                 title: 1,
                 active: 1,
