@@ -36,6 +36,40 @@ export class NotificationsService {
       { $sort: { createdAt: -1 }, },
       { $skip: skip },
       { $limit: limit },
+      {
+        $project: {
+          _id: 1,
+          notificationID: 1,
+          email: 1,
+          eventType: 1,
+          event: 1,
+          mate: 1,
+          senderOrReceiverInfo: 1,
+          title: 1,
+          body: {
+            $replaceAll: {
+              input: "$body",
+              find: "HyppeDiary",
+              replacement: "HyppeVid"
+            }
+          },
+          active: 1,
+          flowIsDone: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          contentEventID: 1,
+          postID: 1,
+          postType: {
+            $replaceAll: {
+              input: "$postType",
+              find: "HyppeDiary",
+              replacement: "HyppeVid"
+            }
+          },
+          devices: 1,
+          actionButtons: 1
+        }
+      }
     ]);
     return query;
   }
