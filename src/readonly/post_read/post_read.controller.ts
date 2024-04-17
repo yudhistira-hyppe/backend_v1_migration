@@ -2212,7 +2212,7 @@ export class PostsReadController {
 
             // data = await this.postsReadService.landingpageMy2V2(email, postType, parseInt(pageNumber), parseInt(pageRow), emailLogin);
             // data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
-            data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, page, parseInt(pageRow))
+            data = await this.post2SS.landingpageMigrationV2(email, emailLogin, postType, postid, visibility, active, exp, withinsight, page, parseInt(pageRow))
             lengpict = data.length;
             console.log("data", data);
         } catch (e) {
