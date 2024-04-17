@@ -2102,4 +2102,378 @@ export class PostsReadController {
 
         return { response_code: 202, data, messages };
     }
+
+    @Post('api/posts/getuserposts/byprofile/index')
+    @UseInterceptors(FileInterceptor('postContent'))
+    @UseGuards(JwtAuthGuard)
+    async contentbyprofilev24(@Body() body, @Headers('x-auth-user') emailLogin: string): Promise<any> {
+        console.log('=============================================BY PROFILE PAGE HIT=============================================')
+        console.log('============================================= BODY =============================================', JSON.stringify(body))
+
+        var pageNumber = null;
+        var pageRow = null;
+        var postType = null;
+        var data = null;
+        var datasearch = null;
+        var emailreceiver = null;
+        var email = null;
+        var postid = null;
+        var visibility = null;
+        var active = null;
+        var exp = null;
+        var withinsight = null;
+        var index=null;
+        var page=null; 
+        var sisa=null;
+
+        // if (body.pageNumber !== undefined) {
+        //     pageNumber = body.pageNumber;
+        // }
+
+        if (body.pageRow !== undefined) {
+            pageRow = body.pageRow;
+        }
+        if (body.postType !== undefined) {
+            postType = body.postType;
+        }
+
+        if (body.email !== undefined) {
+            email = body.email;
+        }
+
+        if (body.visibility !== undefined) {
+            visibility = body.visibility;
+        }
+        if (body.index !== undefined) {
+            index = body.index;
+        }
+        if (body.withActive !== undefined) {
+            if(body.withActive == "true" || body.withActive == true)
+            {
+                active = true;
+            }
+            else
+            {
+                active = false;
+            }
+        }
+
+        if(body.withExp !== undefined)
+        {
+            if(body.withExp == "true" || body.withExp == true)
+            {
+                exp = true;
+            }
+            else
+            {
+                exp = false;
+            }
+        }
+
+        if(body.withInsight !== undefined)
+        {
+            if(body.withInsight == "true" || body.withInsight == true)
+            {
+                withinsight = true;
+            }
+            else
+            {
+                withinsight = false;
+            }
+        }
+
+        if(body.postid !== undefined) {
+            postid = body.postid;
+        }
+
+        page=parseInt(index)/parseInt(pageRow);
+        page=parseInt(page);
+
+        sisa=index%pageRow;
+
+        if(sisa>0){
+            page=page +1;
+        }
+
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var picts = [];
+        var lengpict = null;
+
+        try {
+
+            // data = await this.postsReadService.landingpageMy2V2(email, postType, parseInt(pageNumber), parseInt(pageRow), emailLogin);
+            // data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
+            data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, page, parseInt(pageRow))
+            lengpict = data.length;
+            console.log("data", data);
+        } catch (e) {
+            console.log("ERROR", e);
+            data = null;
+            lengpict = 0;
+
+        }
+
+        //CECK FOLLOWING
+        var getFollowing = false;
+        var ceck_data_FOLLOW = await this.contenteventsService.ceckData(String(emailLogin), "FOLLOWING", "ACCEPT", "", email, "", true);
+        if (await this.utilsService.ceckData(ceck_data_FOLLOW)) {
+            getFollowing = true;
+        }
+        if (data != null) {
+            data.forEach(v => { v.following = getFollowing; });
+        }
+
+        var tempapsaraMusicThumbId = [];
+        var tempapsaraId = [];
+        var tempapsaraThumbId = [];
+        var tempdatapict = [];
+
+        var tempdatapict = [];
+
+        var apsaraMusicThumbId = null;
+        var boosted = null;
+        var boostCount = null;
+        var version = null;
+        var uploadSource = null;
+        var apsaraId = null;
+        var apsaraThumbId = null;
+        var mediaType = null;
+        var postID = null;
+        var gettempresultpictapsara = null;
+        if (lengpict > 0) {
+            var tempapsaraId_result = null;
+            var tempapsaraThumbId_result = null;
+            var tempapsaraMusicThumbId_result = null;
+
+            var resultpictapsara = null;
+            version = data[0].version;
+            if (postType == "pict") {
+
+                for (let i = 0; i < lengpict; i++) {
+                    uploadSource = data[i].uploadSource;
+                    try {
+                        apsaraId = data[i].apsaraId;
+                    } catch (e) {
+                        apsaraId = "";
+                    }
+                    try {
+                        apsaraThumbId = data[i].apsaraThumbId;
+                    } catch (e) {
+                        apsaraThumbId = "";
+                    }
+                    try {
+                        apsaraMusicThumbId = data[i].apsaraMusicThumnail;
+                    } catch (e) {
+                        apsaraMusicThumbId = "";
+                    }
+
+                    if (apsaraId != "") {
+                        tempapsaraId.push(data[i].apsaraId);
+                    }
+
+                    if (apsaraId != "") {
+                        tempapsaraThumbId.push(data[i].apsaraThumbId);
+                    }
+
+                    if (apsaraMusicThumbId != "") {
+                        tempapsaraMusicThumbId.push(data[i].apsaraMusicThumnail);
+                    }
+                }
+                console.log("");
+                tempapsaraId_result = await this.postContent2SS.getImageApsara(tempapsaraId);
+                tempapsaraThumbId_result = await this.postContent2SS.getImageApsara(tempapsaraThumbId);
+                tempapsaraMusicThumbId_result = await this.postContent2SS.getImageApsara(tempapsaraMusicThumbId);
+
+                let gettempresultpictapsara_tempapsaraId = tempapsaraId_result.ImageInfo;
+                let gettempresultpictapsara_tempapsaraThumbId = tempapsaraThumbId_result.ImageInfo;
+                let gettempresultpictapsara_tempapsaraMusicThumbId = tempapsaraMusicThumbId_result.ImageInfo;
+                for (let i = 0; i < lengpict; i++) {
+                    emailreceiver = data[i].email;
+                    boosted = data[i].boosted;
+                    boostCount = data[i].boostCount;
+                    var checkpictketemu = false;
+                    uploadSource = data[i].uploadSource;
+                    var dataUpsaraThum = (data[i].apsaraThumbId != undefined);
+                    var dataUpsara = (data[i].apsaraId != undefined);
+
+                    if (data[i].isApsara) {
+                        for (var j = 0; j < gettempresultpictapsara_tempapsaraId.length; j++) {
+                            if (gettempresultpictapsara_tempapsaraId[j].ImageId == data[i].apsaraId) {
+                                data[i].mediaEndpoint = gettempresultpictapsara_tempapsaraId[j].URL;
+                                if (!dataUpsaraThum) {
+                                    data[i].mediaThumbEndpoint = gettempresultpictapsara_tempapsaraId[j].URL;
+                                }
+                            }
+                        }
+                        for (var j = 0; j < gettempresultpictapsara_tempapsaraThumbId.length; j++) {
+                            if (gettempresultpictapsara_tempapsaraThumbId[j].ImageId == data[i].apsaraThumbId) {
+                                data[i].mediaThumbEndpoint = gettempresultpictapsara_tempapsaraThumbId[j].URL;
+                                if (!dataUpsara) {
+                                    data[i].mediaEndpoint = gettempresultpictapsara_tempapsaraThumbId[j].URL;
+                                }
+                            }
+                        }
+                    }
+
+                    if (data[i].apsaraMusicThumnail) {
+                        for (var j = 0; j < gettempresultpictapsara_tempapsaraMusicThumbId.length; j++) {
+                            if (gettempresultpictapsara_tempapsaraMusicThumbId[j].ImageId == data[i].apsaraMusicThumnail) {
+                                data[i].mediaMusicThumbEndpoint = gettempresultpictapsara_tempapsaraMusicThumbId[j].URL;
+                            }
+                        }
+                    }
+
+                    if (boosted !== null || boosted.length > 0) {
+                        console.log("boosted: " + data[i].postID);
+                        if (data[i].postID != undefined) {
+                            this.post2SS.updateBoostViewer(data[i].postID, emailLogin);
+                        }
+                        if (boosted.length > 0) {
+                            if (boosted[0] != undefined) {
+                                boostCount = (boosted[0].boostViewer != undefined) ? boosted[0].boostViewer.length : 0;
+                                boosted = boosted;
+                                await this.post2SS.updateBoostCount(data[i].postID, boostCount + 1);
+                            } else {
+                                boostCount = 0;
+                                boosted = [];
+                            }
+                        } else {
+                            boostCount = 0;
+                            boosted = [];
+                        }
+                    } else {
+                        boostCount = 0;
+                        boosted = [];
+                    }
+
+                    picts.push(data[i]);
+                }
+
+            } else {
+                for (let i = 0; i < lengpict; i++) {
+                    //ini buat produksion
+                    // postType = data[i].postType;
+                    // if (postType === "diary") {
+                    //     data[i].saleAmount = 0;
+                    // }
+                    mediaType = data[i].mediaType;
+
+                    if (data[i].isApsara == true) {
+                        tempdatapict.push(data[i].apsaraId);
+                    } else {
+                        if (mediaType == "image" || mediaType == "images") {
+                            data[i].mediaEndpoint = "/pict/" + data[i].postID;
+                        } else {
+                            data[i].mediaEndpoint = "/stream/" + data[i].postID;
+
+                        }
+                    }
+                }
+
+                if (mediaType == "image" || mediaType == "images") {
+                    resultpictapsara = await this.postContent2SS.getImageApsara(tempdatapict);
+                    gettempresultpictapsara = resultpictapsara.ImageInfo;
+
+                } else {
+                    resultpictapsara = await this.postContent2SS.getVideoApsara(tempdatapict);
+                    gettempresultpictapsara = resultpictapsara.VideoList;
+                }
+
+                for (let i = 0; i < lengpict; i++) {
+                    emailreceiver = data[i].email;
+                    boostCount = data[i].boostCount;
+                    boosted = data[i].boosted;
+                    var checkpictketemu = false;
+                    for (var j = 0; j < gettempresultpictapsara.length; j++) {
+                        if (mediaType == "image" || mediaType == "images") {
+                            if (gettempresultpictapsara[j].ImageId == data[i].apsaraThumbId) {
+                                if (data[i].apsaraThumbId == data[i].apsaraId) {
+                                    data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
+                                }
+                                if (!dataUpsara) {
+                                    data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
+                                }
+                                data[i].media =
+                                {
+                                    "ImageInfo": [gettempresultpictapsara[j]]
+                                }
+
+                                data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
+
+                            }
+                            else if (gettempresultpictapsara[j].ImageId == data[i].apsaraId) {
+                                if (data[i].apsaraThumbId == data[i].apsaraId) {
+                                    data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
+                                }
+                                if (!dataUpsaraThum) {
+                                    data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
+                                }
+                                checkpictketemu = true;
+                                data[i].media =
+                                {
+                                    "ImageInfo": [gettempresultpictapsara[j]]
+                                }
+
+                                data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
+
+                            }
+                        } else {
+                            if (gettempresultpictapsara[j].VideoId == data[i].apsaraId) {
+                                checkpictketemu = true;
+                                data[i].media =
+                                {
+                                    "VideoList": [gettempresultpictapsara[j]]
+                                }
+
+                                data[i].mediaThumbEndpoint = gettempresultpictapsara[j].CoverURL;
+                            }
+                        }
+                    }
+
+                    if (checkpictketemu == false) {
+                        data[i].apsaraId = "";
+                        data[i].isApsara = false;
+                        data[i].media =
+                        {
+                            "VideoList": []
+                        };
+                    }
+                    if (boosted !== null || boosted.length > 0) {
+                        console.log("boosted: " + data[i].postID);
+                        if (data[i].postID != undefined) {
+                            this.post2SS.updateBoostViewer(data[i].postID, emailLogin);
+                        }
+                        if (boosted.length > 0) {
+                            if (boosted[0] != undefined) {
+                                boostCount = (boosted[0].boostViewer != undefined) ? boosted[0].boostViewer.length : 0;
+                                boosted = boosted;
+
+                                await this.post2SS.updateBoostCount(data[i].postID, boostCount + 1);
+                            } else {
+                                boostCount = 0;
+                                boosted = [];
+                            }
+                        } else {
+                            boostCount = 0;
+                            boosted = [];
+                        }
+                    } else {
+                        boostCount = 0;
+                        boosted = [];
+                    }
+
+                    picts.push(data[i]);
+                }
+            }
+        } else {
+            picts = [];
+            version = "";
+        }
+
+
+        return { response_code: 202, data: picts, version: version.toString(), version_ios: (await this.utilsService.getSetting_("645da79c295b0000520048c2")).toString(), messages };
+    }
 }
