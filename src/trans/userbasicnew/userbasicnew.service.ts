@@ -2851,7 +2851,16 @@ export class UserbasicnewService {
                                         '$project': {
                                             postID: 1,
                                             description: 1,
-                                            postType: 1,
+                                            // postType: 1,
+                                            postType: {
+                                                '$cond': {
+                                                    if: {
+                                                        "$eq": ["$postType", "diary"]
+                                                    },
+                                                    then: "vid",
+                                                    else: "$postType"
+                                                }
+                                            },
                                             certified: 1,
                                             mediaSource:
                                             {
@@ -6705,8 +6714,7 @@ export class UserbasicnewService {
         if (getdata != null) {
             try {
                 listreferrral = getdata.referral;
-                if(listreferrral == null)
-                {
+                if (listreferrral == null) {
                     listreferrral = [];
                 }
             }
@@ -6714,8 +6722,7 @@ export class UserbasicnewService {
                 listreferrral = [];
             }
             var filterpertemanan = listreferrral.filter(emaildata => emaildata.email == email_target.email);
-            if(filterpertemanan.length == 0)
-            {
+            if (filterpertemanan.length == 0) {
                 listreferrral.push(email_target)
             }
 
