@@ -816,7 +816,7 @@ export class PostsReadController {
         return { response_code: 202, data: picts, version: version.toString(), version_ios: (await this.utilsService.getSetting_("645da79c295b0000520048c2")).toString(), messages };
     }
 
-    @Post('api/posts/getuserposts/byprofile/v2')
+    @Post('posts/getuserposts/byprofile/v2')
     @UseInterceptors(FileInterceptor('postContent'))
     @UseGuards(JwtAuthGuard)
     async contentbyprofilev2(@Body() body, @Headers('x-auth-user') emailLogin: string): Promise<any> {
