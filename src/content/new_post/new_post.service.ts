@@ -46644,337 +46644,337 @@ export class NewPostService {
   async landingpageMigrationV2(email: string, emailLogin: string, type: string, postid: string, visibility: boolean, active: boolean, exp: boolean, withinsight: boolean, skip: number, limit: number) {
     var mongo = require('mongoose');
     var pipeline = [];
-    if (email == emailLogin) {
-      // pipeline.push(
-      //   {
-      //     "$match": {
-      //       "$and": [
-      //         {
-      //           "active": (active != null ? active : true)
-      //         },
-      //         {
-      //           "postType": type
-      //         },
-      //         {
-      //           "email": email
-      //         },
-      //         {
-      //           "$or": [
-      //             {
-      //               "reportedUser": {
-      //                 "$elemMatch": {
-      //                   "email": email,
-      //                   "active": false
-      //                 }
-      //               }
-      //             },
-      //             {
-      //               "reportedUser.email": {
-      //                 "$not": {
-      //                   "$regex": email
-      //                 }
-      //               }
-      //             }
-      //           ]
-      //         }
-      //       ]
-      //     }
-      //   },
-      // );
-      if (type == "vid") {
-        pipeline.push(
-          {
-            "$match": {
-              "$and": [
-                {
-                  "active": (active != null ? active : true)
-                },
-                {
-                  "postType": {
-                    $in: ["vid"]
-                  }
-                },
-                {
-                  "email": email
-                },
-                {
-                  "$or": [
-                    {
-                      "reportedUser": {
-                        "$elemMatch": {
-                          "email": email,
-                          "active": false
-                        }
-                      }
-                    },
-                    {
-                      "reportedUser.email": {
-                        "$not": {
-                          "$regex": email
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-        );
-      } 
-      else if (type == "diary") {
-        pipeline.push(
-          {
-            "$match": {
-              "$and": [
-                {
-                  "active": (active != null ? active : true)
-                },
-                {
-                  "postType": {
-                    $in: ["diary"]
-                  }
-                },
-                {
-                  "email": email
-                },
-                {
-                  "$or": [
-                    {
-                      "reportedUser": {
-                        "$elemMatch": {
-                          "email": email,
-                          "active": false
-                        }
-                      }
-                    },
-                    {
-                      "reportedUser.email": {
-                        "$not": {
-                          "$regex": email
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-        );
-      }
-      else {
-        pipeline.push(
-          {
-            "$match": {
-              "$and": [
-                {
-                  "active": (active != null ? active : true)
-                },
-                {
-                  "postType": type
-                },
-                {
-                  "email": email
-                },
-                {
-                  "$or": [
-                    {
-                      "reportedUser": {
-                        "$elemMatch": {
-                          "email": email,
-                          "active": false
-                        }
-                      }
-                    },
-                    {
-                      "reportedUser.email": {
-                        "$not": {
-                          "$regex": email
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-        );
-      }
-    } else {
-      // pipeline.push(
-      //   {
-      //     "$match": {
-      //       "$and": [
-      //         {
-      //           "active": (active != null ? active : true)
-      //         },
-      //         {
-      //           "postType": type
-      //         },
-      //         {
-      //           "email": email
-      //         },
-      //         {
-      //           "reportedStatus": {
-      //             $ne: "OWNED"
-      //           }
-      //         },
-      //         {
-      //           "$or": [
-      //             {
-      //               "reportedUser": {
-      //                 "$elemMatch": {
-      //                   "email": emailLogin,
-      //                   "active": false
-      //                 }
-      //               }
-      //             },
-      //             {
-      //               "reportedUser.email": {
-      //                 "$not": {
-      //                   "$regex": emailLogin
-      //                 }
-      //               }
-      //             }
-      //           ]
-      //         }
-      //       ]
-      //     }
-      //   },
-      // );
-      if (type == "vid" ) {
-        pipeline.push(
-          {
-            "$match": {
-              "$and": [
-                {
-                  "active": (active != null ? active : true)
-                },
-                {
-                  "postType": {
-                    $in: ["vid"]
-                  }
-                },
-                {
-                  "email": email
-                },
-                {
-                  "reportedStatus": {
-                    $ne: "OWNED"
-                  }
-                },
-                {
-                  "$or": [
-                    {
-                      "reportedUser": {
-                        "$elemMatch": {
-                          "email": emailLogin,
-                          "active": false
-                        }
-                      }
-                    },
-                    {
-                      "reportedUser.email": {
-                        "$not": {
-                          "$regex": emailLogin
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-        );
-      }
-      else if (type == "diary") {
-        pipeline.push(
-          {
-            "$match": {
-              "$and": [
-                {
-                  "active": (active != null ? active : true)
-                },
-                {
-                  "postType": {
-                    $in: ["diary"]
-                  }
-                },
-                {
-                  "email": email
-                },
-                {
-                  "reportedStatus": {
-                    $ne: "OWNED"
-                  }
-                },
-                {
-                  "$or": [
-                    {
-                      "reportedUser": {
-                        "$elemMatch": {
-                          "email": emailLogin,
-                          "active": false
-                        }
-                      }
-                    },
-                    {
-                      "reportedUser.email": {
-                        "$not": {
-                          "$regex": emailLogin
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-        );
-      }
-       else {
-        pipeline.push(
-          {
-            "$match": {
-              "$and": [
-                {
-                  "active": (active != null ? active : true)
-                },
-                {
-                  "postType": type
-                },
-                {
-                  "email": email
-                },
-                {
-                  "reportedStatus": {
-                    $ne: "OWNED"
-                  }
-                },
-                {
-                  "$or": [
-                    {
-                      "reportedUser": {
-                        "$elemMatch": {
-                          "email": emailLogin,
-                          "active": false
-                        }
-                      }
-                    },
-                    {
-                      "reportedUser.email": {
-                        "$not": {
-                          "$regex": emailLogin
-                        }
-                      }
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-        );
-      }
-    }
+    // if (email == emailLogin) {
+    //   // pipeline.push(
+    //   //   {
+    //   //     "$match": {
+    //   //       "$and": [
+    //   //         {
+    //   //           "active": (active != null ? active : true)
+    //   //         },
+    //   //         {
+    //   //           "postType": type
+    //   //         },
+    //   //         {
+    //   //           "email": email
+    //   //         },
+    //   //         {
+    //   //           "$or": [
+    //   //             {
+    //   //               "reportedUser": {
+    //   //                 "$elemMatch": {
+    //   //                   "email": email,
+    //   //                   "active": false
+    //   //                 }
+    //   //               }
+    //   //             },
+    //   //             {
+    //   //               "reportedUser.email": {
+    //   //                 "$not": {
+    //   //                   "$regex": email
+    //   //                 }
+    //   //               }
+    //   //             }
+    //   //           ]
+    //   //         }
+    //   //       ]
+    //   //     }
+    //   //   },
+    //   // );
+    //   if (type == "vid") {
+    //     pipeline.push(
+    //       {
+    //         "$match": {
+    //           "$and": [
+    //             {
+    //               "active": (active != null ? active : true)
+    //             },
+    //             {
+    //               "postType": {
+    //                 $in: ["vid"]
+    //               }
+    //             },
+    //             {
+    //               "email": email
+    //             },
+    //             {
+    //               "$or": [
+    //                 {
+    //                   "reportedUser": {
+    //                     "$elemMatch": {
+    //                       "email": email,
+    //                       "active": false
+    //                     }
+    //                   }
+    //                 },
+    //                 {
+    //                   "reportedUser.email": {
+    //                     "$not": {
+    //                       "$regex": email
+    //                     }
+    //                   }
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       },
+    //     );
+    //   } 
+    //   else if (type == "diary") {
+    //     pipeline.push(
+    //       {
+    //         "$match": {
+    //           "$and": [
+    //             {
+    //               "active": (active != null ? active : true)
+    //             },
+    //             {
+    //               "postType": {
+    //                 $in: ["diary"]
+    //               }
+    //             },
+    //             {
+    //               "email": email
+    //             },
+    //             {
+    //               "$or": [
+    //                 {
+    //                   "reportedUser": {
+    //                     "$elemMatch": {
+    //                       "email": email,
+    //                       "active": false
+    //                     }
+    //                   }
+    //                 },
+    //                 {
+    //                   "reportedUser.email": {
+    //                     "$not": {
+    //                       "$regex": email
+    //                     }
+    //                   }
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       },
+    //     );
+    //   }
+    //   else {
+    //     pipeline.push(
+    //       {
+    //         "$match": {
+    //           "$and": [
+    //             {
+    //               "active": (active != null ? active : true)
+    //             },
+    //             {
+    //               "postType": type
+    //             },
+    //             {
+    //               "email": email
+    //             },
+    //             {
+    //               "$or": [
+    //                 {
+    //                   "reportedUser": {
+    //                     "$elemMatch": {
+    //                       "email": email,
+    //                       "active": false
+    //                     }
+    //                   }
+    //                 },
+    //                 {
+    //                   "reportedUser.email": {
+    //                     "$not": {
+    //                       "$regex": email
+    //                     }
+    //                   }
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       },
+    //     );
+    //   }
+    // } else {
+    //   // pipeline.push(
+    //   //   {
+    //   //     "$match": {
+    //   //       "$and": [
+    //   //         {
+    //   //           "active": (active != null ? active : true)
+    //   //         },
+    //   //         {
+    //   //           "postType": type
+    //   //         },
+    //   //         {
+    //   //           "email": email
+    //   //         },
+    //   //         {
+    //   //           "reportedStatus": {
+    //   //             $ne: "OWNED"
+    //   //           }
+    //   //         },
+    //   //         {
+    //   //           "$or": [
+    //   //             {
+    //   //               "reportedUser": {
+    //   //                 "$elemMatch": {
+    //   //                   "email": emailLogin,
+    //   //                   "active": false
+    //   //                 }
+    //   //               }
+    //   //             },
+    //   //             {
+    //   //               "reportedUser.email": {
+    //   //                 "$not": {
+    //   //                   "$regex": emailLogin
+    //   //                 }
+    //   //               }
+    //   //             }
+    //   //           ]
+    //   //         }
+    //   //       ]
+    //   //     }
+    //   //   },
+    //   // );
+    //   if (type == "vid" ) {
+    //     pipeline.push(
+    //       {
+    //         "$match": {
+    //           "$and": [
+    //             {
+    //               "active": (active != null ? active : true)
+    //             },
+    //             {
+    //               "postType": {
+    //                 $in: ["vid"]
+    //               }
+    //             },
+    //             {
+    //               "email": email
+    //             },
+    //             {
+    //               "reportedStatus": {
+    //                 $ne: "OWNED"
+    //               }
+    //             },
+    //             {
+    //               "$or": [
+    //                 {
+    //                   "reportedUser": {
+    //                     "$elemMatch": {
+    //                       "email": emailLogin,
+    //                       "active": false
+    //                     }
+    //                   }
+    //                 },
+    //                 {
+    //                   "reportedUser.email": {
+    //                     "$not": {
+    //                       "$regex": emailLogin
+    //                     }
+    //                   }
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       },
+    //     );
+    //   }
+    //   else if (type == "diary") {
+    //     pipeline.push(
+    //       {
+    //         "$match": {
+    //           "$and": [
+    //             {
+    //               "active": (active != null ? active : true)
+    //             },
+    //             {
+    //               "postType": {
+    //                 $in: ["diary"]
+    //               }
+    //             },
+    //             {
+    //               "email": email
+    //             },
+    //             {
+    //               "reportedStatus": {
+    //                 $ne: "OWNED"
+    //               }
+    //             },
+    //             {
+    //               "$or": [
+    //                 {
+    //                   "reportedUser": {
+    //                     "$elemMatch": {
+    //                       "email": emailLogin,
+    //                       "active": false
+    //                     }
+    //                   }
+    //                 },
+    //                 {
+    //                   "reportedUser.email": {
+    //                     "$not": {
+    //                       "$regex": emailLogin
+    //                     }
+    //                   }
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       },
+    //     );
+    //   }
+    //    else {
+    //     pipeline.push(
+    //       {
+    //         "$match": {
+    //           "$and": [
+    //             {
+    //               "active": (active != null ? active : true)
+    //             },
+    //             {
+    //               "postType": type
+    //             },
+    //             {
+    //               "email": email
+    //             },
+    //             {
+    //               "reportedStatus": {
+    //                 $ne: "OWNED"
+    //               }
+    //             },
+    //             {
+    //               "$or": [
+    //                 {
+    //                   "reportedUser": {
+    //                     "$elemMatch": {
+    //                       "email": emailLogin,
+    //                       "active": false
+    //                     }
+    //                   }
+    //                 },
+    //                 {
+    //                   "reportedUser.email": {
+    //                     "$not": {
+    //                       "$regex": emailLogin
+    //                     }
+    //                   }
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       },
+    //     );
+    //   }
+    // }
 
     if (postid != null && postid != undefined) {
       pipeline.push(
