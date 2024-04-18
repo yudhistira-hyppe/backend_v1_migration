@@ -18410,14 +18410,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -18799,14 +18792,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -19185,14 +19171,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -19569,14 +19548,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -20174,14 +20146,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -20777,14 +20742,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -21380,14 +21338,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -22201,14 +22152,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -23180,14 +23124,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -26278,14 +26215,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -26758,14 +26688,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -27455,14 +27378,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -28914,14 +28830,7 @@ export class NewPostService {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -30428,6 +30337,10 @@ export class NewPostService {
           }
         });
     }
+
+    // var util = require('util');
+    // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
+
     const query = await this.loaddata.aggregate(pipeline);
     return query;
   }
