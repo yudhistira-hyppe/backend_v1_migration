@@ -1250,7 +1250,7 @@ export class AdsController {
                     ads_campaign_dashboard.statusIklan = ads_status_campaign_dashboard[0].status;
                 }
             }
-            for (var d = start_date; d <= end_date; d.setDate(d.getDate() + 1)) {
+            for (var d = start_date; d < end_date; d.setDate(d.getDate() + 1)) {
                 var DateFormat = await this.utilsService.consvertDateTimeString(new Date(d));
                 const isFoundreach = ads_campaign_dashboard.reach.some(element => {
                     if (element._id === DateFormat) {
