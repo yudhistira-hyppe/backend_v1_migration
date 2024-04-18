@@ -18449,14 +18449,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -18838,14 +18831,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -19224,14 +19210,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -19608,14 +19587,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -20213,14 +20185,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -20816,14 +20781,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -22240,14 +22198,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -23219,14 +23170,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -26317,14 +26261,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -26797,14 +26734,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -27494,14 +27424,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -28953,14 +28876,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                           {
                             "$filter":
                             {
-                              input:
-                              {
-                                "$arrayElemAt":
-                                  [
-                                    "$userAuth.userBadge",
-                                    0
-                                  ]
-                              },
+                              input:"$userAuth.userBadge",
                               as: "listbadge",
                               cond:
                               {
@@ -30467,6 +30383,10 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
           }
         });
     }
+
+    // var util = require('util');
+    // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
+
     const query = await this.loaddata.aggregate(pipeline);
     return query;
   }
