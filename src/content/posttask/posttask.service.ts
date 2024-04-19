@@ -1455,6 +1455,15 @@ export class PosttaskService {
                                                                 if (datalogview == null) {
 
 
+                                                                let datauserview = null;
+
+                                                                try {
+                                                                    datauserview = await this.NewpostService.findbyviewmail(email_userrand, postID);
+                                                                } catch (e) {
+                                                                    datauserview = null;
+                                                                }
+
+                                                                if (datauserview == null || datauserview.length == 0) {
                                                                     var Historyuser3_ = new Historyuser()
                                                                     Historyuser3_.createdAt = current_date;
                                                                     Historyuser3_.updatedAt = current_date;
@@ -1528,17 +1537,6 @@ export class PosttaskService {
                                                                     CreateInsightsDto_receiver3.insightLogs = LogInsught_receiver3;
                                                                     await this.insightsService.updateoneByID(insightID2, CreateInsightsDto_receiver3)
                                                                 }
-
-
-                                                                let datauserview = null;
-
-                                                                try {
-                                                                    datauserview = await this.NewpostService.findbyviewmail(email_userrand, postID);
-                                                                } catch (e) {
-                                                                    datauserview = null;
-                                                                }
-
-                                                                if (datauserview == null || datauserview.length == 0) {
                                                                     try {
 
                                                                         this.updateView(email_receiverParty, postID);
