@@ -6,8 +6,6 @@ import { NewPostController } from './new_post.controller';
 import { tempposts, temppostsSchema } from './schemas/tempPost.schema';
 import { TempPOSTService } from './temp_post.service';
 import { NewpostsSchema, newPosts } from './schemas/newPost.schema';
-import { tempposts, temppostsSchema } from './schemas/tempPost.schema';
-import { TempPOSTService } from './temp_post.service';
 import { UtilsModule } from 'src/utils/utils.module';
 import { ContenteventsModule } from '../contentevents/contentevents.module';
 import { DisquslogsModule } from '../disquslogs/disquslogs.module';
