@@ -627,51 +627,51 @@ export class PosttaskService {
 
 
 
-                                                    let datauserrandom = null;
+                                                    // let datauserrandom = null;
 
-                                                    try {
-                                                        datauserrandom = await this.DummyuserService.findRandom2();
-                                                    } catch (e) {
-                                                        datauserrandom = null;
-                                                    }
+                                                    // try {
+                                                    //     datauserrandom = await this.DummyuserService.findRandom2();
+                                                    // } catch (e) {
+                                                    //     datauserrandom = null;
+                                                    // }
 
-                                                    if (datauserrandom !== null) {
-                                                        if (datauserrandom.length > 0) {
-                                                            for (let y = 0; y < datauserrandom.length; y++) {
-                                                                let email_userrand = datauserrandom[y].email;
+                                                    // if (datauserrandom !== null) {
+                                                    //     if (datauserrandom.length > 0) {
+                                                    //         for (let y = 0; y < datauserrandom.length; y++) {
+                                                    //             let email_userrand = datauserrandom[y].email;
 
-                                                                if (viewCount <= 40000) {
-                                                                    try {
-                                                                        datalogview = await this.HistoryuserService.findBymailView(postID, email_userrand, "VIEW");
-                                                                    } catch (e) {
-                                                                        datalogview = null;
-                                                                    }
-                                                                    if (datalogview == null) {
+                                                    //             if (viewCount <= 40000) {
+                                                    //                 try {
+                                                    //                     datalogview = await this.HistoryuserService.findBymailView(postID, email_userrand, "VIEW");
+                                                    //                 } catch (e) {
+                                                    //                     datalogview = null;
+                                                    //                 }
+                                                    //                 if (datalogview == null) {
 
 
-                                                                        var Historyuser3_ = new Historyuser()
-                                                                        Historyuser3_.createdAt = current_date;
-                                                                        Historyuser3_.updatedAt = current_date;
-                                                                        Historyuser3_.email = email_userrand;
-                                                                        Historyuser3_.postID = postID;
-                                                                        Historyuser3_.event = "VIEW";
-                                                                        Historyuser3_.sendFcm = false;
-                                                                        try {
-                                                                            await this.HistoryuserService.create(Historyuser3_);
-                                                                        } catch (e) {
+                                                    //                     var Historyuser3_ = new Historyuser()
+                                                    //                     Historyuser3_.createdAt = current_date;
+                                                    //                     Historyuser3_.updatedAt = current_date;
+                                                    //                     Historyuser3_.email = email_userrand;
+                                                    //                     Historyuser3_.postID = postID;
+                                                    //                     Historyuser3_.event = "VIEW";
+                                                    //                     Historyuser3_.sendFcm = false;
+                                                    //                     try {
+                                                    //                         await this.HistoryuserService.create(Historyuser3_);
+                                                    //                     } catch (e) {
 
-                                                                        }
+                                                    //                     }
 
-                                                                    }
+                                                    //                 }
 
-                                                                }
-                                                                if (y == (datauserrandom.length - 1)) {
-                                                                    break;
-                                                                }
-                                                            }
+                                                    //             }
+                                                    //             if (y == (datauserrandom.length - 1)) {
+                                                    //                 break;
+                                                    //             }
+                                                    //         }
 
-                                                        }
-                                                    }
+                                                    //     }
+                                                    // }
 
 
 
@@ -1196,10 +1196,6 @@ export class PosttaskService {
                                                 }
 
 
-
-
-
-
                                                 let datauserview1 = null;
 
                                                 try {
@@ -1305,26 +1301,180 @@ export class PosttaskService {
 
 
 
-                                                let dataviewhis = null;
-                                                try {
-                                                    dataviewhis = await this.HistoryuserService.findFcmview(postID);
-                                                } catch (e) {
-                                                    dataviewhis = null;
-                                                }
-                                                if (viewCount <= 40000) {
-                                                    if (dataviewhis !== null) {
-                                                        if (dataviewhis.length > 0) {
-                                                            // for (let i = 0; i < dataviewhis.length; i++) {
-                                                            let user = dataviewhis[0].email;
+                                                // let dataviewhis = null;
+                                                // try {
+                                                //     dataviewhis = await this.HistoryuserService.findFcmview(postID);
+                                                // } catch (e) {
+                                                //     dataviewhis = null;
+                                                // }
+                                                // if (viewCount <= 40000) {
+                                                //     if (dataviewhis !== null) {
+                                                //         if (dataviewhis.length > 0) {
+                                                //             // for (let i = 0; i < dataviewhis.length; i++) {
+                                                //             let user = dataviewhis[0].email;
 
-                                                            if (email_user !== user) {
-                                                                //event VIEW
+                                                //             if (email_user !== user) {
+                                                //                 //event VIEW
+                                                //                 let _id_5 = (await this.utilsService.generateId());
+                                                //                 let _id_6 = (await this.utilsService.generateId());
+                                                //                 let CreateContenteventsDto5 = new CreateContenteventsDto();
+                                                //                 CreateContenteventsDto5._id = _id_5
+                                                //                 CreateContenteventsDto5.contentEventID = _id_5
+                                                //                 CreateContenteventsDto5.email = user
+                                                //                 CreateContenteventsDto5.eventType = "VIEW"
+                                                //                 CreateContenteventsDto5.active = true
+                                                //                 CreateContenteventsDto5.event = "DONE"
+                                                //                 CreateContenteventsDto5.createdAt = current_date
+                                                //                 CreateContenteventsDto5.updatedAt = current_date
+                                                //                 CreateContenteventsDto5.sequenceNumber = 1
+                                                //                 CreateContenteventsDto5.flowIsDone = true
+                                                //                 CreateContenteventsDto5._class = "io.melody.hyppe.content.domain.ContentEvent"
+                                                //                 CreateContenteventsDto5.receiverParty = email_receiverParty
+                                                //                 CreateContenteventsDto5.postID = postID
+
+                                                //                 let CreateContenteventsDto6 = new CreateContenteventsDto();
+                                                //                 CreateContenteventsDto6._id = _id_6
+                                                //                 CreateContenteventsDto6.contentEventID = _id_6
+                                                //                 CreateContenteventsDto6.email = email_receiverParty
+                                                //                 CreateContenteventsDto6.eventType = "VIEW"
+                                                //                 CreateContenteventsDto6.active = true
+                                                //                 CreateContenteventsDto6.event = "ACCEPT"
+                                                //                 CreateContenteventsDto6.createdAt = current_date
+                                                //                 CreateContenteventsDto6.updatedAt = current_date
+                                                //                 CreateContenteventsDto6.sequenceNumber = 1
+                                                //                 CreateContenteventsDto6.flowIsDone = true
+                                                //                 CreateContenteventsDto6._class = "io.melody.hyppe.content.domain.ContentEvent"
+                                                //                 CreateContenteventsDto6.senderParty = user
+                                                //                 CreateContenteventsDto6.postID = postID
+
+                                                //                 const resultdata5 = await this.ContenteventsService.create(CreateContenteventsDto5);
+                                                //                 const resultdata6 = await this.ContenteventsService.create(CreateContenteventsDto6);
+
+                                                //                 if (await this.utilsService.ceckData(Insight_receiver)) {
+                                                //                     let _id_receiver3 = (await this.utilsService.generateId());
+                                                //                     let CreateInsightlogsDto_receiver3 = new CreateInsightlogsDto()
+                                                //                     CreateInsightlogsDto_receiver3._id = _id_receiver3;
+                                                //                     CreateInsightlogsDto_receiver3.insightID = Insight_receiver._id;
+                                                //                     CreateInsightlogsDto_receiver3.createdAt = current_date;
+                                                //                     CreateInsightlogsDto_receiver3.updatedAt = current_date;
+                                                //                     CreateInsightlogsDto_receiver3.mate = user
+                                                //                     CreateInsightlogsDto_receiver3.postID = postID
+                                                //                     CreateInsightlogsDto_receiver3.eventInsight = "VIEW"
+                                                //                     CreateInsightlogsDto_receiver3._class = "io.melody.hyppe.content.domain.InsightLog"
+                                                //                     await this.insightlogsService.create(CreateInsightlogsDto_receiver3);
+
+                                                //                     let LogInsught_receiver3 = Insight_receiver.insightLogs;
+                                                //                     LogInsught_receiver3.push({
+                                                //                         $ref: 'insightlogs',
+                                                //                         $id: _id_receiver3,
+                                                //                         $db: 'hyppe_content_db',
+                                                //                     });
+
+                                                //                     let CreateInsightsDto_receiver3 = new CreateInsightsDto()
+                                                //                     CreateInsightsDto_receiver3.insightLogs = LogInsught_receiver3;
+                                                //                     await this.insightsService.updateoneByID(insightID2, CreateInsightsDto_receiver3)
+                                                //                 }
+
+
+                                                //                 let datauserview = null;
+
+                                                //                 try {
+                                                //                     datauserview = await this.NewpostService.findbyviewmail(user, postID);
+                                                //                 } catch (e) {
+                                                //                     datauserview = null;
+                                                //                 }
+
+                                                //                 if (datauserview == null || datauserview.length == 0) {
+                                                //                     try {
+
+                                                //                         this.updateView(email_receiverParty, postID);
+
+                                                //                     } catch (e) {
+
+                                                //                     }
+                                                //                     try {
+
+                                                //                         this.HistoryuserService.updateFcmview(postID, current_date, user)
+
+                                                //                     } catch (e) {
+
+                                                //                     }
+
+
+                                                //                     try {
+                                                //                         await this.NewpostService.updateView(email_receiverParty, user, postID);
+                                                //                     } catch (e) {
+
+                                                //                     }
+                                                //                     try {
+                                                //                         await this.TemppostService.updateView(email_receiverParty, user, postID);
+                                                //                     } catch (e) {
+
+                                                //                     }
+                                                //                     try {
+                                                //                         this.requestChallengeView(_id_5.toString(), postID, user, email_receiverParty)
+                                                //                     } catch (e) {
+
+                                                //                     }
+
+                                                //                 }
+
+                                                //             }
+
+                                                //             // if (i == (dataviewhis.length - 1)) {
+                                                //             //     break;
+                                                //             // }
+
+                                                //             // }
+
+                                                //         }
+
+                                                //     }
+                                                // }
+
+                                                
+                                                let datauserrandom = null;
+                                                let datalogview=null;
+                                                try {
+                                                    datauserrandom = await this.DummyuserService.findRandom2();
+                                                } catch (e) {
+                                                    datauserrandom = null;
+                                                }
+
+                                                if (datauserrandom !== null) {
+                                                    if (datauserrandom.length > 0) {
+                                                        for (let y = 0; y < datauserrandom.length; y++) {
+                                                            let email_userrand = datauserrandom[y].email;
+
+                                                            if (viewCount <= 40000) {
+                                                                try {
+                                                                    datalogview = await this.HistoryuserService.findBymailView(postID, email_userrand, "VIEW");
+                                                                } catch (e) {
+                                                                    datalogview = null;
+                                                                }
+                                                                if (datalogview == null) {
+
+
+                                                                    var Historyuser3_ = new Historyuser()
+                                                                    Historyuser3_.createdAt = current_date;
+                                                                    Historyuser3_.updatedAt = current_date;
+                                                                    Historyuser3_.email = email_userrand;
+                                                                    Historyuser3_.postID = postID;
+                                                                    Historyuser3_.event = "VIEW";
+                                                                    Historyuser3_.sendFcm = true;
+                                                                    try {
+                                                                        await this.HistoryuserService.create(Historyuser3_);
+                                                                    } catch (e) {
+
+                                                                    }
+
+                                                                     //event VIEW
                                                                 let _id_5 = (await this.utilsService.generateId());
                                                                 let _id_6 = (await this.utilsService.generateId());
                                                                 let CreateContenteventsDto5 = new CreateContenteventsDto();
                                                                 CreateContenteventsDto5._id = _id_5
                                                                 CreateContenteventsDto5.contentEventID = _id_5
-                                                                CreateContenteventsDto5.email = user
+                                                                CreateContenteventsDto5.email = email_userrand
                                                                 CreateContenteventsDto5.eventType = "VIEW"
                                                                 CreateContenteventsDto5.active = true
                                                                 CreateContenteventsDto5.event = "DONE"
@@ -1348,7 +1498,7 @@ export class PosttaskService {
                                                                 CreateContenteventsDto6.sequenceNumber = 1
                                                                 CreateContenteventsDto6.flowIsDone = true
                                                                 CreateContenteventsDto6._class = "io.melody.hyppe.content.domain.ContentEvent"
-                                                                CreateContenteventsDto6.senderParty = user
+                                                                CreateContenteventsDto6.senderParty = email_userrand;
                                                                 CreateContenteventsDto6.postID = postID
 
                                                                 const resultdata5 = await this.ContenteventsService.create(CreateContenteventsDto5);
@@ -1361,7 +1511,7 @@ export class PosttaskService {
                                                                     CreateInsightlogsDto_receiver3.insightID = Insight_receiver._id;
                                                                     CreateInsightlogsDto_receiver3.createdAt = current_date;
                                                                     CreateInsightlogsDto_receiver3.updatedAt = current_date;
-                                                                    CreateInsightlogsDto_receiver3.mate = user
+                                                                    CreateInsightlogsDto_receiver3.mate = email_userrand;
                                                                     CreateInsightlogsDto_receiver3.postID = postID
                                                                     CreateInsightlogsDto_receiver3.eventInsight = "VIEW"
                                                                     CreateInsightlogsDto_receiver3._class = "io.melody.hyppe.content.domain.InsightLog"
@@ -1383,7 +1533,7 @@ export class PosttaskService {
                                                                 let datauserview = null;
 
                                                                 try {
-                                                                    datauserview = await this.NewpostService.findbyviewmail(user, postID);
+                                                                    datauserview = await this.NewpostService.findbyviewmail(email_userrand, postID);
                                                                 } catch (e) {
                                                                     datauserview = null;
                                                                 }
@@ -1398,7 +1548,7 @@ export class PosttaskService {
                                                                     }
                                                                     try {
 
-                                                                        this.HistoryuserService.updateFcmview(postID, current_date, user)
+                                                                        this.HistoryuserService.updateFcmview(postID, current_date, email_userrand)
 
                                                                     } catch (e) {
 
@@ -1406,35 +1556,34 @@ export class PosttaskService {
 
 
                                                                     try {
-                                                                        await this.NewpostService.updateView(email_receiverParty, user, postID);
+                                                                        await this.NewpostService.updateView(email_receiverParty, email_userrand, postID);
                                                                     } catch (e) {
 
                                                                     }
                                                                     try {
-                                                                        await this.TemppostService.updateView(email_receiverParty, user, postID);
+                                                                        await this.TemppostService.updateView(email_receiverParty, email_user, postID);
                                                                     } catch (e) {
-
+            
                                                                     }
                                                                     try {
-                                                                        this.requestChallengeView(_id_5.toString(), postID, user, email_receiverParty)
+                                                                        this.requestChallengeView(_id_5.toString(), postID, email_userrand, email_receiverParty)
                                                                     } catch (e) {
 
                                                                     }
 
                                                                 }
 
+                                                                }
+
                                                             }
-
-                                                            // if (i == (dataviewhis.length - 1)) {
-                                                            //     break;
-                                                            // }
-
-                                                            // }
-
+                                                            if (y == (datauserrandom.length - 1)) {
+                                                                break;
+                                                            }
                                                         }
 
                                                     }
                                                 }
+
 
                                                 console.log("        ----------------------- Length " + i + " -----------------------");
                                                 console.log("");
