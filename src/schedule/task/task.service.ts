@@ -55,6 +55,9 @@ export class TaskService {
 
   //   this.logger.debug('cron JOB START schedule');
   //   this.PosttaskService.runCronSchedule();
+
+  //   this.logger.debug('cron JOB START temppost');
+  //   this.NewPostService.temppost();
     
   // }
 
