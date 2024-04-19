@@ -4961,11 +4961,11 @@ export class NewPostController {
     async schedul(postID: string, email: string) {
         let arr = [];
         let rd = null;
-        let arrin=[];
-        var rndInt=0;
+        let arrin = [];
+        var rndInt = 0;
         var dataschedule = null;
         var current_date = await this.utilsService.getDateTimeString();
-        for(let x=0;x<15;x++){
+        for (let x = 0; x < 15; x++) {
             var rndInt = Math.floor(Math.random() * 59) + 1
             console.log(rndInt)
 
@@ -5002,8 +5002,8 @@ export class NewPostController {
         }
         console.log(arrin);
 
-        if(arrin.length>0){
-            
+        if (arrin.length > 0) {
+
             let t1 = "07:" + arrin[0] + ":00";
             let t2 = "08:" + arrin[1] + ":00";
             let t3 = "09:" + arrin[2] + ":00";
@@ -5021,8 +5021,8 @@ export class NewPostController {
             let t15 = "21:" + arrin[14] + ":00";
             arr = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15]
         }
-        
-       
+
+
         try {
             dataschedule = await this.ScheduleinjectService.findBypostID(postID);
         } catch (e) {
@@ -5032,10 +5032,10 @@ export class NewPostController {
             var Scheduleinject_ = new Scheduleinject();
             Scheduleinject_.postID = postID;
             Scheduleinject_.time = arr;
-            Scheduleinject_.emailPost=email;
-            Scheduleinject_.type="CREATEPOST";
-            Scheduleinject_.createdAt=current_date;
-            Scheduleinject_.updatedAt=current_date;
+            Scheduleinject_.emailPost = email;
+            Scheduleinject_.type = "CREATEPOST";
+            Scheduleinject_.createdAt = current_date;
+            Scheduleinject_.updatedAt = current_date;
             try {
                 await this.ScheduleinjectService.create(Scheduleinject_);
             } catch (e) {

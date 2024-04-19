@@ -25889,4 +25889,77 @@ export class TagCountService {
         var result = await this.tagcountModel.aggregate(pipeline);
         return result;
     }
+    async listagV2(tag: string) {
+        var pipeline = [];
+        pipeline.push(
+            {
+                $match: {
+                    _id: {
+                        $regex: tag,
+                        $options: 'i'
+                    },
+
+                }
+            },
+            {
+                "$unwind": {
+                    "path": "$listdata",
+                    "preserveNullAndEmptyArrays": false
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    postID: "$listdata.postID"
+                }
+            },
+            {
+                $lookup: {
+                    from: 'newPosts',
+                    localField: 'postID',
+                    foreignField: '_id',
+                    as: 'post_data',
+
+                },
+
+            },
+            {
+                $project: {
+                    _id: 1,
+                    postID: 1,
+                    postType: {
+                        $arrayElemAt: ['$post_data.postType', 0]
+                    },
+                    email: {
+                        $arrayElemAt: ['$post_data.email', 0]
+                    },
+
+                }
+            },
+            {
+                $lookup: {
+                    from: 'newUserBasics',
+                    localField: 'email',
+                    foreignField: 'email',
+                    as: 'databasic',
+
+                },
+
+            },
+            {
+                $project: {
+                    _id: 1,
+                    postID: 1,
+                    postType: 1,
+                    email: 1,
+                    iduser: {
+                        $arrayElemAt: ['$databasic._id', 0]
+                    },
+
+                }
+            },
+        );
+        var query = await this.tagcountModel.aggregate(pipeline);
+        return query;
+    }
 }

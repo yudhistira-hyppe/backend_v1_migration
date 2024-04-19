@@ -31,6 +31,10 @@ export class ProductsService {
         return await this.productsModel.findOne({ code: code, isDelete: false }).exec();
     }
 
+    async findOneBySubCoaName(name: string): Promise<Products> {
+        return await this.productsModel.findOne({ "subCoa.name": name, isDelete: false }).exec();
+    }
+
     async delete(id: string) {
         let Products_ = new Products();
         Products_.isDelete = true;
@@ -63,11 +67,11 @@ export class ProductsService {
         };
         if (search != undefined) {
             let where_code = {};
-            let where_coa = {};
+            let where_name = {};
             where_code['code'] = { $regex: search, $options: "i" };
             where_or.$or.push(where_code);
-            where_coa['coa'] = { $regex: search, $options: "i" };
-            where_or.$or.push(where_coa);
+            where_name['name'] = { $regex: search, $options: "i" };
+            where_or.$or.push(where_name);
         }
 
         where_and.$and.push(where_isDelete);

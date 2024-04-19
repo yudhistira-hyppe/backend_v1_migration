@@ -74,9 +74,24 @@ export class TransactionsCategorysController {
             );
         }
 
+        //VALIDASI PARAM IdProduct
+        let idProductArray = [];
+        if (TransactionsCategorys_.idProduct!=undefined){
+            if (Array.isArray(TransactionsCategorys_.idProduct)){
+                idProductArray = TransactionsCategorys_.idProduct.map(function (item) {
+                    return new mongoose.Types.ObjectId(item);
+                });
+            } else {
+                return await this.errorHandler.generateBadRequestException(
+                    "Transactions param IdProduct is required",
+                );
+            }
+        }
+
         try {
             const currentDate = await this.utilsService.getDateTimeString();
             TransactionsCategorys_._id = new mongoose.Types.ObjectId();
+            TransactionsCategorys_.idProduct = idProductArray;
             TransactionsCategorys_.isDelete = false;
             TransactionsCategorys_.createdAt = currentDate;
             TransactionsCategorys_.updatedAt = currentDate;
@@ -124,15 +139,10 @@ export class TransactionsCategorysController {
         }
 
         //VALIDASI PARAM code
-        var code = await this.utilsService.validateParam("code", TransactionsCategorys_.code, "string")
-        if (code != "") {
-            await this.errorHandler.generateBadRequestException(
-                code,
-            );
-        } else {
-            if (existingData.code != TransactionsCategorys_.code){
+        if (TransactionsCategorys_.code!=undefined) {
+            if (existingData.code != TransactionsCategorys_.code) {
                 let TransactionsCategorys_Code = new TransactionsCategorys();
-                TransactionsCategorys_Code.coa = TransactionsCategorys_.coa;
+                TransactionsCategorys_Code.code = TransactionsCategorys_.code;
                 TransactionsCategorys_Code.isDelete = false;
                 var dataCeck = await this.transactionsCategorysService.find(TransactionsCategorys_Code);
                 if (await this.utilsService.ceckData(dataCeck)) {
@@ -144,12 +154,7 @@ export class TransactionsCategorysController {
         }
 
         //VALIDASI PARAM coa
-        var coa = await this.utilsService.validateParam("coa", TransactionsCategorys_.coa, "string")
-        if (coa != "") {
-            await this.errorHandler.generateBadRequestException(
-                coa,
-            );
-        } else {
+        if (TransactionsCategorys_.coa != undefined) {
             if (existingData.coa != TransactionsCategorys_.coa) {
                 let TransactionsCategorys_Coa = new TransactionsCategorys();
                 TransactionsCategorys_Coa.coa = TransactionsCategorys_.coa;
@@ -163,17 +168,24 @@ export class TransactionsCategorysController {
             }
         }
 
-        //VALIDASI PARAM user
-        var user = await this.utilsService.validateParam("user", TransactionsCategorys_.user, "string")
-        if (user != "") {
-            await this.errorHandler.generateBadRequestException(
-                user,
-            );
+        //VALIDASI PARAM IdProduct
+        let idProductArray = [];
+        if (TransactionsCategorys_.idProduct != undefined) {
+            if (Array.isArray(TransactionsCategorys_.idProduct)) {
+                idProductArray = TransactionsCategorys_.idProduct.map(function (item) {
+                    return new mongoose.Types.ObjectId(item);
+                });
+            } else {
+                return await this.errorHandler.generateBadRequestException(
+                    "Transactions param IdProduct is required",
+                );
+            }
         }
 
         try {
             const currentDate = await this.utilsService.getDateTimeString();
             TransactionsCategorys_.updatedAt = currentDate;
+            TransactionsCategorys_.idProduct = idProductArray;
             var data = await this.transactionsCategorysService.update(TransactionsCategorys_._id.toString(), TransactionsCategorys_);
             return await this.errorHandler.generateAcceptResponseCodeWithData(
                 "Update Transactions Categorys succesfully", data

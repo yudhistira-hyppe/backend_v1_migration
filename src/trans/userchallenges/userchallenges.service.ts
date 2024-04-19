@@ -1614,4 +1614,224 @@ export class UserchallengesService {
         var query = await this.UserchallengesModel.aggregate(pipeline);
         return query;
     }
+    async updateUserchallengeRobot(id: string, idSubChallenge: string, score: number,scoreasli:number) {
+        this.UserchallengesModel.updateOne(
+            {
+
+                _id: new Types.ObjectId(id), idSubChallenge: idSubChallenge
+            },
+            { $inc: { score: score,maxScore: scoreasli }  },
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
+    }
+
+    async updatescoreNolChallenge(id: string, updatedAt: string,maxDate:string): Promise<Object> {
+        let data = await this.UserchallengesModel.updateOne({ "_id": new Types.ObjectId(id), },
+            {
+                $set: {
+                    "maxScore": 0,
+                    "updatedAt": updatedAt,
+                    "maxDate":maxDate
+
+                }
+            });
+        return data;
+    }
+
+    async userChallengebyIdChallbot(iduser: string, idchallenge: string,idSubChallenge:string) {
+        var query = await this.UserchallengesModel.aggregate([
+
+
+            {
+                $set: {
+                    "timenow":
+                    {
+                        "$dateToString": {
+                            "format": "%Y-%m-%d %H:%M:%S",
+                            "date": {
+                                $add: [
+                                    new Date(),
+                                    25200000
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    "idChallenge": new Types.ObjectId(idchallenge),
+                    "idSubChallenge": new Types.ObjectId(idSubChallenge),
+                    "idUser": new Types.ObjectId(iduser),
+                    "isActive": true
+                }
+            },
+            {
+                "$match":
+                {
+                    "$and":
+                        [
+
+                            {
+                                $expr:
+                                {
+                                    $gte:
+                                        [
+                                            "$timenow",
+                                            "$startDatetime",
+
+                                        ]
+                                },
+
+                            },
+                            {
+                                $expr:
+                                {
+                                    $lte:
+                                        [
+                                            "$timenow",
+                                            "$endDatetime",
+
+                                        ]
+                                },
+
+                            },
+
+                        ]
+                }
+            },
+
+            {
+                $project: {
+                    "idChallenge": 1,
+                    "idSubChallenge": 1,
+                    "idUser": 1,
+                    "objectChallenge": 1,
+                    "startDatetime": 1,
+                    "endDatetime": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "isActive": 1,
+                    "ranking": 1,
+                    "score": 1,
+                    "maxScore":1,
+                    "maxDate":1,
+                    "isBot":1,
+                   
+                    "timenow": 1,
+
+                }
+            },
+
+
+        ]);
+        return query;
+    }
+    async userChallengebyIdChallrobot(iduser: string, idchallenge: string,idSubChallenge:string) {
+        var query = await this.UserchallengesModel.aggregate([
+
+
+            {
+                $set: {
+                    "timenow":
+                    {
+                        "$dateToString": {
+                            "format": "%Y-%m-%d %H:%M:%S",
+                            "date": {
+                                $add: [
+                                    new Date(),
+                                    25200000
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    "idChallenge": new Types.ObjectId(idchallenge),
+                    "idUser": new Types.ObjectId(iduser),
+                    "idSubChallenge": new Types.ObjectId(idSubChallenge),
+                    "isActive": true
+                }
+            },
+            {
+                "$match":
+                {
+                    "$and":
+                        [
+
+                            {
+                                $expr:
+                                {
+                                    $gte:
+                                        [
+                                            "$timenow",
+                                            "$startDatetime",
+
+                                        ]
+                                },
+
+                            },
+                            {
+                                $expr:
+                                {
+                                    $lte:
+                                        [
+                                            "$timenow",
+                                            "$endDatetime",
+
+                                        ]
+                                },
+
+                            },
+
+                        ]
+                }
+            },
+
+            {
+                $lookup: {
+                    from: 'subChallenge',
+                    localField: 'idSubChallenge',
+                    foreignField: '_id',
+                    as: 'subChallenge_data',
+
+                },
+
+            },
+            {
+                $project: {
+                    "idChallenge": 1,
+                    "idSubChallenge": 1,
+                    "idUser": 1,
+                    "objectChallenge": 1,
+                    "startDatetime": 1,
+                    "endDatetime": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "isActive": 1,
+                    "ranking": 1,
+                    "score": 1,
+                    "maxScore":1,
+                    "maxDate":1,
+                    "isBot":1,
+                    "session": {
+                        $arrayElemAt: ["$subChallenge_data.session", 0]
+                    },
+                    "timenow": 1,
+
+                }
+            },
+
+
+        ]);
+        return query;
+    }
 }

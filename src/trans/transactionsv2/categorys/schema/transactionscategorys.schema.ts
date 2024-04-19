@@ -22,5 +22,7 @@ export class TransactionsCategorys {
     updatedAt: string;
     @Prop()
     isDelete: boolean;
+    @Prop()
+    idProduct: mongoose.Types.ObjectId[];
 }
 export const TransactionsCategorysSchema = SchemaFactory.createForClass(TransactionsCategorys);

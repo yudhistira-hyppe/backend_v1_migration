@@ -8,7 +8,15 @@ import { Contentevents, ContenteventsDocument } from './schemas/contentevents.sc
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
-
+import { UserchallengesService } from 'src/trans/userchallenges/userchallenges.service';
+import { ChallengeService } from 'src/trans/challenge/challenge.service';
+import { TagCountService } from 'src/content/tag_count/tag_count.service';
+import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
+import { Settings2Service } from 'src/trans/settings2/settings2.service';
+import { PostmigrationService } from 'src/content/postmigration/postmigration.service';
+import { PostchallengeService } from 'src/trans/postchallenge/postchallenge.service';
+import { UtilsService } from 'src/utils/utils.service';
+import { ErrorHandler } from '../../utils/error.handler';
 @Injectable()
 export class ContenteventsService {
   constructor(
@@ -16,6 +24,15 @@ export class ContenteventsService {
     private readonly ContenteventsModel: Model<ContenteventsDocument>,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly userchallengesService: UserchallengesService,
+    private readonly tagCountService: TagCountService,
+    private readonly challengeService: ChallengeService,
+    private readonly UserbasicnewService: UserbasicnewService,
+    private readonly Settings2Service: Settings2Service,
+    private readonly PostmigrationService: PostmigrationService,
+    private readonly postchallengeService: PostchallengeService,
+    private readonly utilsService: UtilsService,
+    private readonly errorHandler: ErrorHandler,
   ) { }
 
   async create(
@@ -6490,5 +6507,2531 @@ export class ContenteventsService {
     const res = await this.httpService.post(this.configService.get("URL_CHALLENGE") + "api/scorepostchallenge", call, config).toPromise();
     const data = res.data;
     return data;
+  }
+
+  async userChallengeLike4new(idref: string, nametable: string, action: string, postID: string, emailuser: string, emailreceiver: string ) {
+    const mongoose = require('mongoose');
+    var ObjectId = require('mongodb').ObjectId;
+
+    var dt = new Date(Date.now());
+    dt.setHours(dt.getHours() + 7); // timestamp
+    dt = new Date(dt);
+
+    var strdate = dt.toISOString();
+    var repdate = strdate.replace('T', ' ');
+    var splitdate = repdate.split('.');
+    var timedate = splitdate[0];
+    var lengchal = null;
+    var datauserchall = null;
+    var datachallenge = null;
+    var arrdata = [];
+    var objintr = {};
+    var datasubchallenge = null;
+    var poin = 0;
+    var datatag = null;
+    var poinViewVid = 0;
+    var poinViewDiary = 0;
+    var poinPict = 0;
+    var tagar = null;
+    var datapostchall = null;
+    var idpostchall = null;
+    var databasic = null;
+    var objectChallenge = null;
+    var iduser = null;
+    var datapost = null;
+    var createAt = null;
+    var saleAmount = null;
+    var postTypeParent = null;
+    var dataservice = null;
+    var idsetting = "6583fb37cf00baae6d0d344c";
+    var value = null;
+    var maxScore = 0;
+    var maxDate = null;
+    var leng = 0;
+    var isBot = null;
+    var poinReferal = null;
+    var poinIkuti = null;
+    var userId = null;
+    var idChallenge = null;
+    var timestamps_start = await this.utilsService.getDateTimeString();
+
+    try {
+      datapost = await this.PostmigrationService.findByPostId(postID);
+    } catch (e) {
+      datapost = null;
+    }
+    if (datapost !== null) {
+      postTypeParent = datapost.postType;
+      createAt = datapost.createdAt;
+      if (datapost.saleAmount !== undefined) {
+        saleAmount = datapost.saleAmount;
+      } else {
+        saleAmount = 0;
+      }
+    }
+    // try {
+    //   datachallenge = await this.postchallengeService.postChallengebyUser(postID);
+    // } catch (e) {
+    //   datachallenge = null;
+    // }
+    // if(listchallenge !==undefined && listchallenge !==null){
+    //   if(listchallenge.length>0){
+    //     try {
+    //       datachallenge = listchallenge;
+    //     } catch (e) {
+    //       datachallenge = null;
+    //     }
+    //   }
+    //   else{
+    //     try {
+    //       datachallenge = await this.postchallengeService.postChallengebyUser(postID);
+    //     } catch (e) {
+    //       datachallenge = null;
+    //     }
+    //   }
+    // }else{
+    //   try {
+    //     datachallenge = await this.postchallengeService.postChallengebyUser(postID);
+    //   } catch (e) {
+    //     datachallenge = null;
+    //   }
+    // }
+    try {
+      datachallenge = await this.challengeService.challengeKontenNew();
+    } catch (e) {
+      datachallenge = null;
+    }
+
+    if (datachallenge !== null && datachallenge.length > 0) {
+      lengchal = datachallenge.length;
+
+      for (let i = 0; i < lengchal; i++) {
+        try {
+          idChallenge = datachallenge[i].idChallenge.toString();
+        } catch (e) {
+          idChallenge = null;
+        }
+        try {
+          objectChallenge = datachallenge[i].objectChallenge;
+        } catch (e) {
+          objectChallenge = null;
+        }
+
+        try {
+          poinViewVid = datachallenge[i].suka[0].HyppeVid;
+        } catch (e) {
+          poinViewVid = 0;
+        }
+
+        try {
+          poinViewDiary = datachallenge[i].suka[0].HyppeDiary;
+        } catch (e) {
+          poinViewDiary = 0;
+        }
+        try {
+          poinPict = datachallenge[i].suka[0].HyppePic;
+        } catch (e) {
+          poinPict = 0;
+        }
+
+
+        try {
+          tagar = datachallenge[i].tagar;
+        } catch (e) {
+          tagar = "";
+        }
+
+        try {
+          poinReferal = datachallenge[i].Referal;
+        } catch (e) {
+          poinReferal = 0;
+        }
+        try {
+          poinIkuti = datachallenge[i].Ikuti;
+        } catch (e) {
+          poinIkuti = 0;
+        }
+        try {
+          userId = datachallenge[i].idUser;
+        } catch (e) {
+          userId = null;
+        }
+        // try {
+        //   isBot = datachallenge[i].isBot;
+        // } catch (e) {
+        //   isBot = false;
+        // }
+        //function robot
+        if (objectChallenge == "KONTEN") {
+          try {
+
+            dataservice = await this.Settings2Service.findOne(idsetting);
+
+            value = dataservice._doc.value;
+            leng = value.length;
+
+          } catch (e) {
+            leng = 0;
+          }
+          if (leng > 0) {
+            for (let i = 0; i < leng; i++) {
+              let idsubbot = null;
+              try {
+                idsubbot = value[i].idSubChallenge.toString();
+              } catch (e) {
+                idsubbot = null;
+              }
+
+              let maxScoreset = value[i].maxScore;
+              let detail = [];
+
+              //  if (idsub == idsubchallenge.toString()) {
+
+              try {
+                detail = value[i].detail;
+              } catch (e) {
+                detail = [];
+              }
+
+              if (detail.length > 0) {
+                for (let x = 0; x < detail.length; x++) {
+                  let useridset = detail[x].iduser.toString();
+                  let postidset = detail[x].postid;
+                  let perkalian = detail[x].perkalian;
+                  let scoreAwal = detail[x].scoreAwal;
+                  let likeAwal = detail[x].likeAwal;
+                  let datauserchallset = null;
+                  try {
+                    datauserchallset = await this.userchallengesService.userChallengebyIdChallbot(useridset, idChallenge, idsubbot);
+                  } catch (e) {
+                    datauserchallset = null;
+                  }
+                  if (datauserchallset !== null) {
+                    let leng = null;
+                    try {
+                      leng = datauserchallset.length;
+                    } catch (e) {
+                      leng = 0;
+                    }
+                    if (leng > 0) {
+                      for (let y = 0; y < leng; y++) {
+
+                        let iduserchall = null;
+                        let idsubchallenge = null
+                        let idChallenges = null
+                        let start = null
+                        let end = null
+                        let maxScore = 0;
+                        let maxDate = null;
+                        let isBot = false;
+                        let poinbot = 0;
+                        try {
+                          iduserchall = datauserchallset[y]._id;
+                        } catch (e) {
+                          iduserchall = null;
+                        }
+                        try {
+                          idsubchallenge = datauserchallset[y].idSubChallenge;
+                        } catch (e) {
+                          idsubchallenge = null;
+                        }
+                        try {
+                          idChallenges = datauserchallset[y].idChallenge;
+                        } catch (e) {
+                          idChallenges = null;
+                        }
+                        try {
+                          start = new Date(datauserchallset[y].startDatetime);
+                        } catch (e) {
+                          start = null;
+                        }
+                        try {
+                          end = new Date(datauserchallset[y].endDatetime);
+                        } catch (e) {
+                          end = null;
+                        }
+
+
+                        var datenow = new Date(Date.now());
+
+                        try {
+                          maxScore = datauserchallset[y].maxScore;
+                        } catch (e) {
+                          maxScore = 0;
+                        }
+                        try {
+                          maxDate = datauserchallset[y].maxDate;
+                        } catch (e) {
+                          maxDate = null;
+                        }
+                        try {
+                          isBot = datauserchallset[y].isBot;
+                        } catch (e) {
+                          isBot = false;
+                        }
+
+                        var obj = {};
+
+                        obj = {
+                          "updatedAt": datauserchallset[y].updatedAt,
+                          "score": datauserchallset[y].score,
+                          "ranking": datauserchallset[y].ranking,
+                        }
+
+                        if (postTypeParent == "vid") {
+                          poinbot = poinViewVid;
+                        } else if (postTypeParent == "diary") {
+                          poinbot = poinViewDiary;
+                        } else if (postTypeParent == "pict") {
+                          poinbot = poinPict;
+                        }
+                        else {
+                          poinbot = 0;
+                        }
+                        try {
+                          await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                        } catch (e) {
+
+                        }
+                        let detail = await this.userchallengesService.findOne(iduserchall.toString());
+                        let activity = detail.activity;
+                        let objintr = { "type": nametable, "id": idref, "desc": action }
+                        console.log(objintr)
+                        activity.push(objintr)
+                        try {
+                          await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                        } catch (e) {
+
+                        }
+                        if (isBot) {
+                          let poinx = perkalian * poinbot;
+                          let tot = Number(maxScore) + Number(poinx);
+                          let dt = new Date(Date.now());
+                          dt.setHours(dt.getHours() + 7); // timestamp
+                          dt = new Date(dt);
+
+                          let strdate = dt.toISOString();
+                          let repdate = strdate.replace('T', ' ');
+                          let splitdate = repdate.split('.');
+                          let timedate = splitdate[0];
+                          let tgl = timedate.split(" ");
+                          let tgstring = tgl[0];
+                          if (tot <= maxScoreset) {
+
+                            if (maxDate == tgstring) {
+
+                              try {
+                                await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poinbot);
+                              } catch (e) {
+
+                              }
+
+                              try {
+                                await this.PostmigrationService.updateLikeRobot(postidset, poinx);
+                              } catch (e) {
+
+                              }
+                            } else {
+                              try {
+                                await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                              } catch (e) {
+
+                              }
+                            }
+
+                          }
+
+                          if (maxDate !== tgstring) {
+                            try {
+                              await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                            } catch (e) {
+
+                            }
+                          }
+                        }
+
+
+                      }
+                    }
+                  }
+
+                }
+              }
+            }
+
+
+            // }
+          }
+
+        }
+
+        if (idChallenge !== null && idChallenge !== undefined) {
+          if (tagar != undefined && tagar != "" && tagar.length > 0) {
+            var tag2 = tagar.replace("#", "");
+            var tag3 = tag2.toLowerCase();
+            try {
+              datatag = await this.tagCountService.listagV2(tag2);
+            } catch (e) {
+              datatag = null;
+            }
+
+            if (objectChallenge == "AKUN") {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailuser);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+            } else {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailreceiver);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+            }
+
+            if (datatag != null && datatag.length > 0) {
+
+              for (let i = 0; i < datatag.length; i++) {
+                let idtag = datatag[i]._id.toLowerCase();
+                let postIDpost = datatag[i].postID;
+                let postType = datatag[i].postType;
+
+                if (postIDpost == postID) {
+                  if (idtag == tag3) {
+
+                    try {
+                      datauserchall = await this.userchallengesService.userChallengebyIdChall(iduser.toString(), idChallenge);
+                    } catch (e) {
+                      datauserchall = null;
+                    }
+
+                    if (datauserchall !== null) {
+
+                      let leng = null;
+                      try {
+                        leng = datauserchall.length;
+                      } catch (e) {
+                        leng = 0;
+                      }
+
+
+                      if (leng > 0) {
+                        for (let y = 0; y < leng; y++) {
+                          var iduserchall = null;
+                          var idsubchallenge = null
+                          var idChallenges = null
+                          var start = null
+                          var end = null
+                          try {
+                            iduserchall = datauserchall[y]._id;
+                          } catch (e) {
+                            iduserchall = null;
+                          }
+                          try {
+                            idsubchallenge = datauserchall[y].idSubChallenge;
+                          } catch (e) {
+                            idsubchallenge = null;
+                          }
+                          try {
+                            idChallenges = datauserchall[y].idChallenge;
+                          } catch (e) {
+                            idChallenges = null;
+                          }
+                          try {
+                            start = new Date(datauserchall[y].startDatetime);
+                          } catch (e) {
+                            start = null;
+                          }
+                          try {
+                            end = new Date(datauserchall[y].endDatetime);
+                          } catch (e) {
+                            end = null;
+                          }
+
+
+                          var datenow = new Date(Date.now());
+
+                          try {
+                            maxScore = datauserchall[y].maxScore;
+                          } catch (e) {
+                            maxScore = 0;
+                          }
+                          try {
+                            maxDate = datauserchall[y].maxDate;
+                          } catch (e) {
+                            maxDate = null;
+                          }
+                          try {
+                            isBot = datauserchall[y].isBot;
+                          } catch (e) {
+                            isBot = false;
+                          }
+                          if (objectChallenge == "KONTEN") {
+                            if (new Date(createAt) >= start && new Date(createAt) <= end && saleAmount == 0) {
+                              if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                                var obj = {};
+
+                                obj = {
+                                  "updatedAt": datauserchall[y].updatedAt,
+                                  "score": datauserchall[y].score,
+                                  "ranking": datauserchall[y].ranking,
+                                }
+
+                                if (postType == "vid") {
+                                  poin = poinViewVid;
+                                } else if (postType == "diary") {
+                                  poin = poinViewDiary;
+                                } else if (postType == "pict") {
+                                  poin = poinPict;
+                                }
+                                else {
+                                  poin = 0;
+                                }
+                                try {
+                                  await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                                } catch (e) {
+
+                                }
+
+                                var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                                var activity = detail.activity;
+                                objintr = { "type": nametable, "id": idref, "desc": action }
+                                console.log(objintr)
+                                activity.push(objintr)
+                                try {
+                                  await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                                } catch (e) {
+
+                                }
+
+
+                                if (isBot) {
+                                  //function robot
+                                  try {
+
+                                    dataservice = await this.Settings2Service.findOne(idsetting);
+
+                                    value = dataservice._doc.value;
+                                    leng = value.length;
+
+                                  } catch (e) {
+                                    leng = 0;
+                                  }
+                                  if (leng > 0) {
+                                    for (let i = 0; i < leng; i++) {
+                                      let idsub = value[i].idSubChallenge.toString();
+                                      let maxScoreset = value[i].maxScore;
+                                      let detail = [];
+
+                                      if (idsub == idsubchallenge.toString()) {
+
+                                        try {
+                                          detail = value[i].detail;
+                                        } catch (e) {
+                                          detail = [];
+                                        }
+
+                                        if (detail.length > 0) {
+                                          for (let x = 0; x < detail.length; x++) {
+                                            let useridset = detail[x].iduser.toString();
+                                            let postidset = detail[x].postid;
+                                            let perkalian = detail[x].perkalian;
+                                            let scoreAwal = detail[x].scoreAwal;
+                                            let likeAwal = detail[x].likeAwal;
+
+
+                                            if (postidset == postID) {
+                                              let poinx = perkalian * poin;
+                                              let tot = Number(maxScore) + Number(poinx);
+                                              let dt = new Date(Date.now());
+                                              dt.setHours(dt.getHours() + 7); // timestamp
+                                              dt = new Date(dt);
+
+                                              let strdate = dt.toISOString();
+                                              let repdate = strdate.replace('T', ' ');
+                                              let splitdate = repdate.split('.');
+                                              let timedate = splitdate[0];
+                                              let tgl = timedate.split(" ");
+                                              let tgstring = tgl[0];
+                                              if (tot <= maxScoreset) {
+
+                                                if (maxDate == tgstring) {
+
+                                                  try {
+                                                    await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                                  } catch (e) {
+
+                                                  }
+
+                                                  try {
+                                                    await this.PostmigrationService.updateLikeRobot(postidset, poinx);
+                                                  } catch (e) {
+
+                                                  }
+                                                } else {
+                                                  try {
+                                                    await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                                  } catch (e) {
+
+                                                  }
+                                                }
+
+                                              }
+
+                                              if (maxDate !== tgstring) {
+                                                try {
+                                                  await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                                } catch (e) {
+
+                                                }
+                                              }
+                                            }
+
+
+                                            // }
+                                            // else {
+                                            //   await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                                            // }
+
+                                          }
+                                        }
+                                      }
+
+
+                                    }
+                                  }
+
+                                }
+                                else {
+                                  try {
+                                    await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                                  } catch (e) {
+
+                                  }
+
+                                }
+
+                                try {
+                                  datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                                } catch (e) {
+                                  datapostchall = null;
+                                }
+                                if (datapostchall != null) {
+                                  idpostchall = datapostchall._id.toString();
+                                }
+                                if (poin > 0) {
+                                  try {
+                                    await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                                  } catch (e) {
+
+                                  }
+                                }
+
+
+                                // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                                // if (datauschall.length > 0) {
+                                //   for (let x = 0; x < datauschall.length; x++) {
+
+                                //     let iducall = datauschall[x]._id;
+                                //     let start = new Date(datauschall[x].startDatetime);
+                                //     let end = new Date(datauschall[x].endDatetime);
+                                //     let datenow = new Date(Date.now());
+                                //     let idChallenges2 = datauschall[x].idChallenge;
+                                //     let rank = x + 1;
+
+                                //     //if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                                //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                                //     //}
+
+                                //   }
+                                // }
+
+
+                              }
+                            }
+                          }
+                          else {
+                            // if (saleAmount == 0) {
+                            if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                              var obj = {};
+
+                              obj = {
+                                "updatedAt": datauserchall[y].updatedAt,
+                                "score": datauserchall[y].score,
+                                "ranking": datauserchall[y].ranking,
+                              }
+                              if (postType == "vid") {
+                                poin = poinViewVid;
+                              } else if (postType == "diary") {
+                                poin = poinViewDiary;
+                              } else if (postType == "pict") {
+                                poin = poinPict;
+                              } else {
+                                poin = 0;
+                              }
+                              try {
+                                await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                              } catch (e) {
+
+                              }
+
+
+                              var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                              var activity = detail.activity;
+                              objintr = { "type": nametable, "id": idref, "desc": action }
+                              console.log(objintr)
+                              activity.push(objintr)
+                              await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                              if (isBot) {
+                                //function robot
+                                let dataservice = null;
+                                try {
+
+                                  dataservice = await this.Settings2Service.findOne(idsetting);
+
+                                  value = dataservice._doc.value;
+                                  leng = value.length;
+
+                                } catch (e) {
+                                  leng = 0;
+                                }
+                                if (leng > 0) {
+                                  for (let i = 0; i < leng; i++) {
+                                    let idsub = value[i].idSubChallenge.toString();
+                                    let maxScoreset = value[i].maxScore;
+                                    let detail = [];
+
+                                    if (idsub == idsubchallenge.toString()) {
+
+                                      try {
+                                        detail = value[i].detail;
+                                      } catch (e) {
+                                        detail = [];
+                                      }
+
+                                      if (detail.length > 0) {
+                                        for (let x = 0; x < detail.length; x++) {
+                                          let useridset = detail[x].iduser.toString();
+                                          let postidset = detail[x].postid;
+                                          let perkalian = detail[x].perkalian;
+                                          let scoreAwal = detail[x].scoreAwal;
+                                          let likeAwal = detail[x].likeAwal;
+
+                                          if (postidset == "" && useridset == iduser.toString()) {
+                                            let poinx = perkalian * poin;
+                                            let tot = Number(maxScore) + Number(poinx);
+                                            let dt = new Date(Date.now());
+                                            dt.setHours(dt.getHours() + 7); // timestamp
+                                            dt = new Date(dt);
+                                            let strdate = dt.toISOString();
+                                            let repdate = strdate.replace('T', ' ');
+                                            let splitdate = repdate.split('.');
+                                            let timedate = splitdate[0];
+                                            let tgl = timedate.split(" ");
+                                            let tgstring = tgl[0];
+                                            if (tot <= maxScoreset) {
+
+                                              if (maxDate == tgstring) {
+
+                                                try {
+                                                  await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                                } catch (e) {
+
+                                                }
+
+                                                // try {
+                                                //   await this.postsService.updateLikeRobot(postID, poinx);
+                                                // } catch (e) {
+
+                                                // }
+                                              } else {
+                                                try {
+                                                  await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                                } catch (e) {
+
+                                                }
+                                              }
+
+                                            }
+                                            if (maxDate !== tgstring) {
+                                              try {
+                                                await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                              } catch (e) {
+
+                                              }
+
+                                            }
+
+                                          }
+                                        }
+                                      }
+                                    }
+
+
+                                  }
+                                }
+
+                              } else {
+                                try {
+                                  await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                                } catch (e) {
+
+                                }
+
+
+                              }
+                              // await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                              try {
+                                datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                              } catch (e) {
+                                datapostchall = null;
+                              }
+                              if (datapostchall != null) {
+                                idpostchall = datapostchall._id.toString();
+                              }
+                              if (poin > 0) {
+                                try {
+                                  await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                                } catch (e) {
+
+                                }
+                              }
+
+                              // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                              // if (datauschall.length > 0) {
+                              //   for (let x = 0; x < datauschall.length; x++) {
+
+                              //     let iducall = datauschall[x]._id;
+                              //     let start = new Date(datauschall[x].startDatetime);
+                              //     let end = new Date(datauschall[x].endDatetime);
+                              //     let datenow = new Date(Date.now());
+                              //     let idChallenges2 = datauschall[x].idChallenge;
+                              //     let rank = x + 1;
+
+                              //     //if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                              //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                              //     //}
+
+                              //   }
+                              // }
+
+
+                            }
+                            //}
+
+                          }
+
+
+                        }
+
+                      }
+
+
+                    }
+
+                  }
+                }
+
+
+              }
+
+            }
+
+          }
+          else {
+            if (objectChallenge == "AKUN") {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailuser);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+
+            } else {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailreceiver);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+            }
+            try {
+              datauserchall = await this.userchallengesService.userChallengebyIdChall(iduser.toString(), idChallenge);
+            } catch (e) {
+              datauserchall = null;
+            }
+
+            if (datauserchall !== null) {
+
+              let leng = null;
+              try {
+                leng = datauserchall.length;
+              } catch (e) {
+                leng = 0;
+              }
+
+
+              if (leng > 0) {
+
+                for (let y = 0; y < leng; y++) {
+
+                  var iduserchall = null;
+                  var idsubchallenge = null
+                  var idChallenges = null
+                  var start = null
+                  var end = null
+                  try {
+                    iduserchall = datauserchall[y]._id;
+                  } catch (e) {
+                    iduserchall = null;
+                  }
+                  try {
+                    idsubchallenge = datauserchall[y].idSubChallenge;
+                  } catch (e) {
+                    idsubchallenge = null;
+                  }
+                  try {
+                    idChallenges = datauserchall[y].idChallenge;
+                  } catch (e) {
+                    idChallenges = null;
+                  }
+                  try {
+                    start = new Date(datauserchall[y].startDatetime);
+                  } catch (e) {
+                    start = null;
+                  }
+                  try {
+                    end = new Date(datauserchall[y].endDatetime);
+                  } catch (e) {
+                    end = null;
+                  }
+                  var datenow = new Date(Date.now());
+                  try {
+                    maxScore = datauserchall[y].maxScore;
+                  } catch (e) {
+                    maxScore = 0;
+                  }
+                  try {
+                    maxDate = datauserchall[y].maxDate;
+                  } catch (e) {
+                    maxDate = null;
+                  }
+                  try {
+                    isBot = datauserchall[y].isBot;
+                  } catch (e) {
+                    isBot = false;
+                  }
+                  if (objectChallenge == "KONTEN") {
+                    if (new Date(createAt) >= start && new Date(createAt) <= end && saleAmount == 0) {
+                      if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                        var obj = {};
+
+                        obj = {
+                          "updatedAt": datauserchall[y].updatedAt,
+                          "score": datauserchall[y].score,
+                          "ranking": datauserchall[y].ranking,
+                        }
+
+                        if (postTypeParent == "vid") {
+                          poin = poinViewVid;
+                        } else if (postTypeParent == "diary") {
+                          poin = poinViewDiary;
+                        } else if (postTypeParent == "pict") {
+                          poin = poinPict;
+                        }
+                        else {
+                          poin = 0;
+                        }
+                        try {
+                          await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                        } catch (e) {
+
+                        }
+                        var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                        var activity = detail.activity;
+                        let objintr = { "type": nametable, "id": idref, "desc": action }
+                        console.log(objintr)
+                        activity.push(objintr)
+                        try {
+                          await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                        } catch (e) {
+
+                        }
+
+
+                        if (isBot) {
+                          //function robot
+                          try {
+
+                            dataservice = await this.Settings2Service.findOne(idsetting);
+
+                            value = dataservice._doc.value;
+                            leng = value.length;
+
+                          } catch (e) {
+                            leng = 0;
+                          }
+                          if (leng > 0) {
+                            for (let i = 0; i < leng; i++) {
+                              let idsub = value[i].idSubChallenge.toString();
+                              let maxScoreset = value[i].maxScore;
+                              let detail = [];
+
+                              if (idsub == idsubchallenge.toString()) {
+
+                                try {
+                                  detail = value[i].detail;
+                                } catch (e) {
+                                  detail = [];
+                                }
+
+                                if (detail.length > 0) {
+                                  for (let x = 0; x < detail.length; x++) {
+                                    let useridset = detail[x].iduser.toString();
+                                    let postidset = detail[x].postid;
+                                    let perkalian = detail[x].perkalian;
+                                    let scoreAwal = detail[x].scoreAwal;
+                                    let likeAwal = detail[x].likeAwal;
+
+
+
+                                    //if (postidset == postID) {
+                                    let poinx = perkalian * poin;
+                                    let tot = Number(maxScore) + Number(poinx);
+                                    let dt = new Date(Date.now());
+                                    dt.setHours(dt.getHours() + 7); // timestamp
+                                    dt = new Date(dt);
+
+                                    let strdate = dt.toISOString();
+                                    let repdate = strdate.replace('T', ' ');
+                                    let splitdate = repdate.split('.');
+                                    let timedate = splitdate[0];
+                                    let tgl = timedate.split(" ");
+                                    let tgstring = tgl[0];
+                                    if (tot <= maxScoreset) {
+
+                                      if (maxDate == tgstring) {
+
+                                        try {
+                                          await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                        } catch (e) {
+
+                                        }
+
+                                        try {
+                                          await this.PostmigrationService.updateLikeRobot(postidset, poinx);
+                                        } catch (e) {
+
+                                        }
+                                      } else {
+                                        try {
+                                          await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                        } catch (e) {
+
+                                        }
+                                      }
+
+                                    }
+                                    if (maxDate !== tgstring) {
+                                      try {
+                                        await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                      } catch (e) {
+
+                                      }
+                                    }
+                                    //}
+
+                                  }
+                                }
+                              }
+
+
+                            }
+                          }
+
+                        }
+                        else {
+                          try {
+                            await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                          } catch (e) {
+
+                          }
+
+
+                        }
+
+                        try {
+                          datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                        } catch (e) {
+                          datapostchall = null;
+                        }
+                        if (datapostchall != null) {
+                          idpostchall = datapostchall._id.toString();
+                        }
+                        if (poin > 0) {
+                          try {
+                            await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                          } catch (e) {
+
+                          }
+                        }
+                        // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                        // if (datauschall.length > 0) {
+                        //   for (let x = 0; x < datauschall.length; x++) {
+
+                        //     let iducall = datauschall[x]._id;
+                        //     let start = new Date(datauschall[x].startDatetime);
+                        //     let end = new Date(datauschall[x].endDatetime);
+                        //     let datenow = new Date(Date.now());
+                        //     let idChallenges2 = datauschall[x].idChallenge;
+                        //     let rank = x + 1;
+
+                        //     // if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                        //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                        //     // }
+
+                        //   }
+                        // }
+                      }
+                    }
+                  }
+                  else {
+                    // if (saleAmount == 0) {
+                    if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                      var obj = {};
+
+                      obj = {
+                        "updatedAt": datauserchall[y].updatedAt,
+                        "score": datauserchall[y].score,
+                        "ranking": datauserchall[y].ranking,
+                      }
+
+                      if (postTypeParent == "vid") {
+                        poin = poinViewVid;
+                      } else if (postTypeParent == "diary") {
+                        poin = poinViewDiary;
+                      } else if (postTypeParent == "pict") {
+                        poin = poinPict;
+                      } else {
+                        poin = 0;
+                      }
+                      await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+
+                      var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                      var activity = detail.activity;
+                      let objintr = { "type": nametable, "id": idref, "desc": action }
+                      console.log(objintr)
+                      activity.push(objintr)
+                      await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                      if (isBot) {
+                        //function robot
+                        try {
+
+                          dataservice = await this.Settings2Service.findOne(idsetting);
+
+                          value = dataservice._doc.value;
+                          leng = value.length;
+
+                        } catch (e) {
+                          leng = 0;
+                        }
+                        if (leng > 0) {
+                          for (let i = 0; i < leng; i++) {
+                            let idsub = value[i].idSubChallenge.toString();
+                            let maxScoreset = value[i].maxScore;
+                            let detail = [];
+
+                            if (idsub == idsubchallenge.toString()) {
+
+                              try {
+                                detail = value[i].detail;
+                              } catch (e) {
+                                detail = [];
+                              }
+
+                              if (detail.length > 0) {
+                                for (let x = 0; x < detail.length; x++) {
+                                  let useridset = detail[x].iduser.toString();
+                                  let postidset = detail[x].postid;
+                                  let perkalian = detail[x].perkalian;
+                                  let scoreAwal = detail[x].scoreAwal;
+                                  let likeAwal = detail[x].likeAwal;
+
+                                  if (postidset == "" && useridset == iduser.toString()) {
+                                    let poinx = perkalian * poin;
+                                    let tot = Number(maxScore) + Number(poinx);
+                                    let dt = new Date(Date.now());
+                                    dt.setHours(dt.getHours() + 7); // timestamp
+                                    dt = new Date(dt);
+
+                                    let strdate = dt.toISOString();
+                                    let repdate = strdate.replace('T', ' ');
+                                    let splitdate = repdate.split('.');
+                                    let timedate = splitdate[0];
+                                    let tgl = timedate.split(" ");
+                                    let tgstring = tgl[0];
+                                    if (tot <= maxScoreset) {
+
+                                      if (maxDate == tgstring) {
+
+                                        try {
+                                          await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                        } catch (e) {
+
+                                        }
+
+
+                                      } else {
+                                        try {
+                                          await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                        } catch (e) {
+
+                                        }
+                                      }
+
+                                    }
+                                    if (maxDate !== tgstring) {
+                                      try {
+                                        await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                      } catch (e) {
+
+                                      }
+
+                                    }
+                                  }
+
+                                }
+                              }
+                            }
+
+
+                          }
+                        }
+
+                      } else {
+                        await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                      }
+                      try {
+                        datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                      } catch (e) {
+                        datapostchall = null;
+                      }
+                      if (datapostchall != null) {
+                        idpostchall = datapostchall._id.toString();
+                      }
+                      if (poin > 0) {
+                        try {
+                          await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                        } catch (e) {
+
+                        }
+                      }
+                      // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                      // if (datauschall.length > 0) {
+                      //   for (let x = 0; x < datauschall.length; x++) {
+
+                      //     let iducall = datauschall[x]._id;
+                      //     let start = new Date(datauschall[x].startDatetime);
+                      //     let end = new Date(datauschall[x].endDatetime);
+                      //     let datenow = new Date(Date.now());
+                      //     let idChallenges2 = datauschall[x].idChallenge;
+                      //     let rank = x + 1;
+
+                      //     // if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                      //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                      //     // }
+
+                      //   }
+                      // }
+                    }
+                    // }
+                  }
+                }
+              }
+
+            }
+          }
+        }
+
+
+      }
+      //var timestamps_end = await this.utilsService.getDateTimeString();
+     // this.logapiSS.create3(fullurl, timestamps_start, timestamps_end, emailuser, null, null, requestjson, "LAMA FUNCTION CHALLENGE");
+    }
+
+  }
+  async userChallengeView4new(idref: string, nametable: string, action: string, postID: string, emailuser: string, emailreceiver: string) {
+    const mongoose = require('mongoose');
+    var ObjectId = require('mongodb').ObjectId;
+
+    var dt = new Date(Date.now());
+    dt.setHours(dt.getHours() + 7); // timestamp
+    dt = new Date(dt);
+
+    var strdate = dt.toISOString();
+    var repdate = strdate.replace('T', ' ');
+    var splitdate = repdate.split('.');
+    var timedate = splitdate[0];
+    var lengchal = null;
+    var datauserchall = null;
+    var datachallenge = null;
+    var arrdata = [];
+    var objintr = {};
+    var datasubchallenge = null;
+    var poin = 0;
+    var datatag = null;
+    var poinViewVid = 0;
+    var poinViewDiary = 0;
+    var poinPict = 0;
+    var tagar = null;
+    var datapostchall = null;
+    var idpostchall = null;
+    var databasic = null;
+    var objectChallenge = null;
+    var iduser = null;
+    var datapost = null;
+    var createAt = null;
+    var saleAmount = null;
+    var postTypeParent = null;
+    var dataservice = null;
+    var idsetting = "6583fb37cf00baae6d0d344c";
+    var value = null;
+    var maxScore = 0;
+    var maxDate = null;
+    var leng = 0;
+    var isBot = null;
+    var poinReferal = null;
+    var poinIkuti = null;
+    var userId = null;
+    var idChallenge = null;
+    var timestamps_start = await this.utilsService.getDateTimeString();
+
+    try {
+      datapost = await this.PostmigrationService.findByPostId(postID);
+    } catch (e) {
+      datapost = null;
+    }
+
+    // try {
+    //   datachallenge = await this.postchallengeService.postChallengebyUser(postID);
+    // } catch (e) {
+    //   datachallenge = null;
+    // }
+    if (datapost !== null) {
+      postTypeParent = datapost.postType;
+      createAt = datapost.createdAt;
+      if (datapost.saleAmount !== undefined) {
+        saleAmount = datapost.saleAmount;
+      } else {
+        saleAmount = 0;
+      }
+    }
+    // if(listchallenge !==undefined && listchallenge !==null){
+    //   if(listchallenge.length>0){
+    //     try {
+    //       datachallenge = listchallenge;
+    //     } catch (e) {
+    //       datachallenge = null;
+    //     }
+    //   }
+    //   else{
+    //     try {
+    //       datachallenge = await this.postchallengeService.postChallengebyUser(postID);
+    //     } catch (e) {
+    //       datachallenge = null;
+    //     }
+    //   }
+    // }else{
+    //   try {
+    //     datachallenge = await this.postchallengeService.postChallengebyUser(postID);
+    //   } catch (e) {
+    //     datachallenge = null;
+    //   }
+    // }
+    try {
+      datachallenge = await this.challengeService.challengeKontenNew();
+    } catch (e) {
+      datachallenge = null;
+    }
+    if (datachallenge !== null && datachallenge.length > 0) {
+      lengchal = datachallenge.length;
+
+      for (let i = 0; i < lengchal; i++) {
+        try {
+          idChallenge = datachallenge[i].idChallenge.toString();
+        } catch (e) {
+          idChallenge = null;
+        }
+        try {
+          objectChallenge = datachallenge[i].objectChallenge;
+        } catch (e) {
+          objectChallenge = null;
+        }
+
+        try {
+          poinViewVid = datachallenge[i].tonton[0].HyppeVid;
+        } catch (e) {
+          poinViewVid = 0;
+        }
+
+        try {
+          poinViewDiary = datachallenge[i].tonton[0].HyppeDiary;
+        } catch (e) {
+          poinViewDiary = 0;
+        }
+        try {
+          poinPict = datachallenge[i].tonton[0].HyppePic;
+        } catch (e) {
+          poinPict = 0;
+        }
+
+
+        try {
+          tagar = datachallenge[i].tagar;
+        } catch (e) {
+          tagar = "";
+        }
+
+        try {
+          poinReferal = datachallenge[i].Referal;
+        } catch (e) {
+          poinReferal = 0;
+        }
+        try {
+          poinIkuti = datachallenge[i].Ikuti;
+        } catch (e) {
+          poinIkuti = 0;
+        }
+        try {
+          userId = datachallenge[i].idUser;
+        } catch (e) {
+          userId = null;
+        }
+        // try {
+        //   isBot = datachallenge[i].isBot;
+        // } catch (e) {
+        //   isBot = false;
+        // }
+        //function robot
+        if (objectChallenge == "KONTEN") {
+          try {
+
+            dataservice = await this.Settings2Service.findOne(idsetting);
+
+            value = dataservice._doc.value;
+            leng = value.length;
+
+          } catch (e) {
+            leng = 0;
+          }
+          if (leng > 0) {
+            for (let i = 0; i < leng; i++) {
+              let idsubbot = null;
+              try {
+                idsubbot = value[i].idSubChallenge.toString();
+              } catch (e) {
+                idsubbot = null;
+              }
+
+              let maxScoreset = value[i].maxScore;
+              let detail = [];
+
+              //  if (idsub == idsubchallenge.toString()) {
+
+              try {
+                detail = value[i].detail;
+              } catch (e) {
+                detail = [];
+              }
+
+              if (detail.length > 0) {
+                for (let x = 0; x < detail.length; x++) {
+                  let useridset = detail[x].iduser.toString();
+                  let postidset = detail[x].postid;
+                  let perkalian = detail[x].perkalian;
+                  let scoreAwal = detail[x].scoreAwal;
+                  let likeAwal = detail[x].likeAwal;
+                  let datauserchallset = null;
+          
+                  try {
+                    datauserchallset = await this.userchallengesService.userChallengebyIdChallbot(useridset, idChallenge, idsubbot);
+                  } catch (e) {
+                    datauserchallset = null;
+                  }
+                  if (datauserchallset !== null) {
+                    let leng = null;
+                    try {
+                      leng = datauserchallset.length;
+                    } catch (e) {
+                      leng = 0;
+                    }
+                    if (leng > 0) {
+                      for (let y = 0; y < leng; y++) {
+
+                        let iduserchall = null;
+                        let idsubchallenge = null
+                        let idChallenges = null
+                        let start = null
+                        let end = null
+                        let maxScore = 0;
+                        let maxDate = null;
+                        let isBot = false;
+                        let poinbot = 0;
+                        try {
+                          iduserchall = datauserchallset[y]._id;
+                        } catch (e) {
+                          iduserchall = null;
+                        }
+                        try {
+                          idsubchallenge = datauserchallset[y].idSubChallenge;
+                        } catch (e) {
+                          idsubchallenge = null;
+                        }
+                        try {
+                          idChallenges = datauserchallset[y].idChallenge;
+                        } catch (e) {
+                          idChallenges = null;
+                        }
+                        try {
+                          start = new Date(datauserchallset[y].startDatetime);
+                        } catch (e) {
+                          start = null;
+                        }
+                        try {
+                          end = new Date(datauserchallset[y].endDatetime);
+                        } catch (e) {
+                          end = null;
+                        }
+
+
+                        var datenow = new Date(Date.now());
+
+                        try {
+                          maxScore = datauserchallset[y].maxScore;
+                        } catch (e) {
+                          maxScore = 0;
+                        }
+                        try {
+                          maxDate = datauserchallset[y].maxDate;
+                        } catch (e) {
+                          maxDate = null;
+                        }
+                        try {
+                          isBot = datauserchallset[y].isBot;
+                        } catch (e) {
+                          isBot = false;
+                        }
+
+                        var obj = {};
+
+                        obj = {
+                          "updatedAt": datauserchallset[y].updatedAt,
+                          "score": datauserchallset[y].score,
+                          "ranking": datauserchallset[y].ranking,
+                        }
+
+                        if (postTypeParent == "vid") {
+                          poinbot = poinViewVid;
+                        } else if (postTypeParent == "diary") {
+                          poinbot = poinViewDiary;
+                        } else if (postTypeParent == "pict") {
+                          poinbot = poinPict;
+                        }
+                        else {
+                          poinbot = 0;
+                        }
+                        try {
+                          await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                        } catch (e) {
+
+                        }
+                        let detail = await this.userchallengesService.findOne(iduserchall.toString());
+                        let activity = detail.activity;
+                        let objintr = { "type": nametable, "id": idref, "desc": action }
+                        console.log(objintr)
+                        activity.push(objintr)
+                        try {
+                          await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                        } catch (e) {
+
+                        }
+                        if (isBot) {
+                          let poinx = perkalian * poinbot;
+                          let tot = Number(maxScore) + Number(poinx);
+                          let dt = new Date(Date.now());
+                          dt.setHours(dt.getHours() + 7); // timestamp
+                          dt = new Date(dt);
+
+                          let strdate = dt.toISOString();
+                          let repdate = strdate.replace('T', ' ');
+                          let splitdate = repdate.split('.');
+                          let timedate = splitdate[0];
+                          let tgl = timedate.split(" ");
+                          let tgstring = tgl[0];
+                          if (tot <= maxScoreset) {
+
+                            if (maxDate == tgstring) {
+
+                              try {
+                                await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poinbot);
+                              } catch (e) {
+
+                              }
+
+                              // try {
+                              //   await this.PostmigrationService.updateLikeRobot(postidset, poinx);
+                              // } catch (e) {
+
+                              // }
+                            } else {
+                              try {
+                                await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                              } catch (e) {
+
+                              }
+                            }
+
+                          }
+
+                          if (maxDate !== tgstring) {
+                            try {
+                              await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                            } catch (e) {
+
+                            }
+                          }
+                        }
+
+
+                      }
+                    }
+                  }
+
+                }
+              }
+            }
+
+
+            // }
+          }
+
+        }
+
+
+        if (idChallenge !== null && idChallenge !== undefined) {
+          if (tagar != undefined && tagar != "" && tagar.length > 0) {
+            var tag2 = tagar.replace("#", "");
+            var tag3 = tag2.toLowerCase();
+            try {
+              datatag = await this.tagCountService.listagV2(tag2);
+            } catch (e) {
+              datatag = null;
+            }
+
+            if (objectChallenge == "AKUN") {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailuser);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+            } else {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailreceiver);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+            }
+
+            if (datatag != null && datatag.length > 0) {
+
+              for (let i = 0; i < datatag.length; i++) {
+                let idtag = datatag[i]._id.toLowerCase();
+                let postIDpost = datatag[i].postID;
+                let postType = datatag[i].postType;
+
+                if (postIDpost == postID) {
+                  if (idtag == tag3) {
+
+                    try {
+                      datauserchall = await this.userchallengesService.userChallengebyIdChall(iduser.toString(), idChallenge);
+                    } catch (e) {
+                      datauserchall = null;
+                    }
+
+                    if (datauserchall !== null) {
+
+                      let leng = null;
+                      try {
+                        leng = datauserchall.length;
+                      } catch (e) {
+                        leng = 0;
+                      }
+
+
+                      if (leng > 0) {
+                        for (let y = 0; y < leng; y++) {
+                          var iduserchall = null;
+                          var idsubchallenge = null
+                          var idChallenges = null
+                          var start = null
+                          var end = null
+                          try {
+                            iduserchall = datauserchall[y]._id;
+                          } catch (e) {
+                            iduserchall = null;
+                          }
+                          try {
+                            idsubchallenge = datauserchall[y].idSubChallenge;
+                          } catch (e) {
+                            idsubchallenge = null;
+                          }
+                          try {
+                            idChallenges = datauserchall[y].idChallenge;
+                          } catch (e) {
+                            idChallenges = null;
+                          }
+                          try {
+                            start = new Date(datauserchall[y].startDatetime);
+                          } catch (e) {
+                            start = null;
+                          }
+                          try {
+                            end = new Date(datauserchall[y].endDatetime);
+                          } catch (e) {
+                            end = null;
+                          }
+
+
+                          var datenow = new Date(Date.now());
+
+                          try {
+                            maxScore = datauserchall[y].maxScore;
+                          } catch (e) {
+                            maxScore = 0;
+                          }
+                          try {
+                            maxDate = datauserchall[y].maxDate;
+                          } catch (e) {
+                            maxDate = null;
+                          }
+                          try {
+                            isBot = datauserchall[y].isBot;
+                          } catch (e) {
+                            isBot = false;
+                          }
+                          if (objectChallenge == "KONTEN") {
+                            if (new Date(createAt) >= start && new Date(createAt) <= end && saleAmount == 0) {
+                              if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                                var obj = {};
+
+                                obj = {
+                                  "updatedAt": datauserchall[y].updatedAt,
+                                  "score": datauserchall[y].score,
+                                  "ranking": datauserchall[y].ranking,
+                                }
+
+                                if (postType == "vid") {
+                                  poin = poinViewVid;
+                                } else if (postType == "diary") {
+                                  poin = poinViewDiary;
+                                } else if (postType == "pict") {
+                                  poin = poinPict;
+                                }
+                                else {
+                                  poin = 0;
+                                }
+                                try {
+                                  await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                                } catch (e) {
+
+                                }
+
+                                var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                                var activity = detail.activity;
+                                objintr = { "type": nametable, "id": idref, "desc": action }
+                                console.log(objintr)
+                                activity.push(objintr)
+                                try {
+                                  await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                                } catch (e) {
+
+                                }
+
+
+                                if (isBot) {
+                                  //function robot
+                                  try {
+
+                                    dataservice = await this.Settings2Service.findOne(idsetting);
+
+                                    value = dataservice._doc.value;
+                                    leng = value.length;
+
+                                  } catch (e) {
+                                    leng = 0;
+                                  }
+                                  if (leng > 0) {
+                                    for (let i = 0; i < leng; i++) {
+                                      let idsub = value[i].idSubChallenge.toString();
+                                      let maxScoreset = value[i].maxScore;
+                                      let detail = [];
+
+                                      if (idsub == idsubchallenge.toString()) {
+
+                                        try {
+                                          detail = value[i].detail;
+                                        } catch (e) {
+                                          detail = [];
+                                        }
+
+                                        if (detail.length > 0) {
+                                          for (let x = 0; x < detail.length; x++) {
+                                            let useridset = detail[x].iduser.toString();
+                                            let postidset = detail[x].postid;
+                                            let perkalian = detail[x].perkalian;
+                                            let scoreAwal = detail[x].scoreAwal;
+                                            let likeAwal = detail[x].likeAwal;
+
+
+                                            if (postidset == postID) {
+                                              let poinx = perkalian * poin;
+                                              let tot = Number(maxScore) + Number(poinx);
+                                              let dt = new Date(Date.now());
+                                              dt.setHours(dt.getHours() + 7); // timestamp
+                                              dt = new Date(dt);
+
+                                              let strdate = dt.toISOString();
+                                              let repdate = strdate.replace('T', ' ');
+                                              let splitdate = repdate.split('.');
+                                              let timedate = splitdate[0];
+                                              let tgl = timedate.split(" ");
+                                              let tgstring = tgl[0];
+                                              if (tot <= maxScoreset) {
+
+                                                if (maxDate == tgstring) {
+
+                                                  try {
+                                                    await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                                  } catch (e) {
+
+                                                  }
+
+                                                  // try {
+                                                  //   await this.PostmigrationService.updateLikeRobot(postidset, poinx);
+                                                  // } catch (e) {
+
+                                                  // }
+                                                } else {
+                                                  try {
+                                                    await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                                  } catch (e) {
+
+                                                  }
+                                                }
+
+                                              }
+
+                                              if (maxDate !== tgstring) {
+                                                try {
+                                                  await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                                } catch (e) {
+
+                                                }
+                                              }
+                                            }
+
+
+                                            // }
+                                            // else {
+                                            //   await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                                            // }
+
+                                          }
+                                        }
+                                      }
+
+
+                                    }
+                                  }
+
+                                }
+                                else {
+                                  try {
+                                    await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                                  } catch (e) {
+
+                                  }
+
+                                }
+
+                                try {
+                                  datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                                } catch (e) {
+                                  datapostchall = null;
+                                }
+                                if (datapostchall != null) {
+                                  idpostchall = datapostchall._id.toString();
+                                }
+                                if (poin > 0) {
+                                  try {
+                                    await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                                  } catch (e) {
+
+                                  }
+                                }
+
+
+                                // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                                // if (datauschall.length > 0) {
+                                //   for (let x = 0; x < datauschall.length; x++) {
+
+                                //     let iducall = datauschall[x]._id;
+                                //     let start = new Date(datauschall[x].startDatetime);
+                                //     let end = new Date(datauschall[x].endDatetime);
+                                //     let datenow = new Date(Date.now());
+                                //     let idChallenges2 = datauschall[x].idChallenge;
+                                //     let rank = x + 1;
+
+                                //     //if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                                //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                                //     //}
+
+                                //   }
+                                // }
+
+
+                              }
+                            }
+                          }
+                          else {
+                            // if (saleAmount == 0) {
+                            if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                              var obj = {};
+
+                              obj = {
+                                "updatedAt": datauserchall[y].updatedAt,
+                                "score": datauserchall[y].score,
+                                "ranking": datauserchall[y].ranking,
+                              }
+                              if (postType == "vid") {
+                                poin = poinViewVid;
+                              } else if (postType == "diary") {
+                                poin = poinViewDiary;
+                              } else if (postType == "pict") {
+                                poin = poinPict;
+                              } else {
+                                poin = 0;
+                              }
+                              try {
+                                await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                              } catch (e) {
+
+                              }
+
+
+                              var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                              var activity = detail.activity;
+                              objintr = { "type": nametable, "id": idref, "desc": action }
+                              console.log(objintr)
+                              activity.push(objintr)
+                              await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                              if (isBot) {
+                                //function robot
+                                let dataservice = null;
+                                try {
+
+                                  dataservice = await this.Settings2Service.findOne(idsetting);
+
+                                  value = dataservice._doc.value;
+                                  leng = value.length;
+
+                                } catch (e) {
+                                  leng = 0;
+                                }
+                                if (leng > 0) {
+                                  for (let i = 0; i < leng; i++) {
+                                    let idsub = value[i].idSubChallenge.toString();
+                                    let maxScoreset = value[i].maxScore;
+                                    let detail = [];
+
+                                    if (idsub == idsubchallenge.toString()) {
+
+                                      try {
+                                        detail = value[i].detail;
+                                      } catch (e) {
+                                        detail = [];
+                                      }
+
+                                      if (detail.length > 0) {
+                                        for (let x = 0; x < detail.length; x++) {
+                                          let useridset = detail[x].iduser.toString();
+                                          let postidset = detail[x].postid;
+                                          let perkalian = detail[x].perkalian;
+                                          let scoreAwal = detail[x].scoreAwal;
+                                          let likeAwal = detail[x].likeAwal;
+
+                                          if (postidset == "" && useridset == iduser.toString()) {
+                                            let poinx = perkalian * poin;
+                                            let tot = Number(maxScore) + Number(poinx);
+                                            let dt = new Date(Date.now());
+                                            dt.setHours(dt.getHours() + 7); // timestamp
+                                            dt = new Date(dt);
+                                            let strdate = dt.toISOString();
+                                            let repdate = strdate.replace('T', ' ');
+                                            let splitdate = repdate.split('.');
+                                            let timedate = splitdate[0];
+                                            let tgl = timedate.split(" ");
+                                            let tgstring = tgl[0];
+                                            if (tot <= maxScoreset) {
+
+                                              if (maxDate == tgstring) {
+
+                                                try {
+                                                  await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                                } catch (e) {
+
+                                                }
+
+                                                // try {
+                                                //   await this.postsService.updateLikeRobot(postID, poinx);
+                                                // } catch (e) {
+
+                                                // }
+                                              } else {
+                                                try {
+                                                  await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                                } catch (e) {
+
+                                                }
+                                              }
+
+                                            }
+                                            if (maxDate !== tgstring) {
+                                              try {
+                                                await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                              } catch (e) {
+
+                                              }
+
+                                            }
+
+                                          }
+                                        }
+                                      }
+                                    }
+
+
+                                  }
+                                }
+
+                              } else {
+                                try {
+                                  await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                                } catch (e) {
+
+                                }
+
+
+                              }
+                              // await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                              try {
+                                datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                              } catch (e) {
+                                datapostchall = null;
+                              }
+                              if (datapostchall != null) {
+                                idpostchall = datapostchall._id.toString();
+                              }
+                              if (poin > 0) {
+                                try {
+                                  await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                                } catch (e) {
+
+                                }
+                              }
+
+                              // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                              // if (datauschall.length > 0) {
+                              //   for (let x = 0; x < datauschall.length; x++) {
+
+                              //     let iducall = datauschall[x]._id;
+                              //     let start = new Date(datauschall[x].startDatetime);
+                              //     let end = new Date(datauschall[x].endDatetime);
+                              //     let datenow = new Date(Date.now());
+                              //     let idChallenges2 = datauschall[x].idChallenge;
+                              //     let rank = x + 1;
+
+                              //     //if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                              //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                              //     //}
+
+                              //   }
+                              // }
+
+
+                            }
+                            //}
+
+                          }
+
+
+                        }
+
+                      }
+
+
+                    }
+
+                  }
+                }
+
+
+              }
+
+            }
+
+          }
+          else {
+            if (objectChallenge == "AKUN") {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailuser);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+
+            } else {
+              try {
+                databasic = await this.UserbasicnewService.findOneBymail(emailreceiver);
+                iduser = databasic._id;
+              } catch (e) {
+                databasic = null;
+              }
+            }
+            try {
+              datauserchall = await this.userchallengesService.userChallengebyIdChall(iduser.toString(), idChallenge);
+            } catch (e) {
+              datauserchall = null;
+            }
+
+            if (datauserchall !== null) {
+
+              let leng = null;
+              try {
+                leng = datauserchall.length;
+              } catch (e) {
+                leng = 0;
+              }
+
+
+              if (leng > 0) {
+
+                for (let y = 0; y < leng; y++) {
+
+                  var iduserchall = null;
+                  var idsubchallenge = null
+                  var idChallenges = null
+                  var start = null
+                  var end = null
+                  try {
+                    iduserchall = datauserchall[y]._id;
+                  } catch (e) {
+                    iduserchall = null;
+                  }
+                  try {
+                    idsubchallenge = datauserchall[y].idSubChallenge;
+                  } catch (e) {
+                    idsubchallenge = null;
+                  }
+                  try {
+                    idChallenges = datauserchall[y].idChallenge;
+                  } catch (e) {
+                    idChallenges = null;
+                  }
+                  try {
+                    start = new Date(datauserchall[y].startDatetime);
+                  } catch (e) {
+                    start = null;
+                  }
+                  try {
+                    end = new Date(datauserchall[y].endDatetime);
+                  } catch (e) {
+                    end = null;
+                  }
+                  var datenow = new Date(Date.now());
+                  try {
+                    maxScore = datauserchall[y].maxScore;
+                  } catch (e) {
+                    maxScore = 0;
+                  }
+                  try {
+                    maxDate = datauserchall[y].maxDate;
+                  } catch (e) {
+                    maxDate = null;
+                  }
+                  try {
+                    isBot = datauserchall[y].isBot;
+                  } catch (e) {
+                    isBot = false;
+                  }
+                  if (objectChallenge == "KONTEN") {
+                    if (new Date(createAt) >= start && new Date(createAt) <= end && saleAmount == 0) {
+                      if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                        var obj = {};
+
+                        obj = {
+                          "updatedAt": datauserchall[y].updatedAt,
+                          "score": datauserchall[y].score,
+                          "ranking": datauserchall[y].ranking,
+                        }
+
+                        if (postTypeParent == "vid") {
+                          poin = poinViewVid;
+                        } else if (postTypeParent == "diary") {
+                          poin = poinViewDiary;
+                        } else if (postTypeParent == "pict") {
+                          poin = poinPict;
+                        }
+                        else {
+                          poin = 0;
+                        }
+                        try {
+                          await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                        } catch (e) {
+
+                        }
+                        var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                        var activity = detail.activity;
+                        let objintr = { "type": nametable, "id": idref, "desc": action }
+                        console.log(objintr)
+                        activity.push(objintr)
+                        try {
+                          await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                        } catch (e) {
+
+                        }
+
+
+                        if (isBot) {
+                          //function robot
+                          try {
+
+                            dataservice = await this.Settings2Service.findOne(idsetting);
+
+                            value = dataservice._doc.value;
+                            leng = value.length;
+
+                          } catch (e) {
+                            leng = 0;
+                          }
+                          if (leng > 0) {
+                            for (let i = 0; i < leng; i++) {
+                              let idsub = value[i].idSubChallenge.toString();
+                              let maxScoreset = value[i].maxScore;
+                              let detail = [];
+
+                              if (idsub == idsubchallenge.toString()) {
+
+                                try {
+                                  detail = value[i].detail;
+                                } catch (e) {
+                                  detail = [];
+                                }
+
+                                if (detail.length > 0) {
+                                  for (let x = 0; x < detail.length; x++) {
+                                    let useridset = detail[x].iduser.toString();
+                                    let postidset = detail[x].postid;
+                                    let perkalian = detail[x].perkalian;
+                                    let scoreAwal = detail[x].scoreAwal;
+                                    let likeAwal = detail[x].likeAwal;
+
+
+
+                                    //if (postidset == postID) {
+                                    let poinx = perkalian * poin;
+                                    let tot = Number(maxScore) + Number(poinx);
+                                    let dt = new Date(Date.now());
+                                    dt.setHours(dt.getHours() + 7); // timestamp
+                                    dt = new Date(dt);
+
+                                    let strdate = dt.toISOString();
+                                    let repdate = strdate.replace('T', ' ');
+                                    let splitdate = repdate.split('.');
+                                    let timedate = splitdate[0];
+                                    let tgl = timedate.split(" ");
+                                    let tgstring = tgl[0];
+                                    if (tot <= maxScoreset) {
+
+                                      if (maxDate == tgstring) {
+
+                                        try {
+                                          await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                        } catch (e) {
+
+                                        }
+
+                                        // try {
+                                        //   await this.PostmigrationService.updateLikeRobot(postidset, poinx);
+                                        // } catch (e) {
+
+                                        // }
+                                      } else {
+                                        try {
+                                          await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                        } catch (e) {
+
+                                        }
+                                      }
+
+                                    }
+                                    if (maxDate !== tgstring) {
+                                      try {
+                                        await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                      } catch (e) {
+
+                                      }
+                                    }
+                                    //}
+
+                                  }
+                                }
+                              }
+
+
+                            }
+                          }
+
+                        }
+                        else {
+                          try {
+                            await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                          } catch (e) {
+
+                          }
+
+
+                        }
+
+                        try {
+                          datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                        } catch (e) {
+                          datapostchall = null;
+                        }
+                        if (datapostchall != null) {
+                          idpostchall = datapostchall._id.toString();
+                        }
+                        if (poin > 0) {
+                          try {
+                            await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                          } catch (e) {
+
+                          }
+                        }
+                        // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                        // if (datauschall.length > 0) {
+                        //   for (let x = 0; x < datauschall.length; x++) {
+
+                        //     let iducall = datauschall[x]._id;
+                        //     let start = new Date(datauschall[x].startDatetime);
+                        //     let end = new Date(datauschall[x].endDatetime);
+                        //     let datenow = new Date(Date.now());
+                        //     let idChallenges2 = datauschall[x].idChallenge;
+                        //     let rank = x + 1;
+
+                        //     // if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                        //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                        //     // }
+
+                        //   }
+                        // }
+                      }
+                    }
+                  }
+                  else {
+                    // if (saleAmount == 0) {
+                    if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                      var obj = {};
+
+                      obj = {
+                        "updatedAt": datauserchall[y].updatedAt,
+                        "score": datauserchall[y].score,
+                        "ranking": datauserchall[y].ranking,
+                      }
+
+                      if (postTypeParent == "vid") {
+                        poin = poinViewVid;
+                      } else if (postTypeParent == "diary") {
+                        poin = poinViewDiary;
+                      } else if (postTypeParent == "pict") {
+                        poin = poinPict;
+                      } else {
+                        poin = 0;
+                      }
+                      await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+
+                      var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                      var activity = detail.activity;
+                      let objintr = { "type": nametable, "id": idref, "desc": action }
+                      console.log(objintr)
+                      activity.push(objintr)
+                      await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                      if (isBot) {
+                        //function robot
+                        try {
+
+                          dataservice = await this.Settings2Service.findOne(idsetting);
+
+                          value = dataservice._doc.value;
+                          leng = value.length;
+
+                        } catch (e) {
+                          leng = 0;
+                        }
+                        if (leng > 0) {
+                          for (let i = 0; i < leng; i++) {
+                            let idsub = value[i].idSubChallenge.toString();
+                            let maxScoreset = value[i].maxScore;
+                            let detail = [];
+
+                            if (idsub == idsubchallenge.toString()) {
+
+                              try {
+                                detail = value[i].detail;
+                              } catch (e) {
+                                detail = [];
+                              }
+
+                              if (detail.length > 0) {
+                                for (let x = 0; x < detail.length; x++) {
+                                  let useridset = detail[x].iduser.toString();
+                                  let postidset = detail[x].postid;
+                                  let perkalian = detail[x].perkalian;
+                                  let scoreAwal = detail[x].scoreAwal;
+                                  let likeAwal = detail[x].likeAwal;
+
+                                  if (postidset == "" && useridset == iduser.toString()) {
+                                    let poinx = perkalian * poin;
+                                    let tot = Number(maxScore) + Number(poinx);
+                                    let dt = new Date(Date.now());
+                                    dt.setHours(dt.getHours() + 7); // timestamp
+                                    dt = new Date(dt);
+
+                                    let strdate = dt.toISOString();
+                                    let repdate = strdate.replace('T', ' ');
+                                    let splitdate = repdate.split('.');
+                                    let timedate = splitdate[0];
+                                    let tgl = timedate.split(" ");
+                                    let tgstring = tgl[0];
+                                    if (tot <= maxScoreset) {
+
+                                      if (maxDate == tgstring) {
+
+                                        try {
+                                          await this.userchallengesService.updateUserchallengeRobot(iduserchall.toString(), idsubchallenge.toString(), poinx, poin);
+                                        } catch (e) {
+
+                                        }
+
+
+                                      } else {
+                                        try {
+                                          await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                        } catch (e) {
+
+                                        }
+                                      }
+
+                                    }
+                                    if (maxDate !== tgstring) {
+                                      try {
+                                        await this.userchallengesService.updatescoreNolChallenge(iduserchall.toString(), timedate, tgstring);
+                                      } catch (e) {
+
+                                      }
+
+                                    }
+                                  }
+
+                                }
+                              }
+                            }
+
+
+                          }
+                        }
+
+                      } else {
+                        await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poin);
+                      }
+                      try {
+                        datapostchall = await this.postchallengeService.findBypostID(postID, idChallenges.toString());
+                      } catch (e) {
+                        datapostchall = null;
+                      }
+                      if (datapostchall != null) {
+                        idpostchall = datapostchall._id.toString();
+                      }
+                      if (poin > 0) {
+                        try {
+                          await this.postchallengeService.updatePostchallenge(idpostchall, poin);
+                        } catch (e) {
+
+                        }
+                      }
+                      // var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                      // if (datauschall.length > 0) {
+                      //   for (let x = 0; x < datauschall.length; x++) {
+
+                      //     let iducall = datauschall[x]._id;
+                      //     let start = new Date(datauschall[x].startDatetime);
+                      //     let end = new Date(datauschall[x].endDatetime);
+                      //     let datenow = new Date(Date.now());
+                      //     let idChallenges2 = datauschall[x].idChallenge;
+                      //     let rank = x + 1;
+
+                      //     // if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                      //     await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                      //     // }
+
+                      //   }
+                      // }
+                    }
+                    // }
+                  }
+                }
+              }
+
+            }
+          }
+        }
+
+
+
+      }
+      // var timestamps_end = await this.utilsService.getDateTimeString();
+      // this.logapiSS.create3(fullurl, timestamps_start, timestamps_end, emailuser, null, null, requestjson, "LAMA FUNCTION CHALLENGE");
+    }
+
   }
 }

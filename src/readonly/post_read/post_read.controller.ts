@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, Post, UseGuards, BadRequestException, Req, UseInterceptors, Logger } from '@nestjs/common';
+import { Body, Controller, Headers, Post, UseGuards, BadRequestException, Req, UseInterceptors, Logger, InternalServerErrorException } from '@nestjs/common';
 import { PostsReadService } from './post_read.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { LogapisService } from 'src/trans/logapis/logapis.service';

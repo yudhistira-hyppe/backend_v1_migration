@@ -10,9 +10,12 @@ import { PostsModule } from '../../content/posts/posts.module';
 import { ChallengeModule } from 'src/trans/challenge/challenge.module';
 import { TransactionsModule } from 'src/trans/transactions/transactions.module';
 import { AdsModule } from 'src/trans/adsv2/ads/ads.module';
-
+import { NewPostModule } from 'src/content/new_post/new_post.module';
+import { PosttaskModule } from '../../content/posttask/posttask.module';
 @Module({
   imports: [
+    PosttaskModule,
+    NewPostModule,
       AdsModule,
       TransactionsModule,
       ChallengeModule,

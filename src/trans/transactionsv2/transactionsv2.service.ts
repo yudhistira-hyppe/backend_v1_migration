@@ -24,7 +24,7 @@ export class TransactionsV2Service {
         private readonly balancedsService: BalancedsService,
     ) { }
 
-    async insertTransaction(platform: string, categoryProduct: string, coin: number, idUser: string, idVoucher: string, discountCoin: number = 0, detail: any[]) {
+    async insertTransaction(platform: string, categoryProduct: string, coin: number, idPembeli: string, idPenjual: string, idVoucher: string, discountCoin: number = 0, detail: any[]) {
         //Get User Hyppe
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
         const GET_ID_USER_HYPPE = await this.utilsService.getSetting_Mixed(ID_USER_HYPPE);
@@ -33,21 +33,41 @@ export class TransactionsV2Service {
             return null;
         }
 
-        //Get User
-        const getDataUser = await this.userbasicnewService.findOne(idUser.toString());
-        if (!(await this.utilsService.ceckData(getDataUser))) {
-            return null;
+        //Get User Pembeli
+        let getDataUserPembeli = null;
+        if (idPembeli!=undefined){
+            getDataUserPembeli = await this.userbasicnewService.findOne(idPembeli.toString());
+            if (!(await this.utilsService.ceckData(getDataUserPembeli))) {
+                return null;
+            }
+        }
+
+        //Get User Penjual
+        let getDataUserPenjual = null;
+        if (idPenjual != undefined) {
+            getDataUserPenjual = await this.userbasicnewService.findOne(idPenjual.toString());
+            if (!(await this.utilsService.ceckData(getDataUserPenjual))) {
+                return null;
+            }
         }
 
         //Get Product
-        const getProduct = await this.productsService.findOneByCode(categoryProduct.toString());
-        if (!(await this.utilsService.ceckData(getProduct))) {
-            return null;
+        let getProduct = null;
+        if (categoryProduct != undefined) {
+            getProduct = await this.productsService.findOneByCode(categoryProduct.toString());
+            if (!(await this.utilsService.ceckData(getProduct))) {
+                return null;
+            }
         }
-        const productName = getProduct.name.toString();
+
+        //Get Id Product
+        let productId = null;
+        if (categoryProduct != undefined) {
+            productId = getProduct._id;
+        }
         
         //Get Transaction Category
-        const getCategoryTransaction = await this.transactionsCategorysService.findByType(productName.toString());
+        const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(productId.toString());
         if (!(await this.utilsService.ceckData(getCategoryTransaction))) {
             return null;
         } else {
@@ -68,10 +88,14 @@ export class TransactionsV2Service {
         const currentDate = await this.utilsService.getDateTimeString();
         const idTransaction = await this.generateIdTransaction();
 
-        //Insert Transaction
+        //Looping Category
+        let user = 1;
         for (let cat = 0; cat < getCategoryTransaction.length;cat++){
+            //Generate Invoice Number
             let categoryTransaction = getCategoryTransaction[cat];
             let generateInvoice = await this.generateInvoice(platform, categoryTransaction.code, categoryProduct, TransactionCount);
+
+            //Insert Transaction
             let transactionsV2_ = new transactionsV2();
             let transactionsV2_id = new mongoose.Types.ObjectId();
             transactionsV2_._id = transactionsV2_id;
@@ -90,8 +114,61 @@ export class TransactionsV2Service {
             if (categoryTransaction.user =="HYPPE"){
                 transactionsV2_.idUser = getDataUserHyppe._id;
             }
+
+            if (categoryTransaction.transaction != undefined) {
+                if (categoryTransaction.transaction.length > 0) {
+                    let dataCateGoryTransaction = categoryTransaction.transaction;
+                    for (let t = 0; t < dataCateGoryTransaction.length; t++) {
+                        //Get Transaction name, Transaction Category
+                        let nameCategoryTransaction = "";
+                        if (dataCateGoryTransaction[t].name!=undefined){
+                            nameCategoryTransaction = dataCateGoryTransaction[t].name
+                        }
+                        //Get Transaction status, Transaction Category
+                        let statusCategoryTransaction = "";
+                        if (dataCateGoryTransaction[t].statu != undefined) {
+                            statusCategoryTransaction = dataCateGoryTransaction[t].statu
+                        }
+
+                        //Get Transaction, Transaction Category
+                        if (statusCategoryTransaction != "") {
+                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "debet") {
+                                transactionsV2_.idUser = getDataUserPenjual._id;
+                            }
+                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "kredit") {
+                                transactionsV2_.idUser = getDataUserPembeli._id;
+                            }
+                        }
+
+                        //Get Transaction, Transaction Category
+                        if (nameCategoryTransaction != "") {
+                            //Get Coa
+                            //findOneBySubCoaName
+                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "debet") {
+                                transactionsV2_.idUser = getDataUserPenjual._id;
+                            }
+                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "kredit") {
+                                transactionsV2_.idUser = getDataUserPembeli._id;
+                            }
+                        }
+                    }
+                }
+            }
+            
             if (categoryTransaction.user == "USER") {
-                transactionsV2_.idUser = getDataUser._id;
+                if (categoryTransaction.transaction != undefined) {
+                    if (categoryTransaction.transaction.length > 0) {
+                        let dataCateGoryTransaction = categoryTransaction.transaction;
+                        for (let t = 0; t < dataCateGoryTransaction.length; t++) {
+                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "debet") {
+                                transactionsV2_.idUser = getDataUserPenjual._id;
+                            }
+                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "kredit") {
+                                transactionsV2_.idUser = getDataUserPembeli._id;
+                            }
+                        }
+                    }
+                }
             }
             transactionsV2_.status = "PENDING";
             transactionsV2_.detail = detail;
@@ -105,7 +182,14 @@ export class TransactionsV2Service {
                 Balanceds_.user = getDataUserHyppe._id;
             }
             if (categoryTransaction.user == "USER") {
-                Balanceds_.user = getDataUser._id;
+                if (categoryTransaction.code =="PNC ") {
+
+                } else if (categoryTransaction.code == "PNC ") {
+
+                } else {
+
+                }
+                //Balanceds_.user = getDataUser._id;
             }
             Balanceds_.noInvoice = generateInvoice;
             Balanceds_.createdAt = currentDate;
@@ -117,6 +201,7 @@ export class TransactionsV2Service {
             Balanceds_.saldo = 0;
             Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
             await this.balancedsService.create(Balanceds_);
+            user
         }
     }
 
