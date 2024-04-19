@@ -1559,7 +1559,7 @@ export class PosttaskService {
 
                                                                     }
                                                                     try {
-                                                                        await this.TemppostService.updateView(email_receiverParty, email_user, postID);
+                                                                        await this.TemppostService.updateView(email_receiverParty, email_userrand, postID);
                                                                     } catch (e) {
             
                                                                     }
