@@ -47,13 +47,13 @@ export class TaskService {
     
   // }
 
-  // @Cron('1 0 0 * * *')
-  // inject2() {
+  @Cron('1 0 0 * * *')
+  inject2() {
 
-  //   this.logger.debug('cron JOB START schedule');
-  //   this.PosttaskService.runCronSchedule();
+    this.logger.debug('cron JOB START Temppost');
+    this.NewPostService.temppost();
     
-  // }
+  }
 
   // @Cron('0 */5 * * * *')
   // inject3() {
