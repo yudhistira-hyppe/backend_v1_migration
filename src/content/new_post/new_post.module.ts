@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { NewPostService } from './new_post.service';
 import { NewPostController } from './new_post.controller';
+import { tempposts, temppostsSchema } from './schemas/tempPost.schema';
+import { TempPOSTService } from './temp_post.service';
 import { NewpostsSchema, newPosts } from './schemas/newPost.schema';
 import { UtilsModule } from 'src/utils/utils.module';
 import { ContenteventsModule } from '../contentevents/contentevents.module';
@@ -64,10 +66,10 @@ import { ScheduleinjectModule } from '../../schedule/scheduleinject/scheduleinje
     TemplatesRepoModule,
     DisquslogsModule,
     MediamusicModule,
-    MongooseModule.forFeature([{ name: newPosts.name, schema: NewpostsSchema }], 'SERVER_FULL')
+    MongooseModule.forFeature([{ name: newPosts.name, schema: NewpostsSchema }, { name: tempposts.name, schema: temppostsSchema }], 'SERVER_FULL')
   ],
   controllers: [NewPostController],
-  providers: [NewPostService, NewPostContentService, NewPostModService],
-  exports: [NewPostService, NewPostContentService, NewPostModService]
+  providers: [NewPostService, NewPostContentService, NewPostModService, TempPOSTService],
+  exports: [NewPostService, NewPostContentService, NewPostModService, TempPOSTService]
 })
 export class NewPostModule { }

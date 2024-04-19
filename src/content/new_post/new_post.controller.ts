@@ -33,6 +33,7 @@ import { Posttask } from '../../content/posttask/schemas/posttask.schema';
 import { PosttaskService } from '../../content/posttask/posttask.service';
 import { ScheduleinjectService } from '../../schedule/scheduleinject/scheduleinject.service';
 import { Scheduleinject } from '../../schedule/scheduleinject/schemas/scheduleinject.schema';
+import { TempPOSTService } from './temp_post.service';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -58,7 +59,7 @@ export class NewPostController {
         private readonly newPostModService: NewPostModService,
         private readonly PosttaskService: PosttaskService,
         private readonly ScheduleinjectService: ScheduleinjectService,
-
+        private readonly TempPostService: TempPOSTService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -173,6 +174,9 @@ export class NewPostController {
                 }
 
             }
+
+            //untuk temppost
+            this.TempPostService.duplicatedata(data.data, null, "create");
         }
 
         return data;
@@ -183,7 +187,7 @@ export class NewPostController {
     @UseInterceptors(FileInterceptor('postContent'))
     async updatePostnew(@Body() body, @Headers() headers): Promise<CreatePostResponse> {
         var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + "/api/posts/updatepost";
+        var fullurl = headers.host + "/api/posts/updatepost/v2";
         var reqbody = body;
 
         this.logger.log("updatePost >>> start");
@@ -306,6 +310,7 @@ export class NewPostController {
                     }
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                this.TempPostService.updateByPostId(body, headers, dataUser);
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postID', body.postID.toString());
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postType', posts.postType.toString());
                 if (saleAmount > 0) {
@@ -382,6 +387,7 @@ export class NewPostController {
                     }
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                this.TempPostService.updateByPostId(body, headers, dataUser);
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postID', body.postID.toString());
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postType', posts.postType.toString());
                 // if (saleAmount > 0) {
@@ -531,6 +537,7 @@ export class NewPostController {
 
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                this.TempPostService.updateByPostId(body, headers, dataUser);
                 //tags
                 if (body.tags !== undefined && body.tags.length > 0) {
                     var tag2 = body.tags;
@@ -609,7 +616,7 @@ export class NewPostController {
                 const mongoose = require('mongoose');
                 var ObjectId = require('mongodb').ObjectId;
 
-                if (body.cats !== undefined) {
+                if (body.cats != undefined && body.cats.length > 0) {
                     let cats = body.cats;
                     var splitcats = cats.split(',');
                     for (let i = 0; i < splitcats.length; i++) {
@@ -842,6 +849,7 @@ export class NewPostController {
 
                     }
                     data = await this.newPostContentService.updatePost(body, headers, dataUser);
+                    this.TempPostService.updateByPostId(body, headers, dataUser);
                     //tags
                     if (body.tags !== undefined && body.tags.length > 0) {
                         var tag2 = body.tags;
