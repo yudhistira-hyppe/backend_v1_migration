@@ -59443,7 +59443,7 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                   '$dateToString': {
                       format: '%Y-%m-%d %H:%M:%S',
                       date: {
-                          '$add': [new Date(), - 6048000000]
+                          '$add': [new Date(), - 3024000000]
                       }
                   }
               }
