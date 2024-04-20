@@ -167,7 +167,7 @@ export class NewPostController {
             }
 
 
-            if (posttype !== "story") {
+    
                 try {
                     this.posttask(postID, email, current_date);
                 } catch (e) {
@@ -178,7 +178,7 @@ export class NewPostController {
                 } catch (e) {
 
                 }
-            }
+            
 
             const databasic = await this.basic2SS.findBymail(
                 email
