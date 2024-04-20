@@ -145,20 +145,41 @@ export class NewPostController {
             if (arrayStiker !== undefined && arrayStiker.length > 0) {
                 this.updateused(arrayStiker);
             }
-
-            var postID = data.data.postID;
-
-            var email = data.data.email;
+            var postID = null;
+            var posttype = null;
+            var email = null;
             try {
-                this.posttask(postID, email, current_date);
+                postID = data.data.postID;
             } catch (e) {
-
+                postID = null;
             }
+
             try {
-                this.schedul(postID, email);
+                posttype = data.data.postType;
             } catch (e) {
-
+                posttype = null;
             }
+
+            try {
+                email = data.data.email;
+            } catch (e) {
+                email = null;
+            }
+
+
+            if (posttype !== "story") {
+                try {
+                    this.posttask(postID, email, current_date);
+                } catch (e) {
+
+                }
+                try {
+                    this.schedul(postID, email);
+                } catch (e) {
+
+                }
+            }
+
             const databasic = await this.basic2SS.findBymail(
                 email
             );
