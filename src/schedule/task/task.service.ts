@@ -39,27 +39,5 @@ export class TaskService {
     this.adsService.ceckAdsActive();
   }
 
-  // @Cron('0 */20 * * * *')
-  // inject() {
-
-  //   this.logger.debug('cron JOB START Like View');
-  //   this.PosttaskService.runCronTask();
-    
-  // }
-
-  @Cron('1 0 0 * * *')
-  inject2() {
-
-    this.logger.debug('cron JOB START Temppost');
-    this.NewPostService.temppost();
-    
-  }
-
-  // @Cron('0 */5 * * * *')
-  // inject3() {
-
-  //     this.logger.debug('cron JOB START Fcm');
-  //     this.PosttaskService.requestFcm();
-    
-  // }
+ 
 }

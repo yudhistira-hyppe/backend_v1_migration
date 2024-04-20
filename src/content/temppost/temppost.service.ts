@@ -10,7 +10,7 @@ export class TemppostService {
   private readonly logger = new Logger(TemppostService.name);
 
   constructor(
-    @InjectModel(temppost.name, 'SERVER_FULL')
+    @InjectModel(temppost.name, 'SERVER_FULL_CRON')
     private readonly loaddata: Model<temppostDocument>,
    
   ) { }
