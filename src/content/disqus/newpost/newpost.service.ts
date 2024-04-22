@@ -853,7 +853,7 @@ export class NewpostService {
             {
                 "$sort":
                 {
-                    'story.createdAt': 1
+                    'story.createdAt': -1
                 }
             },
             {
