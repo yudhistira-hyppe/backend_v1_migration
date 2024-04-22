@@ -518,7 +518,7 @@ export class NewpostService {
             },
             {
                 $sort: {
-                    createdAt: - 1
+                    createdAt: 1
                 }
             },
             // {
@@ -853,7 +853,7 @@ export class NewpostService {
             {
                 "$sort":
                 {
-                    'story.createdAt': - 1
+                    'story.createdAt': 1
                 }
             },
             {
