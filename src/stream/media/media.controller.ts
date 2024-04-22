@@ -3285,9 +3285,11 @@ export class MediaController {
             loaddatakyc['tempatLahir'] = tempatLahir;
             loaddatakyc['jenisKelamin'] = jenisKelamin;
 
-            let hasduplicateidcardnumber = await this.basic2SS.getDuplicateIdCardNumber(noktp, dataemailuser.email);
-            if (hasduplicateidcardnumber) {
-                throw new BadRequestException("error, found duplicate ID card number");
+            if (status === "DISETUJUI") {
+                let hasduplicateidcardnumber = await this.basic2SS.getDuplicateIdCardNumber(noktp, dataemailuser.email);
+                if (hasduplicateidcardnumber) {
+                    throw new BadRequestException("error, found duplicate ID card number");
+                }
             }
         } catch (e) {
             throw new BadRequestException("Unable to proceed!!, " + e);
