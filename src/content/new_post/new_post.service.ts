@@ -48091,12 +48091,12 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
     var postmatch = [];
 
     var sortingdata = null;
-    if (sorttime == 'true') {
-      sortingdata = -1;
-    }
-    else {
+    // if (sorttime == 'true') {
+    //   sortingdata = -1;
+    // }
+    // else {
       sortingdata = 1;
-    }
+    //}
 
     if (tipepost != null && tipepost != undefined) {
       postmatch.push(
