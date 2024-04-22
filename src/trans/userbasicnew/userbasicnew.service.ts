@@ -666,6 +666,15 @@ export class UserbasicnewService {
             {
                 $lookup:
                 {
+                    from: 'friend_list',
+                    localField: 'email',
+                    foreignField: 'email',
+                    as: 'friend',
+                },
+            },
+            {
+                $lookup:
+                {
                     from: 'referral',
                     let:
                     {
@@ -981,7 +990,13 @@ export class UserbasicnewService {
                                         },
                                         friend:
                                         {
-                                            "$size": "$friend"
+                                            "$size": 
+                                            {
+                                                "$arrayElemAt":
+                                                [
+                                                    "$friend.friendlist", 0
+                                                ]
+                                            }
                                         }
                                     },
                                     langIso: "$languagesLangIso",
