@@ -746,13 +746,13 @@ export class ChallengeController {
           {
             "HyppeVid": Number(request_json['konten_hyppevid_likepost']),
             "HyppePic": Number(request_json['konten_hyppepic_likepost']),
-            // "HyppeDiary": Number(request_json['konten_hyppediary_likepost'])
+            "HyppeDiary": Number(request_json['konten_hyppevid_likepost'])
           }
         ],
         "tonton": [
           {
             "HyppeVid": Number(request_json['konten_hyppevid_viewpost']),
-            // "HyppeDiary": Number(request_json['konten_hyppediary_viewpost'])
+             "HyppeDiary": Number(request_json['konten_hyppevid_viewpost'])
           }
         ],
       }
@@ -765,7 +765,7 @@ export class ChallengeController {
           {
             "HyppeVid": Number(request_json['konten_hyppevid_createpost']),
             "HyppePic": Number(request_json['konten_hyppepic_createpost']),
-            // "HyppeDiary": Number(request_json['konten_hyppediary_createpost'])
+            "HyppeDiary": Number(request_json['konten_hyppevid_createpost'])
           }
         ];
       }
