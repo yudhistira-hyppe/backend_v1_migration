@@ -988,14 +988,25 @@ export class UserbasicnewService {
                                                     "$insight_data.likes", 0
                                                 ]
                                         },
-                                        friend:
-                                        {
-                                            "$size": 
-                                            {
-                                                "$arrayElemAt":
-                                                [
-                                                    "$friend.friendlist", 0
-                                                ]
+                                        // friend:
+                                        // {
+                                        //     "$size": 
+                                        //     {
+                                        //         "$arrayElemAt":
+                                        //         [
+                                        //             "$friend.friendlist", 0
+                                        //         ]
+                                        //     }
+                                        // }
+                                        "friend": {
+                                            "$size": {
+                                                "$ifNull": [{
+                                                    "$arrayElemAt": 
+                                                    [
+                                                        "$friend.friendlist",
+                                                        0
+                                                    ]
+                                                }, []]
                                             }
                                         }
                                     },
