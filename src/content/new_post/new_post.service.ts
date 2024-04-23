@@ -7643,6 +7643,12 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
 
     pipeline = [
       {
+        "$match":
+        {
+          email: { $not: /noneactive/ }
+        },
+      },
+      {
         '$lookup': {
           from: 'newUserBasics',
           localField: 'email',
