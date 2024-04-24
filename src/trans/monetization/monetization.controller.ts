@@ -55,6 +55,7 @@ export class MonetizationController {
     let email = auth.email;
     let type = body.type;
     let toLog = body;
+    if (file.coinThumb && file.coinThumb.length > 0) body.isUploadIcon = true;
     delete toLog['coinThumb'];
     let data;
 
