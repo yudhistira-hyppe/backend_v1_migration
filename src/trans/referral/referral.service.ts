@@ -173,6 +173,48 @@ export class ReferralService {
           childDOB: {
             $arrayElemAt: ['$childData.dob', 0]
           },
+          jenis:
+          {
+            "$switch":
+            {
+              branches:
+                [
+                  {
+                    case:
+                    {
+                      "$eq":
+                        [
+                          {
+                            "$arrayElemAt":
+                              [
+                                "$childData.guestMode", 0
+                              ]
+                          },
+                          true
+                        ]
+                    },
+                    then: "GUEST"
+                  },
+                  {
+                    case:
+                    {
+                      '$eq':
+                        [
+                          {
+                            '$arrayElemAt':
+                              [
+                                '$childData.isIdVerified', 0
+                              ]
+                          },
+                          true
+                        ]
+                    },
+                    then: "PREMIUM"
+                  },
+                ],
+              default: "BASIC"
+            }
+          },
           childAge: {
             "$ifNull": [
               {
