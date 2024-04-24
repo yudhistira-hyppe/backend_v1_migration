@@ -1,5 +1,5 @@
-import { Body, Headers, Controller, Delete, Get, Param, Post, UseGuards, HttpCode, HttpStatus, Req, Res, Logger, UploadedFile, UseInterceptors, BadRequestException, Header, NotAcceptableException } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express/multer';
+import { Body, Headers, Controller, Delete, Get, Param, Post, UseGuards, HttpCode, HttpStatus, Req, Res, Logger, UploadedFile, UseInterceptors, BadRequestException, Header, NotAcceptableException, UploadedFiles } from '@nestjs/common';
+import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express/multer';
 import { MonetizationService } from './monetization.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UtilsService } from 'src/utils/utils.service';
@@ -40,8 +40,37 @@ export class MonetizationController {
 
   @Post("/create")
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('coinThumb'))
-  async create(@UploadedFile() file: Express.Multer.File, @Headers() headers, @Body() body) {
+  // @UseInterceptors(FileInterceptor('coinThumb'))
+  // async create(@UploadedFile() file: Express.Multer.File, @Headers() headers, @Body() body) {
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'coinThumb', maxCount: 1 }, { name: 'giftThumb', maxCount:1 }, { name: 'giftAnimation', maxCount:1 }]))
+  async create(@UploadedFiles() file: { 
+        coinThumb?: Express.Multer.File
+        giftThumb?: Express.Multer.File[]
+        giftAnimation?: Express.Multer.File[]
+    }, @Headers() headers, @Body() body) {
+      console.log("test file");
+      console.log(file);
+    /*
+    {
+      fieldname: 'coinThumb',
+      originalname: 'ghost.jpg',
+      encoding: '7bit',
+      mimetype: 'image/jpeg',
+      buffer: <Buffer 52 49 46 46 8a 30 00 00 57 45 42 50 56 50 38 4c 7e 30 00 00 2f 3b c1 4e 10 2a bd d3 f6 ab b6 2d 37 e7 8f 51 64 b6 8f e0 dc 7d e6 18 63 ed 7b 9b 0c e9 ... 12384 more bytes>,
+      size: 12434
+    }
+
+    coinThumb: [
+      {
+        fieldname: 'coinThumb',
+        originalname: 'ghost.jpg',
+        encoding: '7bit',
+        mimetype: 'image/jpeg',
+        buffer: <Buffer 52 49 46 46 8a 30 00 00 57 45 42 50 56 50 38 4c 7e 30 00 00 2f 3b c1 4e 10 2a bd d3 f6 ab b6 2d 37 e7 8f 51 64 b6 8f e0 dc 7d e6 18 63 ed 7b 9b 0c e9 ... 12384 more bytes>,
+        size: 12434
+      }
+    ]
+    */
     let timestamps_start = await this.utilService.getDateTimeString();
     let url = headers.host + "/api/monetization/create";
     let token = headers['x-auth-token'];
@@ -53,10 +82,13 @@ export class MonetizationController {
     let data;
 
     if (type == 'COIN') {
-      data = this.monetizationService.createCoin(file, body);
+      data = await this.monetizationService.createCoin(file.coinThumb[0], body);
     }
     else if (type == 'CREDIT') {
-      data = this.monetizationService.createCredit(headers, body);
+      data = await this.monetizationService.createCredit(headers, body);
+    }
+    else if(type == 'GIFT') {
+      data = await this.monetizationService.createGift(headers, file.giftThumb[0], file.giftAnimation[0], body);
     }
 
     let timestamps_end = await this.utilService.getDateTimeString();
@@ -124,10 +156,10 @@ export class MonetizationController {
     if (request_json.page == undefined || request_json.page == null) { throw new BadRequestException("Missing field page (number)"); }
     if (request_json.limit == undefined || request_json.limit == null) { throw new BadRequestException("Missing field: limit (number)"); }
     if (request_json.descending == undefined || request_json.descending == null) { throw new BadRequestException("Missing field: descending (boolean)"); }
-    if (request_json.type == undefined || !request_json.type) { throw new BadRequestException("Missing field: type (string 'COIN'/'CREDIT')"); }
-    if (request_json.type !== "COIN" && request_json.type !== "CREDIT") { throw new BadRequestException("type must be 'COIN' or 'CREDIT'"); }
+    if (request_json.type == undefined || !request_json.type) { throw new BadRequestException("Missing field: type (string 'COIN'/'CREDIT'/'GIFT')"); }
+    if (request_json.type !== "COIN" && request_json.type !== "CREDIT" && request_json.type !== "GIFT") { throw new BadRequestException("type must be 'COIN' or 'CREDIT' or 'GIFT'"); }
     let skip = (request_json.page >= 0 ? request_json.page : 0) * request_json.limit;
-    var data = await this.monetizationService.listAllCoin(skip, request_json.limit, request_json.descending, request_json.type, request_json.name, request_json.from, request_json.to, request_json.stock_gte, request_json.stock_lte, request_json.status, request_json.audiens, request_json.item_id);
+    var data = await this.monetizationService.listAllCoin(skip, request_json.limit, request_json.descending, request_json.type, request_json.name, request_json.from, request_json.to, request_json.stock_gte, request_json.stock_lte, request_json.status, request_json.audiens, request_json.tipegift);
 
     var timestamps_end = await this.utilService.getDateTimeString();
     this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_json);

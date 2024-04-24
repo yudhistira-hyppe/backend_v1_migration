@@ -16,8 +16,6 @@ export class Monetize {
     @Prop()
     description: string;
     @Prop()
-    item_id: string;
-    @Prop()
     package_id: string;
     @Prop()
     price: number;
@@ -28,9 +26,13 @@ export class Monetize {
     @Prop()
     thumbnail: string;
     @Prop()
+    animation: string;
+    @Prop()
     audiens: string;
     @Prop()
     audiens_user: any[];
+    @Prop()
+    typeGift: string;
     @Prop()
     createdAt: string;
     @Prop()

@@ -12,10 +12,11 @@ import { PostsModule } from 'src/content/posts/posts.module';
 import { UtilsModule } from 'src/utils/utils.module';
 import { UserbasicnewModule } from '../userbasicnew/userbasicnew.module';
 import { TemplatesRepoModule } from 'src/infra/templates_repo/templates_repo.module';
+import { OssModule } from 'src/stream/oss/oss.module';
 
 @Module({
   imports: [
-    LogapisModule, PostsModule, UtilsModule, UserbasicnewModule, TemplatesRepoModule,
+    OssModule, LogapisModule, PostsModule, UtilsModule, UserbasicnewModule, TemplatesRepoModule,
     ConfigModule.forRoot(),
     MongooseModule.forFeature([
       { name: Monetize.name, schema: monetizeSchema },
