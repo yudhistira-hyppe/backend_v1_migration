@@ -119,7 +119,7 @@ export class ReferralService {
     return deletedCat;
   }
 
-  async listAll(parentEmail: string, fromDate?: string, toDate?: string, skip?: number, limit?: number) {
+  async listAll(parentEmail: string, fromDate?: string, toDate?: string, jenisakun?:any[], skip?: number, limit?: number) {
     let dataPipeline = [];
     dataPipeline.push({
       "$match": {
@@ -320,6 +320,15 @@ export class ReferralService {
         }
       }
     )
+    if (jenisakun && jenisakun !== undefined) {
+      dataPipeline.push({
+        "$match": {
+          "jenis": {
+            $in: jenisakun
+          }
+        }
+      })
+    }
     if (skip > 0) {
       dataPipeline.push({ $skip: skip });
     }

@@ -33,7 +33,7 @@ export class ReferralController {
   async list(@Req() request: Request) {
     var request_json = JSON.parse(JSON.stringify(request.body));
     let skip = (request_json.page > 0 ? (request_json.page - 1) : 0) * request_json.limit;
-    return this.referralService.listAll(request_json.email, request_json.from, request_json.to, skip, request_json.limit);
+    return this.referralService.listAll(request_json.email, request_json.from, request_json.to, request_json.jenis, skip, request_json.limit);
   }
 
 }
