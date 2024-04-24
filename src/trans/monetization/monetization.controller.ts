@@ -42,35 +42,12 @@ export class MonetizationController {
   @UseGuards(JwtAuthGuard)
   // @UseInterceptors(FileInterceptor('coinThumb'))
   // async create(@UploadedFile() file: Express.Multer.File, @Headers() headers, @Body() body) {
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'coinThumb', maxCount: 1 }, { name: 'giftThumb', maxCount:1 }, { name: 'giftAnimation', maxCount:1 }]))
-  async create(@UploadedFiles() file: { 
-        coinThumb?: Express.Multer.File
-        giftThumb?: Express.Multer.File[]
-        giftAnimation?: Express.Multer.File[]
-    }, @Headers() headers, @Body() body) {
-      console.log("test file");
-      console.log(file);
-    /*
-    {
-      fieldname: 'coinThumb',
-      originalname: 'ghost.jpg',
-      encoding: '7bit',
-      mimetype: 'image/jpeg',
-      buffer: <Buffer 52 49 46 46 8a 30 00 00 57 45 42 50 56 50 38 4c 7e 30 00 00 2f 3b c1 4e 10 2a bd d3 f6 ab b6 2d 37 e7 8f 51 64 b6 8f e0 dc 7d e6 18 63 ed 7b 9b 0c e9 ... 12384 more bytes>,
-      size: 12434
-    }
-
-    coinThumb: [
-      {
-        fieldname: 'coinThumb',
-        originalname: 'ghost.jpg',
-        encoding: '7bit',
-        mimetype: 'image/jpeg',
-        buffer: <Buffer 52 49 46 46 8a 30 00 00 57 45 42 50 56 50 38 4c 7e 30 00 00 2f 3b c1 4e 10 2a bd d3 f6 ab b6 2d 37 e7 8f 51 64 b6 8f e0 dc 7d e6 18 63 ed 7b 9b 0c e9 ... 12384 more bytes>,
-        size: 12434
-      }
-    ]
-    */
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'coinThumb', maxCount: 1 }, { name: 'giftThumb', maxCount: 1 }, { name: 'giftAnimation', maxCount: 1 }]))
+  async create(@UploadedFiles() file: {
+    coinThumb?: Express.Multer.File[]
+    giftThumb?: Express.Multer.File[]
+    giftAnimation?: Express.Multer.File[]
+  }, @Headers() headers, @Body() body) {
     let timestamps_start = await this.utilService.getDateTimeString();
     let url = headers.host + "/api/monetization/create";
     let token = headers['x-auth-token'];
@@ -87,7 +64,7 @@ export class MonetizationController {
     else if (type == 'CREDIT') {
       data = await this.monetizationService.createCredit(headers, body);
     }
-    else if(type == 'GIFT') {
+    else if (type == 'GIFT') {
       data = await this.monetizationService.createGift(headers, file.giftThumb[0], file.giftAnimation[0], body);
     }
 
@@ -114,13 +91,13 @@ export class MonetizationController {
     let email = auth.email;
     let toLog = body;
     delete toLog['coinThumb'];
-    
+
     let image_information = await sharp(file.buffer).metadata();
     let extension = image_information.format;
     let path_file = "images/coin/default.jpg";
 
     let file_upload = await this.postContentService.generate_upload_noresize(file, extension);
-    
+
     await this.ossContentPictService.uploadFileBuffer(file_upload, path_file);
 
     let timestamps_end = await this.utilService.getDateTimeString();
@@ -135,8 +112,7 @@ export class MonetizationController {
   }
 
   @Get('/thumbnail/thumbnail')
-  async defaultThumbURL(@Res() res)
-  {
+  async defaultThumbURL(@Res() res) {
     var defaulturl = 'images/coin/default.jpg';
 
     var data2 = await this.ossContentPictService.readFile(defaulturl);
