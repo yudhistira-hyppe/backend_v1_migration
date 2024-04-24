@@ -8871,165 +8871,168 @@ export class ContenteventsController {
     }
 
     if (eventType == "FOLLOWING") {
-      var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
-      var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
-      if (!(await this.utilsService.ceckData(ceck_data_FOLLOWER)) && !(await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
-        var _id_1 = (await this.utilsService.generateId());
-        var _id_2 = (await this.utilsService.generateId());
-        var CreateContenteventsDto1 = new CreateContenteventsDto();
-        CreateContenteventsDto1._id = _id_1
-        CreateContenteventsDto1.contentEventID = _id_1
-        CreateContenteventsDto1.email = email_receiverParty
-        CreateContenteventsDto1.eventType = "FOLLOWER"
-        CreateContenteventsDto1.active = true
-        CreateContenteventsDto1.event = "ACCEPT"
-        CreateContenteventsDto1.createdAt = current_date
-        CreateContenteventsDto1.updatedAt = current_date
-        CreateContenteventsDto1.sequenceNumber = 1
-        CreateContenteventsDto1.flowIsDone = true
-        CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
-        CreateContenteventsDto1.receiverParty = email_user
+      if(email_receiverParty != email_user)
+      {
+        var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
+        var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
+        if (!(await this.utilsService.ceckData(ceck_data_FOLLOWER)) && !(await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
+          var _id_1 = (await this.utilsService.generateId());
+          var _id_2 = (await this.utilsService.generateId());
+          var CreateContenteventsDto1 = new CreateContenteventsDto();
+          CreateContenteventsDto1._id = _id_1
+          CreateContenteventsDto1.contentEventID = _id_1
+          CreateContenteventsDto1.email = email_receiverParty
+          CreateContenteventsDto1.eventType = "FOLLOWER"
+          CreateContenteventsDto1.active = true
+          CreateContenteventsDto1.event = "ACCEPT"
+          CreateContenteventsDto1.createdAt = current_date
+          CreateContenteventsDto1.updatedAt = current_date
+          CreateContenteventsDto1.sequenceNumber = 1
+          CreateContenteventsDto1.flowIsDone = true
+          CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
+          CreateContenteventsDto1.receiverParty = email_user
 
-        var CreateContenteventsDto2 = new CreateContenteventsDto();
-        CreateContenteventsDto2._id = _id_2
-        CreateContenteventsDto2.contentEventID = _id_2
-        CreateContenteventsDto2.email = email_user
-        CreateContenteventsDto2.eventType = "FOLLOWING"
-        CreateContenteventsDto2.active = true
-        CreateContenteventsDto2.event = "ACCEPT"
-        CreateContenteventsDto2.createdAt = current_date
-        CreateContenteventsDto2.updatedAt = current_date
-        CreateContenteventsDto2.sequenceNumber = 1
-        CreateContenteventsDto2.flowIsDone = true
-        CreateContenteventsDto2._class = "io.melody.hyppe.content.domain.ContentEvent"
-        CreateContenteventsDto2.senderParty = email_receiverParty
+          var CreateContenteventsDto2 = new CreateContenteventsDto();
+          CreateContenteventsDto2._id = _id_2
+          CreateContenteventsDto2.contentEventID = _id_2
+          CreateContenteventsDto2.email = email_user
+          CreateContenteventsDto2.eventType = "FOLLOWING"
+          CreateContenteventsDto2.active = true
+          CreateContenteventsDto2.event = "ACCEPT"
+          CreateContenteventsDto2.createdAt = current_date
+          CreateContenteventsDto2.updatedAt = current_date
+          CreateContenteventsDto2.sequenceNumber = 1
+          CreateContenteventsDto2.flowIsDone = true
+          CreateContenteventsDto2._class = "io.melody.hyppe.content.domain.ContentEvent"
+          CreateContenteventsDto2.senderParty = email_receiverParty
 
-        if (await this.utilsService.ceckData(Insight_sender)) {
-          var _id_sender = (await this.utilsService.generateId());
-          var CreateInsightlogsDto_sender = new CreateInsightlogsDto()
-          CreateInsightlogsDto_sender._id = _id_sender;
-          CreateInsightlogsDto_sender.insightID = Insight_sender._id;
-          CreateInsightlogsDto_sender.createdAt = current_date;
-          CreateInsightlogsDto_sender.updatedAt = current_date;
-          CreateInsightlogsDto_sender.mate = email_receiverParty
-          CreateInsightlogsDto_sender.eventInsight = "FOLLOWING"
-          CreateInsightlogsDto_sender._class = "io.melody.hyppe.content.domain.InsightLog"
-          await this.insightlogsService.create(CreateInsightlogsDto_sender);
+          if (await this.utilsService.ceckData(Insight_sender)) {
+            var _id_sender = (await this.utilsService.generateId());
+            var CreateInsightlogsDto_sender = new CreateInsightlogsDto()
+            CreateInsightlogsDto_sender._id = _id_sender;
+            CreateInsightlogsDto_sender.insightID = Insight_sender._id;
+            CreateInsightlogsDto_sender.createdAt = current_date;
+            CreateInsightlogsDto_sender.updatedAt = current_date;
+            CreateInsightlogsDto_sender.mate = email_receiverParty
+            CreateInsightlogsDto_sender.eventInsight = "FOLLOWING"
+            CreateInsightlogsDto_sender._class = "io.melody.hyppe.content.domain.InsightLog"
+            await this.insightlogsService.create(CreateInsightlogsDto_sender);
 
-          var LogInsught_sensder = Insight_sender.insightLogs;
-          LogInsught_sensder.push({
-            $ref: 'insightlogs',
-            $id: _id_sender,
-            $db: 'hyppe_content_db',
-          });
+            var LogInsught_sensder = Insight_sender.insightLogs;
+            LogInsught_sensder.push({
+              $ref: 'insightlogs',
+              $id: _id_sender,
+              $db: 'hyppe_content_db',
+            });
 
-          var CreateInsightsDto_sender = new CreateInsightsDto()
-          CreateInsightsDto_sender.insightLogs = LogInsught_sensder;
-          await this.insightsService.updateoneByID(insightID1, CreateInsightsDto_sender)
+            var CreateInsightsDto_sender = new CreateInsightsDto()
+            CreateInsightsDto_sender.insightLogs = LogInsught_sensder;
+            await this.insightsService.updateoneByID(insightID1, CreateInsightsDto_sender)
 
-        }
-        if (await this.utilsService.ceckData(Insight_receiver)) {
-          var _id_receiver = (await this.utilsService.generateId());
-          var CreateInsightlogsDto_receiver = new CreateInsightlogsDto()
-          CreateInsightlogsDto_receiver._id = _id_receiver;
-          CreateInsightlogsDto_receiver.insightID = Insight_receiver._id;
-          CreateInsightlogsDto_receiver.createdAt = current_date;
-          CreateInsightlogsDto_receiver.updatedAt = current_date;
-          CreateInsightlogsDto_receiver.mate = email_user
-          CreateInsightlogsDto_receiver.eventInsight = "FOLLOWER"
-          CreateInsightlogsDto_receiver._class = "io.melody.hyppe.content.domain.InsightLog"
-          await this.insightlogsService.create(CreateInsightlogsDto_receiver);
+          }
+          if (await this.utilsService.ceckData(Insight_receiver)) {
+            var _id_receiver = (await this.utilsService.generateId());
+            var CreateInsightlogsDto_receiver = new CreateInsightlogsDto()
+            CreateInsightlogsDto_receiver._id = _id_receiver;
+            CreateInsightlogsDto_receiver.insightID = Insight_receiver._id;
+            CreateInsightlogsDto_receiver.createdAt = current_date;
+            CreateInsightlogsDto_receiver.updatedAt = current_date;
+            CreateInsightlogsDto_receiver.mate = email_user
+            CreateInsightlogsDto_receiver.eventInsight = "FOLLOWER"
+            CreateInsightlogsDto_receiver._class = "io.melody.hyppe.content.domain.InsightLog"
+            await this.insightlogsService.create(CreateInsightlogsDto_receiver);
 
-          var LogInsught_receiver = Insight_receiver.insightLogs;
-          LogInsught_receiver.push({
-            $ref: 'insightlogs',
-            $id: _id_receiver,
-            $db: 'hyppe_content_db',
-          });
+            var LogInsught_receiver = Insight_receiver.insightLogs;
+            LogInsught_receiver.push({
+              $ref: 'insightlogs',
+              $id: _id_receiver,
+              $db: 'hyppe_content_db',
+            });
 
-          var CreateInsightsDto_receiver = new CreateInsightsDto()
-          CreateInsightsDto_receiver.insightLogs = LogInsught_receiver;
-          await this.insightsService.updateoneByID(insightID2, CreateInsightsDto_receiver)
+            var CreateInsightsDto_receiver = new CreateInsightsDto()
+            CreateInsightsDto_receiver.insightLogs = LogInsught_receiver;
+            await this.insightsService.updateoneByID(insightID2, CreateInsightsDto_receiver)
 
-        }
+          }
 
-        //INSERt FOLOWING STREAM
-        if (request.body.idMediaStreaming != undefined) {
-          const ceckView = await this.mediastreamingService.findFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString());
-          if (!(await this.utilsService.ceckData(ceckView))) {
-            const dataFollower = {
-              userId: new mongoose.Types.ObjectId(userbasic1._id.toString()),
-              status: true,
-              createAt: current_date,
-              updateAt: current_date
+          //INSERt FOLOWING STREAM
+          if (request.body.idMediaStreaming != undefined) {
+            const ceckView = await this.mediastreamingService.findFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString());
+            if (!(await this.utilsService.ceckData(ceckView))) {
+              const dataFollower = {
+                userId: new mongoose.Types.ObjectId(userbasic1._id.toString()),
+                status: true,
+                createAt: current_date,
+                updateAt: current_date
+              }
+              await this.mediastreamingService.insertFollower(request.body.idMediaStreaming, dataFollower)
+            } else {
+              await this.mediastreamingService.updateFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString(), false, true, current_date);
             }
-            await this.mediastreamingService.insertFollower(request.body.idMediaStreaming, dataFollower)
-          } else {
-            await this.mediastreamingService.updateFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString(), false, true, current_date);
+          }
+
+          try {
+            const resultdata1 = await this.contenteventsService.create(CreateContenteventsDto1);
+            let idevent1 = resultdata1._id;
+            let event1 = resultdata1.eventType.toString();
+            // await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, event1, userbasic1._id);
+            await this.contenteventsService.create(CreateContenteventsDto2);
+            await this.insightsService.updateFollowerByID(insightID2);
+            await this.basic2SS.updatefollowSystem(email_user, email_receiverParty, "FOLLOWER");
+            await this.insightsService.updateFollowingByID(insightID1);
+            this.sendInteractiveFCM2(email_receiverParty, "FOLLOWER", "", email_user);
+            await this.basic2SS.updatefollowSystem(email_receiverParty, email_user, "FOLLOWING");
+            //  this.sendInteractiveFCM2(email_user, "FOLLOWING", "", email_receiverParty);
+
+            const databasic = await this.basic2SS.findbyemail(
+              email_user
+            );
+            var iduser = null;
+            if (databasic !== null) {
+              iduser = databasic._id;
+              // this.userChallengeFollow(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW");
+              this.scorefollowrequest(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW",listchallenge)
+            }
+          } catch (error) {
+            var fullurl = request.get("Host") + request.originalUrl;
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            var reqbody = JSON.parse(JSON.stringify(request.body));
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+
+            await this.errorHandler.generateNotAcceptableException(
+              'Unabled to proceed, ' +
+              error,
+            );
+          }
+        } else {
+          if (!ceck_data_FOLLOWER.active && !ceck_data_FOLLOWING.active) {
+            await this.contenteventsService.updateFollowing(email_user, "FOLLOWING", email_receiverParty);
+            await this.contenteventsService.updateFollower(email_receiverParty, "FOLLOWER", email_user);
+            await this.insightsService.updateFollowerByID(insightID2);
+            await this.insightsService.updateFollowingByID(insightID1);
+            await this.basic2SS.updatefollowSystem(email_user, email_receiverParty, "FOLLOWER");
+            this.sendInteractiveFCM2(email_receiverParty, "FOLLOWER", "", email_user);
+            await this.basic2SS.updatefollowSystem(email_receiverParty, email_user, "FOLLOWING");
+            let idevent1 = ceck_data_FOLLOWING._id;
+            // let event1 = ceck_data_FOLLOWING.eventType.toString();
+            //  await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, event1, userbasic1._id);
+
+            const databasic = await this.basic2SS.findbyemail(
+              email_user
+            );
+            var iduser = null;
+            if (databasic !== null) {
+              iduser = databasic._id;
+              //this.userChallengeFollow(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW");
+              this.scorefollowrequest(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW",listchallenge)
+            }
+
+
           }
         }
 
-        try {
-          const resultdata1 = await this.contenteventsService.create(CreateContenteventsDto1);
-          let idevent1 = resultdata1._id;
-          let event1 = resultdata1.eventType.toString();
-          // await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, event1, userbasic1._id);
-          await this.contenteventsService.create(CreateContenteventsDto2);
-          await this.insightsService.updateFollowerByID(insightID2);
-          await this.basic2SS.updatefollowSystem(email_user, email_receiverParty, "FOLLOWER");
-          await this.insightsService.updateFollowingByID(insightID1);
-          this.sendInteractiveFCM2(email_receiverParty, "FOLLOWER", "", email_user);
-          await this.basic2SS.updatefollowSystem(email_receiverParty, email_user, "FOLLOWING");
-          //  this.sendInteractiveFCM2(email_user, "FOLLOWING", "", email_receiverParty);
-
-          const databasic = await this.basic2SS.findbyemail(
-            email_user
-          );
-          var iduser = null;
-          if (databasic !== null) {
-            iduser = databasic._id;
-            // this.userChallengeFollow(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW");
-            this.scorefollowrequest(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW",listchallenge)
-          }
-        } catch (error) {
-          var fullurl = request.get("Host") + request.originalUrl;
-          var timestamps_end = await this.utilsService.getDateTimeString();
-          var reqbody = JSON.parse(JSON.stringify(request.body));
-          this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
-
-          await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed, ' +
-            error,
-          );
-        }
-      } else {
-        if (!ceck_data_FOLLOWER.active && !ceck_data_FOLLOWING.active) {
-          await this.contenteventsService.updateFollowing(email_user, "FOLLOWING", email_receiverParty);
-          await this.contenteventsService.updateFollower(email_receiverParty, "FOLLOWER", email_user);
-          await this.insightsService.updateFollowerByID(insightID2);
-          await this.insightsService.updateFollowingByID(insightID1);
-          await this.basic2SS.updatefollowSystem(email_user, email_receiverParty, "FOLLOWER");
-          this.sendInteractiveFCM2(email_receiverParty, "FOLLOWER", "", email_user);
-          await this.basic2SS.updatefollowSystem(email_receiverParty, email_user, "FOLLOWING");
-          let idevent1 = ceck_data_FOLLOWING._id;
-          // let event1 = ceck_data_FOLLOWING.eventType.toString();
-          //  await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, event1, userbasic1._id);
-
-          const databasic = await this.basic2SS.findbyemail(
-            email_user
-          );
-          var iduser = null;
-          if (databasic !== null) {
-            iduser = databasic._id;
-            //this.userChallengeFollow(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW");
-            this.scorefollowrequest(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW",listchallenge)
-          }
-
-
-        }
+        await this.checkFriendbasedString2(userbasic1, userbasic2, "create"); 
       }
-
-      await this.checkFriendbasedString2(userbasic1, userbasic2, "create");
     }
     //  else if (eventType == "VIEW") {
 
@@ -9695,51 +9698,54 @@ export class ContenteventsController {
         }
       }
     } else if (eventType == "UNFOLLOW") {
-      var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
-      var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
-      if ((await this.utilsService.ceckData(ceck_data_FOLLOWER)) && (await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
-        try {
-          await this.contenteventsService.updateUnFollowing(email_user, "FOLLOWING", email_receiverParty);
-          await this.contenteventsService.updateUnFollower(email_receiverParty, "FOLLOWER", email_user);
-          await this.insightsService.updateUnFollowerByID(insightID2);
-          await this.insightsService.updateUnFollowingByID(insightID1);
-          await this.insightsService.updateUnFollowByID(insightID1);
-          await this.basic2SS.updateunfollowSystem(email_user, email_receiverParty, "FOLLOWER");
-          await this.basic2SS.updateunfollowSystem(email_receiverParty, email_user, "FOLLOWING");
+      if(email_receiverParty != email_user)
+      {
+        var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
+        var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
+        if ((await this.utilsService.ceckData(ceck_data_FOLLOWER)) && (await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
+          try {
+            await this.contenteventsService.updateUnFollowing(email_user, "FOLLOWING", email_receiverParty);
+            await this.contenteventsService.updateUnFollower(email_receiverParty, "FOLLOWER", email_user);
+            await this.insightsService.updateUnFollowerByID(insightID2);
+            await this.insightsService.updateUnFollowingByID(insightID1);
+            await this.insightsService.updateUnFollowByID(insightID1);
+            await this.basic2SS.updateunfollowSystem(email_user, email_receiverParty, "FOLLOWER");
+            await this.basic2SS.updateunfollowSystem(email_receiverParty, email_user, "FOLLOWING");
 
-          //INSERt UNFOLLOW STREAM
-          if (request.body.idMediaStreaming != undefined) {
-            const ceckView = await this.mediastreamingService.findFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString());
-            if (await this.utilsService.ceckData(ceckView)) {
-              await this.mediastreamingService.updateFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString(), true, false, current_date);
+            //INSERt UNFOLLOW STREAM
+            if (request.body.idMediaStreaming != undefined) {
+              const ceckView = await this.mediastreamingService.findFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString());
+              if (await this.utilsService.ceckData(ceckView)) {
+                await this.mediastreamingService.updateFollower(request.body.idMediaStreaming.toString(), userbasic1._id.toString(), true, false, current_date);
+              }
             }
+
+            let idevent1 = ceck_data_FOLLOWING._id;
+            //await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, "UNFOLLOW", userbasic1._id);
+
+            const databasic = await this.basic2SS.findbyemail(
+              email_user
+            );
+            var iduser = null;
+            if (databasic !== null) {
+              iduser = databasic._id;
+              // this.userChallengeUnFollow(iduser.toString(), idevent1.toString(), "contentevents", "UNFOLLOW");
+
+              this.scoreunfollowrequest(iduser.toString(), idevent1.toString(), "contentevents", "UNFOLLOW",listchallenge)
+            }
+
+            await this.checkFriendbasedString2(userbasic1, userbasic2, "delete");
+          } catch (error) {
+            var fullurl = request.get("Host") + request.originalUrl;
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            var reqbody = JSON.parse(JSON.stringify(request.body));
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+
+            await this.errorHandler.generateNotAcceptableException(
+              'Unabled to proceed, ' +
+              error,
+            );
           }
-
-          let idevent1 = ceck_data_FOLLOWING._id;
-          //await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, "UNFOLLOW", userbasic1._id);
-
-          const databasic = await this.basic2SS.findbyemail(
-            email_user
-          );
-          var iduser = null;
-          if (databasic !== null) {
-            iduser = databasic._id;
-            // this.userChallengeUnFollow(iduser.toString(), idevent1.toString(), "contentevents", "UNFOLLOW");
-
-            this.scoreunfollowrequest(iduser.toString(), idevent1.toString(), "contentevents", "UNFOLLOW",listchallenge)
-          }
-
-          await this.checkFriendbasedString2(userbasic1, userbasic2, "delete");
-        } catch (error) {
-          var fullurl = request.get("Host") + request.originalUrl;
-          var timestamps_end = await this.utilsService.getDateTimeString();
-          var reqbody = JSON.parse(JSON.stringify(request.body));
-          this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
-
-          await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed, ' +
-            error,
-          );
         }
       }
     } else if (eventType == "REACTION") {
