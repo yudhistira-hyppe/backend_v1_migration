@@ -708,8 +708,8 @@ export class NotificationReadService {
         pipeline.push(
             {
                 $lookup: {
-                    from: 'tempPosts',
-                    // from: 'newPosts',
+                    // from: 'tempPosts',
+                    from: 'newPosts',
                     as: 'post',
                     let: {
                         localID: '$postID'
@@ -1036,8 +1036,8 @@ export class NotificationReadService {
             }
         );
         // console.log(JSON.stringify(pipeline));
-        // var util = require('util');
-        // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
+        var util = require('util');
+        console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
         var query = await this.NotificationsReadModel.aggregate(pipeline);
         return query;
     }
