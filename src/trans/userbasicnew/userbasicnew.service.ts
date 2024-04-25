@@ -2024,6 +2024,12 @@ export class UserbasicnewService {
 
         firstmatch.push(
             {
+                email: 
+                { 
+                    $not: /noneactive/ 
+                }
+            },
+            {
                 "kyc.valid":
                 {
                     "$exists": true
@@ -2242,6 +2248,8 @@ export class UserbasicnewService {
             }
         }
 
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
         var query = await this.UserbasicnewModel.aggregate(pipeline);
 
         return query;

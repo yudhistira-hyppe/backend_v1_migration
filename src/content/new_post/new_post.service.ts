@@ -12110,7 +12110,9 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
             }
           }],
           active: true,
-
+          email: {
+            "$not": /noneactive/
+          }
         }
       },
       {
@@ -13023,9 +13025,17 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
 
     var listmatchingand = [];
 
-    listmatchingand.push({
-      "active": true
-    });
+    listmatchingand.push(
+      {
+        "active": true
+      },
+      {
+        "email": 
+        { 
+            $not: /noneactive/ 
+        }
+      },
+    );
 
     //baru. search by hashtags
     if (hashtag && hashtag !== undefined) {

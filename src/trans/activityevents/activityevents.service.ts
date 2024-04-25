@@ -877,27 +877,23 @@ export class ActivityeventsService {
         }
       },
       {
+        "$unwind":
+        {
+          path:"$user"
+        }
+      },
+      {
         '$set': {
           age: {
             '$cond': {
               if: {
                 '$and':
                   [
-                    {
-                      '$arrayElemAt':
-                        [
-                          '$user.dob', 0
-                        ]
-                    },
+                    '$user.dob',
                     {
                       '$ne':
                         [
-                          {
-                            '$arrayElemAt':
-                              [
-                                '$user.dob', 0
-                              ]
-                          },
+                          '$user.dob',
                           ''
                         ]
                     }
@@ -912,13 +908,7 @@ export class ActivityeventsService {
                           [
                             new Date(),
                             {
-                              '$toDate':
-                              {
-                                '$arrayElemAt':
-                                  [
-                                    '$user.dob', 0
-                                  ]
-                              }
+                              '$toDate':'$user.dob'
                             }
                           ]
                       },
@@ -934,13 +924,7 @@ export class ActivityeventsService {
       {
         '$project':
         {
-          iduser:
-          {
-            '$arrayElemAt':
-              [
-                '$user._id', 0
-              ]
-          },
+          iduser:'$user._id',
           jenis:
           {
             "$switch":
@@ -952,12 +936,7 @@ export class ActivityeventsService {
                     {
                       "$eq":
                         [
-                          {
-                            "$arrayElemAt":
-                              [
-                                "$user.guestMode", 0
-                              ]
-                          },
+                          "$user.guestMode",
                           true
                         ]
                     },
@@ -968,12 +947,7 @@ export class ActivityeventsService {
                     {
                       '$eq':
                         [
-                          {
-                            '$arrayElemAt':
-                              [
-                                '$user.isIdVerified', 0
-                              ]
-                          },
+                          '$user.isIdVerified',
                           true
                         ]
                     },
@@ -985,76 +959,64 @@ export class ActivityeventsService {
           },
           age: 1,
           email: 1,
-          createdAt:
-          {
-            '$arrayElemAt':
-              [
-                '$user.createdAt', 0
-              ]
-          },
-          fullName:
-          {
-            '$arrayElemAt':
-              [
-                '$user.fullName', 0
-              ]
-          },
+          createdAt:'$user.createdAt',
+          fullName:'$user.fullName',
           gender:
           {
             $switch: {
               branches: [
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, 'FEMALE']
+                    $eq: ["$user.gender", 'FEMALE']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, ' FEMALE']
+                    $eq: ["$user.gender", ' FEMALE']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, 'Perempuan']
+                    $eq: ["$user.gender", 'Perempuan']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, 'Wanita']
+                    $eq: ["$user.gender", 'Wanita']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, 'MALE']
+                    $eq: ["$user.gender", 'MALE']
                   },
                   then: 'MALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, ' MALE']
+                    $eq: ["$user.gender", ' MALE']
                   },
                   then: 'MALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, 'Laki-laki']
+                    $eq: ["$user.gender", 'Laki-laki']
                   },
                   then: 'MALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ["$user.gender", 0] }, 'Pria']
+                    $eq: ["$user.gender", 'Pria']
                   },
                   then: 'MALE',
 
@@ -1065,55 +1027,19 @@ export class ActivityeventsService {
 
             },
           },
-          username:
-          {
-            '$arrayElemAt':
-              [
-                '$user.username', 0
-              ]
-          },
-          role:
-          {
-            '$arrayElemAt':
-              [
-                '$user.roles', 0
-              ]
-          },
-          countries:
-          {
-            '$arrayElemAt':
-              [
-                '$user.countriesName', 0
-              ]
-          },
-          cities:
-          {
-            '$arrayElemAt':
-              [
-                '$user.citiesName', 0
-              ]
-          },
-          areas:
-          {
-            '$arrayElemAt':
-              [
-                '$user.statesName', 0
-              ]
-          },
-          areasId:
-          {
-            '$arrayElemAt':
-              [
-                '$user.states.$id', 0
-              ]
-          },
+          username:'$user.username',
+          role:'$user.roles',
+          countries:'$user.countriesName',
+          cities:'$user.citiesName',
+          areas:'$user.statesName',
+          areasId:'$user.states.$id',
           avatar:
           {
             mediaBasePath:
             {
               "$ifNull":
                 [
-                  { '$arrayElemAt': ['$user.mediaBasePath', 0] },
+                  '$user.mediaBasePath',
                   null
                 ]
             },
@@ -1121,7 +1047,7 @@ export class ActivityeventsService {
             {
               "$ifNull":
                 [
-                  { '$arrayElemAt': ['$user.mediaUri', 0] },
+                  '$user.mediaUri',
                   null
                 ]
             },
@@ -1129,7 +1055,7 @@ export class ActivityeventsService {
             {
               "$ifNull":
                 [
-                  { '$arrayElemAt': ['$user.mediaType', 0] },
+                  '$user.mediaType',
                   null
                 ]
             },
@@ -1137,19 +1063,13 @@ export class ActivityeventsService {
             {
               "$ifNull":
                 [
-                  { '$arrayElemAt': ['$user.mediaEndpoint', 0] },
+                  '$user.mediaEndpoint',
                   null
                 ]
             },
           },
           lastlogin: '$createdAt',
-          creator:
-          {
-            "$arrayElemAt":
-              [
-                "$user.creator", 0
-              ]
-          },
+          creator:"$user.creator",
           urluserBadge:
           {
             '$ifNull':
@@ -1157,7 +1077,7 @@ export class ActivityeventsService {
                 {
                   '$filter':
                   {
-                    input: { '$arrayElemAt': ['$user.userBadge', 0] },
+                    input: '$user.userBadge',
                     as: 'listbadge',
                     cond:
                     {
