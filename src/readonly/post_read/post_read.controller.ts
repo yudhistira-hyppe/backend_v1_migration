@@ -1654,11 +1654,11 @@ export class PostsReadController {
         };
         try {
 
-            data = await this.notificationReadService.getNotification2(email, eventType, parseInt(pageNumber), parseInt(pageRow));
+            data = await this.notificationReadService.getNotification2V2(email, eventType, parseInt(pageNumber), parseInt(pageRow));
             lengpict = data.length;
 
         } catch (e) {
-            data = null;
+            data = [];
             lengpict = 0;
 
         }
