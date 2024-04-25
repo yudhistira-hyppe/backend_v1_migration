@@ -131,6 +131,16 @@ export class TempPOSTService {
     }
   }
 
+  async updateByPostIdv2(
+    postID: string,
+    CreateNewPostDTO: tempposts,
+  ): Promise<Object> {
+    return await this.loaddata.updateOne(
+      { postID: postID },
+      CreateNewPostDTO
+    );
+  }
+
   async updatePost(body: any, headers: any, data_userbasics: Userbasicnew): Promise<CreatePostResponse> {
     this.logger.log('updateTempPost >>> start: ' + JSON.stringify(body));
     var res = new CreatePostResponse();

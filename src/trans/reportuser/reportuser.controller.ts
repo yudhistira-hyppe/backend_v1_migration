@@ -28,6 +28,8 @@ import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 import { NewPostService } from 'src/content/new_post/new_post.service';
 import { CreateNewPostDTO } from 'src/content/new_post/dto/create-newPost.dto';
 import { CreateuserbasicnewDto } from '../userbasicnew/dto/Createuserbasicnew-dto';
+import { TempPOSTService } from 'src/content/new_post/temp_post.service';
+import { tempposts } from 'src/content/new_post/schemas/tempPost.schema';
 @Controller('api/reportuser')
 export class ReportuserController {
 
@@ -51,6 +53,7 @@ export class ReportuserController {
         private readonly logapiSS: LogapisService,
         private readonly basic2SS: UserbasicnewService,
         private readonly post2SS: NewPostService,
+        private readonly temppost2SS: TempPOSTService,
     ) { }
     @UseGuards(JwtAuthGuard)
     @Get('all')
@@ -486,6 +489,7 @@ export class ReportuserController {
         var contentModeration = null;
         var contentModerationResponse = null;
         var datacontent = null;
+        var datatempcontent = null;
         var objreportuser = {};
         var objreporthandle = {};
         var type = null;
@@ -538,12 +542,14 @@ export class ReportuserController {
 
         if (type === "content") {
             let createPostsDto = new CreateNewPostDTO();
+            let createTepostsDto = new tempposts();
             try {
                 datacontent = await this.post2SS.findByPostId(postID);
-
+                datatempcontent = await this.temppost2SS.findByPostId(postID);
 
             } catch (e) {
                 datacontent = null;
+                datatempcontent = null;
             }
 
             if (datacontent !== null) {
@@ -633,6 +639,13 @@ export class ReportuserController {
                         createPostsDto.reportedStatus = reportedStatus;
                     }
                     this.post2SS.update(postID, createPostsDto);
+                }
+
+                if(datatempcontent != null)
+                {
+                    createTepostsDto.reportedUser = reportedUserNew;
+                    createTepostsDto.reportedStatus = createPostsDto.reportedStatus;
+                    this.temppost2SS.updateByPostIdv2(postID, createTepostsDto);
                 }
 
                 var data = request_json;
