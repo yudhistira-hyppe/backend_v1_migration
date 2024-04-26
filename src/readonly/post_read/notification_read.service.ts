@@ -649,7 +649,7 @@ export class NotificationReadService {
 
                                     },
                                     {
-                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL'] },
+                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL', 'COMMENT', 'LIKE'] },
 
                                     },
                                     {
@@ -899,21 +899,21 @@ export class NotificationReadService {
 
                             }
                         },
-                        "mediaThumbEndpoint": 
+                        "mediaThumbEndpoint":
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt": ["$post.mediaSource.mediaThumbEndpoint", 0]
-                                },
-                                {
-                                    "$concat":
-                                    [
-                                        "/thumb/",
-                                        "$postID"
-                                    ]
-                                }
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt": ["$post.mediaSource.mediaThumbEndpoint", 0]
+                                    },
+                                    {
+                                        "$concat":
+                                            [
+                                                "/thumb/",
+                                                "$postID"
+                                            ]
+                                    }
+                                ]
                         },
                     },
                     // boosted: "$post.boosted",
