@@ -10325,7 +10325,7 @@ export class ContenteventsController {
           CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
           CreateContenteventsDto1.receiverParty = email_user
           let uniq=null;
-          uniq=await this.addUniqEvent(email_receiverParty,"FOLLOWER","true","ACCEPT",email_user,"");
+          uniq=await this.addUniqEvent(email_receiverParty,"FOLLOWER","true","ACCEPT",email_user,null);
           CreateContenteventsDto1.uniqEvent=uniq;
       
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10343,7 +10343,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.senderParty = email_receiverParty
 
           let uniq2=null;
-          uniq2=await this.addUniqEvent(email_user,"FOLLOWING","true","ACCEPT",email_receiverParty,"");
+          uniq2=await this.addUniqEvent(email_user,"FOLLOWING","true","ACCEPT",email_receiverParty,null);
           CreateContenteventsDto2.uniqEvent=uniq2;
 
           if (await this.utilsService.ceckData(Insight_sender)) {
