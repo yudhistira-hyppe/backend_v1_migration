@@ -23752,7 +23752,8 @@ export class TagCountService {
                                 },
                                 "comments": "$comments",
                                 "likes": "$likes",
-                                "scorePict": { '$meta': 'textScore' },
+                                //sementara dihold dulu. nanti dibalikin lagi
+                                //"scorePict": { '$meta': 'textScore' },
                                 "_id": 1,
                                 "postID": 1,
                                 "createdAt": 1,
@@ -23938,7 +23939,8 @@ export class TagCountService {
                         "mediaType": {
                             $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
                         },
-                        "scorePict": "$pict.scorePict",
+                        //sementara dihold dulu. nanti dibalikin lagi
+                        // "scorePict": "$pict.scorePict",
                         "boosted": "$pict.boosted",
                         "reportedStatus": "$pict.reportedStatus",
                         "_id": "$pict._id",
@@ -24037,7 +24039,8 @@ export class TagCountService {
                         "mediaType": {
                             $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
                         },
-                        "scorePict": "$pict.scorePict",
+                        //sementara dihold dulu. nanti dibalikin lagi
+                        // "scorePict": "$pict.scorePict",
                         "boosted": "$pict.boosted",
                         "reportedStatus": "$pict.reportedStatus",
                         "_id": "$pict._id",
