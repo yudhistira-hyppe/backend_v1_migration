@@ -856,41 +856,33 @@ export class PostsReadController {
         }
 
         if (body.withActive !== undefined) {
-            if(body.withActive == "true" || body.withActive == true)
-            {
+            if (body.withActive == "true" || body.withActive == true) {
                 active = true;
             }
-            else
-            {
+            else {
                 active = false;
             }
         }
 
-        if(body.withExp !== undefined)
-        {
-            if(body.withExp == "true" || body.withExp == true)
-            {
+        if (body.withExp !== undefined) {
+            if (body.withExp == "true" || body.withExp == true) {
                 exp = true;
             }
-            else
-            {
+            else {
                 exp = false;
             }
         }
 
-        if(body.withInsight !== undefined)
-        {
-            if(body.withInsight == "true" || body.withInsight == true)
-            {
+        if (body.withInsight !== undefined) {
+            if (body.withInsight == "true" || body.withInsight == true) {
                 withinsight = true;
             }
-            else
-            {
+            else {
                 withinsight = false;
             }
         }
 
-        if(body.postid !== undefined) {
+        if (body.postid !== undefined) {
             postid = body.postid;
         }
 
@@ -1237,8 +1229,7 @@ export class PostsReadController {
         try {
             // data = await this.postsService.landingpage(email, type, skip, limit);
             data = await this.tempPOSTss.landingPagebaru(email, type, skip, limit);
-            if(data.length < 5)
-            {
+            if (data.length < 5) {
                 data = await this.postsReadService.landingpage7(email, type, skip, limit);
             }
             lengpict = data.length;
@@ -1919,12 +1910,15 @@ export class PostsReadController {
 
             for (var j = 0; j < data.length; j++) {
                 tempdata = data[j];
-                if(tempdata.postID != null && tempdata.postID != undefined)
-                {
-                    if (tempdata.content.isApsara == true) {
-                        listdata.push(tempdata.content.apsaraId);
-                    }
-                    else {
+                if (tempdata.postID != null && tempdata.postID != undefined) {
+                    try {
+                        if (tempdata.content.isApsara == true) {
+                            listdata.push(tempdata.content.apsaraId);
+                        }
+                        else {
+                            listdata.push(undefined);
+                        }
+                    } catch (e) {
                         listdata.push(undefined);
                     }
                 }
@@ -1936,8 +1930,7 @@ export class PostsReadController {
             tempresult = apsaraimagedata.ImageInfo;
             for (var i = 0; i < data.length; i++) {
                 let getdetailpost = data[i];
-                if(getdetailpost.postID != null && getdetailpost.postID != undefined)
-                {
+                if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
                     for (var j = 0; j < tempresult.length; j++) {
                         if (tempresult[j].ImageId == data[i].content.apsaraThumbId) {
                             data[i].content.mediaThumbEndpoint = tempresult[j].URL;
@@ -1945,7 +1938,7 @@ export class PostsReadController {
                         else if (tempresult[j].ImageId == data[i].content.apsaraId) {
                             data[i].content.mediaThumbEndpoint = tempresult[j].URL;
                         }
-                    }   
+                    }
                 }
             }
 
@@ -1955,8 +1948,7 @@ export class PostsReadController {
             tempresult = apsaravideodata.VideoList;
             for (var i = 0; i < data.length; i++) {
                 let getdetailpost = data[i];
-                if(getdetailpost.postID != null && getdetailpost.postID != undefined)
-                {
+                if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
                     for (var j = 0; j < tempresult.length; j++) {
                         if (tempresult[j].VideoId == data[i].content.apsaraId) {
                             data[i].content.mediaThumbEndpoint = tempresult[j].CoverURL;
@@ -2182,9 +2174,9 @@ export class PostsReadController {
         var active = null;
         var exp = null;
         var withinsight = null;
-        var index=null;
-        var page=null; 
-        var sisa=null;
+        var index = null;
+        var page = null;
+        var sisa = null;
 
         // if (body.pageNumber !== undefined) {
         //     pageNumber = body.pageNumber;
@@ -2208,51 +2200,43 @@ export class PostsReadController {
             index = body.index;
         }
         if (body.withActive !== undefined) {
-            if(body.withActive == "true" || body.withActive == true)
-            {
+            if (body.withActive == "true" || body.withActive == true) {
                 active = true;
             }
-            else
-            {
+            else {
                 active = false;
             }
         }
 
-        if(body.withExp !== undefined)
-        {
-            if(body.withExp == "true" || body.withExp == true)
-            {
+        if (body.withExp !== undefined) {
+            if (body.withExp == "true" || body.withExp == true) {
                 exp = true;
             }
-            else
-            {
+            else {
                 exp = false;
             }
         }
 
-        if(body.withInsight !== undefined)
-        {
-            if(body.withInsight == "true" || body.withInsight == true)
-            {
+        if (body.withInsight !== undefined) {
+            if (body.withInsight == "true" || body.withInsight == true) {
                 withinsight = true;
             }
-            else
-            {
+            else {
                 withinsight = false;
             }
         }
 
-        if(body.postid !== undefined) {
+        if (body.postid !== undefined) {
             postid = body.postid;
         }
 
-        page=parseInt(index)/parseInt(pageRow);
-        page=parseInt(page);
+        page = parseInt(index) / parseInt(pageRow);
+        page = parseInt(page);
 
-        sisa=index%pageRow;
+        sisa = index % pageRow;
 
-        if(sisa>0){
-            page=page +1;
+        if (sisa > 0) {
+            page = page + 1;
         }
 
         const messages = {
