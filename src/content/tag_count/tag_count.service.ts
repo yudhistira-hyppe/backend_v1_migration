@@ -23717,7 +23717,8 @@ export class TagCountService {
                                             }
                                         }
                                     },
-                                    { '$text': { '$search': key } }
+                                    //sementara dihold dulu. nanti dibalikin lagi
+                                    //{ '$text': { '$search': key } }
                                 ]
                             },
 
@@ -23874,8 +23875,8 @@ export class TagCountService {
                     $sort: {
                         isApsara: - 1,
                         scorePict: - 1,
-                        comments: - 1,
                         likes: - 1,
+                        comments: - 1,
                         createdAt: - 1
                     }
                 },
@@ -23978,8 +23979,8 @@ export class TagCountService {
                     $sort: {
                         isApsara: - 1,
                         scorePict: - 1,
-                        comments: - 1,
                         likes: - 1,
+                        comments: - 1,
                         createdAt: - 1
                     }
                 },
@@ -24077,8 +24078,8 @@ export class TagCountService {
                     $sort: {
                         isApsara: - 1,
                         scorePict: - 1,
-                        comments: - 1,
                         likes: - 1,
+                        comments: - 1,
                         createdAt: - 1
                     }
                 },
