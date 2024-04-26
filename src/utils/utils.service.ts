@@ -2458,7 +2458,7 @@ export class UtilsService {
           }
         }
 
-        if(data_.length == 0)
+        if(data_ == null || data_ == undefined || data_.length == 0)
         {
           const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
           const getSettingTutor = await this.getSettingMixed(SETTING_TUTOR);
