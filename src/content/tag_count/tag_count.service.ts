@@ -24123,10 +24123,10 @@ export class TagCountService {
                 }
             },
             {
-                $skip: (skip * limit)
+                $skip: skip
             },
             {
-                $limit: 80 + (skip * limit)
+                $limit: 80 + skip
             },
             {
                 $group: {
@@ -24363,13 +24363,13 @@ export class TagCountService {
                     $sort: {
                         apsara: -1,
                         scorePict: -1,
-                        comments: -1,
                         likes: -1,
+                        comments: -1,
                         createdAt: -1,
                     },
                 },
                 {
-                    $skip: (skip * limit)
+                    $skip: skip
                 },
                 {
                     $limit: limit
@@ -24900,13 +24900,13 @@ export class TagCountService {
                     $sort: {
                         apsara: -1,
                         scorePict: -1,
-                        comments: -1,
                         likes: -1,
+                        comments: -1,
                         createdAt: -1,
                     },
                 },
                 {
-                    $skip: (skip * limit)
+                    $skip: skip
                 },
                 {
                     $limit: limit
@@ -25436,13 +25436,13 @@ export class TagCountService {
                     $sort: {
                         apsara: -1,
                         scorePict: -1,
-                        comments: -1,
                         likes: -1,
+                        comments: -1,
                         createdAt: -1,
                     },
                 },
                 {
-                    $skip: (skip * limit)
+                    $skip: skip
                 },
                 {
                     $limit: limit
