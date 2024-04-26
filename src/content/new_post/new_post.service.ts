@@ -45717,6 +45717,9 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                   "email": email
                 },
                 {
+                  "visibility": "PUBLIC"
+                },
+                {
                   "reportedStatus": {
                     $ne: "OWNED"
                   }
@@ -45757,6 +45760,9 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                 },
                 {
                   "email": email
+                },
+                {
+                  "visibility": "PUBLIC"
                 },
                 {
                   "reportedStatus": {
