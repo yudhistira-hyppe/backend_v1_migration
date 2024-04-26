@@ -1911,15 +1911,18 @@ export class PostsReadController {
             for (var j = 0; j < data.length; j++) {
                 tempdata = data[j];
                 if (tempdata.postID != null && tempdata.postID != undefined) {
-                    try {
-                        if (tempdata.content.isApsara == true) {
-                            listdata.push(tempdata.content.apsaraId);
-                        }
-                        else {
+                    if(tempdata.eventType != 'CHALLENGE')
+                    {
+                        try {
+                            if (tempdata.content.isApsara == true) {
+                                listdata.push(tempdata.content.apsaraId);
+                            }
+                            else {
+                                listdata.push(undefined);
+                            }
+                        } catch (e) {
                             listdata.push(undefined);
                         }
-                    } catch (e) {
-                        listdata.push(undefined);
                     }
                 }
             }
@@ -1931,12 +1934,14 @@ export class PostsReadController {
             for (var i = 0; i < data.length; i++) {
                 let getdetailpost = data[i];
                 if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
-                    for (var j = 0; j < tempresult.length; j++) {
-                        if (tempresult[j].ImageId == data[i].content.apsaraThumbId) {
-                            data[i].content.mediaThumbEndpoint = tempresult[j].URL;
-                        }
-                        else if (tempresult[j].ImageId == data[i].content.apsaraId) {
-                            data[i].content.mediaThumbEndpoint = tempresult[j].URL;
+                    if(getdetailpost.eventType != 'CHALLENGE') {
+                        for (var j = 0; j < tempresult.length; j++) {
+                            if (tempresult[j].ImageId == data[i].content.apsaraThumbId) {
+                                data[i].content.mediaThumbEndpoint = tempresult[j].URL;
+                            }
+                            else if (tempresult[j].ImageId == data[i].content.apsaraId) {
+                                data[i].content.mediaThumbEndpoint = tempresult[j].URL;
+                            }
                         }
                     }
                 }
@@ -1949,9 +1954,11 @@ export class PostsReadController {
             for (var i = 0; i < data.length; i++) {
                 let getdetailpost = data[i];
                 if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
-                    for (var j = 0; j < tempresult.length; j++) {
-                        if (tempresult[j].VideoId == data[i].content.apsaraId) {
-                            data[i].content.mediaThumbEndpoint = tempresult[j].CoverURL;
+                    if(getdetailpost.eventType != 'CHALLENGE') {
+                        for (var j = 0; j < tempresult.length; j++) {
+                            if (tempresult[j].VideoId == data[i].content.apsaraId) {
+                                data[i].content.mediaThumbEndpoint = tempresult[j].CoverURL;
+                            }
                         }
                     }
                 }
