@@ -54,7 +54,7 @@ export class NotificationReadService {
 
                                     },
                                     {
-                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL'] },
+                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL', 'COMMENT', 'LIKE'] },
 
                                     },
                                     {
