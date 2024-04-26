@@ -2457,6 +2457,30 @@ export class UtilsService {
             data_ = insertdata;
           }
         }
+
+        if(data_.length == 0)
+        {
+          const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
+          const getSettingTutor = await this.getSettingMixed(SETTING_TUTOR);
+          if (await this.ceckData(getSettingTutor)) {
+            var insertdata = [];
+            let arraySetting = JSON.parse(JSON.stringify(getSettingTutor.value));
+            for(var i = 0; i < arraySetting.length; i++)
+            {
+              insertdata.push(
+                {
+                  "key": arraySetting[i].key,
+                  "textID": arraySetting[i].textID,
+                  "textEn": arraySetting[i].textEn,
+                  "status": true,  
+                }
+              );
+            }
+            
+            data_ = insertdata;
+          }
+        }
+
         ProfileDTO_.tutor = data_;
         
         if (get_userbasic.creator != undefined) {

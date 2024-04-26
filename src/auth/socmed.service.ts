@@ -1813,6 +1813,22 @@ export class SocmedService {
                 arrayTutor = data_ii;
               }
             }
+
+            if(arrayTutor.length == 0)
+            {
+              let arraySetting = JSON.parse(JSON.stringify(getSettingTutor.value));
+              for(var i = 0; i < arraySetting.length; i++)
+              {
+                arrayTutor.push(
+                  {
+                    "key": arraySetting[i].key,
+                    "textID": arraySetting[i].textID,
+                    "textEn": arraySetting[i].textEn,
+                    "status": true,  
+                  }
+                );
+              }
+            }
           }
         }
         else
