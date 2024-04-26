@@ -23882,7 +23882,7 @@ export class TagCountService {
                     }
                 },
                 {
-                    $skip: (skip * limit)
+                    $skip: skip
                 },
                 {
                     $limit: limit
@@ -23987,7 +23987,7 @@ export class TagCountService {
                     }
                 },
                 {
-                    $skip: (skip * limit)
+                    $skip: skip
                 },
                 {
                     $limit: limit
@@ -24087,7 +24087,7 @@ export class TagCountService {
                     }
                 },
                 {
-                    $skip: (skip * limit)
+                    $skip: skip
                 },
                 {
                     $limit: limit
