@@ -8462,6 +8462,10 @@ export class AuthService {
       CreateContenteventsDto_.receiverParty = emailViewed;
       CreateContenteventsDto_._class = "io.melody.hyppe.content.domain.ContentEvent";
 
+      let uniq=null;
+      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,"");
+      CreateContenteventsDto_.uniqEvent=uniq;
+
       //Insert ContentEvent
       await this.contenteventsService.create(CreateContenteventsDto_);
     } catch (error) {
@@ -15448,5 +15452,13 @@ export class AuthService {
         }
       }
     }
+  }
+
+  async addUniqEvent(email_receiverParty:string,eventType:string,active:string,event:string,email_user:string,postID:string){
+    var uniqEvent=null;
+    var arrData=[];
+    uniqEvent=email_receiverParty+","+eventType+","+active+","+event+","+email_user+","+postID;
+    arrData.push(uniqEvent);
+    return arrData;
   }
 }
