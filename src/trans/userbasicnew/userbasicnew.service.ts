@@ -1001,11 +1001,11 @@ export class UserbasicnewService {
                                         "friend": {
                                             "$size": {
                                                 "$ifNull": [{
-                                                    "$arrayElemAt": 
-                                                    [
-                                                        "$friend.friendlist",
-                                                        0
-                                                    ]
+                                                    "$arrayElemAt":
+                                                        [
+                                                            "$friend.friendlist",
+                                                            0
+                                                        ]
                                                 }, []]
                                             }
                                         }
@@ -2024,9 +2024,9 @@ export class UserbasicnewService {
 
         firstmatch.push(
             {
-                email: 
-                { 
-                    $not: /noneactive/ 
+                email:
+                {
+                    $not: /noneactive/
                 }
             },
             {
@@ -7980,5 +7980,86 @@ export class UserbasicnewService {
         })
         if (result && result != null) return true;
         else return false;
+    }
+
+    async getStreamShareList(email: string, skip: number, limit: number) {
+        var result = await this.UserbasicnewModel.aggregate([
+            {
+                $match: {
+                    email: {
+                        $not: {
+                            $eq: email
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: {
+                        "$ifNull":
+                            [
+                                {
+                                    "mediaBasePath": "$mediaBasePath",
+                                    "mediaUri": "$mediaUri",
+                                    "originalName": "$originalName",
+                                    "fsSourceUri": "$fsSourceUri",
+                                    "fsSourceName": "$fsSourceName",
+                                    "fsTargetUri": "$fsTargetUri",
+                                    "mediaType": "$mediaType",
+                                    "mediaEndpoint": "$mediaEndpoint",
+
+                                },
+                                null
+                            ]
+                    },
+                    email: 1,
+                    isMutuals: {
+                        $and: [
+                            {
+                                $in: [email, {
+                                    $ifNull: ["$following", []]
+                                }]
+                            },
+                            {
+                                $in: [email, {
+                                    $ifNull: ["$follower", []]
+                                }]
+                            }
+                        ]
+                    },
+                    isFollowing: {
+                        $in: [email, {
+                            $ifNull: ["$follower", []]
+                        }]
+                    },
+                    isVerified: {
+                        $eq: ["$statusKyc", "verified"]
+                    },
+                    followerCount: {
+                        $size: {
+                            $ifNull: ["$follower", []]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    isMutuals: - 1,
+                    isFollowing: - 1,
+                    isVerified: - 1,
+                    followerCount: - 1
+                }
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+        ])
+
+        return result;
     }
 }
