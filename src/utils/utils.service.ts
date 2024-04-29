@@ -1357,6 +1357,14 @@ export class UtilsService {
       return null;
     }
   }
+  async getSetting_Mixed_Data(_id_setting: string) {
+    var getSetting = await this.settingMixes.findOne({ _id: new mongoose.Types.ObjectId(_id_setting) });
+    if (getSetting != null) {
+      return getSetting;
+    } else {
+      return null;
+    }
+  }
 
   async getDeepAr(id: string) {
     var getDeepAr = await this.deepArService.findOne(id);

@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
-export type BalancedsDocument = Balanceds & Document;
+export type TransactionsBalancedsDocument = TransactionsBalanceds & Document;
 
 @Schema({ collection: 'transactionsBalanceds' })
-export class Balanceds {
+export class TransactionsBalanceds {
     _id: mongoose.Types.ObjectId;
     @Prop()
     idTransaction: mongoose.Types.ObjectId;
@@ -19,16 +19,14 @@ export class Balanceds {
     @Prop()
     userType: string;
     @Prop()
-    user: mongoose.Types.ObjectId;
-    @Prop()
     coa: any[];
     @Prop()
-    debet: number;
+    debit: number;
     @Prop()
-    kredit: number;
+    credit: number;
     @Prop()
     saldo: number; 
     @Prop()
     remark: string;
 }
-export const BalancedsSchema = SchemaFactory.createForClass(Balanceds);
+export const TransactionsBalancedsSchema = SchemaFactory.createForClass(TransactionsBalanceds);

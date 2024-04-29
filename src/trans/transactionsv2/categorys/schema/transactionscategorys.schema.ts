@@ -7,8 +7,6 @@ export type TransactionsCategorysDocument = TransactionsCategorys & Document;
 export class TransactionsCategorys {
     _id: mongoose.Types.ObjectId;
     @Prop()
-    idProduct: any[];
-    @Prop()
     code: string
     @Prop()
     coa: string;
@@ -17,14 +15,10 @@ export class TransactionsCategorys {
     @Prop()
     user: string;
     @Prop()
-    transaction: any[];
-    @Prop()
     createdAt: string;
     @Prop()
     updatedAt: string;
     @Prop()
     isDelete: boolean;
-    @Prop()
-    idProduct: mongoose.Types.ObjectId[];
 }
 export const TransactionsCategorysSchema = SchemaFactory.createForClass(TransactionsCategorys);

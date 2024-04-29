@@ -7,10 +7,17 @@ import { UtilsService } from 'src/utils/utils.service';
 import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 import { TransactionsProductsService } from './products/transactionsproducts.service';
 import { TransactionsCategorysService } from './categorys/transactionscategorys.service';
-import { Balanceds } from './balanceds/schema/balanceds.schema';
-import { BalancedsService } from './balanceds/balanceds.service';
-import { transactionCoin } from '../monetization/transactionCoin/schemas/transactionCoin.schema';
+import { TransactionsBalanceds } from './balanceds/schema/transactionsbalanceds.schema';
+import { TransactionsBalancedsService } from './balanceds/transactionsbalanceds.service';
 import { Userbasicnew } from '../userbasicnew/schemas/userbasicnew.schema';
+import { AdsBalaceCredit } from '../adsv2/adsbalacecredit/schema/adsbalacecredit.schema';
+import { AdsService } from '../adsv2/ads/ads.service';
+import { TransactionsCoinSettingsService } from './coin/transactionscoinsettings.service';
+import { AdsPriceCreditsService } from '../adsv2/adspricecredits/adspricecredits.service';
+import { TransactionsCoa } from './coa/schema/transactionscoa.schema';
+import { TransactionsCoaService } from './coa/transactionscoa.service';
+import { TransactionsCoaTable } from './coa/schema/transactionscoatable.schema';
+import { TransactionsCoaTableService } from './coa/transactionscoatable.service';
 
 @Injectable()
 export class TransactionsV2Service {
@@ -23,10 +30,21 @@ export class TransactionsV2Service {
         private readonly userbasicnewService: UserbasicnewService, 
         private readonly transactionsProductsService: TransactionsProductsService, 
         private readonly transactionsCategorysService: TransactionsCategorysService,
-        private readonly balancedsService: BalancedsService,
+        private readonly transactionsBalancedsService: TransactionsBalancedsService, 
+        private readonly adsService: AdsService, 
+        private readonly transactionsCoinSettingsService: TransactionsCoinSettingsService, 
+        private readonly adsPriceCreditsService: AdsPriceCreditsService, 
+        private readonly transactionsCoaService: TransactionsCoaService, 
+        private readonly transactionsCoaTableService: TransactionsCoaTableService,
     ) { }
 
-    async insertTransaction(platform: string, transactionProductCode: string, coin: number, idUserBuy: string, idUserSell: string, idVoucher: any[], discountCoin: number = 0, detail: any[], status: string) {
+    async insertTransaction(platform: string, transactionProductCode: string, coinTransaction: number, idUserBuy: string, idUserSell: string, idVoucher: any[], discountCoin: number = 0, detail: any[], status: string, category: string) {
+        //Currency coin 
+        const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
+
+        //Currency Credit 
+        const currencyCredit = (await this.adsPriceCreditsService.findStatusActive()).creditPrice;
+        
         //Get User Hyppe
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
         const GET_ID_USER_HYPPE = await this.utilsService.getSetting_Mixed(ID_USER_HYPPE);
@@ -63,7 +81,7 @@ export class TransactionsV2Service {
         }
         
         //Get Transaction Category
-        const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(getProduct._id.toString());
+        const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(getProduct._id.toString(),category);
         if (!(await this.utilsService.ceckData(getCategoryTransaction))) {
             return null;
         } else {
@@ -73,23 +91,65 @@ export class TransactionsV2Service {
         }
 
         //Get Transaction Count
-        let TransactionCount = 0;
+        let TransactionCount = 1;
         try {
             const getTransactionCount = await this.transactionsModel.distinct("idTransaction");
-            TransactionCount = getTransactionCount.length;
+            TransactionCount += getTransactionCount.length;
         } catch(e){
             return null;
         }
 
+        //Get Current Date
         const currentDate = await this.utilsService.getDateTimeString();
+
+        //Generate Id Transaction
         const idTransaction = await this.generateIdTransaction();
 
         //Looping Category
-        let user = 1;
-        for (let cat = 0; cat < getCategoryTransaction.length;cat++){
+        for (let cat = 1; cat <= getCategoryTransaction.length; cat++) {
+            let categoryTransaction = getCategoryTransaction[cat - 1];
+
+            //For Balanced
+            let idUser = null;
+            let coinDiscount = 0;
+            let coin = 0;
+            let totalCoin = 0;
+            let debet = 0;
+            let kredit = 0;
+            let saldo = 0;
+            let coinProfitSharingCM = 0;
+            let coinProfitSharingGF = 0;
+
+            //Get Id Seeting Profit Setting
+            if (transactionProductCode == "CM") {
+                const ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE = this.configService.get("ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE");
+                const GET_ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE);
+                if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE)) {
+                    if (GET_ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE.typedata.toString() == "persen") {
+                        coinProfitSharingCM = coinTransaction * (Number(GET_ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE.value) / 100);
+                    }
+                    if (GET_ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE.typedata.toString() == "number") {
+                        coinProfitSharingCM = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE.value);
+                    }
+                }
+            }
+            if (transactionProductCode == "GF") {
+                const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
+                const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
+                if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
+                    if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
+                        coinProfitSharingGF = coinTransaction * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+                    }
+                    if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
+                        coinProfitSharingGF = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+                    }
+                }
+            }
+
             //Generate Invoice Number
-            let categoryTransaction = getCategoryTransaction[cat];
             let generateInvoice = await this.generateInvoice(platform, categoryTransaction.code, transactionProductCode, TransactionCount);
+            
+            //Insert Transaction
             let transactionsV2_ = new transactionsV2();
             let transactionsV2_id = new mongoose.Types.ObjectId();
             transactionsV2_._id = transactionsV2_id;
@@ -99,6 +159,10 @@ export class TransactionsV2Service {
             transactionsV2_.createdAt = currentDate;
             transactionsV2_.updatedAt = currentDate;
             transactionsV2_.category = categoryTransaction._id;
+            transactionsV2_.status = status;
+            transactionsV2_.detail = detail;
+
+            //Set Voucher Diskon
             if (idVoucher!=undefined){
                 let dataIdVoucher = [];
                 if (idVoucher.length>0){
@@ -108,240 +172,618 @@ export class TransactionsV2Service {
                 }
                 transactionsV2_.voucherDiskon = dataIdVoucher;
             }
-            transactionsV2_.coinDiscount = discountCoin;
-            transactionsV2_.coin = coin;
-            transactionsV2_.totalCoin = coin - discountCoin;
+
+            //Set User Hyppe, coin
             if (categoryTransaction.user =="HYPPE"){
-                transactionsV2_.idUser = getDataUserHyppe._id;
+                idUser = getDataUserHyppe._id;
+
+                //For Coa
+                let kas = 0;
+                let biayaPaymentGateway = 0;
+                let biayaDiscount = 0;
+                let biayaFreeCreator = 0;
+
+                let hutangSaldoCoin = 0;
+                let hutangSaldoCredit = 0;
+
+                let pendapatanBiayaTransaction = 0;
+                let pendapatanPenukaranCoin = 0;
+                let pendapatanContentOwnership = 0;
+                let pendapatanContentMarketPlace = 0;
+                let pendapatanBoostPost = 0;
+                let pendapatanLiveGift = 0;
+                let pendapatanContentGift = 0;
+                let pendapatanAdvertisement = 0;
+                let pendapatanDiTarik = 0;
+
+                let modalDiSetor = 0;
+
+                if (categoryTransaction.type != undefined) {
+                    if (categoryTransaction.type.length > 0) {
+                        for (let uh = 0; uh < categoryTransaction.type.length;uh++){
+                            let categoryTransactionType = categoryTransaction.type[uh];
+                            if (getProduct._id.toString() == categoryTransactionType.idProduct.toString()){
+                                if (categoryTransactionType.transaction!=undefined){
+                                    if (categoryTransactionType.transaction.length > 0) {
+                                        for (let tr = 0; tr < categoryTransactionType.transaction.length; tr++) {
+                                            if (categoryTransactionType.transaction[tr].name!=undefined){
+                                                if (categoryTransactionType.transaction[tr].name == "BalacedCoin") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            coinDiscount = discountCoin;
+                                                            coin = coinTransaction;
+                                                            totalCoin = coinTransaction - coinDiscount;
+                                                            debet = coinTransaction - coinDiscount;
+                                                            kredit = 0;
+                                                            // if (categoryTransaction.code == "PJL") {
+                                                            //     coinDiscount = discountCoin;
+                                                            //     coin = coinTransaction;
+                                                            //     totalCoin = coinTransaction - coinDiscount;
+                                                            //     debet = coinTransaction - coinDiscount;
+                                                            //     kredit = 0;
+                                                            // }
+                                                            // if (categoryTransaction.code == "BHS") {
+                                                            //     if (categoryTransactionType.category!=undefined){
+                                                            //         if (categoryTransactionType.category == category) {
+                                                            //             coinDiscount = discountCoin;
+                                                            //             coin = coinTransaction;
+                                                            //             totalCoin = coinTransaction - coinDiscount;
+                                                            //             debet = coinTransaction - coinDiscount;
+                                                            //             kredit = 0;
+                                                            //         }
+                                                            //         // if (categoryTransactionType.category == "Live") {
+                                                            //         //     coinDiscount = discountCoin;
+                                                            //         //     coin = coinTransaction;
+                                                            //         //     totalCoin = coinTransaction - coinDiscount;
+                                                            //         //     debet = coinTransaction - coinDiscount;
+                                                            //         //     kredit = 0;
+                                                            //         // }
+                                                            //     } else {
+                                                            //         coinDiscount = discountCoin;
+                                                            //         coin = coinTransaction;
+                                                            //         totalCoin = coinTransaction - coinDiscount;
+                                                            //         debet = coinTransaction - coinDiscount;
+                                                            //         kredit = 0;
+                                                            //     }
+                                                            // }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            coin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            totalCoin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            debet = 0;
+                                                            kredit = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            // if (categoryTransaction.code == "PJH") {
+                                                            //     if (categoryTransactionType.category != undefined) {
+                                                            //         if (categoryTransactionType.category == category) {
+                                                            //             coin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //             totalCoin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //             debet = 0;
+                                                            //             kredit = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //         }
+                                                            //         // if (categoryTransactionType.category == "Live") {
+                                                            //         //     coin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //         //     totalCoin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //         //     debet = 0;
+                                                            //         //     kredit = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //         // }
+                                                            //     } else {
+                                                            //         coin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //         totalCoin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //         debet = 0;
+                                                            //         kredit = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                            //     }
+                                                            // }
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "HutangCoin") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            hutangSaldoCoin = 0;
+                                                            if (categoryTransaction.code == "BHS") {
+                                                                let hutangCoin_ = coinTransaction - (coinProfitSharingCM + coinProfitSharingGF);
+                                                                hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            } else {
+                                                                let hutangCoin_ = coinTransaction - (coinProfitSharingCM + coinProfitSharingGF) - discountCoin;
+                                                                hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            }
+                                                            // if (categoryTransaction.code == "BHS") {
+                                                            //     if (transactionProductCode == "CM") {
+                                                            //         let hutangCoin_ = coinTransaction - (coinProfitSharingCM + coinProfitSharingGF) - discountCoin;
+                                                            //         hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            //     }
+                                                            //     if (transactionProductCode == "GF") {
+                                                            //         if (categoryTransactionType.category == category) {
+                                                            //             hutangSaldoCoin = 0;
+                                                            //             let hutangCoin_ = coinTransaction - (coinProfitSharingCM + coinProfitSharingGF) - discountCoin;
+                                                            //             hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            //         }
+                                                            //         // if (categoryTransactionType.category == "Live") {
+                                                            //         //     hutangSaldoCoin = 0;
+                                                            //         //     let hutangCoin_ = coinTransaction - (coinProfitSharingCM + coinProfitSharingGF) - discountCoin;
+                                                            //         //     hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            //         // }
+                                                            //     }
+                                                            // }
+                                                            // if (categoryTransaction.code == "PJC"){
+                                                            //     if (transactionProductCode == "CN") {
+                                                            //         if (categoryTransactionType.category == category) {
+                                                            //             hutangSaldoCoin = 0;
+                                                            //             let hutangCoin_ = coinTransaction;
+                                                            //             hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            //         }
+                                                            //     } 
+                                                            // }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            hutangSaldoCoin = 0;
+                                                            let hutangCoin_ = -1 * (coinTransaction - discountCoin);
+                                                            hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            // if (categoryTransaction.code == "PJH") {
+                                                            //     if (transactionProductCode == "CM") {
+                                                            //         let hutangCoin_ = -1 * coinTransaction;
+                                                            //         hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            //     }
+                                                            //     if (transactionProductCode == "GF") {
+                                                            //         if (categoryTransactionType.category == category) {
+                                                            //             hutangSaldoCoin = 0;
+                                                            //             let hutangCoin_ = -1 * coinTransaction;
+                                                            //             hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            //         }
+                                                            //         // if (categoryTransactionType.category == "Live") {
+                                                            //         //     hutangSaldoCoin = 0;
+                                                            //         //     let hutangCoin_ = -1 * coinTransaction;
+                                                            //         //     hutangSaldoCoin += Number(currencyCoin) * hutangCoin_;
+                                                            //         // }
+                                                            //     }
+                                                            // }
+                                                            // if (categoryTransaction.code == "PJL") {
+                                                            //     if (transactionProductCode == "CO") {
+                                                            //         let hutangCoin_ = coinTransaction - discountCoin;
+                                                            //         hutangSaldoCoin = -1 * (Number(currencyCoin) * hutangCoin_);
+                                                            //     }
+                                                            //     if (transactionProductCode == "BP") {
+                                                            //         let hutangCoin_ = coinTransaction - discountCoin;
+                                                            //         hutangSaldoCoin = -1 * (Number(currencyCoin) * hutangCoin_);
+                                                            //     }
+                                                            //     if (transactionProductCode == "CR") {
+                                                            //         let hutangCoin_ = coinTransaction - discountCoin;
+                                                            //         hutangSaldoCoin = -1 * (Number(currencyCoin) * hutangCoin_);
+                                                            //     }
+                                                            // }
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "HutangCredit"){
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            let dataGrandTotalCredit = 0;
+                                                            for (let k = 0; k < detail.length; k++) {
+                                                                let dataDetail = detail[k];
+                                                                let dataCredit = 0;
+                                                                let dataQty = 0;
+                                                                let dataTotalCredit = 0;
+                                                                if (dataDetail.credit != undefined) {
+                                                                    dataCredit = dataDetail.credit;
+                                                                }
+                                                                if (dataDetail.qty != undefined) {
+                                                                    dataQty = dataDetail.qty;
+                                                                }
+                                                                dataTotalCredit = Number(dataCredit) * Number(dataQty);
+                                                                dataGrandTotalCredit += dataTotalCredit;
+                                                            }
+                                                            hutangSaldoCredit = (Number(currencyCredit) * dataGrandTotalCredit);
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            let dataGrandTotalCredit = 0;
+                                                            for (let k = 0; k < detail.length; k++) {
+                                                                let dataDetail = detail[k];
+                                                                let dataCredit = 0;
+                                                                let dataQty = 0;
+                                                                let dataTotalCredit = 0;
+                                                                if (dataDetail.credit != undefined) {
+                                                                    dataCredit = dataDetail.credit;
+                                                                }
+                                                                if (dataDetail.qty != undefined) {
+                                                                    dataQty = dataDetail.qty;
+                                                                }
+                                                                dataTotalCredit = Number(dataCredit) * Number(dataQty);
+                                                                dataGrandTotalCredit += dataTotalCredit;
+                                                            }
+                                                            hutangSaldoCredit = -1 *(Number(currencyCredit) * dataGrandTotalCredit);
+                                                        }
+                                                        // if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                        // }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "PendapatanContentMarketPlace") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            let pendapatanContentMarketPlace_ = coinProfitSharingCM;
+                                                            pendapatanContentMarketPlace = (Number(currencyCoin) * pendapatanContentMarketPlace_);
+                                                            // if (categoryTransaction.code == "PJH") {
+                                                            //     if (transactionProductCode == "CM") {
+                                                            //         let pendapatanContentMarketPlace_ = coinProfitSharingCM;
+                                                            //         pendapatanContentMarketPlace = (Number(currencyCoin) * pendapatanContentMarketPlace_);
+                                                            //     }
+                                                            // }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            let pendapatanContentMarketPlace_ = coinProfitSharingCM;
+                                                            pendapatanContentMarketPlace = -1*(Number(currencyCoin) * pendapatanContentMarketPlace_);
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "PendapatanContentOwnership") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            let pendapatanContentOwnership_ = coinTransaction;
+                                                            pendapatanContentOwnership = (Number(currencyCoin) * pendapatanContentOwnership_);
+                                                            // if (categoryTransaction.code == "PJL") {
+                                                            //     if (transactionProductCode == "CO") {
+                                                            //         let pendapatanContentOwnership_ = coinTransaction;
+                                                            //         pendapatanContentOwnership = (Number(currencyCoin) * pendapatanContentOwnership_);
+                                                            //     }
+                                                            // }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            let pendapatanContentOwnership_ = coinTransaction;
+                                                            pendapatanContentOwnership = -1 * (Number(currencyCoin) * pendapatanContentOwnership_);
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "PendapatanBoostPost") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            let pendapatanBoostPost_ = coinTransaction;
+                                                            pendapatanBoostPost = (Number(currencyCoin) * pendapatanBoostPost_);
+                                                            // if (categoryTransaction.code == "PJL") {
+                                                            //     if (transactionProductCode == "BP") {
+                                                            //         let pendapatanBoostPost_ = coinTransaction;
+                                                            //         pendapatanBoostPost = (Number(currencyCoin) * pendapatanBoostPost_);
+                                                            //     }
+                                                            // }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            let pendapatanBoostPost_ = coinTransaction;
+                                                            pendapatanBoostPost = -1*(Number(currencyCoin) * pendapatanBoostPost_);
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "PendapatanContentGift") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            let pendapatanContentGift_ = coinProfitSharingGF;
+                                                            pendapatanContentGift = (Number(currencyCoin) * pendapatanContentGift_);
+                                                            // if (transactionProductCode == "GF") {
+                                                            //     if (categoryTransactionType.category == "Content") {
+                                                            //         if (categoryTransaction.code == "PJH") {
+                                                            //             let pendapatanContentGift_ = coinProfitSharingGF;
+                                                            //             pendapatanContentGift = (Number(currencyCoin) * pendapatanContentGift_);
+                                                            //         }
+                                                            //     }
+                                                            // }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            let pendapatanContentGift_ = coinProfitSharingGF;
+                                                            pendapatanContentGift = -1*(Number(currencyCoin) * pendapatanContentGift_);
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "PendapatanLiveGift") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            let pendapatanLiveGift_ = coinProfitSharingGF;
+                                                            pendapatanLiveGift = (Number(currencyCoin) * pendapatanLiveGift_);
+                                                            // if (transactionProductCode == "GF") {
+                                                            //     if (categoryTransactionType.category == "Live") {
+                                                            //         if (categoryTransaction.code == "PJH") {
+                                                            //             let pendapatanLiveGift_ = coinProfitSharingGF;
+                                                            //             pendapatanLiveGift = (Number(currencyCoin) * pendapatanLiveGift_);
+                                                            //         }
+                                                            //     }
+                                                            // }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            let pendapatanLiveGift_ = coinProfitSharingGF;
+                                                            pendapatanLiveGift = -1*(Number(currencyCoin) * pendapatanLiveGift_);
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "Kas"){
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            if (detail != undefined) {
+                                                                if (detail.length > 0) {
+                                                                    for (let j = 0; j < detail.length;j++){
+                                                                        let dataDetail = detail[j];
+                                                                        if (dataDetail.biayPG!=undefined){
+                                                                            kas += Number(dataDetail.biayPG);
+                                                                        }
+                                                                        if (dataDetail.amount != undefined) {
+                                                                            kas += Number(dataDetail.amount);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            if (detail != undefined) {
+                                                                if (detail.length > 0) {
+                                                                    for (let j = 0; j < detail.length; j++) {
+                                                                        let dataDetail = detail[j];
+                                                                        if (dataDetail.biayPG != undefined) {
+                                                                            kas += (-1*Number(dataDetail.biayPG));
+                                                                        }
+                                                                        if (dataDetail.amount != undefined) {
+                                                                            kas += (-1 * Number(dataDetail.amount));
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "BiayaPG") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            if (detail != undefined) {
+                                                                if (detail.length > 0) {
+                                                                    for (let j = 0; j < detail.length; j++) {
+                                                                        let dataDetail = detail[j];
+                                                                        if (dataDetail.biayPG != undefined) {
+                                                                            biayaPaymentGateway += Number(dataDetail.biayPG);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            if (detail != undefined) {
+                                                                if (detail.length > 0) {
+                                                                    for (let j = 0; j < detail.length; j++) {
+                                                                        let dataDetail = detail[j];
+                                                                        if (dataDetail.biayPG != undefined) {
+                                                                            biayaPaymentGateway += (-1*Number(dataDetail.biayPG));
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "PendapatanBiayaTransaksi") {
+                                                    let BiayaTransaction = 0;
+                                                    const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
+                                                    const GET_ID_SETTING_COST_BUY_COIN = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_COST_BUY_COIN);
+                                                    if (await this.utilsService.ceckData(GET_ID_SETTING_COST_BUY_COIN)) {
+                                                        if (GET_ID_SETTING_COST_BUY_COIN.typedata.toString() == "number") {
+                                                            BiayaTransaction = Number(GET_ID_SETTING_COST_BUY_COIN.value);
+                                                        }
+                                                    }
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            pendapatanBiayaTransaction = BiayaTransaction;
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            pendapatanBiayaTransaction = -1*BiayaTransaction;
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "PenarikanCoin") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                if (discountCoin != undefined) {
+                    if (discountCoin > 0) {
+                        biayaDiscount = Number(discountCoin) * Number(currencyCoin);
+                    }
+                }
+
+                //Insert Coa Table
+                let TransactionsCoa_ = new TransactionsCoa();
+                TransactionsCoa_._id = new mongoose.Types.ObjectId();
+                TransactionsCoa_.coaTransaction = generateInvoice;
+                TransactionsCoa_.asset = {
+                    kas: kas,
+                    biaya: {
+                        biayaPaymentGateway: biayaPaymentGateway,
+                        biayaDiscount: biayaDiscount,
+                        biayaFreeCreator: biayaFreeCreator
+                    }
+                };
+                TransactionsCoa_.hutang = {
+                    hutangSaldoCoin: hutangSaldoCoin,
+                    hutangSaldoCredit: hutangSaldoCredit
+                };
+                TransactionsCoa_.ekuitas = {
+                    saldoPendapatan: {
+                        pendapatanBiayaTransaction: pendapatanBiayaTransaction,
+                        pendapatanPenukaranCoin: pendapatanPenukaranCoin,
+                        pendapatanContentOwnership: pendapatanContentOwnership,
+                        pendapatanContentMarketPlace: pendapatanContentMarketPlace,
+                        pendapatanBoostPost: pendapatanBoostPost,
+                        pendapatanLiveGift: pendapatanLiveGift,
+                        pendapatanContentGift: pendapatanContentGift,
+                        pendapatanAdvertisement: pendapatanAdvertisement
+                    },
+                    saldoDiTarik: {
+                        pendapatanDiTarik: pendapatanDiTarik
+                    }
+                };
+                TransactionsCoa_.modal = {
+                    modalDiSetor: modalDiSetor
+                }
+                TransactionsCoa_.createdAt = currentDate;
+                TransactionsCoa_.updatedAt = currentDate;
+                await this.transactionsCoaService.create(TransactionsCoa_);
+
+                //Insert Coa Table
+                let TransactionsCoaTable_ = new TransactionsCoaTable();
+                TransactionsCoaTable_._id = new mongoose.Types.ObjectId();
+                TransactionsCoaTable_.coaTransaction = generateInvoice;
+                TransactionsCoaTable_.kas = kas;
+                TransactionsCoaTable_.biayaPaymentGateway = biayaPaymentGateway;
+                TransactionsCoaTable_.biayaDiscount = biayaDiscount;
+                TransactionsCoaTable_.biayaFreeCreator = biayaFreeCreator;
+                TransactionsCoaTable_.hutangSaldoCoin = hutangSaldoCoin;
+                TransactionsCoaTable_.hutangSaldoCredit = hutangSaldoCredit;
+                TransactionsCoaTable_.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
+                TransactionsCoaTable_.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
+                TransactionsCoaTable_.pendapatanContentOwnership = pendapatanContentOwnership;
+                TransactionsCoaTable_.pendapatanContentMarketPlace = pendapatanContentMarketPlace;
+                TransactionsCoaTable_.pendapatanBoostPost = pendapatanBoostPost;
+                TransactionsCoaTable_.pendapatanLiveGift = pendapatanLiveGift;
+                TransactionsCoaTable_.pendapatanContentGift = pendapatanContentGift;
+                TransactionsCoaTable_.pendapatanAdvertisement = pendapatanAdvertisement;
+                TransactionsCoaTable_.pendapatanDiTarik = pendapatanDiTarik;
+                TransactionsCoaTable_.modalDiSetor = modalDiSetor;
+                TransactionsCoaTable_.createdAt = currentDate;
+                TransactionsCoaTable_.updatedAt = currentDate;
+                await this.transactionsCoaTableService.create(TransactionsCoaTable_);
             }
 
-            if (categoryTransaction.transaction != undefined) {
-                if (categoryTransaction.transaction.length > 0) {
-                    let dataCateGoryTransaction = categoryTransaction.transaction;
-                    for (let t = 0; t < dataCateGoryTransaction.length; t++) {
-                        //Get Transaction name, Transaction Category
-                        let nameCategoryTransaction = "";
-                        if (dataCateGoryTransaction[t].name!=undefined){
-                            nameCategoryTransaction = dataCateGoryTransaction[t].name
-                        }
-                        //Get Transaction status, Transaction Category
-                        let statusCategoryTransaction = "";
-                        if (dataCateGoryTransaction[t].statu != undefined) {
-                            statusCategoryTransaction = dataCateGoryTransaction[t].statu
-                        }
+            //Set User, coin
+            if (categoryTransaction.user == "USER") {
+                if (categoryTransaction.code == "PNC") {
+                    idUser = getDataUserSell._id;
+                    coinDiscount = 0;
+                } else {
+                    idUser = getDataUserBuy._id;
+                    coinDiscount = discountCoin;
+                }
 
-                        //Get Transaction, Transaction Category
-                        if (statusCategoryTransaction != "") {
-                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "debet") {
-                                transactionsV2_.idUser = getDataUserSell._id;
-                            }
-                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "kredit") {
-                                transactionsV2_.idUser = getDataUserBuy._id;
-                            }
-                        }
-
-                        //Get Transaction, Transaction Category
-                        if (nameCategoryTransaction != "") {
-                            //Get Coa
-                            //findOneBySubCoaName
-                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "debet") {
-                                transactionsV2_.idUser = getDataUserSell._id;
-                            }
-                            if (dataCateGoryTransaction[t].statu.toString().toLowerCase() == "kredit") {
-                                transactionsV2_.idUser = getDataUserBuy._id;
+                if (categoryTransaction.type != undefined) {
+                    if (categoryTransaction.type.length > 0) {
+                        for (let uh = 0; uh < categoryTransaction.type.length; uh++) {
+                            let categoryTransactionType = categoryTransaction.type[uh];
+                            if (getProduct._id.toString() == categoryTransactionType.idProduct.toString()) {
+                                if (categoryTransactionType.transaction != undefined) {
+                                    if (categoryTransactionType.transaction.length > 0) {
+                                        for (let tr = 0; tr < categoryTransactionType.transaction.length; tr++) {
+                                            if (categoryTransactionType.transaction[tr].name != undefined) {
+                                                if (categoryTransactionType.transaction[tr].name == "BalacedCoin") {
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            if (categoryTransactionType.category != undefined) {
+                                                                if (categoryTransactionType.category == category) {
+                                                                }
+                                                                // if (categoryTransactionType.category == "Live") {
+                                                                // }
+                                                            } else {
+                                                                coin = coinTransaction;
+                                                                totalCoin = coinTransaction - coinDiscount;
+                                                                debet = 0;
+                                                                kredit = coinTransaction - coinDiscount;
+                                                            }
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            if (categoryTransactionType.category != undefined) {
+                                                                if (categoryTransactionType.category == category) {
+                                                                }
+                                                                // if (categoryTransactionType.category == "Live") {
+                                                                // }
+                                                            } else {
+                                                                coin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                                totalCoin = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                                debet = coinTransaction - coinProfitSharingCM - coinProfitSharingGF;
+                                                                kredit = 0;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                if (categoryTransactionType.transaction[tr].name == "BalacedCredit"){
+                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            if (categoryTransaction.code == "PGC") {
+                                                                if (detail!=undefined){
+                                                                    if (detail.length > 0) {
+                                                                        let dataGrandTotalCredit = 0;
+                                                                        for (let k = 0; k < detail.length;k++){
+                                                                            let dataDetail = detail[k];
+                                                                            let dataCredit = 0;
+                                                                            let dataQty = 0;
+                                                                            let dataTotalCredit = 0;
+                                                                            if (dataDetail.credit!=undefined){
+                                                                                dataCredit = dataDetail.credit;
+                                                                            }
+                                                                            if (dataDetail.qty != undefined) {
+                                                                                dataQty = dataDetail.qty;
+                                                                            }
+                                                                            dataTotalCredit = Number(dataCredit) * Number(dataQty);
+                                                                            dataGrandTotalCredit += dataTotalCredit;
+                                                                        }
+                                                                        let AdsBalaceCredit_ = new AdsBalaceCredit();
+                                                                        AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
+                                                                        AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(idUser);
+                                                                        AdsBalaceCredit_.debet = dataGrandTotalCredit;
+                                                                        AdsBalaceCredit_.type = "TOPUP";
+                                                                        AdsBalaceCredit_.kredit = 0;
+                                                                        AdsBalaceCredit_.idtrans = transactionsV2_id;
+                                                                        AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
+                                                                        AdsBalaceCredit_.description = "BUY PAKET CREDIT";
+                                                                        await this.adsService.insertBalaceDebit(AdsBalaceCredit_);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-            
-            if (categoryTransaction.user == "USER") {
-                if (categoryTransaction.code == "PNC") {
-                    transactionsV2_.idUser = getDataUserSell._id;
-                } else {
-                    transactionsV2_.idUser = getDataUserBuy._id;
-                }
-            }
 
-            transactionsV2_.status = status;
-            transactionsV2_.detail = detail;
-            await this.transactionsModel.create(transactionsV2_);
-
-            //Insert Balanceds
-            let Balanceds_ = new Balanceds();
-            Balanceds_._id = new mongoose.Types.ObjectId();
-            Balanceds_.idTransaction = transactionsV2_id;
-            if (categoryTransaction.user == "HYPPE") {
-                Balanceds_.user = getDataUserHyppe._id;
-                Balanceds_.debet = 0;
-                Balanceds_.kredit = 0;
-                Balanceds_.saldo = 0;
-            }
-            if (categoryTransaction.user == "USER") {
-                if (categoryTransaction.code == "PNC") {
-                    Balanceds_.user = getDataUserSell._id;
-                    Balanceds_.debet = 0;
-                    Balanceds_.kredit = 0;
-                    Balanceds_.saldo = 0;
-                } else {
-                    Balanceds_.user = getDataUserBuy._id;
-                    Balanceds_.debet = 0;
-                    Balanceds_.kredit = 0;
-                    Balanceds_.saldo = 0;
-                }
-            }
-            Balanceds_.noInvoice = generateInvoice;
-            Balanceds_.createdAt = currentDate;
-            Balanceds_.updatedAt = currentDate;
-            Balanceds_.userType = categoryTransaction.user;
-            Balanceds_.coa = [];
-            Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
-            await this.balancedsService.create(Balanceds_);
-            user
-        }
-    }
-
-    async insertTransaction_(platform: string, transactionProductCode: string, coin: number, idUserBuy: string, idUserSell: string, idVoucher: any[], discountCoin: number = 0, detail: any[], status: string) {
-        //Get User Hyppe
-        const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
-        const GET_ID_USER_HYPPE = await this.utilsService.getSetting_Mixed(ID_USER_HYPPE);
-        const getDataUserHyppe = await this.userbasicnewService.findOne(GET_ID_USER_HYPPE.toString());
-        if (!(await this.utilsService.ceckData(getDataUserHyppe))) {
-            return null;
-        }
-
-        //Get User Buy
-        let getDataUserBuy: Userbasicnew = null;
-        if (idUserBuy != undefined) {
-            getDataUserBuy = await this.userbasicnewService.findOne(idUserBuy.toString());
-            if (!(await this.utilsService.ceckData(getDataUserBuy))) {
-                return null;
-            }
-
-        }
-
-        //Get User Sell
-        let getDataUserSell: Userbasicnew = null;
-        if (transactionProductCode == "CM" || transactionProductCode == "GF" || transactionProductCode == "AD") {
-            if (idUserSell != undefined) {
-                getDataUserSell = await this.userbasicnewService.findOne(idUserSell.toString());
-                if (!(await this.utilsService.ceckData(getDataUserSell))) {
-                    return null;
-                }
-            }
-        }
-
-        //Get Product
-        const getProduct = await this.transactionsProductsService.findOneByCode(transactionProductCode.toString());
-        if (!(await this.utilsService.ceckData(getProduct))) {
-            return null;
-        }
-
-        //Get Transaction Category
-        const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(getProduct._id.toString());
-        if (!(await this.utilsService.ceckData(getCategoryTransaction))) {
-            return null;
-        } else {
-            if (getCategoryTransaction.length < 1) {
-                return null;
-            }
-        }
-
-        //Get Transaction Count
-        let TransactionCount = 0;
-        try {
-            const getTransactionCount = await this.transactionsModel.distinct("idTransaction");
-            TransactionCount = getTransactionCount.length;
-        } catch (e) {
-            return null;
-        }
-
-        const currentDate = await this.utilsService.getDateTimeString();
-        const idTransaction = await this.generateIdTransaction();
-
-        //Insert Transaction
-        for (let cat = 0; cat < getCategoryTransaction.length; cat++) {
-            let categoryTransaction = getCategoryTransaction[cat];
-            let generateInvoice = await this.generateInvoice(platform, categoryTransaction.code, transactionProductCode, TransactionCount);
-            let transactionsV2_ = new transactionsV2();
-            let transactionsV2_id = new mongoose.Types.ObjectId();
-            transactionsV2_._id = transactionsV2_id;
-            transactionsV2_.type = categoryTransaction.user;
-            transactionsV2_.idTransaction = idTransaction;
-            transactionsV2_.noInvoice = generateInvoice;
-            transactionsV2_.createdAt = currentDate;
-            transactionsV2_.updatedAt = currentDate;
-            transactionsV2_.category = categoryTransaction._id;
-            if (idVoucher != undefined) {
-                let dataIdVoucher = [];
-                if (idVoucher.length > 0) {
-                    for (let voc = 0; voc < idVoucher.length; voc++) {
-                        dataIdVoucher.push(new mongoose.Types.ObjectId(idVoucher[voc]))
-                    }
-                }
-                transactionsV2_.voucherDiskon = dataIdVoucher;
-            }
-            transactionsV2_.coinDiscount = discountCoin;
+            transactionsV2_.idUser = idUser;
+            transactionsV2_.coinDiscount = coinDiscount;
             transactionsV2_.coin = coin;
-            transactionsV2_.totalCoin = coin - discountCoin;
-            if (categoryTransaction.user == "HYPPE") {
-                transactionsV2_.idUser = getDataUserHyppe._id;
-            }
-            if (categoryTransaction.user == "USER") {
-                if (categoryTransaction.code == "PNC") {
-                    transactionsV2_.idUser = getDataUserSell._id;
-                } else {
-                    transactionsV2_.idUser = getDataUserBuy._id;
-                }
-            }
-
-            transactionsV2_.status = status;
-            transactionsV2_.detail = detail;
+            transactionsV2_.totalCoin = totalCoin;
             await this.transactionsModel.create(transactionsV2_);
 
+            //Get Saldo
+            let balancedUser = await this.transactionsBalancedsService.findsaldo(idUser.toString());
+            if (await this.utilsService.ceckData(balancedUser)){
+                if (balancedUser.length > 0) {
+                    saldo = balancedUser[0].totalSaldo;
+                }
+            }
+
             //Insert Balanceds
-            let Balanceds_ = new Balanceds();
+            let Balanceds_ = new TransactionsBalanceds();
             Balanceds_._id = new mongoose.Types.ObjectId();
             Balanceds_.idTransaction = transactionsV2_id;
-            let Saldo = 0;
-            if (categoryTransaction.user == "HYPPE") {
-                Balanceds_.user = getDataUserHyppe._id;
-                let balanceUser = await this.balancedsService.findByuser(getDataUserHyppe._id.toString());
-                if (await this.utilsService.ceckData(balanceUser)){
-                    Saldo = balanceUser.saldo;
-                }
-                Balanceds_.debet = 0;
-                Balanceds_.kredit = 0;
-                Balanceds_.saldo = 0;
-            }
-            if (categoryTransaction.user == "USER") {
-                if (categoryTransaction.code == "PNC") {
-                    Balanceds_.user = getDataUserSell._id;
-                    let balanceUser = await this.balancedsService.findByuser(getDataUserSell._id.toString());
-                    if (await this.utilsService.ceckData(balanceUser)) {
-                        Saldo = balanceUser.saldo;
-                    }
-                    Balanceds_.debet = 0;
-                    Balanceds_.kredit = 0;
-                    Balanceds_.saldo = 0;
-                } else {
-                    let balanceUser = await this.balancedsService.findByuser(getDataUserBuy._id.toString());
-                    if (await this.utilsService.ceckData(balanceUser)) {
-                        Saldo = balanceUser.saldo;
-                    }
-                    Balanceds_.user = getDataUserBuy._id;
-                    Balanceds_.debet = 0;
-                    Balanceds_.kredit = 0;
-                    Balanceds_.saldo = 0;
-                }
-            }
+            Balanceds_.idUser = idUser;
+            Balanceds_.debit = debet;
+            Balanceds_.credit = kredit;
+            Balanceds_.saldo = saldo - kredit + debet;
             Balanceds_.noInvoice = generateInvoice;
             Balanceds_.createdAt = currentDate;
             Balanceds_.updatedAt = currentDate;
             Balanceds_.userType = categoryTransaction.user;
             Balanceds_.coa = [];
             Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
-            await this.balancedsService.create(Balanceds_);
+            await this.transactionsBalancedsService.create(Balanceds_);
         }
     }
 
@@ -365,7 +807,7 @@ export class TransactionsV2Service {
         }
 
         //Transaction Code
-        let TransactionNumber = "UNKNOWN"
+        let TransactionNumber = ""
         if ((No.toString().length) == 6) {
             TransactionNumber += No.toString();
         } else if ((No.toString().length) == 5) {

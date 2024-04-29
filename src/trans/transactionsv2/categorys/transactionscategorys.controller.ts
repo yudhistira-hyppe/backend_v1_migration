@@ -77,20 +77,9 @@ export class TransactionsCategorysController {
             );
         }
 
-        //VALIDASI PARAM idProduct
-        let dataIdProduct = [];
-        if (TransactionsCategorys_.idProduct != undefined) {
-            if (TransactionsCategorys_.idProduct.length > 0) {
-                for (let i = 0; i < TransactionsCategorys_.idProduct.length; i++) {
-                    dataIdProduct.push(new mongoose.Types.ObjectId(TransactionsCategorys_.idProduct[i]));
-                }
-            }
-        }
-
         try {
             const currentDate = await this.utilsService.getDateTimeString();
             TransactionsCategorys_._id = new mongoose.Types.ObjectId();
-            TransactionsCategorys_.idProduct = dataIdProduct;
             TransactionsCategorys_.isDelete = false;
             TransactionsCategorys_.createdAt = currentDate;
             TransactionsCategorys_.updatedAt = currentDate;
@@ -137,16 +126,6 @@ export class TransactionsCategorysController {
             }
         }
 
-        //VALIDASI PARAM idProduct
-        let dataIdProduct = [];
-        if (TransactionsCategorys_.idProduct != undefined) {
-            if (TransactionsCategorys_.idProduct.length > 0) {
-                for (let i = 0; i < TransactionsCategorys_.idProduct.length; i++) {
-                    dataIdProduct.push(new mongoose.Types.ObjectId(TransactionsCategorys_.idProduct[i]));
-                }
-            }
-        }
-
         //VALIDASI PARAM code
         if (TransactionsCategorys_.code!=undefined) {
             if (existingData.code != TransactionsCategorys_.code) {
@@ -177,25 +156,9 @@ export class TransactionsCategorysController {
             }
         }
 
-        //VALIDASI PARAM IdProduct
-        let idProductArray = [];
-        if (TransactionsCategorys_.idProduct != undefined) {
-            if (Array.isArray(TransactionsCategorys_.idProduct)) {
-                idProductArray = TransactionsCategorys_.idProduct.map(function (item) {
-                    return new mongoose.Types.ObjectId(item);
-                });
-            } else {
-                return await this.errorHandler.generateBadRequestException(
-                    "Transactions param IdProduct is required",
-                );
-            }
-        }
-
         try {
             const currentDate = await this.utilsService.getDateTimeString();
-            TransactionsCategorys_.idProduct = dataIdProduct;
             TransactionsCategorys_.updatedAt = currentDate;
-            TransactionsCategorys_.idProduct = idProductArray;
             var data = await this.transactionsCategorysService.update(TransactionsCategorys_._id.toString(), TransactionsCategorys_);
             return await this.errorHandler.generateAcceptResponseCodeWithData(
                 "Update Transactions Categorys succesfully", data

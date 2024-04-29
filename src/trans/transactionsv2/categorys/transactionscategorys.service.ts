@@ -35,13 +35,16 @@ export class TransactionsCategorysService {
         return await this.transactionsCategorysModel.find({ "type": type, isDelete: false }).exec();
     }
 
-<<<<<<< Updated upstream
-    async findByProduct(idProduct: string): Promise<TransactionsCategorys[]> {
-        return await this.transactionsCategorysModel.find({ "idProduct": idProduct, isDelete: false }).exec();
-=======
-    async findByProduct(product: string): Promise<TransactionsCategorys[]> {
-        return await this.transactionsCategorysModel.find({ "type": product, isDelete: false }).exec();
->>>>>>> Stashed changes
+    async findByProduct(product: string, category: string): Promise<TransactionsCategorys[]> {
+        let where_and = {
+            $and: []
+        };
+        where_and.$and.push({ "isDelete": false });
+        where_and.$and.push({ "type.idProduct": new mongoose.Types.ObjectId(product) });
+        if (category != undefined) {
+            where_and.$and.push({ "type.category": category });
+        }
+        return await this.transactionsCategorysModel.find(where_and).exec();
     }
 
     async delete(id: string) {

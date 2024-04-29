@@ -27,16 +27,6 @@ export class TransactionsCoaService {
         return await this.transactionsCoaModel.findOne({ _id: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
     }
 
-    async delete(id: string) {
-        let TransactionsCoa_ = new TransactionsCoa();
-        TransactionsCoa_.isDelete = true;
-        let data = await this.transactionsCoaModel.findByIdAndUpdate(
-            id,
-            TransactionsCoa_,
-            { new: true });
-        return data;
-    }
-
     async filAll(): Promise<TransactionsCoa[]> {
         return await this.transactionsCoaModel.find().exec();
     }
@@ -103,7 +93,6 @@ export class TransactionsCoaService {
                 sort['name'] = -1;
             }
         }
-        console.log(JSON.stringify(where_and));
         const query = await this.transactionsCoaModel.find(where_and).limit(perPage).skip(perPage * page).sort(sort);
         return query;
     }
