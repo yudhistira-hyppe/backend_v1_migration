@@ -53,10 +53,22 @@ export class TempPOSTService {
   async duplicatedata(CreatePostsDto: tempposts, id: string, target: string) {
     let result = null;
     if (target == 'create') {
-        var getpost = await this.newPostService.findByPostId(CreatePostsDto.postID.toString());
+        var mongo = require('mongoose');
+        var getpost = await this.newPostService.findOne(CreatePostsDto.postID.toString());
+        console.log(getpost);
+        var getcreator = await this.basic2SS.findBymail(getpost.email.toString());
         var insertdata = new tempposts;
         insertdata = JSON.parse(JSON.stringify(getpost));
         insertdata.tag2 = [];
+        insertdata.userProfile = { "$ref": "userbasics", "$id": new mongoose.Types.ObjectId(getcreator._id.toString()), "$db": "hyppe_trans_db" };
+        if(getpost.musicId != null && getpost.musicId != undefined)
+        {
+            insertdata.musicId = new mongo.Types.ObjectId(getpost.musicId.toString());   
+        }
+        if(getpost.category.length != 0)
+        {
+            insertdata.category = getpost.category;
+        }
 
         if(CreatePostsDto.tagPeople != null && CreatePostsDto.tagPeople != undefined)
         {
@@ -80,6 +92,12 @@ export class TempPOSTService {
                 insertdata.tag2 = dummytag2;
             }
         }
+
+        insertdata.contentModeration = getpost.contentModeration;
+        insertdata.contentModerationDate = getpost.contentModerationDate;
+        insertdata.contentModerationResponse = getpost.contentModerationResponse;
+        insertdata.moderationReason = getpost.moderationReason;
+        insertdata.reportedStatus = getpost.reportedStatus;
 
         // console.log(CreatePostsDto);
         result = await this.loaddata.create(insertdata);
@@ -111,6 +129,16 @@ export class TempPOSTService {
       res.data = {};
       return res;
     }
+  }
+
+  async updateByPostIdv2(
+    postID: string,
+    CreateNewPostDTO: tempposts,
+  ): Promise<Object> {
+    return await this.loaddata.updateOne(
+      { postID: postID },
+      CreateNewPostDTO
+    );
   }
 
   async updatePost(body: any, headers: any, data_userbasics: Userbasicnew): Promise<CreatePostResponse> {

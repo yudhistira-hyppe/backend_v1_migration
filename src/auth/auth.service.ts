@@ -8462,6 +8462,10 @@ export class AuthService {
       CreateContenteventsDto_.receiverParty = emailViewed;
       CreateContenteventsDto_._class = "io.melody.hyppe.content.domain.ContentEvent";
 
+      let uniq=null;
+      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,null);
+      CreateContenteventsDto_.uniqEvent=uniq;
+
       //Insert ContentEvent
       await this.contenteventsService.create(CreateContenteventsDto_);
     } catch (error) {
@@ -9527,7 +9531,10 @@ export class AuthService {
 
           if(isguest == true)
           {
-            var insertdata = await this.referralService.create(CreateReferralDto_);
+            if(user_email_children != user_email_parent)
+            {
+              var insertdata = await this.referralService.create(CreateReferralDto_);
+            }
             //var idref = insertdata._id;
           }
 
@@ -9616,25 +9623,28 @@ export class AuthService {
               CreateContenteventsDto4.senderParty = user_email_parent
               CreateContenteventsDto4.parentContentEventID = _id_3
   
-              //await this.contenteventsService.create(CreateContenteventsDto1);
-              await this.contenteventsService.create(CreateContenteventsDto2);
-              //await this.contenteventsService.create(CreateContenteventsDto3);
-              await this.contenteventsService.create(CreateContenteventsDto4);
-              await this.insightsService.updateFollower(user_email_parent);
-              await this.insightsService.updateFollowing(user_email_children);
-              await this.basic2SS.updatefollowSystem(user_email_parent, user_email_children, "FOLLOWING");
-              await this.basic2SS.updatefollowSystem(user_email_children, user_email_parent, "FOLLOWER");
-              var insertreferraldata = {
-                "_id": CreateReferralDto_._id,
-                "active":CreateReferralDto_.active,
-                "verified":CreateReferralDto_.verified,
-                "imei":CreateReferralDto_.imei,
-                "createdAt":CreateReferralDto_.createdAt,
-                "updatedAt":CreateReferralDto_.updatedAt,
-                "email":CreateReferralDto_.children
-              };
+              if(user_email_children != user_email_parent)
+              {
+                //await this.contenteventsService.create(CreateContenteventsDto1);
+                await this.contenteventsService.create(CreateContenteventsDto2);
+                //await this.contenteventsService.create(CreateContenteventsDto3);
+                await this.contenteventsService.create(CreateContenteventsDto4);
+                await this.insightsService.updateFollower(user_email_parent);
+                await this.insightsService.updateFollowing(user_email_children);
+                await this.basic2SS.updatefollowSystem(user_email_parent, user_email_children, "FOLLOWING");
+                await this.basic2SS.updatefollowSystem(user_email_children, user_email_parent, "FOLLOWER");
+                var insertreferraldata = {
+                  "_id": CreateReferralDto_._id,
+                  "active":CreateReferralDto_.active,
+                  "verified":CreateReferralDto_.verified,
+                  "imei":CreateReferralDto_.imei,
+                  "createdAt":CreateReferralDto_.createdAt,
+                  "updatedAt":CreateReferralDto_.updatedAt,
+                  "email":CreateReferralDto_.children
+                };
 
-              await this.basic2SS.updateReferralSystem(insertreferraldata, user_email_parent);
+                await this.basic2SS.updateReferralSystem(insertreferraldata, user_email_parent); 
+              }
   
               if (useLanguage == "en") {
                 errorMessages = "Congratulation referral applied successfully";
@@ -9658,12 +9668,15 @@ export class AuthService {
             }
             else {
               if (!ceck_data_FOLLOWER.active && !ceck_data_FOLLOWING.active) {
-                await this.contenteventsService.updateFollowing(user_email_children, "FOLLOWING", user_email_parent);
-                await this.contenteventsService.updateFollower(user_email_parent, "FOLLOWER", user_email_children);
-                await this.insightsService.updateFollower(user_email_parent);
-                await this.insightsService.updateFollowing(user_email_children);
-                await this.basic2SS.updatefollowSystem(user_email_children, user_email_parent, "FOLLOWER");
-                await this.basic2SS.updatefollowSystem(user_email_parent, user_email_children, "FOLLOWING");
+                if(user_email_children != user_email_parent)
+                {
+                  await this.contenteventsService.updateFollowing(user_email_children, "FOLLOWING", user_email_parent);
+                  await this.contenteventsService.updateFollower(user_email_parent, "FOLLOWER", user_email_children);
+                  await this.insightsService.updateFollower(user_email_parent);
+                  await this.insightsService.updateFollowing(user_email_children);
+                  await this.basic2SS.updatefollowSystem(user_email_children, user_email_parent, "FOLLOWER");
+                  await this.basic2SS.updatefollowSystem(user_email_parent, user_email_children, "FOLLOWING");
+                }
   
                 if (useLanguage == "en") {
                   errorMessages = "Congratulation referral applied successfully";
@@ -15439,5 +15452,13 @@ export class AuthService {
         }
       }
     }
+  }
+
+  async addUniqEvent(email_receiverParty:string,eventType:string,active:string,event:string,email_user:string,postID:string){
+    var uniqEvent=null;
+    var arrData=[];
+    uniqEvent=email_receiverParty+","+eventType+","+active+","+event+","+email_user+","+postID;
+    arrData.push(uniqEvent);
+    return arrData;
   }
 }

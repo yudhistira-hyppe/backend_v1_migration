@@ -582,18 +582,35 @@ export class UserbankaccountsService {
                             {
                                 "$match":
                                 {
-                                    "$expr":
-                                    {
-                                        "$eq":
-                                            [
-                                                "$_id",
-                                                "$$basic_fk"
-                                            ]
-                                    }
+                                    "$and":
+                                    [
+                                        {
+                                            "$expr":
+                                            {
+                                                "$eq":
+                                                    [
+                                                        "$_id",
+                                                        "$$basic_fk"
+                                                    ]
+                                            }
+                                        },
+                                        {
+                                            "email":
+                                            {
+                                                "$not": /noneactive/
+                                            }
+                                        }
+                                    ]
                                 }
                             },
 
                         ]
+                }
+            },
+            {
+                "$unwind":
+                {
+                    path:"$userbasic_data"
                 }
             },
             {
@@ -606,34 +623,9 @@ export class UserbankaccountsService {
                     nama: "$nama",
                     active: "$active",
                     tanggalPengajuan: "$tanggalPengajuan",
-                    fullName:
-
-                    {
-                        "$arrayElemAt":
-                            [
-                                "$userbasic_data.fullName",
-                                0
-                            ]
-                    }
-
-
-                    ,
-                    email:
-                    {
-                        "$arrayElemAt":
-                            [
-                                "$userbasic_data.email",
-                                0
-                            ]
-                    },
-                    username:
-                    {
-                        "$arrayElemAt":
-                            [
-                                "$userbasic_data.username",
-                                0
-                            ]
-                    },
+                    fullName:"$userbasic_data.fullName",
+                    email:"$userbasic_data.email",
+                    username:"$userbasic_data.username",
                     statusLast: "$statusLast",
                     reasonId: "$reasonId",
                     reasonAdmin: "$reasonAdmin",
@@ -643,12 +635,7 @@ export class UserbankaccountsService {
                         {
                             "$ifNull":
                             [
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$userbasic_data.mediaEndpoint", 0
-                                    ]
-                                },
+                                "$userbasic_data.mediaEndpoint",
                                 null
                             ]
                         }
@@ -710,8 +697,8 @@ export class UserbankaccountsService {
             pipeline.push({ $limit: limit });
         }
 
-        var setutil = require('util');
-        console.log(setutil.inspect(pipeline, { showHidden:false, colors:true, depth:null }));
+        // var setutil = require('util');
+        // console.log(setutil.inspect(pipeline, { showHidden:false, colors:true, depth:null }));
 
         var query = await this.userbankaccountsModel.aggregate(pipeline);
 

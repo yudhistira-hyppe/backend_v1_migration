@@ -54,7 +54,7 @@ export class NotificationReadService {
 
                                     },
                                     {
-                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL'] },
+                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL', 'COMMENT', 'LIKE'] },
 
                                     },
                                     {
@@ -649,7 +649,7 @@ export class NotificationReadService {
 
                                     },
                                     {
-                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL'] },
+                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL', 'COMMENT', 'LIKE'] },
 
                                     },
                                     {
@@ -708,8 +708,8 @@ export class NotificationReadService {
         pipeline.push(
             {
                 $lookup: {
-                    from: 'tempPosts',
-                    // from: 'newPosts',
+                    // from: 'tempPosts',
+                    from: 'newPosts',
                     as: 'post',
                     let: {
                         localID: '$postID'
@@ -722,16 +722,7 @@ export class NotificationReadService {
                                     $eq: ['$postID', '$$localID']
                                 }
                             }
-                        },
-                        {
-                            "$lookup":
-                            {
-                                from: "mediamusic",
-                                localField: "musicId",
-                                foreignField: "_id",
-                                as: "music"
-                            }
-                        },
+                        }
                     ]
                 },
             },
@@ -908,21 +899,21 @@ export class NotificationReadService {
 
                             }
                         },
-                        "mediaThumbEndpoint": 
+                        "mediaThumbEndpoint":
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt": ["$post.mediaSource.mediaThumbEndpoint", 0]
-                                },
-                                {
-                                    "$concat":
-                                    [
-                                        "/thumb/",
-                                        "$postID"
-                                    ]
-                                }
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt": ["$post.mediaSource.mediaThumbEndpoint", 0]
+                                    },
+                                    {
+                                        "$concat":
+                                            [
+                                                "/thumb/",
+                                                "$postID"
+                                            ]
+                                    }
+                                ]
                         },
                     },
                     // boosted: "$post.boosted",
@@ -1045,6 +1036,8 @@ export class NotificationReadService {
             }
         );
         // console.log(JSON.stringify(pipeline));
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
         var query = await this.NotificationsReadModel.aggregate(pipeline);
         return query;
     }

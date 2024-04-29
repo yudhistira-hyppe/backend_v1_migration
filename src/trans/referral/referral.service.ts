@@ -119,7 +119,7 @@ export class ReferralService {
     return deletedCat;
   }
 
-  async listAll(parentEmail: string, fromDate?: string, toDate?: string, skip?: number, limit?: number) {
+  async listAll(parentEmail: string, fromDate?: string, toDate?: string, jenisakun?:any[], username?: string, skip?: number, limit?: number) {
     let dataPipeline = [];
     dataPipeline.push({
       "$match": {
@@ -159,6 +159,12 @@ export class ReferralService {
         }
       },
       {
+        "$unwind":
+        {
+          path:"$childData"
+        }
+      },
+      {
         "$project": {
           parent: 1,
           children: 1,
@@ -167,11 +173,40 @@ export class ReferralService {
           imei: 1,
           createdAt: 1,
           updatedAt: 1,
-          childFullName: {
-            $arrayElemAt: ['$childData.fullName', 0]
-          },
-          childDOB: {
-            $arrayElemAt: ['$childData.dob', 0]
+          childUsername: '$childData.username',
+          childFullName: '$childData.fullName',
+          childDOB: '$childData.dob',
+          jenis:
+          {
+            "$switch":
+            {
+              branches:
+                [
+                  {
+                    case:
+                    {
+                      "$eq":
+                        [
+                          "$childData.guestMode",
+                          true
+                        ]
+                    },
+                    then: "GUEST"
+                  },
+                  {
+                    case:
+                    {
+                      '$eq':
+                        [
+                          '$childData.isIdVerified',
+                          true
+                        ]
+                    },
+                    then: "PREMIUM"
+                  },
+                ],
+              default: "BASIC"
+            }
           },
           childAge: {
             "$ifNull": [
@@ -179,9 +214,7 @@ export class ReferralService {
                 "$dateDiff": {
                   "startDate": {
                     $dateFromString: {
-                      dateString: {
-                        $arrayElemAt: ['$childData.dob', 0]
-                      },
+                      dateString: '$childData.dob',
                       onError: null
                     }
                   },
@@ -197,56 +230,56 @@ export class ReferralService {
               branches: [
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, 'FEMALE']
+                    $eq: ['$childData.gender', 'FEMALE']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, ' FEMALE']
+                    $eq: ['$childData.gender', ' FEMALE']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, 'Perempuan']
+                    $eq: ['$childData.gender', 'Perempuan']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, 'Wanita']
+                    $eq: ['$childData.gender', 'Wanita']
                   },
                   then: 'FEMALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, 'MALE']
+                    $eq: ['$childData.gender', 'MALE']
                   },
                   then: 'MALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, ' MALE']
+                    $eq: ['$childData.gender', ' MALE']
                   },
                   then: 'MALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, 'Laki-laki']
+                    $eq: ['$childData.gender', 'Laki-laki']
                   },
                   then: 'MALE',
 
                 },
                 {
                   case: {
-                    $eq: [{ $arrayElemAt: ['$childData.gender', 0] }, 'Pria']
+                    $eq: ['$childData.gender', 'Pria']
                   },
                   then: 'MALE',
 
@@ -258,32 +291,61 @@ export class ReferralService {
             },
             // $arrayElemAt: ['$childData.gender', 0]
           },
-          childCity: {
-            $arrayElemAt: ['$childData.citiesName', 0]
-          },
-          childState: {
-            $arrayElemAt: ['$childData.statesName', 0]
-          },
+          childCity: '$childData.citiesName',
+          childState: '$childData.statesName',
           childAvatar: {
-            mediaBasePath: {
-              $arrayElemAt: ['$childData.mediaBasePath', 0]
-            },
-            mediaUri: {
-              $arrayElemAt: ['$childData.mediaUri', 0]
-            },
-            mediaEndpoint: {
-              $arrayElemAt: ['$childData.mediaEndpoint', 0]
-            }
+            mediaBasePath: '$childData.mediaBasePath',
+            mediaUri: '$childData.mediaUri',
+            mediaEndpoint: '$childData.mediaEndpoint',
           }
         }
       }
     )
+
+    var matchingdata = [];
+    if (jenisakun && jenisakun !== undefined) {
+      matchingdata.push({
+          "jenis": {
+            $in: jenisakun
+          }
+      })
+    }
+    if (username && username !== undefined) {
+      matchingdata.push({
+          "$or":
+          [
+            {
+              "children":
+              {
+                "$regex":username,
+                "$options":"i"
+              }
+            },
+            {
+              "childUsername":
+              {
+                "$regex":username,
+                "$options":"i"
+              }
+            },
+          ]
+      })
+    }
+    if(matchingdata.length != 0) {
+      dataPipeline.push({
+        "$match":{
+          "$and":matchingdata
+        }
+      });
+    }
     if (skip > 0) {
       dataPipeline.push({ $skip: skip });
     }
     if (limit > 0) {
       dataPipeline.push({ $limit: limit });
     }
+    // var util=require('util');
+    // console.log(util.inspect(dataPipeline, {depth:null, showHidden:false}));
     let data = await this.referralModel.aggregate([
       {
         "$facet": {

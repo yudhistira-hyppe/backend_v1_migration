@@ -856,41 +856,33 @@ export class PostsReadController {
         }
 
         if (body.withActive !== undefined) {
-            if(body.withActive == "true" || body.withActive == true)
-            {
+            if (body.withActive == "true" || body.withActive == true) {
                 active = true;
             }
-            else
-            {
+            else {
                 active = false;
             }
         }
 
-        if(body.withExp !== undefined)
-        {
-            if(body.withExp == "true" || body.withExp == true)
-            {
+        if (body.withExp !== undefined) {
+            if (body.withExp == "true" || body.withExp == true) {
                 exp = true;
             }
-            else
-            {
+            else {
                 exp = false;
             }
         }
 
-        if(body.withInsight !== undefined)
-        {
-            if(body.withInsight == "true" || body.withInsight == true)
-            {
+        if (body.withInsight !== undefined) {
+            if (body.withInsight == "true" || body.withInsight == true) {
                 withinsight = true;
             }
-            else
-            {
+            else {
                 withinsight = false;
             }
         }
 
-        if(body.postid !== undefined) {
+        if (body.postid !== undefined) {
             postid = body.postid;
         }
 
@@ -903,8 +895,8 @@ export class PostsReadController {
 
         try {
 
-            // data = await this.postsReadService.landingpageMy2V2(email, postType, parseInt(pageNumber), parseInt(pageRow), emailLogin);
-            data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), 30)
+            //data = await this.postsReadService.landingpageMy2V2(email, postType, parseInt(pageNumber), parseInt(pageRow), emailLogin);
+            data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
             lengpict = data.length;
             console.log("data", data);
         } catch (e) {
@@ -1237,8 +1229,7 @@ export class PostsReadController {
         try {
             // data = await this.postsService.landingpage(email, type, skip, limit);
             data = await this.tempPOSTss.landingPagebaru(email, type, skip, limit);
-            if(data.length < 5)
-            {
+            if (data.length < 5) {
                 data = await this.postsReadService.landingpage7(email, type, skip, limit);
             }
             lengpict = data.length;
@@ -1889,6 +1880,7 @@ export class PostsReadController {
         const messages = {
             "info": ["The process was successful"],
         };
+        // console.log(await this.utilsService.getDateTimeString());
         try {
 
             data = await this.notificationReadService.getNotification2V2(email, eventType, parseInt(pageNumber), parseInt(pageRow));
@@ -1899,6 +1891,8 @@ export class PostsReadController {
             lengpict = 0;
 
         }
+        // console.log(JSON.parse(JSON.stringify(data)));
+        // console.log(await this.utilsService.getDateTimeString());
 
         var datatemp = [];
         var tempdatapict = [];
@@ -1910,192 +1904,251 @@ export class PostsReadController {
         var mediaTypeStory = null;
         // console.log(lengpict);
         if (lengpict > 0) {
+            var listdata = [];
+            var tempresult = null;
+            var tempdata = null;
 
-            for (let i = 0; i < lengpict; i++) {
-
-                try {
-                    postType = data[i].postType;
-                } catch (e) {
-                    postType = "";
-                }
-                try {
-                    // mediaTypeStory = data[i].mediaTypeStory;
-                    mediaTypeStory = data[i].content.mediaType;
-                } catch (e) {
-                    mediaTypeStory = "";
-                }
-                if (postType === "pict") {
-                    try {
-                        apsaraId = data[i].content.apsaraId;
-                    } catch (e) {
-                        apsaraId = "";
-                    }
-                    try {
-                        isApsara = data[i].content.isApsara;
-                    } catch (e) {
-                        isApsara = "";
-                    }
-                    try {
-                        apsaraThumbId = data[i].content.apsaraThumbId;
-                    } catch (e) {
-                        apsaraThumbId = "";
-                    }
-
-
-                    try {
-
-                        uploadSource = data[i].content.uploadSource;
-                    } catch (e) {
-                        uploadSource = "";
-                    }
-
-                    if (apsaraId !== undefined && apsaraThumbId !== undefined) {
-                        tempdatapict.push(data[i].content.apsaraThumbId);
-
-                    }
-                    else if (apsaraId !== undefined && apsaraThumbId === undefined) {
-                        tempdatapict.push(data[i].content.apsaraId);
-
-                    }
-                    else if (apsaraId === undefined && apsaraThumbId !== undefined) {
-                        tempdatapict.push(data[i].content.apsaraThumbId);
-
-                    }
-                    var resultpictapsara = await this.postContentService.getImageApsara(tempdatapict);
-                    var gettempresultpictapsara = resultpictapsara.ImageInfo;
-
-                    if (uploadSource == "OSS") {
-                        data[i].content.mediaThumbEndpoint = data[i].content.mediaEndpoint;
-
-                    } else {
-                        for (var j = 0; j < gettempresultpictapsara.length; j++) {
-
-                            if (gettempresultpictapsara[j].ImageId == data[i].content.apsaraThumbId) {
-
-                                data[i].content.mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-
-                            }
-                            else if (gettempresultpictapsara[j].ImageId == data[i].content.apsaraId) {
-
-                                data[i].content.mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-
-                            }
-                        }
-                    }
-
-
-                }
-                else if (postType === "vid" || postType === "diary") {
-                    try {
-                        apsaraId = data[i].content.apsaraId;
-                    } catch (e) {
-                        apsaraId = "";
-                    }
-                    try {
-                        isApsara = data[i].content.isApsara;
-                    } catch (e) {
-                        isApsara = "";
-                    }
-
-                    try {
-
-                        uploadSource = data[i].content.uploadSource;
-                    } catch (e) {
-                        uploadSource = "";
-                    }
-
-
-                    if (apsaraId !== undefined && apsaraId !== '') {
-                        tempdatapict.push(data[i].content.apsaraId);
-
-                    }
-
-                    var resultvidapsara = await this.postContentService.getVideoApsara(tempdatapict);
-                    var gettempresultvidapsara = resultvidapsara.VideoList;
-
-                    for (var j = 0; j < gettempresultvidapsara.length; j++) {
-                        var apsaraID = null;
+            for (var j = 0; j < data.length; j++) {
+                tempdata = data[j];
+                if (tempdata.postID != null && tempdata.postID != undefined) {
+                    if(tempdata.eventType != 'CHALLENGE')
+                    {
                         try {
-
-                            apsaraID = data[i].content.apsaraId;
+                            if (tempdata.content.isApsara == true) {
+                                listdata.push(tempdata.content.apsaraId);
+                            }
+                            else {
+                                listdata.push(undefined);
+                            }
                         } catch (e) {
-                            apsaraID = null;
-                        }
-
-                        if (apsaraID !== null && apsaraID !== undefined) {
-                            if (gettempresultvidapsara[j].VideoId == apsaraID) {
-
-                                data[i].content.mediaThumbEndpoint = gettempresultvidapsara[j].CoverURL;
-
-                            }
-                        }
-
-
-
-                    }
-                }
-                else {
-
-
-                    try {
-                        apsaraId = data[i].content.apsaraId;
-                    } catch (e) {
-                        apsaraId = "";
-                    }
-                    try {
-                        isApsara = data[i].content.isApsara;
-                    } catch (e) {
-                        isApsara = "";
-                    }
-
-                    try {
-
-                        uploadSource = data[i].content.uploadSource;
-                    } catch (e) {
-                        uploadSource = "";
-                    }
-
-
-                    if (apsaraId !== undefined && apsaraId !== '') {
-                        tempdatapict.push(data[i].content.apsaraId);
-
-                    }
-
-                    if (mediaTypeStory !== undefined && mediaTypeStory === "video") {
-                        var resultvidapsara = await this.postContentService.getVideoApsara(tempdatapict);
-                        var gettempresultvidapsara = resultvidapsara.VideoList;
-
-                        for (var j = 0; j < gettempresultvidapsara.length; j++) {
-
-                            if (gettempresultvidapsara[j].VideoId == data[i].content.apsaraId) {
-
-                                data[i].content.mediaThumbEndpoint = gettempresultvidapsara[j].CoverURL;
-
-                            }
-
-                        }
-                    } else {
-                        var resultpictapsara = await this.postContentService.getImageApsara(tempdatapict);
-                        var gettempresultpictapsara = resultpictapsara.ImageInfo;
-
-                        for (var j = 0; j < gettempresultpictapsara.length; j++) {
-
-                            if (apsaraId !== undefined && apsaraId !== "") {
-                                if (gettempresultpictapsara[j].ImageId == apsaraId) {
-
-                                    data[i].content.mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-
-                                }
-                            }
-
+                            listdata.push(undefined);
                         }
                     }
                 }
-
-
-
-
             }
+
+            //console.log(listdata);
+            var apsaraimagedata = await this.postContentService.getImageApsara(listdata);
+            // console.log(apsaraimagedata);
+            tempresult = apsaraimagedata.ImageInfo;
+            for (var i = 0; i < data.length; i++) {
+                let getdetailpost = data[i];
+                if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
+                    if(getdetailpost.eventType != 'CHALLENGE') {
+                        for (var j = 0; j < tempresult.length; j++) {
+                            if (tempresult[j].ImageId == data[i].content.apsaraThumbId) {
+                                data[i].content.mediaThumbEndpoint = tempresult[j].URL;
+                            }
+                            else if (tempresult[j].ImageId == data[i].content.apsaraId) {
+                                data[i].content.mediaThumbEndpoint = tempresult[j].URL;
+                            }
+                        }
+                    }
+                }
+            }
+
+            var apsaravideodata = await this.postContentService.getVideoApsara(listdata);
+            // console.log(apsaravideodata);
+            // console.log(resultdata.ImageInfo[0]);
+            tempresult = apsaravideodata.VideoList;
+            for (var i = 0; i < data.length; i++) {
+                let getdetailpost = data[i];
+                if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
+                    if(getdetailpost.eventType != 'CHALLENGE') {
+                        for (var j = 0; j < tempresult.length; j++) {
+                            if (tempresult[j].VideoId == data[i].content.apsaraId) {
+                                data[i].content.mediaThumbEndpoint = tempresult[j].CoverURL;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // for (let i = 0; i < lengpict; i++) {
+
+            //     try {
+            //         postType = data[i].postType;
+            //     } catch (e) {
+            //         postType = "";
+            //     }
+            //     try {
+            //         // mediaTypeStory = data[i].mediaTypeStory;
+            //         mediaTypeStory = data[i].content.mediaType;
+            //     } catch (e) {
+            //         mediaTypeStory = "";
+            //     }
+            //     if (postType === "pict") {
+            //         try {
+            //             apsaraId = data[i].content.apsaraId;
+            //         } catch (e) {
+            //             apsaraId = "";
+            //         }
+            //         try {
+            //             isApsara = data[i].content.isApsara;
+            //         } catch (e) {
+            //             isApsara = "";
+            //         }
+            //         try {
+            //             apsaraThumbId = data[i].content.apsaraThumbId;
+            //         } catch (e) {
+            //             apsaraThumbId = "";
+            //         }
+
+
+            //         try {
+
+            //             uploadSource = data[i].content.uploadSource;
+            //         } catch (e) {
+            //             uploadSource = "";
+            //         }
+
+            //         if (apsaraId !== undefined && apsaraThumbId !== undefined) {
+            //             tempdatapict.push(data[i].content.apsaraThumbId);
+
+            //         }
+            //         else if (apsaraId !== undefined && apsaraThumbId === undefined) {
+            //             tempdatapict.push(data[i].content.apsaraId);
+
+            //         }
+            //         else if (apsaraId === undefined && apsaraThumbId !== undefined) {
+            //             tempdatapict.push(data[i].content.apsaraThumbId);
+
+            //         }
+            //         var resultpictapsara = await this.postContentService.getImageApsara(tempdatapict);
+            //         var gettempresultpictapsara = resultpictapsara.ImageInfo;
+
+            //         if (uploadSource == "OSS") {
+            //             data[i].content.mediaThumbEndpoint = data[i].content.mediaEndpoint;
+
+            //         } else {
+            //             for (var j = 0; j < gettempresultpictapsara.length; j++) {
+
+            //                 if (gettempresultpictapsara[j].ImageId == data[i].content.apsaraThumbId) {
+
+            //                     data[i].content.mediaThumbEndpoint = gettempresultpictapsara[j].URL;
+
+            //                 }
+            //                 else if (gettempresultpictapsara[j].ImageId == data[i].content.apsaraId) {
+
+            //                     data[i].content.mediaThumbEndpoint = gettempresultpictapsara[j].URL;
+
+            //                 }
+            //             }
+            //         }
+
+
+            //     }
+            //     else if (postType === "vid" || postType === "diary") {
+            //         try {
+            //             apsaraId = data[i].content.apsaraId;
+            //         } catch (e) {
+            //             apsaraId = "";
+            //         }
+            //         try {
+            //             isApsara = data[i].content.isApsara;
+            //         } catch (e) {
+            //             isApsara = "";
+            //         }
+
+            //         try {
+
+            //             uploadSource = data[i].content.uploadSource;
+            //         } catch (e) {
+            //             uploadSource = "";
+            //         }
+
+
+            //         if (apsaraId !== undefined && apsaraId !== '') {
+            //             tempdatapict.push(data[i].content.apsaraId);
+
+            //         }
+
+            //         var resultvidapsara = await this.postContentService.getVideoApsara(tempdatapict);
+            //         var gettempresultvidapsara = resultvidapsara.VideoList;
+
+            //         for (var j = 0; j < gettempresultvidapsara.length; j++) {
+            //             var apsaraID = null;
+            //             try {
+
+            //                 apsaraID = data[i].content.apsaraId;
+            //             } catch (e) {
+            //                 apsaraID = null;
+            //             }
+
+            //             if (apsaraID !== null && apsaraID !== undefined) {
+            //                 if (gettempresultvidapsara[j].VideoId == apsaraID) {
+
+            //                     data[i].content.mediaThumbEndpoint = gettempresultvidapsara[j].CoverURL;
+
+            //                 }
+            //             }
+
+
+
+            //         }
+            //     }
+            //     else {
+
+
+            //         try {
+            //             apsaraId = data[i].content.apsaraId;
+            //         } catch (e) {
+            //             apsaraId = "";
+            //         }
+            //         try {
+            //             isApsara = data[i].content.isApsara;
+            //         } catch (e) {
+            //             isApsara = "";
+            //         }
+
+            //         try {
+
+            //             uploadSource = data[i].content.uploadSource;
+            //         } catch (e) {
+            //             uploadSource = "";
+            //         }
+
+
+            //         if (apsaraId !== undefined && apsaraId !== '') {
+            //             tempdatapict.push(data[i].content.apsaraId);
+
+            //         }
+
+            //         if (mediaTypeStory !== undefined && mediaTypeStory === "video") {
+            //             var resultvidapsara = await this.postContentService.getVideoApsara(tempdatapict);
+            //             var gettempresultvidapsara = resultvidapsara.VideoList;
+
+            //             for (var j = 0; j < gettempresultvidapsara.length; j++) {
+
+            //                 if (gettempresultvidapsara[j].VideoId == data[i].content.apsaraId) {
+
+            //                     data[i].content.mediaThumbEndpoint = gettempresultvidapsara[j].CoverURL;
+
+            //                 }
+
+            //             }
+            //         } else {
+            //             var resultpictapsara = await this.postContentService.getImageApsara(tempdatapict);
+            //             var gettempresultpictapsara = resultpictapsara.ImageInfo;
+
+            //             for (var j = 0; j < gettempresultpictapsara.length; j++) {
+
+            //                 if (apsaraId !== undefined && apsaraId !== "") {
+            //                     if (gettempresultpictapsara[j].ImageId == apsaraId) {
+
+            //                         data[i].content.mediaThumbEndpoint = gettempresultpictapsara[j].URL;
+
+            //                     }
+            //                 }
+
+            //             }
+            //         }
+            //     }
+
+
+
+
+            // }
 
 
         } else {
@@ -2128,9 +2181,9 @@ export class PostsReadController {
         var active = null;
         var exp = null;
         var withinsight = null;
-        var index=null;
-        var page=null; 
-        var sisa=null;
+        var index = null;
+        var page = null;
+        var sisa = null;
 
         // if (body.pageNumber !== undefined) {
         //     pageNumber = body.pageNumber;
@@ -2154,51 +2207,43 @@ export class PostsReadController {
             index = body.index;
         }
         if (body.withActive !== undefined) {
-            if(body.withActive == "true" || body.withActive == true)
-            {
+            if (body.withActive == "true" || body.withActive == true) {
                 active = true;
             }
-            else
-            {
+            else {
                 active = false;
             }
         }
 
-        if(body.withExp !== undefined)
-        {
-            if(body.withExp == "true" || body.withExp == true)
-            {
+        if (body.withExp !== undefined) {
+            if (body.withExp == "true" || body.withExp == true) {
                 exp = true;
             }
-            else
-            {
+            else {
                 exp = false;
             }
         }
 
-        if(body.withInsight !== undefined)
-        {
-            if(body.withInsight == "true" || body.withInsight == true)
-            {
+        if (body.withInsight !== undefined) {
+            if (body.withInsight == "true" || body.withInsight == true) {
                 withinsight = true;
             }
-            else
-            {
+            else {
                 withinsight = false;
             }
         }
 
-        if(body.postid !== undefined) {
+        if (body.postid !== undefined) {
             postid = body.postid;
         }
 
-        page=parseInt(index)/parseInt(pageRow);
-        page=parseInt(page);
+        page = parseInt(index) / parseInt(pageRow);
+        page = parseInt(page);
 
-        sisa=index%pageRow;
+        sisa = index % pageRow;
 
-        if(sisa>0){
-            page=page +1;
+        if (sisa > 0) {
+            page = page + 1;
         }
 
         const messages = {

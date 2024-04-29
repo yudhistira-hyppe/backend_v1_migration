@@ -1481,6 +1481,12 @@ export class NewPostContentService {
     Contentevents_.sequenceNumber = 0;
     Contentevents_.postID = body.postID;
     Contentevents_._class = 'io.melody.hyppe.content.domain.ContentEvent';
+
+    let uniq=null;
+    uniq=await this.addUniqEvent(data_userbasics.email.toString(),"POST","true","ACCEPT",null,body.postID);
+    Contentevents_.uniqEvent=uniq;
+
+
     this.contentEventService.create(Contentevents_);
     return Posts_;
   }
@@ -2288,5 +2294,13 @@ export class NewPostContentService {
       }
     }
     return pd;
+  }
+
+  async addUniqEvent(email_receiverParty:string,eventType:string,active:string,event:string,email_user:string,postID:string){
+    var uniqEvent=null;
+    var arrData=[];
+    uniqEvent=email_receiverParty+","+eventType+","+active+","+event+","+email_user+","+postID;
+    arrData.push(uniqEvent);
+    return arrData;
   }
 }
