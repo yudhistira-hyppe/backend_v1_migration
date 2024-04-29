@@ -1,7 +1,6 @@
 export class CreateCoinDto {
     readonly _id: { oid: String; };
     name: string;
-    item_id: string;
     package_id: string;
     price: number;
     amount: number;
@@ -19,7 +18,6 @@ export class CreateCreditDto {
     name: string;
     redirectUrl: string;
     description: string;
-    item_id: string;
     package_id: string;
     price: number;
     amount: number;
@@ -32,6 +30,23 @@ export class CreateCreditDto {
     title: string;
     body_message: string;
     isSend: boolean;
+    used_stock: number;
+    last_stock: number;
+}
+
+export class CreateGiftDto {
+    readonly _id: { oid: String; };
+    name: string;
+    package_id: string;
+    price: number;
+    amount: number;
+    stock: number;
+    thumbnail: string;
+    animation: string;
+    createdAt: string;
+    updatedAt: string;
+    type: string;
+    typeGift: string;
     used_stock: number;
     last_stock: number;
 }

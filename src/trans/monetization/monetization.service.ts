@@ -9,6 +9,7 @@ import { UtilsService } from 'src/utils/utils.service';
 import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 import { LogapisService } from '../logapis/logapis.service';
 import mongoose from 'mongoose';
+import { OssService } from 'src/stream/oss/oss.service';
 const sharp = require('sharp');
 
 @Injectable()
@@ -22,6 +23,7 @@ export class MonetizationService {
         private readonly utilsService: UtilsService,
         private readonly UserbasicnewService: UserbasicnewService,
         private readonly LogAPISS: LogapisService,
+        private readonly ossservices: OssService
     ) { }
 
     async find(): Promise<Monetize[]> {
@@ -151,7 +153,6 @@ export class MonetizationService {
         let createCoinDto = {
             _id: id,
             name: request.name,
-            item_id: request.item_id,
             package_id: request.package_id,
             price: Number(request.price),
             amount: Number(request.amount),
@@ -189,7 +190,6 @@ export class MonetizationService {
         insertdata._id = new mongo.Types.ObjectId();
         insertdata.name = request_body.name;
         insertdata.package_id = request_body.package_id;
-        insertdata.item_id = request_body.item_id;
         insertdata.description = request_body.description;
         insertdata.audiens = request_body.audiens;
         insertdata.createdAt = await this.utilsService.getDateTimeString();
@@ -210,15 +210,67 @@ export class MonetizationService {
 
         await this.monetData.create(insertdata);
 
-        var timestamps_end = await this.utilsService.getDateTimeString();
-        this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+        return insertdata;
+    }
 
-        return {
-            response_code: 202,
-            message: {
-                "info": ["The process successful"],
-            }
+    async createGift(header: any, thumb: Express.Multer.File, animate: Express.Multer.File, request: any) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var url = header.host + "/api/monetization/create";
+        var token = header['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+
+        var request_body = JSON.parse(JSON.stringify(request));
+
+        if (thumb == null || thumb == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+
+            throw new BadRequestException("gift thumbnail field must required");
         }
+
+        if (request_body.tipegift == "DELUXE" && (animate == null || animate == undefined)) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+
+            throw new BadRequestException("gift animation field must required");
+        }
+
+        var mongo = require('mongoose');
+        var insertdata = new Monetize();
+        insertdata._id = new mongo.Types.ObjectId();
+        var tempid = insertdata._id;
+        insertdata.name = request_body.name;
+        insertdata.package_id = request_body.package_id;
+        insertdata.createdAt = await this.utilsService.getDateTimeString();
+        insertdata.updatedAt = await this.utilsService.getDateTimeString();
+        insertdata.active = true;
+        insertdata.status = false;
+        insertdata.price = Number(request_body.price);
+        insertdata.stock = Number(request_body.stock);
+        insertdata.amount = Number(request_body.amount);
+        insertdata.last_stock = Number(request_body.stock);
+        insertdata.typeGift = request_body.tipegift;
+        insertdata.used_stock = 0;
+        insertdata.type = 'GIFT';
+
+        //upload thumbnail
+        var insertfile = thumb;
+        var path = "images/gift/" + tempid + "_thumbnail" + "." + insertfile.originalname.split(".")[1];
+        var result = await this.ossservices.uploadFile(insertfile, path);
+        insertdata.thumbnail = result.url;
+
+        if (request_body.tipegift == "DELUXE" && animate != null && animate != undefined) {
+            //upload animation
+            var insertfile = animate;
+            var path = "images/gift/" + tempid + "_3d" + "." + insertfile.originalname.split(".")[1];
+            var result = await this.ossservices.uploadFile(insertfile, path);
+            insertdata.animation = result.url;
+        }
+
+        await this.monetData.create(insertdata);
+
+        return insertdata;
     }
 
     async insertmultipleTarget(setdata: any, setaudiens: string) {
@@ -258,7 +310,7 @@ export class MonetizationService {
         return result;
     }
 
-    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, item_id?: string) {
+    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, tipegift?:string) {
 
         let order = descending ? -1 : 1;
         let matchAnd = [];
@@ -293,16 +345,6 @@ export class MonetizationService {
             // })
             matchAnd.push({
                 "name": new RegExp(name, "i")
-            })
-        }
-        if (item_id && item_id !== undefined) {
-            // pipeline.push({
-            //     "$match": {
-            //         "item_id": new RegExp(item_id, "i")
-            //     }
-            // })
-            matchAnd.push({
-                "item_id": new RegExp(item_id, "i")
             })
         }
         if (dateFrom && dateFrom !== undefined) {
@@ -381,6 +423,11 @@ export class MonetizationService {
                 "audiens": audiens_type
             })
         }
+        if (type == "GIFT" && tipegift && tipegift !== undefined) {
+            matchAnd.push({
+                "typeGift":tipegift
+            });
+        }
         pipeline.push({
             "$match": {
                 $and: matchAnd
@@ -432,6 +479,36 @@ export class MonetizationService {
                                 ]
                             },
                             then:"$audiens_user",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    typeGift:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "GIFT"
+                                ]
+                            },
+                            then:"$typeGift",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    animation:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "GIFT"
+                                ]
+                            },
+                            then:"$animation",
                             else:"$$REMOVE"
                         }
                     },
