@@ -5,13 +5,16 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TransactionsCategorys } from './schema/transactionscategorys.schema';
 import { ErrorHandler } from 'src/utils/error.handler';
 import mongoose from 'mongoose';
+import { TransactionsProductsService } from '../products/transactionsproducts.service';
+import { TransactionsProducts } from '../products/schema/transactionsproducts.schema';
 
 @Controller('api/transactions/v2/categorys')
 export class TransactionsCategorysController {
     constructor(
-        private readonly transactionsCategorysService: TransactionsCategorysService, 
+        private readonly transactionsCategorysService: TransactionsCategorysService,
+        private readonly transactionsProductsService: TransactionsProductsService, 
         private readonly utilsService: UtilsService,
-        private readonly errorHandler: ErrorHandler,
+        private readonly errorHandler: ErrorHandler, 
     ) { }
     
     @UseGuards(JwtAuthGuard)
@@ -74,24 +77,20 @@ export class TransactionsCategorysController {
             );
         }
 
-        //VALIDASI PARAM IdProduct
-        let idProductArray = [];
-        if (TransactionsCategorys_.idProduct!=undefined){
-            if (Array.isArray(TransactionsCategorys_.idProduct)){
-                idProductArray = TransactionsCategorys_.idProduct.map(function (item) {
-                    return new mongoose.Types.ObjectId(item);
-                });
-            } else {
-                return await this.errorHandler.generateBadRequestException(
-                    "Transactions param IdProduct is required",
-                );
+        //VALIDASI PARAM idProduct
+        let dataIdProduct = [];
+        if (TransactionsCategorys_.idProduct != undefined) {
+            if (TransactionsCategorys_.idProduct.length > 0) {
+                for (let i = 0; i < TransactionsCategorys_.idProduct.length; i++) {
+                    dataIdProduct.push(new mongoose.Types.ObjectId(TransactionsCategorys_.idProduct[i]));
+                }
             }
         }
 
         try {
             const currentDate = await this.utilsService.getDateTimeString();
             TransactionsCategorys_._id = new mongoose.Types.ObjectId();
-            TransactionsCategorys_.idProduct = idProductArray;
+            TransactionsCategorys_.idProduct = dataIdProduct;
             TransactionsCategorys_.isDelete = false;
             TransactionsCategorys_.createdAt = currentDate;
             TransactionsCategorys_.updatedAt = currentDate;
@@ -135,6 +134,16 @@ export class TransactionsCategorysController {
                 return await this.errorHandler.generateAcceptResponseCode(
                     "Get Transactions Categorys not found",
                 );
+            }
+        }
+
+        //VALIDASI PARAM idProduct
+        let dataIdProduct = [];
+        if (TransactionsCategorys_.idProduct != undefined) {
+            if (TransactionsCategorys_.idProduct.length > 0) {
+                for (let i = 0; i < TransactionsCategorys_.idProduct.length; i++) {
+                    dataIdProduct.push(new mongoose.Types.ObjectId(TransactionsCategorys_.idProduct[i]));
+                }
             }
         }
 
@@ -184,6 +193,7 @@ export class TransactionsCategorysController {
 
         try {
             const currentDate = await this.utilsService.getDateTimeString();
+            TransactionsCategorys_.idProduct = dataIdProduct;
             TransactionsCategorys_.updatedAt = currentDate;
             TransactionsCategorys_.idProduct = idProductArray;
             var data = await this.transactionsCategorysService.update(TransactionsCategorys_._id.toString(), TransactionsCategorys_);
@@ -300,7 +310,7 @@ export class TransactionsCategorysController {
         }
 
         try {
-            var data = await this.transactionsCategorysService.findCriteria(pageNumber, pageRow, search, user, sortBy, order);
+            var data = await this.transactionsCategorysService.findCriteriaAggregate(pageNumber, pageRow, search, user, sortBy, order);
             return await this.errorHandler.generateAcceptResponseCodeWithData(
                 "List Transactions Categorys succesfully", data
             );

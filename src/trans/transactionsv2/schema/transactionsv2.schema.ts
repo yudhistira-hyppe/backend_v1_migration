@@ -13,13 +13,9 @@ export class transactionsV2 {
     @Prop()
     noInvoice: string;
     @Prop()
-    createdAt: string;
-    @Prop()
-    updatedAt: string;
-    @Prop()
     category: mongoose.Types.ObjectId;
     @Prop()
-    voucherDiskon: mongoose.Types.ObjectId;
+    voucherDiskon: any[];
     @Prop()
     idUser: mongoose.Types.ObjectId;
     @Prop()
@@ -34,5 +30,9 @@ export class transactionsV2 {
     detail: any[];
     @Prop()
     remark: string;
+    @Prop()
+    createdAt: string;
+    @Prop()
+    updatedAt: string;
 }
 export const transactionsV2Schema = SchemaFactory.createForClass(transactionsV2);

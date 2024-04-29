@@ -1,59 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { Products, ProductsDocument } from './schema/products.schema';
+import { TransactionsProducts, TransactionsProductsDocument } from './schema/transactionsproducts.schema';
 
 @Injectable()
-export class ProductsService {
+export class TransactionsProductsService {
     constructor(
-        @InjectModel(Products.name, 'SERVER_FULL')
-        private readonly productsModel: Model<ProductsDocument>,
+        @InjectModel(TransactionsProducts.name, 'SERVER_FULL')
+        private readonly transactionsProductsModel: Model<TransactionsProductsDocument>,
     ) { }
 
-    async create(Products_: Products): Promise<Products> {
-        const _Products_ = await this.productsModel.create(Products_);
-        return _Products_;
+    async create(TransactionsProducts_: TransactionsProducts): Promise<TransactionsProducts> {
+        const _TransactionsProducts_ = await this.transactionsProductsModel.create(TransactionsProducts_);
+        return _TransactionsProducts_;
     }
 
-    async update(_id: string, Products_: Products) {
-        let data = await this.productsModel.findByIdAndUpdate(
+    async update(_id: string, TransactionsProducts_: TransactionsProducts) {
+        let data = await this.transactionsProductsModel.findByIdAndUpdate(
             _id,
-            Products_,
+           TransactionsProducts_,
             { new: true });
         return data;
     }
 
-    async findOne(id: string): Promise<Products> {
-        return await this.productsModel.findOne({ _id: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
+    async findOne(id: string): Promise<TransactionsProducts> {
+        return await this.transactionsProductsModel.findOne({ _id: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
     }
 
-    async findOneByCode(code: string): Promise<Products> {
-        return await this.productsModel.findOne({ code: code, isDelete: false }).exec();
-    }
-
-    async findOneBySubCoaName(name: string): Promise<Products> {
-        return await this.productsModel.findOne({ "subCoa.name": name, isDelete: false }).exec();
+    async findOneByCode(code: string): Promise<TransactionsProducts> {
+        return await this.transactionsProductsModel.findOne({ code: code, isDelete: false }).exec();
     }
 
     async delete(id: string) {
-        let Products_ = new Products();
-        Products_.isDelete = true;
-        let data = await this.productsModel.findByIdAndUpdate(
+        let TransactionsProducts_ = new TransactionsProducts();
+        TransactionsProducts_.isDelete = true;
+        let data = await this.transactionsProductsModel.findByIdAndUpdate(
             id,
-            Products_,
+            TransactionsProducts_,
             { new: true });
         return data;
     }
 
-    async filAll(): Promise<Products[]> {
-        return await this.productsModel.find().exec();
+    async filAll(): Promise<TransactionsProducts[]> {
+        return await this.transactionsProductsModel.find().exec();
     }
 
-    async find(Products_: Products): Promise<Products[]> {
-        return await this.productsModel.find(Products_).exec();
+    async find(TransactionsProducts_: TransactionsProducts): Promise<TransactionsProducts[]> {
+        return await this.transactionsProductsModel.find(TransactionsProducts_).exec();
     }
 
-    async findCriteria(pageNumber: number, pageRow: number, search: string, user: string, sortBy: string, order: string): Promise<Products[]> {
+    async findCriteria(pageNumber: number, pageRow: number, search: string, sortBy: string, order: string): Promise<TransactionsProducts[]> {
         const perPage = pageRow;
         const page = Math.max(0, pageNumber);
         let where_and = {
@@ -107,7 +103,7 @@ export class ProductsService {
             }
         }
         console.log(JSON.stringify(where_and));
-        const query = await this.productsModel.find(where_and).limit(perPage).skip(perPage * page).sort(sort);
+        const query = await this.transactionsProductsModel.find(where_and).limit(perPage).skip(perPage * page).sort(sort);
         return query;
     }
 }

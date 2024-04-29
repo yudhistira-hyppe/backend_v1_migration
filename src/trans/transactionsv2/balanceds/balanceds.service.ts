@@ -35,6 +35,10 @@ export class BalancedsService {
         return await this.balancedsCoaModel.find(TransactionsCoa_).exec();
     }
 
+    async findByuser(idUser: string): Promise<Balanceds> {
+        return await this.balancedsCoaModel.findOne({ idUser: new mongoose.Types.ObjectId(idUser) }).limit(1).skip(0).sort({ createdAt:-1 }).exec();
+    }
+
     async findCriteria(pageNumber: number, pageRow: number, search: string, user: string, sortBy: string, order: string): Promise<Balanceds[]> {
         const perPage = pageRow;
         const page = Math.max(0, pageNumber);

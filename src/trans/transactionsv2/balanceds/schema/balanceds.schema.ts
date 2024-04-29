@@ -9,6 +9,8 @@ export class Balanceds {
     @Prop()
     idTransaction: mongoose.Types.ObjectId;
     @Prop()
+    idUser: mongoose.Types.ObjectId;
+    @Prop()
     noInvoice: string;
     @Prop()
     createdAt: string;

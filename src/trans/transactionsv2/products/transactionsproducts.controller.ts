@@ -1,23 +1,28 @@
-import { Controller, HttpCode, HttpStatus, Post, UseGuards, Headers, Body, Get, Param, Req, Query } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { Products } from './schema/products.schema';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards, Headers, Get, Param, Req, Query } from '@nestjs/common';
+import { TransactionsProductsService } from './transactionsproducts.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { TransactionsProducts } from './schema/transactionsproducts.schema';
 import { UtilsService } from 'src/utils/utils.service';
 import { ErrorHandler } from 'src/utils/error.handler';
 import mongoose from 'mongoose';
+import { TransactionsCategorys } from '../categorys/schema/transactionscategorys.schema';
+import { TransactionsCategorysService } from '../categorys/transactionscategorys.service';
 
 @Controller('api/transactions/v2/product')
-export class ProductsController {
+export class TransactionsProductsController {
     constructor(
-        private readonly productsService: ProductsService,
+        private readonly transactionsProductsService: TransactionsProductsService,
         private readonly utilsService: UtilsService,
-        private readonly errorHandler: ErrorHandler,
+        private readonly errorHandler: ErrorHandler, 
+        private readonly transactionsCategorysService: TransactionsCategorysService,
     ) { }
+
+
 
     @UseGuards(JwtAuthGuard)
     @Post('/create')
     @HttpCode(HttpStatus.ACCEPTED)
-    async create(@Body() Products_: Products, @Headers() headers) {
+    async create(@Body() TransactionsProducts_: TransactionsProducts, @Headers() headers) {
         //VALIDASI User
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
             await this.errorHandler.generateNotAcceptableException(
@@ -31,16 +36,16 @@ export class ProductsController {
         }
 
         //VALIDASI PARAM code
-        var code = await this.utilsService.validateParam("code", Products_.code, "string")
+        var code = await this.utilsService.validateParam("code", TransactionsProducts_.code, "string")
         if (code != "") {
             await this.errorHandler.generateBadRequestException(
                 code,
             );
         } else {
-            let Products_Code = new Products();
-            Products_Code.code = Products_.code;
-            Products_Code.isDelete = false;
-            var dataCeck = await this.productsService.find(Products_Code);
+            let TransactionsProducts_Code = new TransactionsProducts();
+            TransactionsProducts_Code.code = TransactionsProducts_.code;
+            TransactionsProducts_Code.isDelete = false;
+            var dataCeck = await this.transactionsProductsService.find(TransactionsProducts_Code);
             if (await this.utilsService.ceckData(dataCeck)) {
                 return await this.errorHandler.generateBadRequestException(
                     "Transactions Product Code already exist",
@@ -48,21 +53,13 @@ export class ProductsController {
             }
         }
 
-        //VALIDASI PARAM name
-        var coa = await this.utilsService.validateParam("coa", Products_.name, "string")
-        if (coa != "") {
-            await this.errorHandler.generateBadRequestException(
-                coa,
-            );
-        }
-
         try {
             const currentDate = await this.utilsService.getDateTimeString();
-            Products_._id = new mongoose.Types.ObjectId();
-            Products_.isDelete = false;
-            Products_.createdAt = currentDate;
-            Products_.updatedAt = currentDate;
-            var data = await this.productsService.create(Products_);
+            TransactionsProducts_._id = new mongoose.Types.ObjectId();
+            TransactionsProducts_.isDelete = false;
+            TransactionsProducts_.createdAt = currentDate;
+            TransactionsProducts_.updatedAt = currentDate;
+            var data = await this.transactionsProductsService.create(TransactionsProducts_);
             return await this.errorHandler.generateAcceptResponseCodeWithData(
                 "Create Transactions Product succesfully", data
             );
@@ -76,7 +73,7 @@ export class ProductsController {
     @UseGuards(JwtAuthGuard)
     @Post('/update')
     @HttpCode(HttpStatus.ACCEPTED)
-    async update(@Body() Products_: Products, @Headers() headers) {
+    async update(@Body() TransactionsProducts_: TransactionsProducts, @Headers() headers) {
         //VALIDASI User
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
             await this.errorHandler.generateNotAcceptableException(
@@ -90,31 +87,36 @@ export class ProductsController {
         }
 
         //VALIDASI PARAM _id
-        let existingData = new Products();
-        var ceck_id = await this.utilsService.validateParam("_id", Products_._id.toString(), "string")
+        let existingData = new TransactionsProducts();
+        var ceck_id = await this.utilsService.validateParam("_id", TransactionsProducts_._id.toString(), "string")
         if (ceck_id != "") {
             await this.errorHandler.generateBadRequestException(
                 ceck_id,
             );
         } else {
-            existingData = await this.productsService.findOne(Products_._id.toString());
+            existingData = await this.transactionsProductsService.findOne(TransactionsProducts_._id.toString());
             if (!(await this.utilsService.ceckData(existingData))) {
                 return await this.errorHandler.generateAcceptResponseCode(
-                    "Get Transactions Product not found",
+                    "Get Transactions Products not found",
                 );
             }
         }
 
         //VALIDASI PARAM code
-        if (Products_.code != undefined) {
-            if (existingData.code != Products_.code) {
-                let Products_Code = new Products();
-                Products_Code.code = Products_.code;
-                Products_Code.isDelete = false;
-                var dataCeck = await this.productsService.find(Products_Code);
+        var code = await this.utilsService.validateParam("code", TransactionsProducts_.code, "string")
+        if (code != "") {
+            await this.errorHandler.generateBadRequestException(
+                code,
+            );
+        } else {
+            if (existingData.code != TransactionsProducts_.code) {
+                let TransactionsProducts_Code = new TransactionsProducts();
+                TransactionsProducts_Code.code = TransactionsProducts_.code;
+                TransactionsProducts_Code.isDelete = false;
+                var dataCeck = await this.transactionsProductsService.find(TransactionsProducts_Code);
                 if (await this.utilsService.ceckData(dataCeck)) {
                     return await this.errorHandler.generateBadRequestException(
-                        "Transactions Product Code already exist",
+                        "Transactions Products Code already exist",
                     );
                 }
             }
@@ -122,10 +124,10 @@ export class ProductsController {
 
         try {
             const currentDate = await this.utilsService.getDateTimeString();
-            Products_.updatedAt = currentDate;
-            var data = await this.productsService.update(Products_._id.toString(), Products_);
+            TransactionsProducts_.updatedAt = currentDate;
+            var data = await this.transactionsProductsService.update(TransactionsProducts_._id.toString(), TransactionsProducts_);
             return await this.errorHandler.generateAcceptResponseCodeWithData(
-                "Update Transactions Product succesfully", data
+                "Update Transactions Products succesfully", data
             );
         } catch (e) {
             await this.errorHandler.generateInternalServerErrorException(
@@ -159,14 +161,14 @@ export class ProductsController {
         }
 
         try {
-            var data = await this.productsService.findOne(id);
+            var data = await this.transactionsProductsService.findOne(id);
             if (await this.utilsService.ceckData(data)) {
                 return await this.errorHandler.generateAcceptResponseCodeWithData(
-                    "Get Transactions Product succesfully", data
+                    "Get Transactions Products succesfully", data
                 );
             } else {
                 return await this.errorHandler.generateAcceptResponseCode(
-                    "Get Transactions Product not found",
+                    "Get Transactions Products not found",
                 );
             }
         } catch (e) {
@@ -179,7 +181,7 @@ export class ProductsController {
     @UseGuards(JwtAuthGuard)
     @Post('/delete')
     @HttpCode(HttpStatus.ACCEPTED)
-    async delete(@Body() Products_: Products, @Headers() headers) {
+    async delete(@Body() TransactionsProducts_: TransactionsProducts, @Headers() headers) {
         //VALIDASI User
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
             await this.errorHandler.generateNotAcceptableException(
@@ -193,7 +195,7 @@ export class ProductsController {
         }
 
         //VALIDASI PARAM _id
-        var ceck_id = await this.utilsService.validateParam("_id", Products_._id.toString(), "string")
+        var ceck_id = await this.utilsService.validateParam("_id", TransactionsProducts_._id.toString(), "string")
         if (ceck_id != "") {
             await this.errorHandler.generateBadRequestException(
                 ceck_id,
@@ -201,9 +203,9 @@ export class ProductsController {
         }
 
         try {
-            var data = await this.productsService.delete(Products_._id.toString());
+            var data = await this.transactionsProductsService.delete(TransactionsProducts_._id.toString());
             return await this.errorHandler.generateAcceptResponseCodeWithData(
-                "Delete Transactions Product succesfully", data
+                "Delete Transactions Products succesfully", data
             );
         } catch (e) {
             await this.errorHandler.generateInternalServerErrorException(
@@ -220,7 +222,6 @@ export class ProductsController {
         @Query('pageNumber') pageNumber: number,
         @Query('pageRow') pageRow: number,
         @Query('search') search: string,
-        @Query('user') user: string,
         @Query('sortBy') sortBy: string,
         @Query('order') order: string,
         @Headers() headers) {
@@ -237,9 +238,9 @@ export class ProductsController {
         }
 
         try {
-            var data = await this.productsService.findCriteria(pageNumber, pageRow, search, user, sortBy, order);
+            var data = await this.transactionsProductsService.findCriteria(pageNumber, pageRow, search, sortBy, order);
             return await this.errorHandler.generateAcceptResponseCodeWithData(
-                "List Transactions Categorys succesfully", data
+                "List Transactions Products succesfully", data
             );
         } catch (e) {
             await this.errorHandler.generateInternalServerErrorException(

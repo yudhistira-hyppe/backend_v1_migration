@@ -7,6 +7,8 @@ export type TransactionsCategorysDocument = TransactionsCategorys & Document;
 export class TransactionsCategorys {
     _id: mongoose.Types.ObjectId;
     @Prop()
+    idProduct: any[];
+    @Prop()
     code: string
     @Prop()
     coa: string;

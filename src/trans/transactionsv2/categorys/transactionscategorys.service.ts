@@ -35,8 +35,13 @@ export class TransactionsCategorysService {
         return await this.transactionsCategorysModel.find({ "type": type, isDelete: false }).exec();
     }
 
+<<<<<<< Updated upstream
     async findByProduct(idProduct: string): Promise<TransactionsCategorys[]> {
         return await this.transactionsCategorysModel.find({ "idProduct": idProduct, isDelete: false }).exec();
+=======
+    async findByProduct(product: string): Promise<TransactionsCategorys[]> {
+        return await this.transactionsCategorysModel.find({ "type": product, isDelete: false }).exec();
+>>>>>>> Stashed changes
     }
 
     async delete(id: string) {
@@ -46,6 +51,11 @@ export class TransactionsCategorysService {
             id,
             TransactionsCategorys_,
             { new: true });
+        return data;
+    }
+
+    async updateMany(TransactionsCategorys_match: TransactionsCategorys, TransactionsCategorys_: TransactionsCategorys) {
+        let data = await this.transactionsCategorysModel.updateMany(TransactionsCategorys_match, TransactionsCategorys_);
         return data;
     }
 
@@ -117,6 +127,97 @@ export class TransactionsCategorysService {
         }
         console.log(JSON.stringify(where_and));
         const query = await this.transactionsCategorysModel.find(where_and).limit(perPage).skip(perPage * page).sort(sort);
+        return query;
+    }
+
+    async findCriteriaAggregate(pageNumber: number, pageRow: number, search: string, user: string, sortBy: string, order: string): Promise<TransactionsCategorys[]> {
+        const perPage = Number(pageRow);
+        const page = Math.max(0, pageNumber);
+        let pipeline = [];
+        let $or = [];
+        let $and = [];
+        $and.push({ "isDelete": false });
+        if (user != undefined) {
+            $and.push({ "user": user });
+        }
+        if (search!=undefined){
+            $or.push(
+                {
+                    "code":
+                    {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                },
+                {
+                    "coa":
+                    {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                },
+            )
+            $and.push(
+                {
+                    $or: $or
+                }
+            );
+        }
+
+        let sort = {};
+        if (sortBy != undefined) {
+            if (order != undefined) {
+                if (order == "ASC") {
+                    sort[sortBy] = 1;
+                }
+                else if (order == "DESC") {
+                    sort[sortBy] = -1;
+                } else {
+                    sort[sortBy] = -1;
+                }
+            } else {
+                sort[sortBy] = -1;
+            }
+        } else {
+            if (order != undefined) {
+                if (order == "ASC") {
+                    sort['name'] = 1;
+                }
+                else if (order == "DESC") {
+                    sort['name'] = -1;
+                } else {
+                    sort['name'] = -1;
+                }
+            } else {
+                sort['name'] = -1;
+            }
+        }
+
+        pipeline.push(
+            {
+                $match: {
+                    $and: $and
+                }
+            },
+            {
+                $lookup: {
+                    from: 'transactionsProducts',
+                    let: { 'pid': '$idProduct' },
+                    pipeline: [
+                        { '$match': { '$expr': { '$in': ['$_id', '$$pid'] } } }
+                    ],
+                    as: 'dataProducts',
+                },
+
+            },
+            { $skip: (perPage * page) },
+            { $limit: perPage },
+            {
+                $sort: sort
+            }
+        );
+        console.log(JSON.stringify(pipeline));
+        const query = await this.transactionsCategorysModel.aggregate(pipeline);
         return query;
     }
 }

@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
-export type ProductsDocument = Products & Document;
+export type TransactionsProductsDocument = TransactionsProducts & Document;
 
 @Schema({ collection: 'transactionsProducts' })
-export class Products {
+export class TransactionsProducts {
     _id: mongoose.Types.ObjectId;
     @Prop()
     code: string;
@@ -17,4 +17,4 @@ export class Products {
     @Prop()
     isDelete: boolean;
 }
-export const ProductsSchema = SchemaFactory.createForClass(Products);
+export const TransactionsProductsSchema = SchemaFactory.createForClass(TransactionsProducts);
