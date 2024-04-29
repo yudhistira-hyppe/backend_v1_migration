@@ -38,24 +38,68 @@ export class ReferralService {
 
   async newlisting(email:string): Promise<Referral[]> 
   {
-    return this.referralModel.find(
+    return this.referralModel.aggregate([
       {
-        "parent":email,
-        "$or":
-        [
-          {
-            "status":null
-          },
-          {
-            "status":"ACTIVE"
-          },
-        ],
-        "children":
+        "$match":
         {
-          "$ne":email
+          "$and":
+          [
+            {
+              "parent":email
+            },
+            {
+              "$or":
+              [
+                {
+                  "status":null
+                },
+                {
+                  "status":"ACTIVE"
+                },
+              ]
+            },
+            {
+              "children":
+              {
+                "$ne":email
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          localField: "children",
+          foreignField: "email",
+          as: "childData"
+        }
+      },
+      {
+        "$match":
+        {
+          "childData":
+          {
+            "$ne":[]
+          }
+        }
+      },
+      {
+        "$project":
+        {
+          _id:1,
+          parent:1,
+          children:1,
+          active:1,
+          status:1,
+          verified:1,
+          imei:1,
+          createdAt:1,
+          updatedAt:1,
+          _class:1
         }
       }
-    );
+    ]);
   }
 
   async findbyparent(parent: string): Promise<Referral> {
