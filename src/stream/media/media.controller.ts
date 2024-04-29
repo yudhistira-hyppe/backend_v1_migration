@@ -3292,7 +3292,7 @@ export class MediaController {
                 }
             }
         } catch (e) {
-            throw new BadRequestException("Unable to proceed!!, " + e);
+            throw new BadRequestException(e);
 
             dataemailuser = null;
             email = "";
