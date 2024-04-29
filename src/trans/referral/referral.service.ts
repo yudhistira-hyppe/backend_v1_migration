@@ -49,7 +49,11 @@ export class ReferralService {
           {
             "status":"ACTIVE"
           },
-        ]
+        ],
+        "children":
+        {
+          "$ne":email
+        }
       }
     );
   }
@@ -123,7 +127,28 @@ export class ReferralService {
     let dataPipeline = [];
     dataPipeline.push({
       "$match": {
-        "parent": parentEmail
+        "$and":[
+          {
+            "parent":parentEmail
+          },
+          {
+            "$or":
+            [
+              {
+                "status":null
+              },
+              {
+                "status":"ACTIVE"
+              },
+            ]
+          },
+          {
+            "children":
+            {
+              "$ne":parentEmail
+            }
+          }
+        ]
       }
     })
     if (fromDate && fromDate !== undefined) {
