@@ -38,24 +38,68 @@ export class ReferralService {
 
   async newlisting(email:string): Promise<Referral[]> 
   {
-    return this.referralModel.find(
+    return this.referralModel.aggregate([
       {
-        "parent":email,
-        "$or":
-        [
-          {
-            "status":null
-          },
-          {
-            "status":"ACTIVE"
-          },
-        ],
-        "children":
+        "$match":
         {
-          "$ne":email
+          "$and":
+          [
+            {
+              "parent":email
+            },
+            {
+              "$or":
+              [
+                {
+                  "status":null
+                },
+                {
+                  "status":"ACTIVE"
+                },
+              ]
+            },
+            {
+              "children":
+              {
+                "$ne":email
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          localField: "children",
+          foreignField: "email",
+          as: "childData"
+        }
+      },
+      {
+        "$match":
+        {
+          "childData":
+          {
+            "$ne":[]
+          }
+        }
+      },
+      {
+        "$project":
+        {
+          _id:1,
+          parent:1,
+          children:1,
+          active:1,
+          status:1,
+          verified:1,
+          imei:1,
+          createdAt:1,
+          updatedAt:1,
+          _class:1
         }
       }
-    );
+    ]);
   }
 
   async findbyparent(parent: string): Promise<Referral> {
@@ -125,32 +169,6 @@ export class ReferralService {
 
   async listAll(parentEmail: string, fromDate?: string, toDate?: string, jenisakun?:any[], username?: string, skip?: number, limit?: number) {
     let dataPipeline = [];
-    dataPipeline.push({
-      "$match": {
-        "$and":[
-          {
-            "parent":parentEmail
-          },
-          {
-            "$or":
-            [
-              {
-                "status":null
-              },
-              {
-                "status":"ACTIVE"
-              },
-            ]
-          },
-          {
-            "children":
-            {
-              "$ne":parentEmail
-            }
-          }
-        ]
-      }
-    })
     if (fromDate && fromDate !== undefined) {
       dataPipeline.push({
         "$match": {
@@ -173,20 +191,6 @@ export class ReferralService {
       {
         "$sort": {
           "createdAt": -1
-        }
-      },
-      {
-        "$lookup": {
-          from: "newUserBasics",
-          localField: "children",
-          foreignField: "email",
-          as: "childData"
-        }
-      },
-      {
-        "$unwind":
-        {
-          path:"$childData"
         }
       },
       {
@@ -373,13 +377,48 @@ export class ReferralService {
     // console.log(util.inspect(dataPipeline, {depth:null, showHidden:false}));
     let data = await this.referralModel.aggregate([
       {
+        "$match": {
+          "$and":[
+            {
+              "parent":parentEmail
+            },
+            {
+              "$or":
+              [
+                {
+                  "status":null
+                },
+                {
+                  "status":"ACTIVE"
+                },
+              ]
+            },
+            {
+              "children":
+              {
+                "$ne":parentEmail
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          localField: "children",
+          foreignField: "email",
+          as: "childData"
+        }
+      },
+      {
+        "$unwind":
+        {
+          path:"$childData"
+        }
+      },
+      {
         "$facet": {
           total: [
-            {
-              "$match": {
-                "parent": parentEmail
-              }
-            },
             {
               "$group": {
                 _id: "$parent",

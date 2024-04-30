@@ -658,9 +658,50 @@ export class UserbasicnewService {
                 $lookup:
                 {
                     from: 'referral',
-                    localField: 'email',
-                    foreignField: 'parent',
+                    let:
+                    {
+                        "fk_id": "$email"
+                    },
                     as: 'total_referral',
+                    pipeline:
+                    [
+                        {
+                            "$match":
+                            {
+                                "$and":[
+                                  {
+                                    "$expr":
+                                    {
+                                        "$eq":
+                                        [
+                                            "$parent", "$$fk_id"
+                                        ]
+                                    }
+                                  },
+                                  {
+                                    "$or":
+                                    [
+                                      {
+                                        "status":null
+                                      },
+                                      {
+                                        "status":"ACTIVE"
+                                      },
+                                    ]
+                                  },
+                                  {
+                                    "$expr":
+                                    {
+                                        "$ne":
+                                        [
+                                            "$children", "$$fk_id"
+                                        ]
+                                    }
+                                  },
+                                ]
+                              }
+                        }
+                    ],
                 },
             },
             {
