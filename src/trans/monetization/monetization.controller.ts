@@ -66,7 +66,17 @@ export class MonetizationController {
       data = await this.monetizationService.createCredit(headers, body);
     }
     else if (type == 'GIFT') {
-      data = await this.monetizationService.createGift(headers, file.giftThumb[0], file.giftAnimation[0], body);
+      var uploadanimation = null;
+      try
+      {
+        uploadanimation = file.giftAnimation[0]
+      }
+      catch(e)
+      {
+        uploadanimation = null;
+      }
+
+      data = await this.monetizationService.createGift(headers, file.giftThumb[0], uploadanimation, body);
     }
 
     let timestamps_end = await this.utilService.getDateTimeString();

@@ -248,7 +248,6 @@ export class MonetizationService {
         insertdata.status = false;
         insertdata.price = Number(request_body.price);
         insertdata.stock = Number(request_body.stock);
-        insertdata.amount = Number(request_body.amount);
         insertdata.last_stock = Number(request_body.stock);
         insertdata.typeGift = request_body.tipegift;
         insertdata.used_stock = 0;
