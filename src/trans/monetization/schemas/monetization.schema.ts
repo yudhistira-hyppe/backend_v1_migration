@@ -12,6 +12,8 @@ export class Monetize {
     @Prop()
     name: string;
     @Prop()
+    code_package: string;
+    @Prop()
     redirectUrl: string;
     @Prop()
     description: string;
@@ -48,9 +50,21 @@ export class Monetize {
     @Prop()
     last_stock: number;
     @Prop()
+    min_discount: number;
+    @Prop()
+    min_use_disc: number;
+    @Prop()
     active: boolean;
     @Prop()
     status: boolean;
+    @Prop()
+    startCouponDate: string;
+    @Prop()
+    endCouponDate: string;
+    @Prop()
+    productID: mongoose.Types.ObjectId;
+    @Prop()
+    productCode: string;
 }
 
 export const monetizeSchema = SchemaFactory.createForClass(Monetize);

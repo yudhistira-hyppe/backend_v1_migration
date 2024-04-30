@@ -42,11 +42,12 @@ export class MonetizationController {
   @UseGuards(JwtAuthGuard)
   // @UseInterceptors(FileInterceptor('coinThumb'))
   // async create(@UploadedFile() file: Express.Multer.File, @Headers() headers, @Body() body) {
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'coinThumb', maxCount: 1 }, { name: 'giftThumb', maxCount: 1 }, { name: 'giftAnimation', maxCount: 1 }]))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'coinThumb', maxCount: 1 }, { name: 'giftThumb', maxCount: 1 }, { name: 'giftAnimation', maxCount: 1 }, { name: 'discThumb', maxCount: 1 }]))
   async create(@UploadedFiles() file: {
     coinThumb?: Express.Multer.File[]
     giftThumb?: Express.Multer.File[]
     giftAnimation?: Express.Multer.File[]
+    discThumb?: Express.Multer.File[]
   }, @Headers() headers, @Body() body) {
     let timestamps_start = await this.utilService.getDateTimeString();
     let url = headers.host + "/api/monetization/create";
@@ -78,6 +79,11 @@ export class MonetizationController {
 
       data = await this.monetizationService.createGift(headers, file.giftThumb[0], uploadanimation, body);
     }
+    else if(type == 'DISCOUNT')
+    {
+      data = await this.monetizationService.createDiscount(headers, file.discThumb[0], body); 
+    }
+
 
     let timestamps_end = await this.utilService.getDateTimeString();
     this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, toLog);
