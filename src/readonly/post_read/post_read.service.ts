@@ -26249,6 +26249,8 @@ export class PostsReadService {
               $arrayElemAt: ["$setting.value", 2]
             },
             "postID": 1,
+            urlLink: 1,
+            judulLink:1,
             musicTitle: {
               $arrayElemAt: ["$music.musicTitle", 0]
             },
@@ -28408,6 +28410,8 @@ export class PostsReadService {
               $arrayElemAt: ["$music.mood", 0]
             },
             "tagPeople": "$userTag",
+            urlLink: 1,
+            judulLink:1,
             "mediaType": 1,
             "postType": 1,
             "description": 1,
@@ -29456,6 +29460,8 @@ export class PostsReadService {
               $arrayElemAt: ["$setting.value", 2]
             },
             "postID": 1,
+            urlLink: 1,
+            judulLink:1,
             musicTitle: {
               $arrayElemAt: ["$music.musicTitle", 0]
             },

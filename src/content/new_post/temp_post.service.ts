@@ -1246,6 +1246,8 @@ export class TempPOSTService {
               },
               tagPeople: '$tagPeople',
               mediaType: 1,
+              urlLink: 1,
+              judulLink:1,
               postType: 1,
               description: 1,
               active: 1,
