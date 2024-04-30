@@ -657,14 +657,12 @@ export class UtilsService {
         //     data: data_send,
         //   }
         // }
-        try
-        {
+        try {
           await admin.messaging().sendToDevice(datadevice[i].deviceID, notification, option);
         }
-        catch(e)
-        {
-          console.log('-------------------------------------------------- FCM ERROR --------------------------------------------------');  
-          console.log(e);  
+        catch (e) {
+          console.log('-------------------------------------------------- FCM ERROR --------------------------------------------------');
+          console.log(e);
         }
         device_user.push(datadevice[i].deviceID)
       }
@@ -1398,7 +1396,7 @@ export class UtilsService {
     return await this.templatesRepoService.findOneByTypeAndCategory(type, category);
   }
 
-  async getTemplateAppealReport(name: string, event: string, type:string, category: string): Promise<TemplatesRepo> {
+  async getTemplateAppealReport(name: string, event: string, type: string, category: string): Promise<TemplatesRepo> {
     return await this.templatesRepoService.findByNameAndEventCategory(name, event, type, category);
   }
   async getTemplateAppealBank(name: string, event: string, category: string, type: string): Promise<TemplatesRepo> {
@@ -2304,6 +2302,8 @@ export class UtilsService {
         ProfileDTO_.iduser = get_userbasic._id;
         ProfileDTO_.profileID = get_userbasic.profileID;
         ProfileDTO_.emailLogin = get_userbasic.emailLogin;
+        ProfileDTO_.urlLink = get_userbasic.urlLink;
+        ProfileDTO_.judulLink = get_userbasic.judulLink;
         //ProfileDTO_.token =
         //ProfileDTO_.refreshToken =
         //ProfileDTO_.userProfile =
@@ -2420,7 +2420,7 @@ export class UtilsService {
             ProfileDTO_.statusKyc = "unverified";
           }
         }
-        
+
         var data_ = null;
         if (get_userbasic.tutor != undefined) {
           const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
@@ -2443,54 +2443,50 @@ export class UtilsService {
             }
           }
         }
-        else
-        {
+        else {
           const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
           const getSettingTutor = await this.getSettingMixed(SETTING_TUTOR);
           if (await this.ceckData(getSettingTutor)) {
             var insertdata = [];
             let arraySetting = JSON.parse(JSON.stringify(getSettingTutor.value));
-            for(var i = 0; i < arraySetting.length; i++)
-            {
+            for (var i = 0; i < arraySetting.length; i++) {
               insertdata.push(
                 {
                   "key": arraySetting[i].key,
                   "textID": arraySetting[i].textID,
                   "textEn": arraySetting[i].textEn,
-                  "status": true,  
+                  "status": true,
                 }
               );
             }
-            
+
             data_ = insertdata;
           }
         }
 
-        if(data_ == null || data_ == undefined || data_.length == 0)
-        {
+        if (data_ == null || data_ == undefined || data_.length == 0) {
           const SETTING_TUTOR = this.configService.get("SETTING_TUTOR");
           const getSettingTutor = await this.getSettingMixed(SETTING_TUTOR);
           if (await this.ceckData(getSettingTutor)) {
             var insertdata = [];
             let arraySetting = JSON.parse(JSON.stringify(getSettingTutor.value));
-            for(var i = 0; i < arraySetting.length; i++)
-            {
+            for (var i = 0; i < arraySetting.length; i++) {
               insertdata.push(
                 {
                   "key": arraySetting[i].key,
                   "textID": arraySetting[i].textID,
                   "textEn": arraySetting[i].textEn,
-                  "status": true,  
+                  "status": true,
                 }
               );
             }
-            
+
             data_ = insertdata;
           }
         }
 
         ProfileDTO_.tutor = data_;
-        
+
         if (get_userbasic.creator != undefined) {
           ProfileDTO_.creator = get_userbasic.creator;
         }
@@ -3340,8 +3336,7 @@ export class UtilsService {
       createNotificationsDto.actionButtons = null;
       createNotificationsDto.contentEventID = null;
       createNotificationsDto.senderOrReceiverInfo = senderreceiver;
-      if(event != "CREDIT")
-      {
+      if (event != "CREDIT") {
         createNotificationsDto.templateID = new Types.ObjectId(idtemplate);
       }
 
