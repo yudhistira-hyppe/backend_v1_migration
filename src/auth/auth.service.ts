@@ -8463,7 +8463,7 @@ export class AuthService {
       CreateContenteventsDto_._class = "io.melody.hyppe.content.domain.ContentEvent";
 
       let uniq=null;
-      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,null);
+      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,_id_CreateContentevents);
       CreateContenteventsDto_.uniqEvent=uniq;
 
       //Insert ContentEvent
