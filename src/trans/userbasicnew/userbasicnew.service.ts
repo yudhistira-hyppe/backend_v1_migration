@@ -452,7 +452,9 @@ export class UserbasicnewService {
                     "fsSourceName": 1,
                     "fsTargetUri": 1,
                     "kyc": 1,
-                    "creator": 1
+                    "creator": 1,
+                    "urlLink": 1,
+                    "judulLink": 1
                 }
             }
         ]);
@@ -612,7 +614,9 @@ export class UserbasicnewService {
                     "fsSourceUri": 1,
                     "fsSourceName": 1,
                     "fsTargetUri": 1,
-                    "kyc": 1
+                    "kyc": 1,
+                    "urlLink": 1,
+                    "judulLink": 1
                 }
             }
         ]);
@@ -664,44 +668,44 @@ export class UserbasicnewService {
                     },
                     as: 'total_referral',
                     pipeline:
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "$and":[
-                                  {
-                                    "$expr":
-                                    {
-                                        "$eq":
-                                        [
-                                            "$parent", "$$fk_id"
-                                        ]
-                                    }
-                                  },
-                                  {
-                                    "$or":
-                                    [
-                                      {
-                                        "status":null
-                                      },
-                                      {
-                                        "status":"ACTIVE"
-                                      },
+                                "$match":
+                                {
+                                    "$and": [
+                                        {
+                                            "$expr":
+                                            {
+                                                "$eq":
+                                                    [
+                                                        "$parent", "$$fk_id"
+                                                    ]
+                                            }
+                                        },
+                                        {
+                                            "$or":
+                                                [
+                                                    {
+                                                        "status": null
+                                                    },
+                                                    {
+                                                        "status": "ACTIVE"
+                                                    },
+                                                ]
+                                        },
+                                        {
+                                            "$expr":
+                                            {
+                                                "$ne":
+                                                    [
+                                                        "$children", "$$fk_id"
+                                                    ]
+                                            }
+                                        },
                                     ]
-                                  },
-                                  {
-                                    "$expr":
-                                    {
-                                        "$ne":
-                                        [
-                                            "$children", "$$fk_id"
-                                        ]
-                                    }
-                                  },
-                                ]
-                              }
-                        }
-                    ],
+                                }
+                            }
+                        ],
                 },
             },
             {
@@ -1087,7 +1091,9 @@ export class UserbasicnewService {
                                         }
                                     },
                                     databank: "$userbankaccounts_data",
-                                    mediaId: "$proofPict.$id"
+                                    mediaId: "$proofPict.$id",
+                                    urlLink: 1,
+                                    judulLink: 1
                                 }
                             }
                         ],
@@ -1585,6 +1591,20 @@ export class UserbasicnewService {
                                     ]
                             }
                         }
+                    },
+                    urlLink:
+                    {
+                        "$arrayElemAt":
+                            [
+                                "$detail.urlLink", 0
+                            ]
+                    },
+                    judulLink:
+                    {
+                        "$arrayElemAt":
+                            [
+                                "$detail.judulLink", 0
+                            ]
                     },
                 }
             }
@@ -2185,6 +2205,8 @@ export class UserbasicnewService {
                     jumlahPermohonan: 1,
                     tahapan: 1,
                     avatar: 1,
+                    urlLink: 1,
+                    judulLink: 1,
                     // kycHandle:
                     // {
                     //     "$ifNull":
@@ -2473,6 +2495,8 @@ export class UserbasicnewService {
                         }
                     },
                     friend: 1,
+                    urlLink: 1,
+                    judulLink: 1
                 }
             },
             {
@@ -2586,6 +2610,8 @@ export class UserbasicnewService {
                         },
 
                     },
+                    urlLink: 1,
+                    judulLink: 1
 
                 }
             },
@@ -2628,6 +2654,8 @@ export class UserbasicnewService {
                     countries: 1,
                     area: 1,
                     cities: 1,
+                    urlLink: 1,
+                    judulLink: 1
                 }
             },
         ]);
@@ -6613,6 +6641,8 @@ export class UserbasicnewService {
                     mediaUri: 1,
                     mediaType: 1,
                     mediaEndpoint: 1,
+                    urlLink: 1,
+                    judulLink: 1,
                     urluserBadge:
                     {
                         "$ifNull":
@@ -6669,6 +6699,8 @@ export class UserbasicnewService {
                     mediaUri: 1,
                     mediaType: 1,
                     mediaEndpoint: 1,
+                    urlLink: 1,
+                    judulLink: 1,
                     urluserBadge:
                     {
                         "$ifNull":
@@ -7473,6 +7505,8 @@ export class UserbasicnewService {
                                                 "ACCEPT"
                                             ]
                                     },
+                                    "urlLink": 1,
+                                    "judulLink": 1
                                 }
                             },
                             {
@@ -7500,6 +7534,8 @@ export class UserbasicnewService {
                                                 null
                                             ]
                                     },
+                                    "urlLink": 1,
+                                    "judulLink": 1
                                 }
                             },
                         ]
@@ -7612,6 +7648,8 @@ export class UserbasicnewService {
                                 null
                             ]
                     },
+                    "urlLink": 1,
+                    "judulLink": 1,
                     "senderOrReceiverInfo":
                     {
                         "fullName": "$people_basic_data.fullName",
@@ -7619,6 +7657,8 @@ export class UserbasicnewService {
                         "urluserBadge": "$people_basic_data.urluserBadge",
                         "email": "$people_basic_data.email",
                         "username": "$people_basic_data.username",
+                        "urlLink": "$people_basic_data.urlLink",
+                        "judulLink": "$people_basic_data.judulLink"
                     }
                 }
             },
@@ -7636,6 +7676,8 @@ export class UserbasicnewService {
                     "flowIsDone": 1,
                     "event": 1,
                     "avatar": 1,
+                    "urlLink": 1,
+                    "judulLink": 1,
                     "urluserBadge":
                     {
                         "$ifNull":
@@ -7869,7 +7911,9 @@ export class UserbasicnewService {
                         "mediaUri": "$mediaUri",
                         "mediaType": "$mediaType",
                         "mediaEndpoint": "$mediaEndpoint"
-                    }
+                    },
+                    urlLink: 1,
+                    judulLink: 1
                 }
             },
         ];
