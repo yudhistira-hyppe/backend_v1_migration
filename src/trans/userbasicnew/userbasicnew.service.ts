@@ -8067,15 +8067,25 @@ export class UserbasicnewService {
         else return false;
     }
 
-    async getStreamShareList(email: string, skip: number, limit: number) {
+    async getStreamShareList(keyword: string, email: string, skip: number, limit: number) {
+        let matchAnd = [];
+        if (keyword && keyword != "") matchAnd.push({
+            username: {
+                $regex: keyword,
+                $options: "i"
+            }
+        });
+        matchAnd.push({
+            email: {
+                $not: {
+                    $eq: email
+                }
+            }
+        })
         var result = await this.UserbasicnewModel.aggregate([
             {
                 $match: {
-                    email: {
-                        $not: {
-                            $eq: email
-                        }
-                    }
+                    $and: matchAnd
                 }
             },
             {
@@ -8134,7 +8144,8 @@ export class UserbasicnewService {
                     isMutuals: - 1,
                     isFollowing: - 1,
                     isVerified: - 1,
-                    followerCount: - 1
+                    followerCount: - 1,
+                    fullName: 1
                 }
             },
             {
