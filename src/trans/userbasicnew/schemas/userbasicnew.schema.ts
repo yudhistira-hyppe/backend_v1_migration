@@ -249,6 +249,10 @@ export class Userbasicnew {
     creator: boolean;
     @Prop()
     otp_attemp: number;
+    @Prop()
+    urlLink: string;
+    @Prop()
+    judulLink: string;
 }
 
 export const UserbasicnewSchema = SchemaFactory.createForClass(Userbasicnew);

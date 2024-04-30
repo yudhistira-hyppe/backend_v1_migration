@@ -134,6 +134,11 @@ export class newPosts {
   tempLike: any[];
   @Prop()
   boostCount: number;
+
+  @Prop()
+  urlLink: string;
+  @Prop()
+  judulLink: string;
 }
 
 export const NewpostsSchema = SchemaFactory.createForClass(newPosts);
