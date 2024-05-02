@@ -13,6 +13,7 @@ import { AppGateway } from '../socket/socket.gateway';
 import { UserauthsService } from 'src/trans/userauths/userauths.service';
 import { MediastreamingrequestService } from './mediastreamingrequest.service';
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
+import { MediastreamingAgoraService } from './mediastreamingagora.service';
 
 @Controller("api/live") 
 export class MediastreamingController {
@@ -22,7 +23,7 @@ export class MediastreamingController {
     private readonly configService: ConfigService,
     private readonly mediastreamingService: MediastreamingService,
     private readonly mediastreamingalicloudService: MediastreamingalicloudService,
-    //private readonly userbasicsService: UserbasicsService,
+    private readonly mediastreamingAgoraService: MediastreamingAgoraService,
     private readonly userbasicnewService: UserbasicnewService,
     private readonly userauthService: UserauthsService, 
     private readonly mediastreamingrequestService: MediastreamingrequestService, 
@@ -55,8 +56,9 @@ export class MediastreamingController {
     const EXPIRATION_TIME_LIVE = await this.utilsService.getSetting_Mixed(GET_EXPIRATION_TIME_LIVE);
     const generateId = new mongoose.Types.ObjectId();
   
-    const expireTime = Math.round(((currentDate.date.getTime())/1000)) + Number(EXPIRATION_TIME_LIVE.toString());
-    const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
+    const expireTime = Math.round(((currentDate.date.getTime()) / 1000)) + Number(EXPIRATION_TIME_LIVE.toString());
+    const generateToken = await this.mediastreamingAgoraService.generateToken(MediastreamingDto_._id.toString(), expireTime);
+    //const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
     let _MediastreamingDto_ = new MediastreamingDto();
     _MediastreamingDto_._id = generateId;
     _MediastreamingDto_.userId = new mongoose.Types.ObjectId(profile._id.toString());
@@ -66,14 +68,15 @@ export class MediastreamingController {
     _MediastreamingDto_.like = [];
     _MediastreamingDto_.share = [];
     _MediastreamingDto_.follower = [];
-    _MediastreamingDto_.urlStream = getUrl.urlStream;
-    _MediastreamingDto_.urlIngest = getUrl.urlIngest;
-    _MediastreamingDto_.createAt = currentDate.dateString; 
+    // _MediastreamingDto_.urlStream = getUrl.urlStream;
+    // _MediastreamingDto_.urlIngest = getUrl.urlIngest;
+    _MediastreamingDto_.createAt = currentDate.dateString;
     if (MediastreamingDto_.title != undefined) {
       _MediastreamingDto_.title = MediastreamingDto_.title;
     }
     _MediastreamingDto_.status = true;
-    _MediastreamingDto_.startLive = currentDate.dateString; 
+    _MediastreamingDto_.startLive = currentDate.dateString;
+    _MediastreamingDto_.tokenAgora = generateToken.token;
 
     const data = await this.mediastreamingService.createStreaming(_MediastreamingDto_);
     const dataResponse = {};
@@ -91,6 +94,7 @@ export class MediastreamingController {
     dataResponse['urlStream'] = data.urlStream;
     dataResponse['urlIngest'] = data.urlIngest;
     dataResponse['createAt'] = data.createAt;
+    dataResponse['token'] = data.tokenAgora;
     const Response = {
       response_code: 202,
       data: dataResponse,
@@ -693,5 +697,17 @@ export class MediastreamingController {
     }else{
       return [];
     }
+  }
+
+  @Post('/agora/live')
+  async generateToken(@Body() MediastreamingDto_: MediastreamingDto) {
+
+    //EXPIRATION TIME LIVE
+    const EXPIRATION_TIME_LIVE = this.configService.get("EXPIRATION_TIME_LIVE");
+    const GET_EXPIRATION_TIME_LIVE = await this.utilsService.getSetting_Mixed(EXPIRATION_TIME_LIVE);
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    const privilegeExpireTime = currentTime + Number(GET_EXPIRATION_TIME_LIVE)
+    return await this.mediastreamingAgoraService.generateToken(MediastreamingDto_.userId.toString(), privilegeExpireTime);
   }
 }

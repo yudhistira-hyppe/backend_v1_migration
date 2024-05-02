@@ -11,6 +11,10 @@ export class Mediastreaming{
     @Prop()
     title: String;
     @Prop()
+    url: String;
+    @Prop()
+    textUrl: String;
+    @Prop()
     userId: mongoose.Types.ObjectId;
     @Prop()
     expireTime: Long;
@@ -46,5 +50,7 @@ export class Mediastreaming{
     kick: any[];
     @Prop()
     commentDisabled: boolean;
+    @Prop()
+    tokenAgora: String;
 }
 export const MediastreamingSchema = SchemaFactory.createForClass(Mediastreaming);

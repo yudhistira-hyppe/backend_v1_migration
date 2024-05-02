@@ -4,6 +4,8 @@ import { Long } from "mongodb";
 export class MediastreamingDto {
   _id: mongoose.Types.ObjectId;
   title: String;
+  Url: String;
+  textUrl: String;
   userId: mongoose.Types.ObjectId;
   expireTime: Long;
   startLive: String;
@@ -28,6 +30,7 @@ export class MediastreamingDto {
   pause: boolean;
   userIdKick: mongoose.Types.ObjectId;
   viewCountActive: number;
+  tokenAgora: String;
 }
 
 export class MediastreamingRequestDto{
