@@ -15,6 +15,8 @@ export class transactionsV2 {
     @Prop()
     category: mongoose.Types.ObjectId;
     @Prop()
+    product: mongoose.Types.ObjectId;
+    @Prop()
     voucherDiskon: any[];
     @Prop()
     idUser: mongoose.Types.ObjectId;
@@ -24,6 +26,12 @@ export class transactionsV2 {
     coin: number;
     @Prop()
     totalCoin: number;
+    @Prop()
+    priceDiscont: number;
+    @Prop()
+    price: number;
+    @Prop()
+    totalPrice: number;
     @Prop()
     status: string;
     @Prop()

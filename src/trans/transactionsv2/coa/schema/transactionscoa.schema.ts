@@ -55,6 +55,12 @@ export class TransactionsCoa {
         modalDiSetor: number
     };
     @Prop()
+    allProductPendapatan: number;
+    @Prop()
+    idCoinSettings: mongoose.Types.ObjectId;
+    @Prop()
+    idTransaction: string;
+    @Prop()
     createdAt: string;
     @Prop()
     updatedAt: string;
