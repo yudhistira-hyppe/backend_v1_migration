@@ -432,6 +432,7 @@ export class NewPostContentService {
     Posts_.contentMedias = contentMedias_;
     Posts_.mediaSource = mediaSource_;
     Posts_.active = true;
+    
 
     //Send FCM Tag
     let tag = Posts_.tagPeople;
@@ -1336,6 +1337,17 @@ export class NewPostContentService {
     Posts_.updatedAt = currentDate;
     Posts_.saleAmount = body.saleAmount;
     Posts_.expiration = Long.fromBigInt(generateExpired);
+
+    if (body.urlLink != null && body.urlLink != undefined) {
+      Posts_.urlLink = body.urlLink;
+    }
+    if (body.judulLink != null && body.judulLink != undefined) {
+      Posts_.judulLink = body.judulLink;
+    }else{
+      if (body.urlLink != null && body.urlLink != undefined) {
+        Posts_.judulLink = body.urlLink;
+      }
+    }
     if (body.musicId != undefined) {
       Posts_.musicId = new mongoose.Types.ObjectId(body.musicId);
     }

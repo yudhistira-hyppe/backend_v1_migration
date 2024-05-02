@@ -14734,10 +14734,16 @@ export class AuthService {
                 data_update_userbasict['dob'] = user_dob;
               }
               if (urlLink != null && urlLink !==undefined) {
+               
                 data_update_userbasict['urlLink'] = urlLink;
               }
               if (judulLink != null && judulLink !==undefined) {
                 data_update_userbasict['judulLink'] = judulLink;
+              }else{
+                if (urlLink != null && urlLink !==undefined) {
+               
+                  data_update_userbasict['judulLink'] = urlLink;
+                }
               }
               if (user_country != null) {
                 var countries = await this.countriesService.findOneName(user_country);
@@ -14914,6 +14920,11 @@ export class AuthService {
               }
               if (judulLink != null && judulLink !==undefined) {
                 data_update_userbasict['judulLink'] = judulLink;
+              }else{
+                if (urlLink != null && urlLink !==undefined) {
+               
+                  data_update_userbasict['judulLink'] = urlLink;
+                }
               }
               if (user_country != null) {
                 var countries = await this.countriesService.findOneName(user_country);
@@ -15103,6 +15114,11 @@ export class AuthService {
             }
             if (judulLink != null && judulLink !==undefined) {
               data_update_userbasict['judulLink'] = judulLink;
+            }else{
+              if (urlLink != null && urlLink !==undefined) {
+             
+                data_update_userbasict['judulLink'] = urlLink;
+              }
             }
             if (user_area != null || user_gender != null || user_dob != null || user_country != null) {
               await this.basic2SS.updatebyEmail(user_email_header, data_update_userbasict);
@@ -15152,6 +15168,11 @@ export class AuthService {
               }
               if (judulLink != null && judulLink !==undefined) {
                 data_update_userbasict['judulLink'] = judulLink;
+              }else{
+                if (urlLink != null && urlLink !==undefined) {
+               
+                  data_update_userbasict['judulLink'] = urlLink;
+                }
               }
               if (user_country != null) {
                 var countries = await this.countriesService.findOneName(user_country);
