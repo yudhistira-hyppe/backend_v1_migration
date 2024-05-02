@@ -75,6 +75,8 @@ export class CreateNewPostDTO {
   //Guest mode
   tempView: any[];
   tempLike: any[];
+  urlLink: string;
+  judulLink: string;
 }
 export class CreatePostResponse {
   response_code: number;

@@ -452,7 +452,9 @@ export class UserbasicnewService {
                     "fsSourceName": 1,
                     "fsTargetUri": 1,
                     "kyc": 1,
-                    "creator": 1
+                    "creator": 1,
+                    "urlLink": 1,
+                    "judulLink": 1
                 }
             }
         ]);
@@ -612,7 +614,9 @@ export class UserbasicnewService {
                     "fsSourceUri": 1,
                     "fsSourceName": 1,
                     "fsTargetUri": 1,
-                    "kyc": 1
+                    "kyc": 1,
+                    "urlLink": 1,
+                    "judulLink": 1
                 }
             }
         ]);
@@ -658,9 +662,50 @@ export class UserbasicnewService {
                 $lookup:
                 {
                     from: 'referral',
-                    localField: 'email',
-                    foreignField: 'parent',
+                    let:
+                    {
+                        "fk_id": "$email"
+                    },
                     as: 'total_referral',
+                    pipeline:
+                        [
+                            {
+                                "$match":
+                                {
+                                    "$and": [
+                                        {
+                                            "$expr":
+                                            {
+                                                "$eq":
+                                                    [
+                                                        "$parent", "$$fk_id"
+                                                    ]
+                                            }
+                                        },
+                                        {
+                                            "$or":
+                                                [
+                                                    {
+                                                        "status": null
+                                                    },
+                                                    {
+                                                        "status": "ACTIVE"
+                                                    },
+                                                ]
+                                        },
+                                        {
+                                            "$expr":
+                                            {
+                                                "$ne":
+                                                    [
+                                                        "$children", "$$fk_id"
+                                                    ]
+                                            }
+                                        },
+                                    ]
+                                }
+                            }
+                        ],
                 },
             },
             {
@@ -1001,11 +1046,11 @@ export class UserbasicnewService {
                                         "friend": {
                                             "$size": {
                                                 "$ifNull": [{
-                                                    "$arrayElemAt": 
-                                                    [
-                                                        "$friend.friendlist",
-                                                        0
-                                                    ]
+                                                    "$arrayElemAt":
+                                                        [
+                                                            "$friend.friendlist",
+                                                            0
+                                                        ]
                                                 }, []]
                                             }
                                         }
@@ -1046,7 +1091,9 @@ export class UserbasicnewService {
                                         }
                                     },
                                     databank: "$userbankaccounts_data",
-                                    mediaId: "$proofPict.$id"
+                                    mediaId: "$proofPict.$id",
+                                    urlLink: 1,
+                                    judulLink: 1
                                 }
                             }
                         ],
@@ -1545,6 +1592,20 @@ export class UserbasicnewService {
                             }
                         }
                     },
+                    urlLink:
+                    {
+                        "$arrayElemAt":
+                            [
+                                "$detail.urlLink", 0
+                            ]
+                    },
+                    judulLink:
+                    {
+                        "$arrayElemAt":
+                            [
+                                "$detail.judulLink", 0
+                            ]
+                    },
                 }
             }
         );
@@ -2024,9 +2085,9 @@ export class UserbasicnewService {
 
         firstmatch.push(
             {
-                email: 
-                { 
-                    $not: /noneactive/ 
+                email:
+                {
+                    $not: /noneactive/
                 }
             },
             {
@@ -2144,6 +2205,8 @@ export class UserbasicnewService {
                     jumlahPermohonan: 1,
                     tahapan: 1,
                     avatar: 1,
+                    urlLink: 1,
+                    judulLink: 1,
                     // kycHandle:
                     // {
                     //     "$ifNull":
@@ -2432,6 +2495,8 @@ export class UserbasicnewService {
                         }
                     },
                     friend: 1,
+                    urlLink: 1,
+                    judulLink: 1
                 }
             },
             {
@@ -2545,6 +2610,8 @@ export class UserbasicnewService {
                         },
 
                     },
+                    urlLink: 1,
+                    judulLink: 1
 
                 }
             },
@@ -2587,6 +2654,8 @@ export class UserbasicnewService {
                     countries: 1,
                     area: 1,
                     cities: 1,
+                    urlLink: 1,
+                    judulLink: 1
                 }
             },
         ]);
@@ -6572,6 +6641,8 @@ export class UserbasicnewService {
                     mediaUri: 1,
                     mediaType: 1,
                     mediaEndpoint: 1,
+                    urlLink: 1,
+                    judulLink: 1,
                     urluserBadge:
                     {
                         "$ifNull":
@@ -6628,6 +6699,8 @@ export class UserbasicnewService {
                     mediaUri: 1,
                     mediaType: 1,
                     mediaEndpoint: 1,
+                    urlLink: 1,
+                    judulLink: 1,
                     urluserBadge:
                     {
                         "$ifNull":
@@ -7432,6 +7505,8 @@ export class UserbasicnewService {
                                                 "ACCEPT"
                                             ]
                                     },
+                                    "urlLink": 1,
+                                    "judulLink": 1
                                 }
                             },
                             {
@@ -7459,6 +7534,8 @@ export class UserbasicnewService {
                                                 null
                                             ]
                                     },
+                                    "urlLink": 1,
+                                    "judulLink": 1
                                 }
                             },
                         ]
@@ -7571,6 +7648,8 @@ export class UserbasicnewService {
                                 null
                             ]
                     },
+                    "urlLink": 1,
+                    "judulLink": 1,
                     "senderOrReceiverInfo":
                     {
                         "fullName": "$people_basic_data.fullName",
@@ -7578,6 +7657,8 @@ export class UserbasicnewService {
                         "urluserBadge": "$people_basic_data.urluserBadge",
                         "email": "$people_basic_data.email",
                         "username": "$people_basic_data.username",
+                        "urlLink": "$people_basic_data.urlLink",
+                        "judulLink": "$people_basic_data.judulLink"
                     }
                 }
             },
@@ -7595,6 +7676,8 @@ export class UserbasicnewService {
                     "flowIsDone": 1,
                     "event": 1,
                     "avatar": 1,
+                    "urlLink": 1,
+                    "judulLink": 1,
                     "urluserBadge":
                     {
                         "$ifNull":
@@ -7828,7 +7911,9 @@ export class UserbasicnewService {
                         "mediaUri": "$mediaUri",
                         "mediaType": "$mediaType",
                         "mediaEndpoint": "$mediaEndpoint"
-                    }
+                    },
+                    urlLink: 1,
+                    judulLink: 1
                 }
             },
         ];
@@ -7980,5 +8065,97 @@ export class UserbasicnewService {
         })
         if (result && result != null) return true;
         else return false;
+    }
+
+    async getStreamShareList(keyword: string, email: string, skip: number, limit: number) {
+        let matchAnd = [];
+        if (keyword && keyword != "") matchAnd.push({
+            username: {
+                $regex: keyword,
+                $options: "i"
+            }
+        });
+        matchAnd.push({
+            email: {
+                $not: {
+                    $eq: email
+                }
+            }
+        })
+        var result = await this.UserbasicnewModel.aggregate([
+            {
+                $match: {
+                    $and: matchAnd
+                }
+            },
+            {
+                $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: {
+                        "$ifNull":
+                            [
+                                {
+                                    "mediaBasePath": "$mediaBasePath",
+                                    "mediaUri": "$mediaUri",
+                                    "originalName": "$originalName",
+                                    "fsSourceUri": "$fsSourceUri",
+                                    "fsSourceName": "$fsSourceName",
+                                    "fsTargetUri": "$fsTargetUri",
+                                    "mediaType": "$mediaType",
+                                    "mediaEndpoint": "$mediaEndpoint",
+
+                                },
+                                null
+                            ]
+                    },
+                    email: 1,
+                    isMutuals: {
+                        $and: [
+                            {
+                                $in: [email, {
+                                    $ifNull: ["$following", []]
+                                }]
+                            },
+                            {
+                                $in: [email, {
+                                    $ifNull: ["$follower", []]
+                                }]
+                            }
+                        ]
+                    },
+                    isFollowing: {
+                        $in: [email, {
+                            $ifNull: ["$follower", []]
+                        }]
+                    },
+                    isVerified: {
+                        $eq: ["$statusKyc", "verified"]
+                    },
+                    followerCount: {
+                        $size: {
+                            $ifNull: ["$follower", []]
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    isMutuals: - 1,
+                    isFollowing: - 1,
+                    isVerified: - 1,
+                    followerCount: - 1,
+                    fullName: 1
+                }
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+        ])
+
+        return result;
     }
 }

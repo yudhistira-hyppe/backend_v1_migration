@@ -46339,6 +46339,8 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
           version: {
             '$arrayElemAt': ['$setting.value', 0]
           },
+          urlLink: 1,
+          judulLink:1,
           "postID": 1,
           "tagPeople": "$userTag",
           "postType": 1,
@@ -53707,6 +53709,8 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                       ]
                   },
                   "postID": 1,
+                  urlLink:  1,
+                  judulLink: 1,
                   "mediaEndpoint": {
                     "$concat": [
                       "/pict/",
@@ -54456,6 +54460,18 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
             },
             "musicTitle": "$musicNih.musicTitle",
             "postID": 1,
+            "urlLink": {
+              "$arrayElemAt": [
+                "$all.urlLink",
+                "$index"
+              ]
+            },
+            "judulLink": {
+              "$arrayElemAt": [
+                "$all.judulLink",
+                "$index"
+              ]
+            },
             "artistName": "$musicNih.artistName",
             "albumName": "$musicNih.albumName",
             "apsaraMusic": "$musicNih.apsaraMusic",
@@ -55016,6 +55032,8 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
             "following": 1,
             "musicTitle": 1,
             "postID": 1,
+            urlLink:  1,
+            judulLink: 1,
             "artistName": 1,
             "albumName": 1,
             "apsaraMusic": 1,
@@ -55784,6 +55802,8 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                       ]
                   },
                   "postID": 1,
+                  "urlLink":1,
+                  "judulLink":1,
                   "mediaEndpoint": {
                     "$concat": [
                       "/stream/",
@@ -56533,6 +56553,18 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
             },
             "musicTitle": "$musicNih.musicTitle",
             "postID": 1,
+            "urlLink": {
+              "$arrayElemAt": [
+                "$all.urlLink",
+                "$index"
+              ]
+            },
+            "judulLink": {
+              "$arrayElemAt": [
+                "$all.judulLink",
+                "$index"
+              ]
+            },
             "artistName": "$musicNih.artistName",
             "albumName": "$musicNih.albumName",
             "apsaraMusic": "$musicNih.apsaraMusic",
@@ -57094,6 +57126,8 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
             "following": 1,
             "musicTitle": 1,
             "postID": 1,
+            "urlLink": 1,
+            "judulLink": 1,
             "artistName": 1,
             "albumName": 1,
             "apsaraMusic": 1,
@@ -57856,6 +57890,8 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
                       ]
                   },
                   "postID": 1,
+                  "urlLink": 1,
+                  "judulLink": 1,
                   "mediaEndpoint": {
                     "$concat": [
                       "/stream/",
@@ -58605,6 +58641,18 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
             },
             "musicTitle": "$musicNih.musicTitle",
             "postID": 1,
+            "urlLink": {
+              "$arrayElemAt": [
+                "$all.urlLink",
+                "$index"
+              ]
+            },
+            "judulLink": {
+              "$arrayElemAt": [
+                "$all.judulLink",
+                "$index"
+              ]
+            },
             "artistName": "$musicNih.artistName",
             "albumName": "$musicNih.albumName",
             "apsaraMusic": "$musicNih.apsaraMusic",
@@ -59178,6 +59226,8 @@ async findbylikemail(email:string,postID:string): Promise<newPosts[]> {
             "mediaType": 1,
             "email": 1,
             "postType": 1,
+            "urlLink": 1,
+            "judulLink": 1,
             "description": 1,
             "active": 1,
             "createdAt": 1,

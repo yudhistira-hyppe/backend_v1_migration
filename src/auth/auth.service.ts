@@ -8463,7 +8463,7 @@ export class AuthService {
       CreateContenteventsDto_._class = "io.melody.hyppe.content.domain.ContentEvent";
 
       let uniq=null;
-      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,null);
+      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,_id_CreateContentevents);
       CreateContenteventsDto_.uniqEvent=uniq;
 
       //Insert ContentEvent
@@ -14494,7 +14494,8 @@ export class AuthService {
     var mongo = require('mongoose');
     var event = req.body.event;
     var status = req.body.status;
-
+    var urlLink=null;
+    var judulLink=null;
     if (head['x-auth-user'] != undefined) {
       user_email_header = head['x-auth-user'];
     }
@@ -14502,6 +14503,13 @@ export class AuthService {
     if ((event == 'UPDATE_BIO') && (status == 'IN_PROGRESS')) {
       if (req.body.email != undefined) {
         user_email = req.body.email;
+      }
+
+      if (req.body.urlLink != undefined) {
+        urlLink = req.body.urlLink;
+      }
+      if (req.body.judulLink != undefined) {
+        judulLink = req.body.judulLink;
       }
       if (req.body.emailLogin != undefined) {
 
@@ -14555,6 +14563,12 @@ export class AuthService {
       if (req.body.email != undefined) {
         user_email = req.body.email;
       }
+      if (req.body.urlLink != undefined) {
+        urlLink = req.body.urlLink;
+      }
+      if (req.body.judulLink != undefined) {
+        judulLink = req.body.judulLink;
+      }
       if (req.body.emailLogin != undefined) {
 
         emailLogin = req.body.emailLogin;
@@ -14606,7 +14620,12 @@ export class AuthService {
       if (req.body.area != undefined) {
         user_area = req.body.area;
       }
-
+      if (req.body.urlLink != undefined) {
+        urlLink = req.body.urlLink;
+      }
+      if (req.body.judulLink != undefined) {
+        judulLink = req.body.judulLink;
+      }
       if (req.body.gender != undefined) {
         user_gender = req.body.gender;
       } else {
@@ -14713,6 +14732,12 @@ export class AuthService {
               }
               if (user_dob != null) {
                 data_update_userbasict['dob'] = user_dob;
+              }
+              if (urlLink != null && urlLink !==undefined) {
+                data_update_userbasict['urlLink'] = urlLink;
+              }
+              if (judulLink != null && judulLink !==undefined) {
+                data_update_userbasict['judulLink'] = judulLink;
               }
               if (user_country != null) {
                 var countries = await this.countriesService.findOneName(user_country);
@@ -14883,6 +14908,12 @@ export class AuthService {
               }
               if (user_dob != null) {
                 data_update_userbasict['dob'] = user_dob;
+              }
+              if (urlLink != null && urlLink !==undefined) {
+                data_update_userbasict['urlLink'] = urlLink;
+              }
+              if (judulLink != null && judulLink !==undefined) {
+                data_update_userbasict['judulLink'] = judulLink;
               }
               if (user_country != null) {
                 var countries = await this.countriesService.findOneName(user_country);
@@ -15067,7 +15098,12 @@ export class AuthService {
                 };
               }
             }
-
+            if (urlLink != null && urlLink !==undefined) {
+              data_update_userbasict['urlLink'] = urlLink;
+            }
+            if (judulLink != null && judulLink !==undefined) {
+              data_update_userbasict['judulLink'] = judulLink;
+            }
             if (user_area != null || user_gender != null || user_dob != null || user_country != null) {
               await this.basic2SS.updatebyEmail(user_email_header, data_update_userbasict);
             }
@@ -15079,7 +15115,8 @@ export class AuthService {
               info: ['Update profile successful'],
             }
           };
-        } else {
+        }
+         else {
           if ((event == 'UPDATE_BIO') && (status == 'IN_PROGRESS')) {
             //Update Profile Bio
             try {
@@ -15109,6 +15146,12 @@ export class AuthService {
               }
               if (user_dob != null) {
                 data_update_userbasict['dob'] = user_dob;
+              }
+              if (urlLink != null && urlLink !==undefined) {
+                data_update_userbasict['urlLink'] = urlLink;
+              }
+              if (judulLink != null && judulLink !==undefined) {
+                data_update_userbasict['judulLink'] = judulLink;
               }
               if (user_country != null) {
                 var countries = await this.countriesService.findOneName(user_country);

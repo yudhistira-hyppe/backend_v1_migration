@@ -132,6 +132,8 @@ export class CreateuserbasicnewDto {
   otp_attemp: number;
   otp_request_time: Long;
   otp_expired_time: Long;
+  urlLink: string;
+  judulLink: string;
 }
 
 export class SearchUserbasicDto {

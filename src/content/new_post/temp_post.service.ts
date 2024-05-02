@@ -60,6 +60,21 @@ export class TempPOSTService {
         var insertdata = new tempposts;
         insertdata = JSON.parse(JSON.stringify(getpost));
         insertdata.tag2 = [];
+        var urlLink=null;
+        var judulLink=null;
+
+        try{
+            urlLink=getpost.urlLink;
+            insertdata.urlLink=getpost.urlLink;
+        }catch(e){
+            insertdata.urlLink=null;
+        }
+        try{
+            judulLink=getpost.judulLink;
+            insertdata.judulLink=getpost.judulLink;
+        }catch(e){
+            insertdata.judulLink=null;
+        }
         insertdata.userProfile = { "$ref": "userbasics", "$id": new mongoose.Types.ObjectId(getcreator._id.toString()), "$db": "hyppe_trans_db" };
         if(getpost.musicId != null && getpost.musicId != undefined)
         {
@@ -98,7 +113,7 @@ export class TempPOSTService {
         insertdata.contentModerationResponse = getpost.contentModerationResponse;
         insertdata.moderationReason = getpost.moderationReason;
         insertdata.reportedStatus = getpost.reportedStatus;
-
+       
         // console.log(CreatePostsDto);
         result = await this.loaddata.create(insertdata);
     }
@@ -1231,6 +1246,8 @@ export class TempPOSTService {
               },
               tagPeople: '$tagPeople',
               mediaType: 1,
+              urlLink: 1,
+              judulLink:1,
               postType: 1,
               description: 1,
               active: 1,

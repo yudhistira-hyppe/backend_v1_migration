@@ -445,8 +445,7 @@ export class UserbasicnewController {
         var ascending = request_json['ascending'];
         var status = request_json['status'];
 
-        if(startdate == null || startdate == undefined || enddate == null || enddate == undefined)
-        {
+        if (startdate == null || startdate == undefined || enddate == null || enddate == undefined) {
             startdate = null;
             enddate = null;
         }
@@ -487,9 +486,67 @@ export class UserbasicnewController {
         return {
             response_code: 202, data: data, skip: skip, limit: limit, messages: {
                 "info": [
-                "successfully"
+                    "successfully"
                 ]
             }
+        }
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('streamsharelist')
+    async getStreamShareList(@Req() request: Request, @Headers() headers): Promise<any> {
+        var setdate = new Date();
+        var DateTime = new Date(setdate.getTime() - (setdate.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+        var timestamps_start = DateTime.substring(0, DateTime.lastIndexOf('.'));
+        var fullurl = headers.host + '/api/streamsharelist';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var username = null;
+        var pageNumber = null;
+        var pageRow = null;
+        var data = [];
+        var messages = {
+            "info": ["The process was successful"],
+        };
+
+        if (request_json["username"] !== undefined) {
+            username = request_json["username"];
+        }
+
+        if (request_json["pageNumber"] !== undefined) {
+            pageNumber = request_json["pageNumber"];
+        } else {
+            var date = new Date();
+            var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+            var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            throw new BadRequestException("Unable to proceed, pageNumber is undefined");
+        }
+        if (request_json["pageRow"] !== undefined) {
+            pageRow = request_json["pageRow"];
+        } else {
+            var date = new Date();
+            var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+            var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            throw new BadRequestException("Unable to proceed, pageRow is undefined");
+        }
+
+        try {
+            data = await this.UserbasicnewService.getStreamShareList(username, email, (pageNumber * pageRow), pageRow);
+        } catch (e) {
+            messages.info = [e.message];
+        }
+
+        return {
+            response_code: 202,
+            data: data,
+            messages
         }
     }
 }

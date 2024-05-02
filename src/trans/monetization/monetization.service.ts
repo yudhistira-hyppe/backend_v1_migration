@@ -8,6 +8,7 @@ import { PostContentService } from 'src/content/posts/postcontent.service';
 import { UtilsService } from 'src/utils/utils.service';
 import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 import { LogapisService } from '../logapis/logapis.service';
+import { TransactionsProductsService } from '../transactionsv2/products/transactionsproducts.service';
 import mongoose from 'mongoose';
 import { OssService } from 'src/stream/oss/oss.service';
 const sharp = require('sharp');
@@ -22,6 +23,7 @@ export class MonetizationService {
         private readonly postContentService: PostContentService,
         private readonly utilsService: UtilsService,
         private readonly UserbasicnewService: UserbasicnewService,
+        private readonly transProdService :TransactionsProductsService,
         private readonly LogAPISS: LogapisService,
         private readonly ossservices: OssService
     ) { }
@@ -153,7 +155,7 @@ export class MonetizationService {
         let createCoinDto = {
             _id: id,
             name: request.name,
-            package_id: request.package_id,
+            package_id: await this.generatePackage("COIN"),
             price: Number(request.price),
             amount: Number(request.amount),
             stock: Number(request.stock),
@@ -189,7 +191,7 @@ export class MonetizationService {
         var insertdata = new Monetize();
         insertdata._id = new mongo.Types.ObjectId();
         insertdata.name = request_body.name;
-        insertdata.package_id = request_body.package_id;
+        insertdata.package_id = await this.generatePackage("CREDIT");
         insertdata.description = request_body.description;
         insertdata.audiens = request_body.audiens;
         insertdata.createdAt = await this.utilsService.getDateTimeString();
@@ -241,14 +243,13 @@ export class MonetizationService {
         insertdata._id = new mongo.Types.ObjectId();
         var tempid = insertdata._id;
         insertdata.name = request_body.name;
-        insertdata.package_id = request_body.package_id;
+        insertdata.package_id = await this.generatePackage("GIFT");
         insertdata.createdAt = await this.utilsService.getDateTimeString();
         insertdata.updatedAt = await this.utilsService.getDateTimeString();
         insertdata.active = true;
         insertdata.status = false;
         insertdata.price = Number(request_body.price);
         insertdata.stock = Number(request_body.stock);
-        insertdata.amount = Number(request_body.amount);
         insertdata.last_stock = Number(request_body.stock);
         insertdata.typeGift = request_body.tipegift;
         insertdata.used_stock = 0;
@@ -267,6 +268,75 @@ export class MonetizationService {
             var result = await this.ossservices.uploadFile(insertfile, path);
             insertdata.animation = result.url;
         }
+
+        await this.monetData.create(insertdata);
+
+        return insertdata;
+    }
+
+    async createDiscount(header: any, thumb: Express.Multer.File, request: any)
+    {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var url = header.host + "/api/monetization/create";
+        var token = header['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+
+        var request_body = JSON.parse(JSON.stringify(request));
+
+        if (thumb == null || thumb == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+
+            throw new BadRequestException("discount thumbnail field must required");
+        }
+
+        if (request_body.audiens == "SPECIAL" && (request_body.audiens_user == null || request_body.audiens_user == undefined)) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_body);
+
+            throw new BadRequestException("Target user field must required");
+        }
+
+        var getpackagename = await this.generatePackage("DISCOUNT");
+
+        var getdata = await this.transProdService.findOne(request_body.productID);
+
+        var insertdata = new Monetize();
+        insertdata._id = new mongoose.Types.ObjectId();
+        var tempid = insertdata._id;
+        insertdata.package_id = getpackagename.replace("XX", getdata.code);
+        insertdata.name = request_body.name;
+        insertdata.code_package = request_body.code_package;
+        insertdata.audiens = request_body.audiens;
+        insertdata.description = request_body.description;
+        insertdata.createdAt = await this.utilsService.getDateTimeString();
+        insertdata.updatedAt = await this.utilsService.getDateTimeString();
+        insertdata.startCouponDate = request_body.startCouponDate + " " + request_body.startCouponTime;
+        insertdata.endCouponDate = request_body.endCouponDate + " " + request_body.endCouponTime;
+        insertdata.active = true;
+        insertdata.status = false;
+        insertdata.min_discount = Number(request_body.min_discount);
+        insertdata.min_use_disc = Number(request_body.min_use_disc);
+        insertdata.price = Number(request_body.price);
+        insertdata.stock = Number(request_body.stock);
+        insertdata.last_stock = Number(request_body.stock);
+        insertdata.used_stock = 0;
+        insertdata.type = 'DISCOUNT';
+        insertdata.productID = getdata._id;
+        insertdata.productCode = getdata.code;
+
+        //upload thumbnail
+        var insertfile = thumb;
+        var path = "images/gift/" + tempid + "_thumbnail" + "." + insertfile.originalname.split(".")[1];
+        var result = await this.ossservices.uploadFile(insertfile, path);
+        insertdata.thumbnail = result.url;
+
+        if (request_body.audiens == "SPECIAL") {
+            this.insertmultipleTarget(insertdata, request_body.audiens_user);
+        }
+
+        // console.log(insertdata);
 
         await this.monetData.create(insertdata);
 
@@ -310,7 +380,7 @@ export class MonetizationService {
         return result;
     }
 
-    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, tipegift?:string) {
+    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, tipegift?:string, jenisProduk?:any[]) {
 
         let order = descending ? -1 : 1;
         let matchAnd = [];
@@ -426,6 +496,13 @@ export class MonetizationService {
         if (type == "GIFT" && tipegift && tipegift !== undefined) {
             matchAnd.push({
                 "typeGift":tipegift
+            });
+        }
+        if(jenisProduk && jenisProduk !== undefined) {
+            matchAnd.push({
+                "productID":{
+                    "$in":jenisProduk
+                }
             });
         }
         pipeline.push({
@@ -547,5 +624,75 @@ export class MonetizationService {
 
     async delete(id: string) {
         return this.monetData.findByIdAndUpdate(id, { active: false, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
+    }
+
+    async generatePackage(tipe:string)
+    {
+        var gettime = await this.utilsService.getDateTimeString();
+        var getyear = gettime.split(" ")[0].split("-")[0];
+        var gettipe = '';
+        var listpaket = [
+            {
+                tipe:"COIN",
+                kode:"04"
+            },
+            {
+                tipe:"CREDIT",
+                kode:"05"
+            },
+            {
+                tipe:"GIFT",
+                kode:"06"
+            },
+            {
+                tipe:"DISCOUNT",
+                kode:"XX"
+            },
+        ];
+
+        for(var i = 0; i < listpaket.length; i++)
+        {
+            var getdata = listpaket[i];
+            if(getdata.tipe == tipe)
+            {
+                gettipe = getdata.kode;
+            }   
+        }
+
+        var getexist = await this.monetData.findOne(
+            {
+                type:tipe,
+                package_id:
+                {
+                    "$regex":getyear,
+                    "$options":"i"
+                }
+            }
+        ).sort({ "createdAt":-1 });
+
+        var result = '';
+        if(getexist == null || getexist == undefined)
+        {
+            result = getyear + "-" + gettipe + "-001";
+        }
+        else
+        {
+            var pecahdata = getexist.package_id.split("-")[2];
+            var tambah1 = parseInt(pecahdata) + 1;
+            if(tambah1 < 10)
+            {
+                result = getyear + "-" + gettipe + "-00" + tambah1.toString();   
+            }
+            else if(tambah1 < 100 && tambah1 >= 10)
+            {
+                result = getyear + "-" + gettipe + "-0" + tambah1.toString();
+            }
+            else
+            {
+                result = getyear + "-" + gettipe + "-" + tambah1.toString();
+            }
+        }
+
+        return result;
     }
 }

@@ -63,6 +63,8 @@ export class ProfileDTO {
     tutor: any[];
     creator: boolean;
     following: boolean;
+    urlLink: string;
+    judulLink: string;
 }
 
 export class LocationDTO {

@@ -12141,6 +12141,8 @@ export class InterestCountService {
                                 "allowComments": 1,
                                 "saleAmount": 1,
                                 "isLiked": 1,
+                                urlLink: 1,
+                                judulLink:1,
 
                             }
                         }
@@ -12216,6 +12218,8 @@ export class InterestCountService {
                         "createdAt": "$pict.createdAt",
                         "updatedAt": "$pict.updatedAt",
                         "postID": "$pict.postID",
+                        urlLink:  "$pict.urlLink",
+                        judulLink: "$pict.judulLink",
                         "email": "$pict.postID",
                         "postType": "$pict.postType",
                         "description": "$pict.description",
@@ -12322,6 +12326,8 @@ export class InterestCountService {
                         "createdAt": "$pict.createdAt",
                         "updatedAt": "$pict.updatedAt",
                         "postID": "$pict.postID",
+                        urlLink:  "$pict.urlLink",
+                        judulLink: "$pict.judulLink",
                         "email": "$pict.postID",
                         "postType": "$pict.postType",
                         "description": "$pict.description",
@@ -12425,6 +12431,8 @@ export class InterestCountService {
                         "createdAt": "$pict.createdAt",
                         "updatedAt": "$pict.updatedAt",
                         "postID": "$pict.postID",
+                        urlLink:  "$pict.urlLink",
+                        judulLink: "$pict.judulLink",
                         "email": "$pict.postID",
                         "postType": "$pict.postType",
                         "description": "$pict.description",
