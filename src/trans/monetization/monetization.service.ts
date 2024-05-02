@@ -321,6 +321,7 @@ export class MonetizationService {
         insertdata.price = Number(request_body.price);
         insertdata.stock = Number(request_body.stock);
         insertdata.last_stock = Number(request_body.stock);
+        insertdata.satuan_diskon = request_body.satuan_diskon;
         insertdata.used_stock = 0;
         insertdata.type = 'DISCOUNT';
         insertdata.productID = getdata._id;

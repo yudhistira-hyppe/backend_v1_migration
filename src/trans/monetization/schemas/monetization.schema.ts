@@ -54,6 +54,8 @@ export class Monetize {
     @Prop()
     min_use_disc: number;
     @Prop()
+    satuan_diskon: string;
+    @Prop()
     active: boolean;
     @Prop()
     status: boolean;
