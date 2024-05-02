@@ -10,6 +10,19 @@ export class TransactionsV2Controller {
     @Post('/insert')
     @HttpCode(HttpStatus.ACCEPTED)
     async create(@Req() request: any) {
-        await this.transactionsV2Service.insertTransaction(request.body.platform, request.body.transactionProductCode, request.body.coin, request.body.idUserBuy, request.body.idUserSell, request.body.idVoucher, request.body.discountCoin, request.body.detail, request.body.status, request.body.category);
+        const data = await this.transactionsV2Service.insertTransaction(
+            request.body.platform, 
+            request.body.transactionProductCode,
+            request.body.category,
+            request.body.coin,
+            request.body.discountCoin,
+            request.body.price,
+            request.body.discountPrice, 
+            request.body.idUserBuy, 
+            request.body.idUserSell, 
+            request.body.idVoucher, 
+            request.body.detail, 
+            request.body.status);
+        return data;
     }
 }

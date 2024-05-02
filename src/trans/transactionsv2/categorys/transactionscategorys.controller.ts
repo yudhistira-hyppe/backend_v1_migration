@@ -77,6 +77,22 @@ export class TransactionsCategorysController {
             );
         }
 
+        //VALIDASI PARAM type
+        if (TransactionsCategorys_.type!=undefined){
+            if (TransactionsCategorys_.type.length>0){
+                for (let g = 0; g < TransactionsCategorys_.type.length;g++){
+                    let dataType = TransactionsCategorys_.type[g];
+                    if (dataType.idProduct!=undefined){
+                        TransactionsCategorys_.type[g].idProduct = new mongoose.Types.ObjectId(dataType.idProduct);
+                    }
+                }
+            } else {
+                TransactionsCategorys_.type = [];
+            }
+        }else{
+            TransactionsCategorys_.type = [];
+        }
+
         try {
             const currentDate = await this.utilsService.getDateTimeString();
             TransactionsCategorys_._id = new mongoose.Types.ObjectId();
@@ -140,20 +156,21 @@ export class TransactionsCategorysController {
                 }
             }
         }
-
-        //VALIDASI PARAM coa
-        if (TransactionsCategorys_.coa != undefined) {
-            if (existingData.coa != TransactionsCategorys_.coa) {
-                let TransactionsCategorys_Coa = new TransactionsCategorys();
-                TransactionsCategorys_Coa.coa = TransactionsCategorys_.coa;
-                TransactionsCategorys_Coa.isDelete = false;
-                var dataCeck = await this.transactionsCategorysService.find(TransactionsCategorys_Coa);
-                if (await this.utilsService.ceckData(dataCeck)) {
-                    return await this.errorHandler.generateBadRequestException(
-                        "Transactions Categorys Coa already exist",
-                    );
+        
+        //VALIDASI PARAM type
+        if (TransactionsCategorys_.type != undefined) {
+            if (TransactionsCategorys_.type.length > 0) {
+                for (let g = 0; g < TransactionsCategorys_.type.length; g++) {
+                    let dataType = TransactionsCategorys_.type[g];
+                    if (dataType.idProduct != undefined) {
+                        TransactionsCategorys_.type[g].idProduct = new mongoose.Types.ObjectId(dataType.idProduct);
+                    }
                 }
+            } else {
+                TransactionsCategorys_.type = [];
             }
+        } else {
+            TransactionsCategorys_.type = [];
         }
 
         try {
