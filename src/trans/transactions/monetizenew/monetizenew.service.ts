@@ -10,7 +10,7 @@ import { OssService } from 'src/stream/oss/oss.service';
 const sharp = require('sharp');
 
 @Injectable()
-export class MonetizationService {
+export class MonetizenewService {
     constructor(
         @InjectModel(Monetizenew.name, 'SERVER_FULL')
         private readonly monetData: Model<MonetizenewDocument>,

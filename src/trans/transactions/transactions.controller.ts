@@ -47,7 +47,7 @@ import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 import { NewPostService } from 'src/content/new_post/new_post.service';
 import { CreateNewPostDTO } from 'src/content/new_post/dto/create-newPost.dto';
 import { NewPostContentService } from 'src/content/new_post/new_postcontent.service';
-// import { MonetizationService } from 'src/trans/monetization/monetization.service';
+ import { MonetizenewService } from 'src/trans/transactions/monetizenew/monetizenew.service';
 
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
@@ -86,7 +86,7 @@ export class TransactionsController {
         private readonly basic2SS: UserbasicnewService,
         private readonly posts2SS: NewPostService,
         private readonly postsContent2SS: NewPostContentService,
-        //private readonly MonetizationService: MonetizationService,
+        private readonly MonetizenewService: MonetizenewService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
