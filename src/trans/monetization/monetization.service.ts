@@ -312,8 +312,8 @@ export class MonetizationService {
         insertdata.description = request_body.description;
         insertdata.createdAt = await this.utilsService.getDateTimeString();
         insertdata.updatedAt = await this.utilsService.getDateTimeString();
-        insertdata.startCouponDate = request_body.startCouponDate;
-        insertdata.endCouponDate = request_body.endCouponDate;
+        insertdata.startCouponDate = request_body.startCouponDate + " " + request_body.startCouponTime;
+        insertdata.endCouponDate = request_body.endCouponDate + " " + request_body.endCouponTime;
         insertdata.active = true;
         insertdata.status = false;
         insertdata.min_discount = Number(request_body.min_discount);
@@ -380,7 +380,7 @@ export class MonetizationService {
         return result;
     }
 
-    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, tipegift?:string) {
+    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, tipegift?:string, jenisProduk?:any[]) {
 
         let order = descending ? -1 : 1;
         let matchAnd = [];
@@ -496,6 +496,13 @@ export class MonetizationService {
         if (type == "GIFT" && tipegift && tipegift !== undefined) {
             matchAnd.push({
                 "typeGift":tipegift
+            });
+        }
+        if(jenisProduk && jenisProduk !== undefined) {
+            matchAnd.push({
+                "productID":{
+                    "$in":jenisProduk
+                }
             });
         }
         pipeline.push({
