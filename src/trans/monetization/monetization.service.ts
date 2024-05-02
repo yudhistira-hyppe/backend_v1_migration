@@ -318,9 +318,9 @@ export class MonetizationService {
         insertdata.status = false;
         insertdata.min_discount = Number(request_body.min_discount);
         insertdata.min_use_disc = Number(request_body.min_use_disc);
-        insertdata.price = Number(request_body.price);
         insertdata.stock = Number(request_body.stock);
         insertdata.last_stock = Number(request_body.stock);
+        insertdata.satuan_diskon = request_body.satuan_diskon;
         insertdata.used_stock = 0;
         insertdata.type = 'DISCOUNT';
         insertdata.productID = getdata._id;
@@ -499,9 +499,14 @@ export class MonetizationService {
             });
         }
         if(jenisProduk && jenisProduk !== undefined) {
+            var setarray = [];
+            for (var i = 0; i < jenisProduk.length; i++)
+            {
+                setarray.push(new mongoose.Types.ObjectId(jenisProduk[i]));   
+            }
             matchAnd.push({
                 "productID":{
-                    "$in":jenisProduk
+                    "$in":setarray
                 }
             });
         }
@@ -524,8 +529,37 @@ export class MonetizationService {
                     _id:1,
                     type:1,
                     name:1,
+                    code_package:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$code_package",
+                            else:"$$REMOVE"
+                        }
+                    },
                     package_id:1,
-                    price:1,
+                    price:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$ne":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$price",
+                            else:"$$REMOVE"
+                        }
+                    },
                     amount:1,
                     stock:"$last_stock",
                     thumbnail:1,
@@ -535,9 +569,20 @@ export class MonetizationService {
                         {
                             if:
                             {
-                                "$eq":
+                                "$or":
                                 [
-                                    "$type", "CREDIT"
+                                    {
+                                        "$eq":
+                                        [
+                                            "$type", "CREDIT"
+                                        ]
+                                    },
+                                    {
+                                        "$eq":
+                                        [
+                                            "$type", "DISCOUNT"
+                                        ]
+                                    }
                                 ]
                             },
                             then:"$audiens",
@@ -550,9 +595,20 @@ export class MonetizationService {
                         {
                             if:
                             {
-                                "$eq":
+                                "$or":
                                 [
-                                    "$type", "CREDIT"
+                                    {
+                                        "$eq":
+                                        [
+                                            "$type", "CREDIT"
+                                        ]
+                                    },
+                                    {
+                                        "$eq":
+                                        [
+                                            "$type", "DISCOUNT"
+                                        ]
+                                    }
                                 ]
                             },
                             then:"$audiens_user",
@@ -586,6 +642,111 @@ export class MonetizationService {
                                 ]
                             },
                             then:"$animation",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    satuan_diskon:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$satuan_diskon",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    min_discount:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$min_discount",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    min_use_disc:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$min_use_disc",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    productID:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$productID",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    productCode:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$productCode",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    startCouponDate:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$startCouponDate",
+                            else:"$$REMOVE"
+                        }
+                    },
+                    endCouponDate:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$type", "DISCOUNT"
+                                ]
+                            },
+                            then:"$endCouponDate",
                             else:"$$REMOVE"
                         }
                     },
