@@ -16,6 +16,8 @@ import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
 import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
 import { MonetizationModule } from 'src/trans/monetization/monetization.module';
+import { MonetizationService } from './monetization/monetization.service';
+import { Monetize, monetizeSchema } from 'src/trans/monetization/schemas/monetization.schema';
 
 @Module({
     imports: [
@@ -27,10 +29,14 @@ import { MonetizationModule } from 'src/trans/monetization/monetization.module';
         UserbasicsModule,
         UtilsModule,
         ConfigModule.forRoot(),
-        MongooseModule.forFeature([{ name: Mediastreaming.name, schema: MediastreamingSchema }, { name: Mediastreamingrequest.name, schema: MediastreamingrequestSchema }], 'SERVER_FULL')
+        MongooseModule.forFeature([
+            { name: Mediastreaming.name, schema: MediastreamingSchema }, 
+            { name: Mediastreamingrequest.name, schema: MediastreamingrequestSchema },
+            { name: Monetize.name, schema: monetizeSchema }
+        ], 'SERVER_FULL')
     ],
     controllers: [MediastreamingController],
-    providers: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService],
-    exports: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService],
+    providers: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService, MonetizationService],
+    exports: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService, MonetizationService],
 })
 export class MediastreamingModule { }

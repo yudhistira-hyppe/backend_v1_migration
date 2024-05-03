@@ -59,7 +59,7 @@ export class MediastreamingController {
     const generateId = new mongoose.Types.ObjectId();
   
     const expireTime = Math.round(((currentDate.date.getTime()) / 1000)) + Number(EXPIRATION_TIME_LIVE.toString());
-    const generateToken = await this.mediastreamingAgoraService.generateToken(MediastreamingDto_._id.toString(), expireTime);
+    const generateToken = await this.mediastreamingAgoraService.generateToken(profile._id.toString(), expireTime);
     //const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
     let _MediastreamingDto_ = new MediastreamingDto();
     _MediastreamingDto_._id = generateId;
