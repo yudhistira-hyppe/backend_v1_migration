@@ -1110,9 +1110,14 @@ export class MediastreamingService {
       {
         $unwind:
         {
-          path: "$commentPinned",
+          path: "$comment",
           includeArrayIndex: "updateAt_index",
 
+        }
+      },
+      {
+        $match: {
+          "comment.pinned": true,
         }
       },
       {

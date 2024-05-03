@@ -398,7 +398,7 @@ export class MediastreamingController {
       }
       //CECK TYPE COMMENT PINNED
       if (MediastreamingDto_.type == "COMMENT_PINNED") {
-        if (MediastreamingDto_.messages != undefined) {
+        if (MediastreamingDto_.messages != undefined && MediastreamingDto_.userId != undefined) {
           let pinned_ = false;
           if (MediastreamingDto_.pinned != undefined){
             if (MediastreamingDto_.pinned){
@@ -498,6 +498,10 @@ export class MediastreamingController {
             this.appGateway.eventStream("VIEW_STREAM", JSON.stringify(dataStreamSend));
           }
         }
+      }
+      //CECK TYPE REPORT
+      if (MediastreamingDto_.type == "REPORT") {
+
       }
 
       if (MediastreamingDto_.type == "STOP") {
