@@ -38,8 +38,8 @@ import { TransactionsCoaTableService } from './coa/transactionscoatable.service'
     imports: [
         AdsPriceCreditsModule,
         AdsModule,
-        UtilsModule,SettingsModule,MethodepaymentsModule,BanksModule,OyPgModule,UserbasicnewModule,
-        LogapisModule,
+        UserbasicnewModule,
+        UtilsModule,
         ConfigModule.forRoot(),
         MongooseModule.forFeature([
             { name: TransactionsCategorys.name, schema: TransactionsCategorysSchema },

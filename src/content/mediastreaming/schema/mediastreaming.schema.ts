@@ -29,8 +29,6 @@ export class Mediastreaming{
     @Prop()
     comment: any[];
     @Prop()
-    commentPinned: any[];
-    @Prop()
     like: any[];
     @Prop()
     share: any[];
@@ -62,5 +60,7 @@ export class Mediastreaming{
     banned: boolean;
     @Prop()
     dateBanned: String;
+    @Prop()
+    income:number;
 }
 export const MediastreamingSchema = SchemaFactory.createForClass(Mediastreaming);

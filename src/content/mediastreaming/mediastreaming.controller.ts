@@ -355,6 +355,7 @@ export class MediastreamingController {
           const dataComment = {
             userId: new mongoose.Types.ObjectId(profile._id.toString()),
             status: true,
+            pinned: false,
             messages: MediastreamingDto_.messages,
             createAt: currentDate,
             updateAt: currentDate
@@ -362,7 +363,7 @@ export class MediastreamingController {
           await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
           if (MediastreamingDto_.idGift!=undefined){
             await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-            this.mediastreamingService.transactionGift(profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
+            //this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString() ,profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
           }
           //SEND COMMENT SINGLE
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());
@@ -398,20 +399,19 @@ export class MediastreamingController {
       //CECK TYPE COMMENT PINNED
       if (MediastreamingDto_.type == "COMMENT_PINNED") {
         if (MediastreamingDto_.messages != undefined) {
-          //UPDATE COMMENT
-          const dataComment = {
-            userId: new mongoose.Types.ObjectId(profile._id.toString()),
-            status: true,
-            pinned: true,
-            messages: MediastreamingDto_.messages,
-            createAt: currentDate,
-            updateAt: currentDate
-          };
-          await this.mediastreamingService.insertCommentPinned(MediastreamingDto_._id.toString(), dataComment);
+          let pinned_ = false;
+          if (MediastreamingDto_.pinned != undefined){
+            if (MediastreamingDto_.pinned){
+              pinned_ = true;
+            }
+          }
+          await this.mediastreamingService.updateComment(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString(), MediastreamingDto_.messages.toString(), MediastreamingDto_.pinned, currentDate)
+
           //SEND COMMENT SINGLE
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());
           getUser[0]["idStream"] = MediastreamingDto_._id.toString();
           getUser[0]["messages"] = MediastreamingDto_.messages;
+          getUser[0]["pinned"] = pinned_;
           const singleSend = {
             data: getUser[0]
           }
@@ -439,7 +439,7 @@ export class MediastreamingController {
           }
         }
       }
-      //CECK TYPE COMMENT
+      //CECK TYPE COMMENT DISABLED
       if (MediastreamingDto_.type == "COMMENT_DISABLED") {
         if (MediastreamingDto_.commentDisabled != undefined) {
           const allSend = {
@@ -461,30 +461,28 @@ export class MediastreamingController {
           }
         }
       }
-      //CECK TYPE COMMENT
+      //CECK TYPE KICK
       if (MediastreamingDto_.type == "KICK") {
-        if (MediastreamingDto_.userIdKick != undefined) {
-          const ceckView = await this.mediastreamingService.findView(MediastreamingDto_._id.toString(), MediastreamingDto_.userIdKick.toString());
+        if (MediastreamingDto_.userId != undefined) {
+          const ceckView = await this.mediastreamingService.findView(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString());
           if (await this.utilsService.ceckData(ceckView)) {
             //UPDATE VIEW
-            await this.mediastreamingService.updateView(MediastreamingDto_._id.toString(), profile._id.toString(), true, false, currentDate);
+            await this.mediastreamingService.updateView(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString(), true, false, currentDate);
             //UPDATE KICK
             const dataKick = {
-              userId: new mongoose.Types.ObjectId(profile._id.toString()),
+              userId: new mongoose.Types.ObjectId(MediastreamingDto_.userId.toString()),
               status: true,
               createAt: currentDate,
               updateAt: currentDate
             }
             await this.mediastreamingService.insertKick(MediastreamingDto_._id.toString(), dataKick);
-            //UPDATE COMMENT
-            const dataComment = {
-              userId: new mongoose.Types.ObjectId(profile._id.toString()),
-              status: true,
-              messages: profile_auth.username + " Was kicked from the room",
-              createAt: currentDate,
-              updateAt: currentDate
+            //SEND KICK USER
+            const getUser = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
+            getUser[0]["idStream"] = MediastreamingDto_._id.toString();
+            const singleSend = {
+              data: getUser[0]
             }
-            await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
+            this.appGateway.eventStream("KICK_USER_STREAM", JSON.stringify(singleSend));
             //SEND VIEW COUNT
             const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
             let viewCount = 0;
@@ -498,14 +496,6 @@ export class MediastreamingController {
               }
             }
             this.appGateway.eventStream("VIEW_STREAM", JSON.stringify(dataStreamSend));
-            //SEND COMMENT SINGLE
-            const getUser = await this.userbasicnewService.getUser(profile._id.toString());
-            getUser[0]["idStream"] = MediastreamingDto_._id.toString();
-            getUser[0]["messages"] = profile_auth.username + " Leave in room";
-            const singleSend = {
-              data: getUser[0]
-            }
-            this.appGateway.eventStream("COMMENT_STREAM_SINGLE", JSON.stringify(singleSend));
           }
         }
       }
