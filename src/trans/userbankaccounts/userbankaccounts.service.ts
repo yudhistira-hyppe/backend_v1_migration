@@ -210,6 +210,41 @@ export class UserbankaccountsService {
         return query;
     }
 
+    async findemail2(id: ObjectId) {
+        let query = await this.userbankaccountsModel.aggregate([
+
+            {
+                $match: {
+                    _id: id
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "field"
+                }
+            },
+            {
+                $unwind: {
+                    path: '$field',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    email: '$field.email',
+                    fullName: '$field.fullName',
+                    iduser: '$field._id'
+                }
+            }
+        ]);
+
+        return query;
+    }
+
+
     async updateDisetujui(id: ObjectId, reason: string, updatedAt: string, reasonId: ObjectId, idUserHandle: ObjectId) {
         let data = await this.userbankaccountsModel.updateMany({ "_id": id },
             { $set: { "statusInquiry": null, "updatedAt": updatedAt, "userHandle.$[].updatedAt": updatedAt, "userHandle.$[].reasonId": reasonId, "userHandle.$[].valueReason": reason, "userHandle.$[].status": "DISETUJUI", "userHandle.$[].idUserHandle": idUserHandle, } });
@@ -489,7 +524,7 @@ export class UserbankaccountsService {
         }
 
         var setutil = require('util');
-        console.log(setutil.inspect(pipeline, { showHidden:false, colors:true, depth:null }));
+        console.log(setutil.inspect(pipeline, { showHidden: false, colors: true, depth: null }));
 
         var query = await this.userbankaccountsModel.aggregate(pipeline);
 
@@ -583,24 +618,24 @@ export class UserbankaccountsService {
                                 "$match":
                                 {
                                     "$and":
-                                    [
-                                        {
-                                            "$expr":
+                                        [
                                             {
-                                                "$eq":
-                                                    [
-                                                        "$_id",
-                                                        "$$basic_fk"
-                                                    ]
-                                            }
-                                        },
-                                        {
-                                            "email":
+                                                "$expr":
+                                                {
+                                                    "$eq":
+                                                        [
+                                                            "$_id",
+                                                            "$$basic_fk"
+                                                        ]
+                                                }
+                                            },
                                             {
-                                                "$not": /noneactive/
+                                                "email":
+                                                {
+                                                    "$not": /noneactive/
+                                                }
                                             }
-                                        }
-                                    ]
+                                        ]
                                 }
                             },
 
@@ -610,7 +645,7 @@ export class UserbankaccountsService {
             {
                 "$unwind":
                 {
-                    path:"$userbasic_data"
+                    path: "$userbasic_data"
                 }
             },
             {
@@ -623,9 +658,9 @@ export class UserbankaccountsService {
                     nama: "$nama",
                     active: "$active",
                     tanggalPengajuan: "$tanggalPengajuan",
-                    fullName:"$userbasic_data.fullName",
-                    email:"$userbasic_data.email",
-                    username:"$userbasic_data.username",
+                    fullName: "$userbasic_data.fullName",
+                    email: "$userbasic_data.email",
+                    username: "$userbasic_data.username",
                     statusLast: "$statusLast",
                     reasonId: "$reasonId",
                     reasonAdmin: "$reasonAdmin",
@@ -634,10 +669,10 @@ export class UserbankaccountsService {
                         mediaEndpoint:
                         {
                             "$ifNull":
-                            [
-                                "$userbasic_data.mediaEndpoint",
-                                null
-                            ]
+                                [
+                                    "$userbasic_data.mediaEndpoint",
+                                    null
+                                ]
                         }
                     },
 
@@ -1096,15 +1131,15 @@ export class UserbankaccountsService {
                         mediaEndpoint:
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$userbasic_data.mediaEndpoint", 0
-                                    ]
-                                },
-                                null
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$userbasic_data.mediaEndpoint", 0
+                                            ]
+                                    },
+                                    null
+                                ]
                         }
                     },
 
@@ -1588,7 +1623,7 @@ export class UserbankaccountsService {
         ]);
         return query[0];
     }
-    
+
     async getDetailAccountBankById2(id: string) {
         const mongoose = require('mongoose');
         var iddata = mongoose.Types.ObjectId(id);
@@ -1670,9 +1705,9 @@ export class UserbankaccountsService {
                                     "tempkyc":
                                     {
                                         "$arrayElemAt":
-                                        [
-                                            "$kyc", 0
-                                        ]
+                                            [
+                                                "$kyc", 0
+                                            ]
                                     }
                                 }
                             }
@@ -1734,7 +1769,7 @@ export class UserbankaccountsService {
                                 "$userbasic_data.gender", 0
                             ]
                     },
-        
+
                     dob:
                     {
                         "$arrayElemAt":
@@ -1742,7 +1777,7 @@ export class UserbankaccountsService {
                                 "$userbasic_data.dob", 0
                             ]
                     },
-        
+
                     mobileNumber:
                     {
                         "$arrayElemAt":
@@ -1750,7 +1785,7 @@ export class UserbankaccountsService {
                                 "$userbasic_data.mobileNumber", 0
                             ]
                     },
-        
+
                     statusUser:
                     {
                         "$cond":
@@ -1779,7 +1814,7 @@ export class UserbankaccountsService {
                                 "$userbasic_data.email", 0
                             ]
                     },
-        
+
                     username:
                     {
                         "$arrayElemAt":
@@ -1795,15 +1830,15 @@ export class UserbankaccountsService {
                         mediaEndpoint:
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$userbasic_data.mediaEndpoint", 0
-                                    ]
-                                },
-                                null
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$userbasic_data.mediaEndpoint", 0
+                                            ]
+                                    },
+                                    null
+                                ]
                         }
                     },
                     namaKTP:
@@ -1817,41 +1852,41 @@ export class UserbankaccountsService {
                     country:
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$userbasic_data.countriesName", 0
-                                ]
-                            },
-                            null
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$userbasic_data.countriesName", 0
+                                        ]
+                                },
+                                null
+                            ]
                     },
                     area:
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$userbasic_data.statesName", 0
-                                ]
-                            },
-                            null
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$userbasic_data.statesName", 0
+                                        ]
+                                },
+                                null
+                            ]
                     },
                     city:
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$userbasic_data.citiesName", 0
-                                ]
-                            },
-                            null
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$userbasic_data.citiesName", 0
+                                        ]
+                                },
+                                null
+                            ]
                     }
                 }
             },
