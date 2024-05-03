@@ -18,8 +18,8 @@ export class MediastreamingService {
     private readonly utilsService: UtilsService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    private readonly monetizationService: MonetizationService,
-    private readonly transactionsV2Service: TransactionsV2Service,
+    //private readonly monetizationService: MonetizationService,
+    //private readonly transactionsV2Service: TransactionsV2Service,
   ) {}
 
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
@@ -1495,6 +1495,18 @@ export class MediastreamingService {
     },
     );
     return data;
+  } 
+
+  async updateComment(_id: string, userId: string, messages: string, pinned: boolean, updateAt: string) {
+    const data = await this.MediastreamingModel.findOneAndUpdate({
+      _id: new mongoose.Types.ObjectId(_id),
+      "comment": { "$elemMatch": { "userId": new mongoose.Types.ObjectId(userId), "messages": messages } }
+    },
+      {
+        $set: { "comment.$.pinned": pinned, "comment.$.updateAt": updateAt }
+      },
+    );
+    return data;
   }
 
   async insertView(_id: string, view: any) {
@@ -1557,27 +1569,63 @@ export class MediastreamingService {
     return data;
   }
 
-  async transactionGift(idUser: string, idGift: string, idDiscond: string) {
-    const getDataGift = await this.monetizationService.findOne(idGift);
-    let disconCoin = 0;
-    let voucher = [];
-    let detail = [];
-    let dataDetail = {};
-    dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
-    dataDetail["category"] = "LIVE";
-    dataDetail["typeData"] = "gift";
-    dataDetail["amount"] = getDataGift.amount;
-    if (idDiscond != undefined) {
-      const getDataDiscond = await this.monetizationService.findOne(idDiscond);
-      voucher.push(idDiscond);
-      disconCoin = getDataDiscond.amount;
-    } 
-    dataDetail["discountCoin"] = disconCoin;
-    dataDetail["totalAmount"] = getDataGift.amount-disconCoin;
-    detail.push(dataDetail);
-    
-    await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
+  async updateIncome(_id: string, income: number) {
+    this.MediastreamingModel.updateOne(
+      {
+        _id: new mongoose.Types.ObjectId(_id),
+      },
+      { $inc: { income: income } },
+      function (err, docs) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(docs);
+        }
+      },
+    );
   }
+
+  // async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: string) {
+  //   const getDataGift = await this.monetizationService.findOne(idGift);
+  //   let amount = 0;
+  //   let disconCoin = 0;
+  //   let totalAmount = 0;
+  //   let voucher = [];
+  //   let detail = [];
+  //   let dataDetail = {};
+  //   dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
+  //   dataDetail["category"] = "LIVE";
+  //   dataDetail["typeData"] = "gift";
+  //   dataDetail["amount"] = getDataGift.amount;
+  //   if (idDiscond != undefined) {
+  //     const getDataDiscond = await this.monetizationService.findOne(idDiscond);
+  //     voucher.push(idDiscond);
+  //     disconCoin = getDataDiscond.amount;
+  //   } 
+  //   amount = getDataGift.amount;
+  //   totalAmount = getDataGift.amount - disconCoin;
+  //   dataDetail["discountCoin"] = disconCoin;
+  //   dataDetail["totalAmount"] = totalAmount
+  //   detail.push(dataDetail);
+    
+  //   const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
+  //   if (data) {
+  //     let coinProfitSharingGF = 0;
+  //     let totalIncome = 0;
+  //     const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
+  //     const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
+  //     if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
+  //       if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
+  //         coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+  //       }
+  //       if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
+  //         coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+  //       }
+  //     }
+  //     totalIncome = amount - coinProfitSharingGF;
+  //     this.updateIncome(idStream, totalIncome)
+  //   }
+  // }
 
   async insertCommentPinned(_id: string, comment: any) {
     const data = await this.MediastreamingModel.updateOne({

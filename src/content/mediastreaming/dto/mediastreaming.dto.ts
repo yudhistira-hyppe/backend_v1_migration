@@ -13,7 +13,6 @@ export class MediastreamingDto {
   status: boolean;
   view: any[];
   comment: any[];
-  commentPinned: any[];
   like: any[];
   share: any[];
   follower: any[];
@@ -31,13 +30,14 @@ export class MediastreamingDto {
   feedbackText: String;
   pause: boolean;
   idGift: String;
-  userIdKick: mongoose.Types.ObjectId;
   viewCountActive: number;
   tokenAgora: String;
   report: any[];
   banned: boolean;
   dateBanned: String;
   idDiscond: String;
+  pinned: boolean;
+  income: number;
 }
 
 export class MediastreamingRequestDto{

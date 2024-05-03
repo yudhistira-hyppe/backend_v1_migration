@@ -19,8 +19,7 @@ import { MonetizationModule } from 'src/trans/monetization/monetization.module';
 
 @Module({
     imports: [
-        MonetizationModule,
-        TransactionsV2Module,
+        //MonetizationModule,
         UserbasicnewModule,
         HttpModule,
         SocketModule,
