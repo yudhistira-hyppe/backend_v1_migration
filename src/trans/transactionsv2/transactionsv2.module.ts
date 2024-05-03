@@ -28,9 +28,11 @@ import { TransactionsCreditsService } from './credit/transactionscredits.service
 import { TransactionsCoaTable, TransactionsCoaTableSchema } from './coa/schema/transactionscoatable.schema';
 import { TransactionsCoaTableService } from './coa/transactionscoatable.service';
 import { AdsBalaceCreditModule } from '../adsv2/adsbalacecredit/adsbalacecredit.module';
+import { LogapisModule } from '../logapis/logapis.module';
 @Module({
 
     imports: [
+        LogapisModule,
         AdsPriceCreditsModule,
         AdsBalaceCreditModule,
         UserbasicnewModule,
