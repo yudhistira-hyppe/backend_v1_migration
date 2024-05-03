@@ -721,20 +721,20 @@ export class MediastreamingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('/list')
   @HttpCode(HttpStatus.ACCEPTED)
   async listStreamingAgora(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
-      );
-    }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
-      );
-    }
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
@@ -748,8 +748,10 @@ export class MediastreamingController {
     try {
       let _id: mongoose.Types.ObjectId[] = [];
       const data = await this.mediastreamingAgoraService.getChannelList();
+      console.log(data);
       if (data != null) {
         let dataChannel = data.data.channels;
+        console.log(dataChannel);
         if (dataChannel.length>0){
           dataChannel = dataChannel.slice(skip_, skip_ + limit_);
           _id = dataChannel.map(function (item) {

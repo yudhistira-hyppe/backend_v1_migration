@@ -28,6 +28,9 @@ export class MediastreamingService {
   }
 
   async getDataListAgora(userId: string, email: string, arrayId: mongoose.Types.ObjectId[], pageNumber: number, pageSize: number) {
+    console.log(arrayId);
+    console.log(userId);
+    console.log(email);
     let skip_ = (pageNumber > 0) ? (pageNumber * pageSize) : pageNumber;
     let limit_ = pageSize;
     const DataList = await this.MediastreamingModel.aggregate(
@@ -35,7 +38,7 @@ export class MediastreamingService {
         {
           $set: {
             idStream: arrayId,
-            userId: userId
+            dataUser: new mongoose.Types.ObjectId(userId)
           },
 
         },
@@ -45,7 +48,7 @@ export class MediastreamingService {
               {
                 $expr: { $in: ['$_id', '$idStream'] }
               },
-              { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
+              { "kick.userId": { $ne: '$dataUser' } }
             ]
           },
         },
