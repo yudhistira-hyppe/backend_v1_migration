@@ -501,7 +501,27 @@ export class MediastreamingController {
       }
       //CECK TYPE REPORT
       if (MediastreamingDto_.type == "REPORT") {
+        if (MediastreamingDto_.messages != undefined) {
+          //UPDATE REPORT
+          const dataReport = {
+            userId: new mongoose.Types.ObjectId(profile._id.toString()),
+            messages: MediastreamingDto_.messages,
+            createAt: currentDate,
+            updateAt: currentDate
+          };
+          await this.mediastreamingService.insertReport(MediastreamingDto_._id.toString(), dataReport);
+          let getData = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
+          if (await this.utilsService.ceckData(getData)){
+            let getReportlength = getData.report.length;
+            if (getReportlength) {
+              const ID_SETTING_MAX_REPORT = this.configService.get("ID_SETTING_MAX_REPORT");
+              const GET_ID_SETTING_MAX_REPORT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_MAX_REPORT);
+              if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)){
 
+              }
+            }
+          }
+        }
       }
 
       if (MediastreamingDto_.type == "STOP") {
