@@ -2495,6 +2495,8 @@ export class UtilsService {
         }
       }
     }
+    ProfileDTO_.urlLink = get_userbasic.urlLink;
+        ProfileDTO_.judulLink = get_userbasic.judulLink;
     return ProfileDTO_;
   }
 

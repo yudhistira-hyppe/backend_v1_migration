@@ -35,6 +35,8 @@ export class Mediastreaming{
     @Prop()
     follower: any[];
     @Prop()
+    gift: any[];
+    @Prop()
     urlStream: String;
     @Prop()
     urlIngest: String;
@@ -52,5 +54,13 @@ export class Mediastreaming{
     commentDisabled: boolean;
     @Prop()
     tokenAgora: String;
+    @Prop()
+    report: any[];
+    @Prop()
+    banned: boolean;
+    @Prop()
+    dateBanned: String;
+    @Prop()
+    income:number;
 }
 export const MediastreamingSchema = SchemaFactory.createForClass(Mediastreaming);

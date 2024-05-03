@@ -16,6 +16,7 @@ export class MediastreamingDto {
   like: any[];
   share: any[];
   follower: any[];
+  gift: any[];
   urlStream: String;
   urlIngest: String;
   feedBack: String;
@@ -28,9 +29,15 @@ export class MediastreamingDto {
   feedback: number;
   feedbackText: String;
   pause: boolean;
-  userIdKick: mongoose.Types.ObjectId;
+  idGift: String;
   viewCountActive: number;
   tokenAgora: String;
+  report: any[];
+  banned: boolean;
+  dateBanned: String;
+  idDiscond: String;
+  pinned: boolean;
+  income: number;
 }
 
 export class MediastreamingRequestDto{

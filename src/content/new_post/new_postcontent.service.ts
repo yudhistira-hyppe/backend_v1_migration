@@ -1007,6 +1007,8 @@ export class NewPostContentService {
     PostData_.comments = 0;
     PostData_.reportedStatus = Posts_.reportedStatus;
     PostData_.stiker = Posts_.stiker;
+    PostData_.judulLink=Posts_.judulLink;
+    PostData_.urlLink=Posts_.urlLink;
 
     //PRIPACY
     let privacy = new Privacy();
