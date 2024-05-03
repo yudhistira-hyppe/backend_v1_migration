@@ -643,6 +643,9 @@ export class UserbankaccountsController {
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
         var ubasic = await this.basic2SS.findBymail(email);
+        if (!ubasic) {
+            throw new BadRequestException("User data not found");
+        }
 
         iduser = ubasic._id;
         if (ubasic.isIdVerified == false) {
@@ -836,19 +839,19 @@ export class UserbankaccountsController {
 
             data = await this.userbankaccountsService.update(iduserbank, CreateUserbankaccountsDto_);
 
-            try {
-                dataacount = await this.sendReportAppealBankFCM(email, "NOTIFY_APPEAL", "REQUEST_APPEAL", "BANK", fullname);
-            } catch (e) {
-                await this.errorHandler.generateNotAcceptableException(
-                    e.toString(),
-                );
-            }
+            // try {
+            //     dataacount = await this.sendReportAppealBankFCM(email, "NOTIFY_APPEAL", "REQUEST_APPEAL", "BANK", fullname);
+            // } catch (e) {
+            //     await this.errorHandler.generateNotAcceptableException(
+            //         e.toString(),
+            //     );
+            // }
             return {
                 "response_code": 202,
                 "data": data,
                 "messages": {
                     "info": [
-                        "Success Upload"
+                        "Successfully created"
                     ]
                 }
             };
