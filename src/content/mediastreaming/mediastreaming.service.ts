@@ -6,8 +6,8 @@ import { Mediastreaming, MediastreamingDocument } from './schema/mediastreaming.
 import { MediastreamingDto, RequestSoctDto } from './dto/mediastreaming.dto';
 import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
-import { MonetizationService } from 'src/trans/monetization/monetization.service';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
+import { MonetizationService } from './monetization/monetization.service';
 @Injectable()
 export class MediastreamingService {
   private readonly logger = new Logger(MediastreamingService.name);
@@ -18,13 +18,288 @@ export class MediastreamingService {
     private readonly utilsService: UtilsService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    //private readonly monetizationService: MonetizationService,
-    //private readonly transactionsV2Service: TransactionsV2Service,
+    private readonly monetizationService: MonetizationService,
+    private readonly transactionsV2Service: TransactionsV2Service,
   ) {}
 
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
     const DataSave = await this.MediastreamingModel.create(MediastreamingDto_);
     return DataSave;
+  }
+
+  async getDataListAgora(userId: string, email: string, arrayId: mongoose.Types.ObjectId[], pageNumber: number, pageSize: number) {
+    let skip_ = (pageNumber > 0) ? (pageNumber * pageSize) : pageNumber;
+    let limit_ = pageSize;
+    const DataList = await this.MediastreamingModel.aggregate(
+      [
+        {
+          $set: {
+            idStream: arrayId,
+            userId: userId
+          },
+
+        },
+        {
+          $match: {
+            $and: [
+              {
+                $expr: { $in: ['$_id', '$idStream'] }
+              },
+              { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
+            ]
+          },
+        },
+        {
+          "$lookup": {
+            from: "newUserBasics",
+            as: "user",
+            let: {
+              email: email,
+              userID: "$userId"
+            },
+            pipeline: [
+              {
+                $match: {
+                  $or: [
+                    {
+                      $expr:
+                      {
+                        $eq: ["$email", "$$email"]
+                      },
+
+                    },
+                    {
+                      $expr:
+                      {
+                        $eq: ["$_id", "$$userID"]
+                      },
+
+                    },
+
+                  ]
+                },
+
+              }
+            ]
+          }
+        },
+        {
+          $set: {
+            userLogin: {
+              $filter: {
+                input: "$user",
+                as: "users",
+                cond: {
+                  $eq: ["$$users.email", email]
+                }
+              }
+            },
+
+          }
+        },
+        {
+          $set: {
+            userStream: {
+              $filter: {
+                input: "$user",
+                as: "users",
+                cond: {
+                  $ne: ["$$users.email", email]
+                }
+              }
+            },
+          }
+        },
+        {
+          $set: {
+            interestLogin: {
+              $arrayElemAt: ["$userLogin.userInterests.$id", 0]
+            }
+          }
+        },
+        {
+          $set: {
+            interesStream: {
+              $arrayElemAt: ["$userStream.userInterests.$id", 0]
+            }
+          }
+        },
+        {
+          $set: {
+            ints: {
+              $concatArrays: [{
+                $arrayElemAt: ["$userStream.userInterests.$id", 0]
+              }, {
+                $arrayElemAt: ["$userLogin.userInterests.$id", 0]
+              }]
+            }
+          }
+        },
+        {
+          $set: {
+            interest: {
+              $subtract: [
+                {
+                  $size: "$ints"
+                },
+                {
+                  $size: {
+                    $setUnion: [
+                      "$ints",
+                      []
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          $set: {
+            views: {
+              $filter: {
+                input: "$view",
+                as: "views",
+                cond: {
+                  $eq: ["$$views.status", true]
+                }
+              }
+            },
+
+          }
+        },
+        {
+          $set: {
+            totalView:
+            {
+              $size: "$views"
+            }
+          }
+        },
+        {
+          $set: {
+            totalLike:
+            {
+              $size: "$like"
+            }
+          }
+        },
+        {
+          $set: {
+            follower: {
+              $arrayElemAt: ["$userStream.follower", 0]
+            },
+
+          }
+        },
+        {
+          $set: {
+            following: {
+              $arrayElemAt: ["$userStream.following", 0]
+            },
+
+          }
+        },
+        {
+          $set: {
+            friend: {
+              $arrayElemAt: ["$userStream.friend", 0]
+            },
+
+          }
+        },
+        {
+          $set: {
+            totalFollower:
+            {
+              $size: "$follower"
+            }
+          }
+        },
+        {
+          $set: {
+            totalFriend:
+            {
+              $size: "$friend"
+            }
+          }
+        },
+        {
+          $set: {
+            totalFollowing:
+            {
+              $size: "$following"
+            }
+          }
+        },
+        {
+          $sort: {
+            totalFriend: -1,
+            totalFollowing: -1,
+            interest: -1,
+            totalView: -1,
+            totalLike: -1,
+            totalFollower: -1,
+            startLive: -1,
+
+          }
+        },
+        {
+          $skip: skip_
+        },
+        {
+          $limit: limit_
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            userId: 1,
+            tokenAgora: 1,
+            expireTime: 1,
+            startLive: 1,
+            status: 1,
+            urlStream: 1,
+            urlIngest: 1,
+            createAt: 1,
+            interest: 1,
+            totalView: 1,
+            totalLike: 1,
+            totalFollower: 1,
+            totalFriend: 1,
+            totalFollowing: 1,
+            fullName:
+            {
+              $arrayElemAt: ["$userStream.fullName", 0]
+            },
+            username:
+            {
+              $arrayElemAt: ["$userStream.username", 0]
+            },
+            email:
+            {
+              $arrayElemAt: ["$userStream.email", 0]
+            },
+            //avatar: 1,
+            avatar: {
+              "mediaBasePath": {
+                $arrayElemAt: ["$userStream.mediaBasePath", 0]
+              },
+              "mediaUri": {
+                $arrayElemAt: ["$userStream.mediaUri", 0]
+              },
+              "mediaType": {
+                $arrayElemAt: ["$userStream.mediaType", 0]
+              },
+              "mediaEndpoint": {
+                $arrayElemAt: ["$userStream.mediaEndpoint", 0]
+              },
+            }
+          }
+        },
+      ]
+    );
+    return DataList;
   }
 
   async getDataList(email: string, arrayId: mongoose.Types.ObjectId[], pageNumber: number, pageSize: number){
@@ -835,9 +1110,14 @@ export class MediastreamingService {
       {
         $unwind:
         {
-          path: "$commentPinned",
+          path: "$comment",
           includeArrayIndex: "updateAt_index",
 
+        }
+      },
+      {
+        $match: {
+          "comment.pinned": true,
         }
       },
       {
@@ -1127,6 +1407,7 @@ export class MediastreamingService {
                 username: 1,
                 follower: 1,
                 following: 1,
+                income: 1,
                 avatar: {
                   "mediaBasePath": "$mediaBasePath",
                   "mediaUri": "$mediaUri",
@@ -1585,47 +1866,47 @@ export class MediastreamingService {
     );
   }
 
-  // async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: string) {
-  //   const getDataGift = await this.monetizationService.findOne(idGift);
-  //   let amount = 0;
-  //   let disconCoin = 0;
-  //   let totalAmount = 0;
-  //   let voucher = [];
-  //   let detail = [];
-  //   let dataDetail = {};
-  //   dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
-  //   dataDetail["category"] = "LIVE";
-  //   dataDetail["typeData"] = "gift";
-  //   dataDetail["amount"] = getDataGift.amount;
-  //   if (idDiscond != undefined) {
-  //     const getDataDiscond = await this.monetizationService.findOne(idDiscond);
-  //     voucher.push(idDiscond);
-  //     disconCoin = getDataDiscond.amount;
-  //   } 
-  //   amount = getDataGift.amount;
-  //   totalAmount = getDataGift.amount - disconCoin;
-  //   dataDetail["discountCoin"] = disconCoin;
-  //   dataDetail["totalAmount"] = totalAmount
-  //   detail.push(dataDetail);
+  async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: string) {
+    const getDataGift = await this.monetizationService.findOne(idGift);
+    let amount = 0;
+    let disconCoin = 0;
+    let totalAmount = 0;
+    let voucher = [];
+    let detail = [];
+    let dataDetail = {};
+    dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
+    dataDetail["category"] = "LIVE";
+    dataDetail["typeData"] = "gift";
+    dataDetail["amount"] = getDataGift.amount;
+    if (idDiscond != undefined) {
+      const getDataDiscond = await this.monetizationService.findOne(idDiscond);
+      voucher.push(idDiscond);
+      disconCoin = getDataDiscond.amount;
+    } 
+    amount = getDataGift.amount;
+    totalAmount = getDataGift.amount - disconCoin;
+    dataDetail["discountCoin"] = disconCoin;
+    dataDetail["totalAmount"] = totalAmount
+    detail.push(dataDetail);
     
-  //   const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
-  //   if (data) {
-  //     let coinProfitSharingGF = 0;
-  //     let totalIncome = 0;
-  //     const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
-  //     const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
-  //     if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
-  //       if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
-  //         coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
-  //       }
-  //       if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
-  //         coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
-  //       }
-  //     }
-  //     totalIncome = amount - coinProfitSharingGF;
-  //     this.updateIncome(idStream, totalIncome)
-  //   }
-  // }
+    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
+    if (data) {
+      let coinProfitSharingGF = 0;
+      let totalIncome = 0;
+      const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
+      const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
+      if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
+        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
+          coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+        }
+        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
+          coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+        }
+      }
+      totalIncome = amount - coinProfitSharingGF;
+      this.updateIncome(idStream, totalIncome)
+    }
+  }
 
   async insertCommentPinned(_id: string, comment: any) {
     const data = await this.MediastreamingModel.updateOne({

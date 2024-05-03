@@ -59,7 +59,8 @@ export class MediastreamingController {
     const generateId = new mongoose.Types.ObjectId();
   
     const expireTime = Math.round(((currentDate.date.getTime()) / 1000)) + Number(EXPIRATION_TIME_LIVE.toString());
-    const generateToken = await this.mediastreamingAgoraService.generateToken(profile._id.toString(), expireTime);
+    const generateToken = await this.mediastreamingAgoraService.generateToken(generateId.toString(), expireTime);
+    //const generateToken = await this.mediastreamingAgoraService.generateToken(profile._id.toString(), expireTime);
     //const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
     let _MediastreamingDto_ = new MediastreamingDto();
     _MediastreamingDto_._id = generateId;
@@ -125,7 +126,6 @@ export class MediastreamingController {
       );
     }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
-    var profile_auth = await this.userauthService.findOne(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
         'Unabled to proceed user not found',
@@ -363,7 +363,7 @@ export class MediastreamingController {
           await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
           if (MediastreamingDto_.idGift!=undefined){
             await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-            //this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString() ,profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
+            this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString() ,profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
           }
           //SEND COMMENT SINGLE
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());
@@ -398,7 +398,7 @@ export class MediastreamingController {
       }
       //CECK TYPE COMMENT PINNED
       if (MediastreamingDto_.type == "COMMENT_PINNED") {
-        if (MediastreamingDto_.messages != undefined) {
+        if (MediastreamingDto_.messages != undefined && MediastreamingDto_.userId != undefined) {
           let pinned_ = false;
           if (MediastreamingDto_.pinned != undefined){
             if (MediastreamingDto_.pinned){
@@ -498,6 +498,10 @@ export class MediastreamingController {
             this.appGateway.eventStream("VIEW_STREAM", JSON.stringify(dataStreamSend));
           }
         }
+      }
+      //CECK TYPE REPORT
+      if (MediastreamingDto_.type == "REPORT") {
+
       }
 
       if (MediastreamingDto_.type == "STOP") {
@@ -699,6 +703,54 @@ export class MediastreamingController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/list')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async listStreamingAgora(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+    var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
+    if (!(await this.utilsService.ceckData(profile))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed user not found',
+      );
+    }
+
+    let dataList = [];
+    let skip_ = (Number(MediastreamingDto_.page) > 0) ? (Number(MediastreamingDto_.page) * Number(MediastreamingDto_.limit)) : Number(MediastreamingDto_.page);
+    let limit_ = Number(MediastreamingDto_.limit);
+    try {
+      let _id: mongoose.Types.ObjectId[] = [];
+      const data = await this.mediastreamingAgoraService.getChannelList();
+      if (data != null) {
+        let dataChannel = data.data.channels;
+        if (dataChannel.length>0){
+          dataChannel = dataChannel.slice(skip_, skip_ + limit_);
+          _id = dataChannel.map(function (item) {
+            console.log("channel_name", item['channel_name'])
+            return new mongoose.Types.ObjectId(item['channel_name']);
+          });
+        }
+        dataList = await this.mediastreamingService.getDataListAgora(profile._id.toString(), headers['x-auth-user'], _id, MediastreamingDto_.page, MediastreamingDto_.limit)
+        return await this.errorHandler.generateAcceptResponseCodeWithData(
+          "Get stream succesfully", dataList,
+        );
+      }
+    } catch (e) {
+      return await this.errorHandler.generateAcceptResponseCodeWithData(
+        "Get stream succesfully", dataList,
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/list/backup')
   @HttpCode(HttpStatus.ACCEPTED)
   async listStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
     if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {

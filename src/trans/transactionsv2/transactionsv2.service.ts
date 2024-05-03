@@ -11,13 +11,13 @@ import { TransactionsBalanceds } from './balanceds/schema/transactionsbalanceds.
 import { TransactionsBalancedsService } from './balanceds/transactionsbalanceds.service';
 import { Userbasicnew } from '../userbasicnew/schemas/userbasicnew.schema';
 import { AdsBalaceCredit } from '../adsv2/adsbalacecredit/schema/adsbalacecredit.schema';
-import { AdsService } from '../adsv2/ads/ads.service';
 import { TransactionsCoinSettingsService } from './coin/transactionscoinsettings.service';
 import { AdsPriceCreditsService } from '../adsv2/adspricecredits/adspricecredits.service';
 import { TransactionsCoa } from './coa/schema/transactionscoa.schema';
 import { TransactionsCoaService } from './coa/transactionscoa.service';
 import { TransactionsCoaTable } from './coa/schema/transactionscoatable.schema';
 import { TransactionsCoaTableService } from './coa/transactionscoatable.service';
+import { AdsBalaceCreditService } from '../adsv2/adsbalacecredit/adsbalacecredit.service';
 
 @Injectable()
 export class TransactionsV2Service {
@@ -30,11 +30,11 @@ export class TransactionsV2Service {
         private readonly userbasicnewService: UserbasicnewService,
         private readonly transactionsProductsService: TransactionsProductsService,
         private readonly transactionsCategorysService: TransactionsCategorysService,
-        private readonly transactionsBalancedsService: TransactionsBalancedsService,
-        private readonly adsService: AdsService,
-        private readonly transactionsCoinSettingsService: TransactionsCoinSettingsService,
-        private readonly adsPriceCreditsService: AdsPriceCreditsService,
-        private readonly transactionsCoaService: TransactionsCoaService,
+        private readonly transactionsBalancedsService: TransactionsBalancedsService, 
+        private readonly adsBalaceCreditService: AdsBalaceCreditService, 
+        private readonly transactionsCoinSettingsService: TransactionsCoinSettingsService, 
+        private readonly adsPriceCreditsService: AdsPriceCreditsService, 
+        private readonly transactionsCoaService: TransactionsCoaService, 
         private readonly transactionsCoaTableService: TransactionsCoaTableService,
     ) { }
 
@@ -672,7 +672,7 @@ export class TransactionsV2Service {
                                                                         AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
                                                                         AdsBalaceCredit_.description = "BUY PAKET CREDIT";
                                                                         AdsBalaceCredit_.idAdspricecredits = currencyCreditId;
-                                                                        await this.adsService.insertBalaceDebit(AdsBalaceCredit_);
+                                                                        await this.adsBalaceCreditService.create(AdsBalaceCredit_);
                                                                     }
                                                                 }
                                                             }

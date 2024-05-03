@@ -15,13 +15,12 @@ import { HttpModule } from '@nestjs/axios';
 import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
 import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
-import { MonetizationModule } from 'src/trans/monetization/monetization.module';
 import { MonetizationService } from './monetization/monetization.service';
 import { Monetize, monetizeSchema } from 'src/trans/monetization/schemas/monetization.schema';
 
 @Module({
     imports: [
-        //MonetizationModule,
+        TransactionsV2Module,
         UserbasicnewModule,
         HttpModule,
         SocketModule,

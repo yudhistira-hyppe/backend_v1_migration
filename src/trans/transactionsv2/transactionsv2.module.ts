@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { LogapisModule } from '../logapis/logapis.module';
 import { TransactionsV2Service } from './transactionsv2.service';
 import { TransactionsV2Controller } from './transactionsv2.controller';
 import { TransactionsCategorysService } from './categorys/transactionscategorys.service';
@@ -15,15 +14,10 @@ import { TransactionsBalancedsService } from './balanceds/transactionsbalanceds.
 import { TransactionsBalancedsController } from './balanceds/transactionsbalanceds.controller';
 import { TransactionsBalanceds, TransactionsBalancedsSchema } from './balanceds/schema/transactionsbalanceds.schema';
 import { transactionsV2, transactionsV2Schema } from './schema/transactionsv2.schema';
-import { MethodepaymentsModule } from '../methodepayments/methodepayments.module';
-import { SettingsModule } from '../settings/settings.module';
-import { BanksModule } from '../banks/banks.module';
-import { OyPgModule } from '../../paymentgateway/oypg/oypg.module';
 import { UserbasicnewModule } from '../userbasicnew/userbasicnew.module';
 import { TransactionsProductsService } from './products/transactionsproducts.service';
 import { TransactionsProductsController } from './products/transactionsproducts.controller';
 import { TransactionsProducts, TransactionsProductsSchema } from './products/schema/transactionsproducts.schema';
-import { AdsModule } from '../adsv2/ads/ads.module';
 import { TransactionsCoinSettings, TransactionsCoinSettingsSchema } from './coin/schema/transactionscoinsettings.schema';
 import { TransactionsCoinSettingsController } from './coin/transactionscoinsettings.controller';
 import { TransactionsCoinSettingsService } from './coin/transactionscoinsettings.service';
@@ -33,11 +27,14 @@ import { TransactionsCreditsController } from './credit/transactionscredits.cont
 import { TransactionsCreditsService } from './credit/transactionscredits.service';
 import { TransactionsCoaTable, TransactionsCoaTableSchema } from './coa/schema/transactionscoatable.schema';
 import { TransactionsCoaTableService } from './coa/transactionscoatable.service';
+import { AdsBalaceCreditModule } from '../adsv2/adsbalacecredit/adsbalacecredit.module';
+import { LogapisModule } from '../logapis/logapis.module';
 @Module({
 
     imports: [
+        LogapisModule,
         AdsPriceCreditsModule,
-        AdsModule,
+        AdsBalaceCreditModule,
         UserbasicnewModule,
         UtilsModule,
         ConfigModule.forRoot(),

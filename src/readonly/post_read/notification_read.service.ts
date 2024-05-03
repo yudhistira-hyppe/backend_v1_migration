@@ -960,6 +960,7 @@ export class NotificationReadService {
                         },
                         {
                             $project: {
+                                postType:1,
                                 dedy:"keren",
                                 uploadSource: {
                                     '$arrayElemAt': ['$mediaSource.uploadSource', 0]
@@ -1050,7 +1051,19 @@ export class NotificationReadService {
                     eventType: 1,
                     flowIsDone: 1,
                     mate: 1,
-                    postType: 1,
+                    postType: 
+                    {
+                        "$ifNull":
+                        [
+                            "$postType",
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$posted.postType", 0
+                                ]
+                            }
+                        ]
+                    },
                     notificationID: 1,
                     actionButtons: 1,
                     postID: 1,
@@ -1068,7 +1081,24 @@ export class NotificationReadService {
                                 '$eq': ['$tester', 'dodol']
                             },
                             then: {
-                                $arrayElemAt: ["$posted", 0]
+                                uploadSource: {
+                                    '$arrayElemAt': ['$posted.uploadSource', 0]
+                                },
+                                apsaraId: {
+                                    '$arrayElemAt': ['$posted.apsaraId', 0]
+                                },
+                                isApsara: {
+                                    '$arrayElemAt': ['$posted.apsara', 0]
+                                },
+                                mediaType: {
+                                    '$arrayElemAt': ['$posted.mediaType', 0]
+                                },
+                                mediaEndpoint: {
+                                    '$arrayElemAt': ['$posted.mediaEndpoint', 0]
+                                },
+                                mediaThumbEndpoint: {
+                                    '$arrayElemAt': ['$posted.mediaThumbEndpoint', 0]
+                                },
                             },
                             else : '$content'
                         }
