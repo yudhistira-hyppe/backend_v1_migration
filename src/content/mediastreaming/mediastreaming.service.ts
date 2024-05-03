@@ -6,6 +6,8 @@ import { Mediastreaming, MediastreamingDocument } from './schema/mediastreaming.
 import { MediastreamingDto, RequestSoctDto } from './dto/mediastreaming.dto';
 import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
+import { MonetizationService } from 'src/trans/monetization/monetization.service';
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 @Injectable()
 export class MediastreamingService {
   private readonly logger = new Logger(MediastreamingService.name);
@@ -16,6 +18,8 @@ export class MediastreamingService {
     private readonly utilsService: UtilsService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly monetizationService: MonetizationService,
+    private readonly transactionsV2Service: TransactionsV2Service,
   ) {}
 
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
@@ -820,6 +824,219 @@ export class MediastreamingService {
     return data;
   }
 
+  async getDataCommentPinned(_id: string) {
+    let paramaggregate = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id),
+
+        }
+      },
+      {
+        $unwind:
+        {
+          path: "$commentPinned",
+          includeArrayIndex: "updateAt_index",
+
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          as: "data_userbasics",
+          let: {
+            localID: "$commentPinned.userId"
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$localID"]
+                },
+
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                avatar: {
+                  "mediaBasePath": "$mediaBasePath",
+                  "mediaUri": "$mediaUri",
+                  "mediaType": "$mediaType",
+                  "mediaEndpoint": "$mediaEndpoint",
+                }
+              }
+            },
+            // {
+            //   "$lookup": {
+            //     from: "userauths",
+            //     as: "data_userauths",
+            //     let: {
+            //       localID: '$userAuth'
+            //     },
+            //     pipeline: [
+            //       {
+            //         $match:
+            //         {
+            //           $expr: {
+            //             $eq: ['$_id', '$$localID']
+            //           }
+            //         }
+            //       },
+            //       {
+            //         $project: {
+            //           email: 1,
+            //           username: 1
+            //         }
+            //       }
+            //     ],
+
+            //   }
+            // },
+            // {
+            //   "$lookup": {
+            //     from: "mediaprofilepicts",
+            //     as: "data_mediaprofilepicts",
+            //     let: {
+            //       localID: '$profilePict'
+            //     },
+            //     pipeline: [
+            //       {
+            //         $match:
+            //         {
+            //           $expr: {
+            //             $eq: ['$_id', '$$localID']
+            //           }
+            //         }
+            //       },
+            //       {
+            //         $project: {
+            //           "mediaBasePath": 1,
+            //           "mediaUri": 1,
+            //           "originalName": 1,
+            //           "fsSourceUri": 1,
+            //           "fsSourceName": 1,
+            //           "fsTargetUri": 1,
+            //           "mediaType": 1,
+            //           "mediaEndpoint": {
+            //             "$concat": ["/profilepict/", "$mediaID"]
+            //           }
+            //         }
+            //       }
+            //     ],
+
+            //   }
+            // },
+            // {
+            //   $project: {
+            //     fullName: 1,
+            //     email: 1,
+            //     username: 1,
+            //     // userAuth: {
+            //     //   "$let": {
+            //     //     "vars": {
+            //     //       "tmp": {
+            //     //         "$arrayElemAt": ["$data_userauths", 0]
+            //     //       }
+            //     //     },
+            //     //     "in": "$$tmp._id"
+            //     //   }
+            //     // },
+            //     // username: {
+            //     //   "$let": {
+            //     //     "vars": {
+            //     //       "tmp": {
+            //     //         "$arrayElemAt": ["$data_userauths", 0]
+            //     //       }
+            //     //     },
+            //     //     "in": "$$tmp.username"
+            //     //   }
+            //     // },
+            //     avatar: {
+            //       "mediaBasePath": "$mediaBasePath",
+            //       "mediaUri": "$mediaUri",
+            //       "mediaType": "$mediaType",
+            //       "mediaEndpoint": "$mediaEndpoint",
+            //     }
+            //   }
+            // },
+
+          ],
+        }
+      },
+      {
+        "$project": {
+          "_id": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "email": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.email"
+            }
+          },
+          "fullName": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+          // "userAuth": {
+          //   "$let": {
+          //     "vars": {
+          //       "tmp": {
+          //         "$arrayElemAt": ["$data_userbasics", 0]
+          //       }
+          //     },
+          //     "in": "$$tmp.userAuth"
+          //   }
+          // },
+          "username": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          "avatar": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.avatar"
+            }
+          },
+          "messages": "$comment.messages",
+          "idStream": "$_id",
+        }
+      },
+    ];
+    const data = await this.MediastreamingModel.aggregate(paramaggregate);
+    return data;
+  }
+
   async getDataEndLive(id: string){
     const data = await this.MediastreamingModel.aggregate([
       {
@@ -1292,6 +1509,18 @@ export class MediastreamingService {
     return data;
   }
 
+  async insertKick(_id: string, kick: any) {
+    const data = await this.MediastreamingModel.updateOne({
+      _id: new mongoose.Types.ObjectId(_id)
+    },
+      {
+        $push: {
+          "kick": kick
+        }
+      });
+    return data;
+  }
+
   async insertFollower(_id: string, follower: any) {
     const data = await this.MediastreamingModel.updateOne({
       _id: new mongoose.Types.ObjectId(_id)
@@ -1311,6 +1540,52 @@ export class MediastreamingService {
       {
         $push: {
           "comment": comment
+        }
+      });
+    return data;
+  }
+
+  async insertGift(_id: string, gift: any) {
+    const data = await this.MediastreamingModel.updateOne({
+      _id: new mongoose.Types.ObjectId(_id)
+    },
+      {
+        $push: {
+          "gift": gift
+        }
+      });
+    return data;
+  }
+
+  async transactionGift(idUser: string, idGift: string, idDiscond: string) {
+    const getDataGift = await this.monetizationService.findOne(idGift);
+    let disconCoin = 0;
+    let voucher = [];
+    let detail = [];
+    let dataDetail = {};
+    dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
+    dataDetail["category"] = "LIVE";
+    dataDetail["typeData"] = "gift";
+    dataDetail["amount"] = getDataGift.amount;
+    if (idDiscond != undefined) {
+      const getDataDiscond = await this.monetizationService.findOne(idDiscond);
+      voucher.push(idDiscond);
+      disconCoin = getDataDiscond.amount;
+    } 
+    dataDetail["discountCoin"] = disconCoin;
+    dataDetail["totalAmount"] = getDataGift.amount-disconCoin;
+    detail.push(dataDetail);
+    
+    await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
+  }
+
+  async insertCommentPinned(_id: string, comment: any) {
+    const data = await this.MediastreamingModel.updateOne({
+      _id: new mongoose.Types.ObjectId(_id)
+    },
+      {
+        $push: {
+          "commentPinned": comment
         }
       });
     return data;

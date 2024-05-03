@@ -29,11 +29,15 @@ export class Mediastreaming{
     @Prop()
     comment: any[];
     @Prop()
+    commentPinned: any[];
+    @Prop()
     like: any[];
     @Prop()
     share: any[];
     @Prop()
     follower: any[];
+    @Prop()
+    gift: any[];
     @Prop()
     urlStream: String;
     @Prop()
@@ -52,5 +56,11 @@ export class Mediastreaming{
     commentDisabled: boolean;
     @Prop()
     tokenAgora: String;
+    @Prop()
+    report: any[];
+    @Prop()
+    banned: boolean;
+    @Prop()
+    dateBanned: String;
 }
 export const MediastreamingSchema = SchemaFactory.createForClass(Mediastreaming);

@@ -14,9 +14,13 @@ import { MediastreamingrequestService } from './mediastreamingrequest.service';
 import { HttpModule } from '@nestjs/axios';
 import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
+import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
+import { MonetizationModule } from 'src/trans/monetization/monetization.module';
 
 @Module({
     imports: [
+        MonetizationModule,
+        TransactionsV2Module,
         UserbasicnewModule,
         HttpModule,
         SocketModule,
