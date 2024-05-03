@@ -316,10 +316,10 @@ export class MonetizationService {
         insertdata.endCouponDate = request_body.endCouponDate + " " + request_body.endCouponTime;
         insertdata.active = true;
         insertdata.status = false;
-        insertdata.min_discount = Number(request_body.min_discount);
-        insertdata.min_use_disc = Number(request_body.min_use_disc);
-        insertdata.stock = Number(request_body.stock);
-        insertdata.last_stock = Number(request_body.stock);
+        insertdata.min_discount = (request_body.min_discount != null && request_body.min_discount != undefined ? Number(request_body.min_discount) : null);
+        insertdata.min_use_disc = (request_body.min_use_disc != null && request_body.min_use_disc != undefined ? Number(request_body.min_use_disc) : null);
+        insertdata.stock = (request_body.stock != null && request_body.stock != undefined ? Number(request_body.stock) : null);
+        insertdata.last_stock = (request_body.stock != null && request_body.stock != undefined ? Number(request_body.stock) : null);
         insertdata.satuan_diskon = request_body.satuan_diskon;
         insertdata.used_stock = 0;
         insertdata.type = 'DISCOUNT';
@@ -524,6 +524,15 @@ export class MonetizationService {
 
         pipeline.push(
             {
+                "$lookup": 
+                {
+                    from: "transactionsProducts",
+                    localField: "productID",
+                    foreignField: "_id",
+                    as: "productData"
+                }
+            },
+            {
                 "$project":
                 {
                     _id:1,
@@ -720,6 +729,41 @@ export class MonetizationService {
                             else:"$$REMOVE"
                         }
                     },
+                    productName:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$productData", []
+                                ]
+                            },
+                            then:"$$REMOVE",
+                            else:
+                            {
+                                "$cond":
+                                {
+                                    if:
+                                    {
+                                        "$eq":
+                                        [
+                                            "$type", "DISCOUNT"
+                                        ]
+                                    },
+                                    then:
+                                    {
+                                        "$arrayElemAt":
+                                        [
+                                            "$productData.name", 0
+                                        ]
+                                    },
+                                    else:"$$REMOVE"
+                                }
+                            }
+                        }
+                    },
                     startCouponDate:
                     {
                         "$cond":
@@ -759,6 +803,9 @@ export class MonetizationService {
                 }
             }
         );
+
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
 
         var data = await this.monetData.aggregate(pipeline);
         return data;
