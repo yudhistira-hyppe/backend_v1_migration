@@ -26,9 +26,9 @@ export class TransactionsV2Service {
         @InjectModel(transactionsV2.name, 'SERVER_FULL')
         private readonly transactionsModel: Model<transactionsV2Document>,
         private readonly configService: ConfigService,
-        private readonly utilsService: UtilsService, 
-        private readonly userbasicnewService: UserbasicnewService, 
-        private readonly transactionsProductsService: TransactionsProductsService, 
+        private readonly utilsService: UtilsService,
+        private readonly userbasicnewService: UserbasicnewService,
+        private readonly transactionsProductsService: TransactionsProductsService,
         private readonly transactionsCategorysService: TransactionsCategorysService,
         private readonly transactionsBalancedsService: TransactionsBalancedsService, 
         private readonly adsBalaceCreditService: AdsBalaceCreditService, 
@@ -38,22 +38,22 @@ export class TransactionsV2Service {
         private readonly transactionsCoaTableService: TransactionsCoaTableService,
     ) { }
 
-    async updateTransaction(){
+    async updateTransaction() {
 
     }
 
     async insertTransaction(
-        platform: string, 
+        platform: string,
         transactionProductCode: string,
         category: string,
         coinTransaction: number,
         discountCoin: number = 0,
         priceRp: number = 0,
-        discountRp: number = 0, 
-        idUserBuy: string, 
-        idUserSell: string, 
-        idVoucher: any[], 
-        detail: any[], 
+        discountRp: number = 0,
+        idUserBuy: string,
+        idUserSell: string,
+        idVoucher: any[],
+        detail: any[],
         status: string) {
         try {
             //Currency coin 
@@ -507,7 +507,7 @@ export class TransactionsV2Service {
                         }
                     }
 
-                    if (discountRp != undefined){
+                    if (discountRp != undefined) {
                         if (discountRp > 0) {
                             biayaDiscount = discountRp;
                         }
@@ -551,7 +551,7 @@ export class TransactionsV2Service {
                     TransactionsCoa_.idTransaction = idTransaction;
                     TransactionsCoa_.idCoinSettings = currencyCoinId;
                     TransactionsCoa_.createdAt = currentDate;
-                    TransactionsCoa_.updatedAt = currentDate; 
+                    TransactionsCoa_.updatedAt = currentDate;
                     await this.transactionsCoaService.create(TransactionsCoa_);
 
                     //Insert Coa Table
@@ -796,11 +796,11 @@ export class TransactionsV2Service {
             TransactionNumber += "00000" + No.toString();
         }
 
-        TransactionInvoice += Year.toString() + "/" + PlatformCode + "/" + categoryTransaction + "/" + codeProduct + "/" + TransactionNumber; 
+        TransactionInvoice += Year.toString() + "/" + PlatformCode + "/" + categoryTransaction + "/" + codeProduct + "/" + TransactionNumber;
         return TransactionInvoice;
     }
 
-    async generateIdTransaction(){
+    async generateIdTransaction() {
         let IdTransaction = "";
 
         //Date Code
@@ -811,5 +811,76 @@ export class TransactionsV2Service {
         const Time = CurrentDate.getTime().toString();
         IdTransaction = Year + "/" + Month + "/" + Day + "/" + Time;
         return IdTransaction;
+    }
+
+    async getCoinHistory(email: string, skip: number, limit: number, descending: boolean, dateFrom?: string, dateTo?: string, type?: string[]) {
+        const userData = await this.userbasicnewService.findBymail(email);
+        let order = 0;
+        let pipeline = [];
+
+        if (descending === true) {
+            order = -1;
+        } else {
+            order = 1;
+        };
+
+        let matchAnd = [];
+        matchAnd.push({
+            idUser: userData._id
+        });
+        if (dateFrom) matchAnd.push({
+            createdAt: {
+                $gte: dateFrom + " 00:00:00"
+            }
+        });
+        if (dateTo) matchAnd.push({
+            createdAt: {
+                $lte: dateTo + " 23:59:59"
+            }
+        });
+
+        pipeline.push(
+            {
+                $match: {
+                    $and: matchAnd
+                }
+            },
+            {
+                $lookup: {
+                    from: "transactionsCategorys",
+                    localField: "category",
+                    foreignField: "_id",
+                    as: "categoryData"
+                }
+            },
+            {
+                $project: {
+                    idTransaction: 1,
+                    noInvoice: 1,
+                    totalCoin: 1,
+                    createdAt: 1,
+                    categoryData: {
+                        $arrayElemAt: ["$categoryData", 0]
+                    }
+                }
+            },
+            {
+                $match: {
+                    "categoryData.code": {
+                        $in: (type && type.length > 0) ? type : ["PBC", "PGC", "PUC"]
+                    }
+                }
+            },
+            {
+                $sort: {
+                    createdAt: order
+                }
+            }
+        );
+        if (skip > 0) pipeline.push({ $skip: skip * limit });
+        if (limit > 0) pipeline.push({ $limit: limit });
+
+        let data = await this.transactionsModel.aggregate(pipeline);
+        return data;
     }
 }

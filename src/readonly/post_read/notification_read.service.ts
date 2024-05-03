@@ -708,8 +708,8 @@ export class NotificationReadService {
         pipeline.push(
             {
                 $lookup: {
-                    // from: 'tempPosts',
-                    from: 'newPosts',
+                    from: 'tempPosts',
+                    // from: 'newPosts',
                     as: 'post',
                     let: {
                         localID: '$postID'
@@ -928,38 +928,118 @@ export class NotificationReadService {
                     }
                 }
             },
-            // {
-            //     "$addFields":
-            //     {
-            //         "tempboost":
-            //         {
-            //             "$ifNull":
-            //                 [
-            //                     {
-            //                         "$cond":
-            //                         {
-            //                             if:
-            //                             {
-            //                                 "$gte":
-            //                                     [
-            //                                         {
-            //                                             "$size": "$boosted"
-            //                                         },
-            //                                         0
-            //                                     ]
-            //                             },
-            //                             then:
-            //                                 "$boosted",
-            //                             else: []
-            //                         },
-            //                     },
-            //                     []
-            //                 ]
-            //         },
-            //     },
-            // },
             {
-                $project: {
+                '$lookup': {
+                    from: 'newPosts',
+                    as: 'posted',
+                    let: {
+                        localID: {
+                            '$cond': {
+                                if : {
+                                    '$eq': ['$tester', 'dodol']
+                                },
+                                else : '$kancutTaslim',
+                                then: '$postID'
+                            }
+                        }
+                    },
+                    pipeline: [
+                            {
+                                $match: {
+                                        $and:
+                                        [
+                                            {
+                                                    '$expr': 
+                                                    {
+                                                            '$eq': ['$postID', '$$localID']
+                                                    }
+                                            },
+                                            
+                                ]
+                            }
+                        },
+                        {
+                            $project: {
+                                dedy:"keren",
+                                uploadSource: {
+                                    '$arrayElemAt': ['$mediaSource.uploadSource', 0]
+                                },
+                                apsaraId: {
+                                    '$arrayElemAt': ['$mediaSource.apsaraId', 0]
+                                },
+                                isApsara: {
+                                    '$arrayElemAt': ['$mediaSource.apsara', 0]
+                                },
+                                mediaType: {
+                                    '$arrayElemAt': ['$mediaSource.mediaType', 0]
+                                },
+                                mediaEndpoint: {
+                                    '$cond': {
+                                        if : {
+                                            '$eq': ['$post.postType', 'pict']
+                                        },
+                                        then: {
+                                            '$concat': ['/thumb/', '$postID']
+                                        },
+                                        else : {
+                                            '$cond': {
+                                                if : {
+                                                    '$eq': ['$postType', 'vid']
+                                                },
+                                                then: {
+                                                    '$concat': ['/thumb/', '$postID']
+                                                },
+                                                else : {
+                                                    '$cond': {
+                                                        if : {
+                                                            '$eq': ['$postType', 'diary']
+                                                        },
+                                                        then: {
+                                                            '$concat': ['/thumb/', '$postID']
+                                                        },
+                                                        else : {
+                                                            '$cond': {
+                                                                if : {
+                                                                    '$eq': [
+                                                                        {
+                                                                            '$arrayElemAt': ['$mediaSource.mediaType', 0]
+                                                                        },
+                                                                        'video'
+                                                                    ]
+                                                                },
+                                                                then: {
+                                                                    '$concat': ['/thumb/', '$postID']
+                                                                },
+                                                                else : {
+                                                                    '$concat': ['/pict/', '$postID']
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                mediaThumbEndpoint: {
+                                    '$ifNull': [
+                                        {
+                                            '$arrayElemAt': ['$mediaSource.mediaThumbEndpoint', 0]
+                                        },
+                                        {
+                                            '$concat': ['/thumb/', '$postID']
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        
+                    ],
+                    
+                }
+            },
+            {
+                '$project': {
                     active: 1,
                     body: 1,
                     bodyId: 1,
@@ -971,69 +1051,31 @@ export class NotificationReadService {
                     flowIsDone: 1,
                     mate: 1,
                     postType: 1,
-                    // mediaTypeStory: 1,
                     notificationID: 1,
                     actionButtons: 1,
                     postID: 1,
                     senderOrReceiverInfo: 1,
                     title: 1,
-                    // titleEN: 1,
                     updatedAt: 1,
-                    urluserBadge:
-                    {
-                        "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt": ["$urluserBadge", 0]
-                                },
-                                null
-                            ]
+                    urluserBadge: {
+                        '$ifNull': [{
+                            '$arrayElemAt': ['$urluserBadge', 0]
+                        }, null]
                     },
-                    content:
-                    {
-                        $cond: {
-                            if: {
-                                $eq: ["$tester", "dodol"],
+                    content: {
+                        '$cond': {
+                            if : {
+                                '$eq': ['$tester', 'dodol']
                             },
-                            then: "$kancutTaslim",
-                            else: "$content"
+                            then: {
+                                $arrayElemAt: ["$posted", 0]
+                            },
+                            else : '$content'
                         }
                     },
-                    // "boostJangkauan":
-                    // {
-                    //     "$ifNull":
-                    //         [
-                    //             {
-                    //                 "$size": "$tempboost.boostViewer"
-                    //             },
-                    //             0
-                    //         ]
-                    // },
-                    // "isBoost": "$isBoost",
-                    // "boostViewer": {
-                    //     $arrayElemAt: ["$tempboost.boostViewer", 0]
-                    // },
-                    // "boostCount": 1,
-                    // "boosted":
-                    // {
-                    //     $cond: {
-                    //         if: {
-                    //             $gt: [{
-                    //                 "$dateToString": {
-                    //                     "format": "%Y-%m-%d %H:%M:%S",
-                    //                     "date": {
-                    //                         $add: [new Date(), 25200000]
-                    //                     }
-                    //                 }
-                    //             }, "$tempboost.boostSession.end"]
-                    //         },
-                    //         then: "$ilang",
-                    //         else: "$tempboost",
-
-                    //     }
-                    // },
+                    //posted: {$arrayElemAt:["$posted",0]}
                 }
-            }
+            },
         );
         // console.log(JSON.stringify(pipeline));
         // var util = require('util');
