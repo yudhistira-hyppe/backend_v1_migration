@@ -4,6 +4,8 @@ import { Long } from "mongodb";
 export class MediastreamingDto {
   _id: mongoose.Types.ObjectId;
   title: String;
+  Url: String;
+  textUrl: String;
   userId: mongoose.Types.ObjectId;
   expireTime: Long;
   startLive: String;
@@ -11,9 +13,11 @@ export class MediastreamingDto {
   status: boolean;
   view: any[];
   comment: any[];
+  commentPinned: any[];
   like: any[];
   share: any[];
   follower: any[];
+  gift: any[];
   urlStream: String;
   urlIngest: String;
   feedBack: String;
@@ -26,8 +30,14 @@ export class MediastreamingDto {
   feedback: number;
   feedbackText: String;
   pause: boolean;
+  idGift: String;
   userIdKick: mongoose.Types.ObjectId;
   viewCountActive: number;
+  tokenAgora: String;
+  report: any[];
+  banned: boolean;
+  dateBanned: String;
+  idDiscond: String;
 }
 
 export class MediastreamingRequestDto{

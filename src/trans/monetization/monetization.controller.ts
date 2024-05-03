@@ -60,28 +60,51 @@ export class MonetizationController {
     delete toLog['coinThumb'];
     let data;
 
-    if (type == 'COIN') {
-      data = await this.monetizationService.createCoin(file.coinThumb[0], body);
-    }
-    else if (type == 'CREDIT') {
-      data = await this.monetizationService.createCredit(headers, body);
-    }
-    else if (type == 'GIFT') {
-      var uploadanimation = null;
-      try
-      {
-        uploadanimation = file.giftAnimation[0]
-      }
-      catch(e)
-      {
-        uploadanimation = null;
-      }
+    // if (type == 'COIN') {
+    //   data = await this.monetizationService.createCoin(file.coinThumb[0], body);
+    // }
+    // else if (type == 'CREDIT') {
+    //   data = await this.monetizationService.createCredit(headers, body);
+    // }
+    // else if (type == 'GIFT') {
+    //   var uploadanimation = null;
+    //   try
+    //   {
+    //     uploadanimation = file.giftAnimation[0]
+    //   }
+    //   catch(e)
+    //   {
+    //     uploadanimation = null;
+    //   }
 
-      data = await this.monetizationService.createGift(headers, file.giftThumb[0], uploadanimation, body);
-    }
-    else if(type == 'DISCOUNT')
-    {
-      data = await this.monetizationService.createDiscount(headers, file.discThumb[0], body); 
+    //   data = await this.monetizationService.createGift(headers, file.giftThumb[0], uploadanimation, body);
+    // }
+    // else if(type == 'DISCOUNT')
+    // {
+    //   data = await this.monetizationService.createDiscount(headers, file.discThumb[0], body); 
+    // }
+
+    switch (type) {
+      case 'COIN':
+        data = await this.monetizationService.createCoin(file.coinThumb[0], body);
+        break;
+      case 'CREDIT':
+        data = await this.monetizationService.createCredit(headers, body);
+        break;
+      case 'GIFT':
+        var uploadanimation = null;
+        try {
+          uploadanimation = file.giftAnimation[0]
+        } catch (e) {
+          uploadanimation = null;
+        }
+        data = await this.monetizationService.createGift(headers, file.giftThumb[0], uploadanimation, body);
+        break;
+      case 'DISCOUNT':
+        data = await this.monetizationService.createDiscount(headers, file.discThumb[0], body);
+        break;
+      default:
+        throw new BadRequestException("type must be 'COIN', 'CREDIT', 'GIFT', or 'DISCOUNT'");
     }
 
 
@@ -144,13 +167,15 @@ export class MonetizationController {
     var token = headers['x-auth-token'];
     var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
     var email = auth.email;
+    const types = ["COIN", "CREDIT", "GIFT", "DISCOUNT"];
 
     var request_json = JSON.parse(JSON.stringify(request.body));
     if (request_json.page == undefined || request_json.page == null) { throw new BadRequestException("Missing field page (number)"); }
     if (request_json.limit == undefined || request_json.limit == null) { throw new BadRequestException("Missing field: limit (number)"); }
     if (request_json.descending == undefined || request_json.descending == null) { throw new BadRequestException("Missing field: descending (boolean)"); }
-    if (request_json.type == undefined || !request_json.type) { throw new BadRequestException("Missing field: type (string 'COIN'/'CREDIT'/'GIFT')"); }
-    if (request_json.type !== "COIN" && request_json.type !== "CREDIT" && request_json.type !== "GIFT" && request_json.type !== 'DISCOUNT') { throw new BadRequestException("type must be 'COIN' or 'CREDIT' or 'GIFT' or 'DISCOUNT'"); }
+    if (request_json.type == undefined || !request_json.type) { throw new BadRequestException("Missing field: type (string 'COIN'/'CREDIT'/'GIFT'/'DISCOUNT')"); }
+    // if (request_json.type !== "COIN" && request_json.type !== "CREDIT" && request_json.type !== "GIFT" && request_json.type !== 'DISCOUNT') { throw new BadRequestException("type must be 'COIN' or 'CREDIT' or 'GIFT' or 'DISCOUNT'"); }
+    if (types.indexOf(request_json.type) < 0) { throw new BadRequestException("type must be 'COIN', 'CREDIT', 'GIFT', or 'DISCOUNT'"); }
     let skip = (request_json.page >= 0 ? request_json.page : 0) * request_json.limit;
     var data = await this.monetizationService.listAllCoin(skip, request_json.limit, request_json.descending, request_json.type, request_json.name, request_json.from, request_json.to, request_json.stock_gte, request_json.stock_lte, request_json.status, request_json.audiens, request_json.tipegift, request_json.jenisProduk);
 
