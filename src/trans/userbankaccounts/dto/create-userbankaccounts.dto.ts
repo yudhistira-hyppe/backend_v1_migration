@@ -20,4 +20,5 @@ export class CreateUserbankaccountsDto {
     updatedAt: string;
     SupportUploadSource: string
     similarity: number
+    fileSupport: any[]
 }
