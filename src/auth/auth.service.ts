@@ -12116,7 +12116,7 @@ export class AuthService {
                 if (await this.utilsService.ceckData(user_Basic)) {
                   if (Number(user_Basic.otpAttempt) >= 3) {
                     try {
-                      var updateotp = new Userbasicnew();
+                      var updateotp = new CreateuserbasicnewDto();
                       var OTP_expires = await this.utilsService.generateOTPExpiresNextAttemptAllow();
                       updateotp.otpNextAttemptAllow = Long.fromString(OTP_expires.toString());
                       this.basic2SS.update(user_email, updateotp);
@@ -12511,7 +12511,7 @@ export class AuthService {
 
           //Create UserBasic
           try {
-            var data_CreateUserbasicDto = new Userbasicnew();
+            var data_CreateUserbasicDto = new CreateuserbasicnewDto();
             var pass_gen = await this.utilsService.generatePassword(user_password);
             var gen_profileID = (await this.utilsService.generateId()).toLowerCase();
             var ID_user = (await this.utilsService.generateId()).toLowerCase();

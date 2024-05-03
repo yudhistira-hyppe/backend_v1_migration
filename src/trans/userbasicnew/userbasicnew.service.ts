@@ -14,7 +14,7 @@ export class UserbasicnewService {
         private readonly logapiSS: LogapisService
     ) { }
 
-    async create(Userbasicnew_: Userbasicnew): Promise<Userbasicnew> {
+    async create(Userbasicnew_: CreateuserbasicnewDto): Promise<Userbasicnew> {
         const _Userbasicnew_ = await this.UserbasicnewModel.create(Userbasicnew_);
         return _Userbasicnew_;
     }
@@ -1617,7 +1617,7 @@ export class UserbasicnewService {
         return data;
     }
 
-    async update(id: string, Userbasicnew_: Userbasicnew): Promise<Userbasicnew> {
+    async update(id: string, Userbasicnew_: CreateuserbasicnewDto): Promise<Userbasicnew> {
         let data = await this.UserbasicnewModel.findByIdAndUpdate(id, Userbasicnew_, { new: true });
         if (!data) {
             throw new Error('Data is not found!');
@@ -1704,7 +1704,7 @@ export class UserbasicnewService {
         return data;
     }
 
-    async updateLanguage(email: string, CreateUserbasicnewDto_: Userbasicnew) {
+    async updateLanguage(email: string, CreateUserbasicnewDto_: CreateuserbasicnewDto) {
         console.log(CreateUserbasicnewDto_);
         this.UserbasicnewModel.updateOne(
             {

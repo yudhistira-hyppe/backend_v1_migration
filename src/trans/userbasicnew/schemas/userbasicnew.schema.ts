@@ -253,6 +253,10 @@ export class Userbasicnew {
     urlLink: string;
     @Prop()
     judulLink: string;
+    @Prop()
+    liveBanned: boolean;
+    @Prop()
+    liveBannedDate: string;
 }
 
 export const UserbasicnewSchema = SchemaFactory.createForClass(Userbasicnew);

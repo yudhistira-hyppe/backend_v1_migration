@@ -1838,6 +1838,18 @@ export class MediastreamingService {
     return data;
   }
 
+  async insertReport(_id: string, report: any) {
+    const data = await this.MediastreamingModel.updateOne({
+      _id: new mongoose.Types.ObjectId(_id)
+    },
+      {
+        $push: {
+          "report": report
+        }
+      });
+    return data;
+  }
+
   async insertGift(_id: string, gift: any) {
     const data = await this.MediastreamingModel.updateOne({
       _id: new mongoose.Types.ObjectId(_id)
