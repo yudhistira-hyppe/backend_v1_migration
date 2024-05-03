@@ -27,6 +27,281 @@ export class MediastreamingService {
     return DataSave;
   }
 
+  async getDataListAgora(userId: string, email: string, arrayId: mongoose.Types.ObjectId[], pageNumber: number, pageSize: number) {
+    let skip_ = (pageNumber > 0) ? (pageNumber * pageSize) : pageNumber;
+    let limit_ = pageSize;
+    const DataList = await this.MediastreamingModel.aggregate(
+      [
+        {
+          $set: {
+            idStream: arrayId,
+            userId: userId
+          },
+
+        },
+        {
+          $match: {
+            $and: [
+              {
+                $expr: { $in: ['$_id', '$idStream'] }
+              },
+              { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
+            ]
+          },
+        },
+        {
+          "$lookup": {
+            from: "newUserBasics",
+            as: "user",
+            let: {
+              email: email,
+              userID: "$userId"
+            },
+            pipeline: [
+              {
+                $match: {
+                  $or: [
+                    {
+                      $expr:
+                      {
+                        $eq: ["$email", "$$email"]
+                      },
+
+                    },
+                    {
+                      $expr:
+                      {
+                        $eq: ["$_id", "$$userID"]
+                      },
+
+                    },
+
+                  ]
+                },
+
+              }
+            ]
+          }
+        },
+        {
+          $set: {
+            userLogin: {
+              $filter: {
+                input: "$user",
+                as: "users",
+                cond: {
+                  $eq: ["$$users.email", email]
+                }
+              }
+            },
+
+          }
+        },
+        {
+          $set: {
+            userStream: {
+              $filter: {
+                input: "$user",
+                as: "users",
+                cond: {
+                  $ne: ["$$users.email", email]
+                }
+              }
+            },
+          }
+        },
+        {
+          $set: {
+            interestLogin: {
+              $arrayElemAt: ["$userLogin.userInterests.$id", 0]
+            }
+          }
+        },
+        {
+          $set: {
+            interesStream: {
+              $arrayElemAt: ["$userStream.userInterests.$id", 0]
+            }
+          }
+        },
+        {
+          $set: {
+            ints: {
+              $concatArrays: [{
+                $arrayElemAt: ["$userStream.userInterests.$id", 0]
+              }, {
+                $arrayElemAt: ["$userLogin.userInterests.$id", 0]
+              }]
+            }
+          }
+        },
+        {
+          $set: {
+            interest: {
+              $subtract: [
+                {
+                  $size: "$ints"
+                },
+                {
+                  $size: {
+                    $setUnion: [
+                      "$ints",
+                      []
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          $set: {
+            views: {
+              $filter: {
+                input: "$view",
+                as: "views",
+                cond: {
+                  $eq: ["$$views.status", true]
+                }
+              }
+            },
+
+          }
+        },
+        {
+          $set: {
+            totalView:
+            {
+              $size: "$views"
+            }
+          }
+        },
+        {
+          $set: {
+            totalLike:
+            {
+              $size: "$like"
+            }
+          }
+        },
+        {
+          $set: {
+            follower: {
+              $arrayElemAt: ["$userStream.follower", 0]
+            },
+
+          }
+        },
+        {
+          $set: {
+            following: {
+              $arrayElemAt: ["$userStream.following", 0]
+            },
+
+          }
+        },
+        {
+          $set: {
+            friend: {
+              $arrayElemAt: ["$userStream.friend", 0]
+            },
+
+          }
+        },
+        {
+          $set: {
+            totalFollower:
+            {
+              $size: "$follower"
+            }
+          }
+        },
+        {
+          $set: {
+            totalFriend:
+            {
+              $size: "$friend"
+            }
+          }
+        },
+        {
+          $set: {
+            totalFollowing:
+            {
+              $size: "$following"
+            }
+          }
+        },
+        {
+          $sort: {
+            totalFriend: -1,
+            totalFollowing: -1,
+            interest: -1,
+            totalView: -1,
+            totalLike: -1,
+            totalFollower: -1,
+            startLive: -1,
+
+          }
+        },
+        {
+          $skip: skip_
+        },
+        {
+          $limit: limit_
+        },
+        {
+          $project: {
+            _id: 1,
+            title: 1,
+            userId: 1,
+            tokenAgora: 1,
+            expireTime: 1,
+            startLive: 1,
+            status: 1,
+            urlStream: 1,
+            urlIngest: 1,
+            createAt: 1,
+            interest: 1,
+            totalView: 1,
+            totalLike: 1,
+            totalFollower: 1,
+            totalFriend: 1,
+            totalFollowing: 1,
+            fullName:
+            {
+              $arrayElemAt: ["$userStream.fullName", 0]
+            },
+            username:
+            {
+              $arrayElemAt: ["$userStream.username", 0]
+            },
+            email:
+            {
+              $arrayElemAt: ["$userStream.email", 0]
+            },
+            //avatar: 1,
+            avatar: {
+              "mediaBasePath": {
+                $arrayElemAt: ["$userStream.mediaBasePath", 0]
+              },
+              "mediaUri": {
+                $arrayElemAt: ["$userStream.mediaUri", 0]
+              },
+              "mediaType": {
+                $arrayElemAt: ["$userStream.mediaType", 0]
+              },
+              "mediaEndpoint": {
+                $arrayElemAt: ["$userStream.mediaEndpoint", 0]
+              },
+            }
+          }
+        },
+      ]
+    );
+    return DataList;
+  }
+
   async getDataList(email: string, arrayId: mongoose.Types.ObjectId[], pageNumber: number, pageSize: number){
     let skip_ = (pageNumber > 0) ? (pageNumber * pageSize) : pageNumber;
     let limit_ = pageSize;
@@ -1127,6 +1402,7 @@ export class MediastreamingService {
                 username: 1,
                 follower: 1,
                 following: 1,
+                income: 1,
                 avatar: {
                   "mediaBasePath": "$mediaBasePath",
                   "mediaUri": "$mediaUri",
