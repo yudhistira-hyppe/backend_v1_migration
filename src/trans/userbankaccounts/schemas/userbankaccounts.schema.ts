@@ -34,12 +34,13 @@ export class Userbankaccounts {
     @Prop() createdAt: string;
     @Prop() updatedAt: string;
     @Prop()
-    SupportUploadSource: string
+    SupportUploadSource: string;
     @Prop()
-    similarity: number
-    
-  
-
+    similarity: number;
+    @Prop()
+    status: String;
+    @Prop()
+    remark: String;
 
 
 }

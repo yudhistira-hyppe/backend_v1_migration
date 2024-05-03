@@ -836,16 +836,17 @@ export class UserbankaccountsController {
             CreateUserbankaccountsDto_.SupportfsSourceName = arraySname;
             CreateUserbankaccountsDto_.SupportfsTargetUri = arrayTargetUri;
             CreateUserbankaccountsDto_.SupportmediaMime = supportFile_mimetype;
+            CreateUserbankaccountsDto_.status = 'NEW';
 
             data = await this.userbankaccountsService.update(iduserbank, CreateUserbankaccountsDto_);
 
-            // try {
-            //     dataacount = await this.sendReportAppealBankFCM(email, "NOTIFY_APPEAL", "REQUEST_APPEAL", "BANK", fullname);
-            // } catch (e) {
-            //     await this.errorHandler.generateNotAcceptableException(
-            //         e.toString(),
-            //     );
-            // }
+            try {
+                dataacount = await this.sendReportAppealBankFCM(email, "NOTIFY_APPEAL", "CREATE_APPEAL", "BANK", fullname);
+            } catch (e) {
+                await this.errorHandler.generateNotAcceptableException(
+                    e.toString(),
+                );
+            }
             return {
                 "response_code": 202,
                 "data": data,
