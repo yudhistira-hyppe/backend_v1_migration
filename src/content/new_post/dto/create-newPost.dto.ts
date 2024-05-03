@@ -185,6 +185,8 @@ export class PostData {
   urluserBadge: any[];
   stiker: any[];
   text: any[];
+  urlLink: string;
+  judulLink: string;
 }
 
 export class Messages {
