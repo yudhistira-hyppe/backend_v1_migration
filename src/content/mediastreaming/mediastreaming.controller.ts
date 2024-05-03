@@ -125,7 +125,6 @@ export class MediastreamingController {
       );
     }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
-    var profile_auth = await this.userauthService.findOne(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
         'Unabled to proceed user not found',
@@ -363,7 +362,7 @@ export class MediastreamingController {
           await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
           if (MediastreamingDto_.idGift!=undefined){
             await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-            //this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString() ,profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
+            this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString() ,profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
           }
           //SEND COMMENT SINGLE
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());

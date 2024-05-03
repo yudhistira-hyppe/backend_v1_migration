@@ -6,8 +6,8 @@ import { Mediastreaming, MediastreamingDocument } from './schema/mediastreaming.
 import { MediastreamingDto, RequestSoctDto } from './dto/mediastreaming.dto';
 import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
-import { MonetizationService } from 'src/trans/monetization/monetization.service';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
+import { MonetizationService } from './monetization/monetization.service';
 @Injectable()
 export class MediastreamingService {
   private readonly logger = new Logger(MediastreamingService.name);
@@ -18,8 +18,8 @@ export class MediastreamingService {
     private readonly utilsService: UtilsService,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-    //private readonly monetizationService: MonetizationService,
-    //private readonly transactionsV2Service: TransactionsV2Service,
+    private readonly monetizationService: MonetizationService,
+    private readonly transactionsV2Service: TransactionsV2Service,
   ) {}
 
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
@@ -1585,47 +1585,47 @@ export class MediastreamingService {
     );
   }
 
-  // async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: string) {
-  //   const getDataGift = await this.monetizationService.findOne(idGift);
-  //   let amount = 0;
-  //   let disconCoin = 0;
-  //   let totalAmount = 0;
-  //   let voucher = [];
-  //   let detail = [];
-  //   let dataDetail = {};
-  //   dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
-  //   dataDetail["category"] = "LIVE";
-  //   dataDetail["typeData"] = "gift";
-  //   dataDetail["amount"] = getDataGift.amount;
-  //   if (idDiscond != undefined) {
-  //     const getDataDiscond = await this.monetizationService.findOne(idDiscond);
-  //     voucher.push(idDiscond);
-  //     disconCoin = getDataDiscond.amount;
-  //   } 
-  //   amount = getDataGift.amount;
-  //   totalAmount = getDataGift.amount - disconCoin;
-  //   dataDetail["discountCoin"] = disconCoin;
-  //   dataDetail["totalAmount"] = totalAmount
-  //   detail.push(dataDetail);
+  async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: string) {
+    const getDataGift = await this.monetizationService.findOne(idGift);
+    let amount = 0;
+    let disconCoin = 0;
+    let totalAmount = 0;
+    let voucher = [];
+    let detail = [];
+    let dataDetail = {};
+    dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
+    dataDetail["category"] = "LIVE";
+    dataDetail["typeData"] = "gift";
+    dataDetail["amount"] = getDataGift.amount;
+    if (idDiscond != undefined) {
+      const getDataDiscond = await this.monetizationService.findOne(idDiscond);
+      voucher.push(idDiscond);
+      disconCoin = getDataDiscond.amount;
+    } 
+    amount = getDataGift.amount;
+    totalAmount = getDataGift.amount - disconCoin;
+    dataDetail["discountCoin"] = disconCoin;
+    dataDetail["totalAmount"] = totalAmount
+    detail.push(dataDetail);
     
-  //   const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
-  //   if (data) {
-  //     let coinProfitSharingGF = 0;
-  //     let totalIncome = 0;
-  //     const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
-  //     const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
-  //     if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
-  //       if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
-  //         coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
-  //       }
-  //       if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
-  //         coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
-  //       }
-  //     }
-  //     totalIncome = amount - coinProfitSharingGF;
-  //     this.updateIncome(idStream, totalIncome)
-  //   }
-  // }
+    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
+    if (data) {
+      let coinProfitSharingGF = 0;
+      let totalIncome = 0;
+      const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
+      const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
+      if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
+        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
+          coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+        }
+        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
+          coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+        }
+      }
+      totalIncome = amount - coinProfitSharingGF;
+      this.updateIncome(idStream, totalIncome)
+    }
+  }
 
   async insertCommentPinned(_id: string, comment: any) {
     const data = await this.MediastreamingModel.updateOne({
