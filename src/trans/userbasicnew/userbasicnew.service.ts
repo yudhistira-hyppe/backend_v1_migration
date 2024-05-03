@@ -1625,6 +1625,14 @@ export class UserbasicnewService {
         return data;
     }
 
+    async update2(id: string, Userbasicnew_: Userbasicnew): Promise<Userbasicnew> {
+        let data = await this.UserbasicnewModel.findByIdAndUpdate(id, Userbasicnew_, { new: true });
+        if (!data) {
+            throw new Error('Data is not found!');
+        }
+        return data;
+    }
+
     async updatebyEmailV2(email: string, dto: Userbasicnew) {
         this.UserbasicnewModel.updateOne(
             {

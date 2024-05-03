@@ -1143,7 +1143,7 @@ export class AuthController {
             updateactivityevent.userEvent = "LOGIN";
             updateactivityevent.event = "LOGIN";
             var konvert = data_userbasics._id;
-            await this.basic2SS.update(konvert.toString(), updateactivityevent);
+            await this.basic2SS.update2(konvert.toString(), updateactivityevent);
 
             //Insert ActivityEvent child
 
@@ -1257,7 +1257,7 @@ export class AuthController {
             updateactivityevent.userEvent = "LOGIN";
             updateactivityevent.event = "LOGIN";
             var konvert = data_userbasics._id;
-            await this.basic2SS.update(konvert.toString(), updateactivityevent);
+            await this.basic2SS.update2(konvert.toString(), updateactivityevent);
 
             //await this.utilsService.counscore("AE", "prodAll", "activityevents", idevent, eventType, data_userbasics._id);
           } catch (error) {
@@ -1397,7 +1397,7 @@ export class AuthController {
                 $db: 'hyppe_trans_db',
               });
 
-              var insertdevice = new Userbasicnew();
+              var insertdevice = new CreateuserbasicnewDto();
               insertdevice.authUsers = {
                 "devices": data_userauths_devices_list
               };
@@ -1420,7 +1420,7 @@ export class AuthController {
         messages_response = 'Login successful';
         var datasetting = await this.settingsService.findAll();
 
-        var insertSource = new Userbasicnew();
+        var insertSource = new CreateuserbasicnewDto();
         if (LoginRequest_.regSrc == undefined) {
           if (await this.utilsService.ceckData(data_userbasics)) {
             if (data_userbasics.regSrc != undefined) {
@@ -1973,7 +1973,7 @@ export class AuthController {
     );
 
     if (await this.utilsService.ceckData(user_userbasics)) {
-      var updateactivityevent = new Userbasicnew();
+      var updateactivityevent = new CreateuserbasicnewDto();
       updateactivityevent.userEvent = "LOGOUT";
       updateactivityevent.event = "LOGOUT";
       var konvert = user_userbasics._id;
@@ -5176,7 +5176,7 @@ export class AuthController {
         );
       }
 
-      var data_update = new Userbasicnew();
+      var data_update = new CreateuserbasicnewDto();
       data_update.userInterests = data_interest_id;
       // var data_update = {
       //   userInterests: data_interest_id
