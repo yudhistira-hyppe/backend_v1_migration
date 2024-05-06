@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Monetizenew2, Monetizenew2Document } from './schemas/Monetizenew.schema';
+import { Monetizenew2, Monetizenew2Document } from './schemas/monetizenew.schema';
 import { ConfigService } from '@nestjs/config';
 import { UtilsService } from 'src/utils/utils.service';
 
