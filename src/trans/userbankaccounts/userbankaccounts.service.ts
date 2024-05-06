@@ -40,7 +40,14 @@ export class UserbankaccountsService {
                     noRek: "$noRek",
                     nama: "$nama",
                     statusInquiry: "$statusInquiry",
-                    active: "$active"
+                    active: "$active",
+                    status: {
+                        "$ifNull":
+                            [
+                                "$status",
+                                null
+                            ]
+                    }
                 }
             },
             {
@@ -54,7 +61,8 @@ export class UserbankaccountsService {
                     bankcode: "$databank.bankcode",
                     bankname: "$databank.bankname",
                     urlEbanking: "$databank.urlEbanking",
-                    bankIcon: "$databank.bankIcon"
+                    bankIcon: "$databank.bankIcon",
+                    status: "$status"
                 }
             },
             // // {
@@ -247,25 +255,25 @@ export class UserbankaccountsService {
 
     async updateDisetujui(id: ObjectId, reason: string, updatedAt: string, reasonId: ObjectId, idUserHandle: ObjectId) {
         let data = await this.userbankaccountsModel.updateMany({ "_id": id },
-            { $set: { "statusInquiry": null, "updatedAt": updatedAt, "userHandle.$[].updatedAt": updatedAt, "userHandle.$[].reasonId": reasonId, "userHandle.$[].valueReason": reason, "userHandle.$[].status": "DISETUJUI", "userHandle.$[].idUserHandle": idUserHandle, } });
+            { $set: { "statusInquiry": null, "updatedAt": updatedAt, "userHandle.$[].updatedAt": updatedAt, "userHandle.$[].reasonId": reasonId, "userHandle.$[].valueReason": reason, "userHandle.$[].status": "DISETUJUI", "userHandle.$[].idUserHandle": idUserHandle, "status": "APPROVED" } });
         return data;
     }
 
     async updateDisetujuiEmpty(id: ObjectId, updatedAt: string, userHandle: any[]) {
         let data = await this.userbankaccountsModel.updateMany({ "_id": id },
-            { $set: { "updatedAt": updatedAt, "userHandle": userHandle } });
+            { $set: { "updatedAt": updatedAt, "userHandle": userHandle, "status": "APPROVED" } });
         return data;
     }
 
     async updateDitolak(id: ObjectId, reason: string, updatedAt: string, reasonId: ObjectId, idUserHandle: ObjectId) {
         let data = await this.userbankaccountsModel.updateMany({ "_id": id },
-            { $set: { "updatedAt": updatedAt, "userHandle.$[].updatedAt": updatedAt, "userHandle.$[].reasonId": reasonId, "userHandle.$[].valueReason": reason, "userHandle.$[].status": "DITOLAK", "userHandle.$[].idUserHandle": idUserHandle, } });
+            { $set: { "updatedAt": updatedAt, "userHandle.$[].updatedAt": updatedAt, "userHandle.$[].reasonId": reasonId, "userHandle.$[].valueReason": reason, "userHandle.$[].status": "DITOLAK", "userHandle.$[].idUserHandle": idUserHandle, "status": "REJECTED" } });
         return data;
     }
 
     async updateDitolakEmpty(id: ObjectId, updatedAt: string, userHandle: any[]) {
         let data = await this.userbankaccountsModel.updateMany({ "_id": id },
-            { $set: { "updatedAt": updatedAt, "userHandle": userHandle } });
+            { $set: { "updatedAt": updatedAt, "userHandle": userHandle, "status": "REJECTED" } });
         return data;
     }
 
@@ -600,6 +608,7 @@ export class UserbankaccountsService {
                     {
                         "$last": "$userHandle.valueReason"
                     },
+                    status: 1
 
                 }
             },
@@ -675,6 +684,7 @@ export class UserbankaccountsService {
                                 ]
                         }
                     },
+                    status: 1
 
                 }
             },
@@ -1054,6 +1064,7 @@ export class UserbankaccountsService {
                     {
                         "$last": "$userHandle.valueReason"
                     },
+                    status: 1
 
                 }
             },
@@ -1142,6 +1153,7 @@ export class UserbankaccountsService {
                                 ]
                         }
                     },
+                    status: 1
 
                 }
             },
@@ -1672,7 +1684,8 @@ export class UserbankaccountsService {
                     },
                     SupportfsSourceName: 1,
                     mediaSupportUri: 1,
-                    SupportfsTargetUri: 1
+                    SupportfsTargetUri: 1,
+                    status: 1
                 }
             },
             {
@@ -1887,7 +1900,8 @@ export class UserbankaccountsService {
                                 },
                                 null
                             ]
-                    }
+                    },
+                    status: 1
                 }
             },
             {
@@ -1917,7 +1931,8 @@ export class UserbankaccountsService {
                     dokumenPendukung: 1,
                     country: 1,
                     area: 1,
-                    city: 1
+                    city: 1,
+                    status: 1
                 }
             },
         ]);
