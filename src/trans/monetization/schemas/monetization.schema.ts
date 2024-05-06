@@ -50,7 +50,7 @@ export class Monetize {
     @Prop()
     last_stock: number;
     @Prop()
-    min_discount: number;
+    nominal_discount: number;
     @Prop()
     min_use_disc: number;
     @Prop()

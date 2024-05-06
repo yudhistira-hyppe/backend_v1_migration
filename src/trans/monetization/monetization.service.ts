@@ -316,7 +316,7 @@ export class MonetizationService {
         insertdata.endCouponDate = request_body.endCouponDate + " " + request_body.endCouponTime;
         insertdata.active = true;
         insertdata.status = false;
-        insertdata.min_discount = (request_body.min_discount != null && request_body.min_discount != undefined ? Number(request_body.min_discount) : null);
+        insertdata.nominal_discount = (request_body.nominal_discount != null && request_body.nominal_discount != undefined ? Number(request_body.nominal_discount) : null);
         insertdata.min_use_disc = (request_body.min_use_disc != null && request_body.min_use_disc != undefined ? Number(request_body.min_use_disc) : null);
         insertdata.stock = (request_body.stock != null && request_body.stock != undefined ? Number(request_body.stock) : null);
         insertdata.last_stock = (request_body.stock != null && request_body.stock != undefined ? Number(request_body.stock) : null);
@@ -669,7 +669,7 @@ export class MonetizationService {
                             else:"$$REMOVE"
                         }
                     },
-                    min_discount:
+                    nominal_discount:
                     {
                         "$cond":
                         {
@@ -680,7 +680,7 @@ export class MonetizationService {
                                     "$type", "DISCOUNT"
                                 ]
                             },
-                            then:"$min_discount",
+                            then:"$nominal_discount",
                             else:"$$REMOVE"
                         }
                     },
