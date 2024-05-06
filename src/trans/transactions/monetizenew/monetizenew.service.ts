@@ -28,4 +28,16 @@ export class MonetizenewService {
         var data = await this.monetData.findById(setid);
         return data;
     }
+
+    async updateStock(id: string,last_stock:number,used_stock:number): Promise<Object> {
+        let data = await this.monetData.updateOne({ _id: new mongoose.Types.ObjectId(id) },
+            {
+                $set: {
+                    last_stock: last_stock,
+                    used_stock: used_stock
+                  
+                }
+            });
+        return data;
+    }
 }
