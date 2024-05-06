@@ -12,21 +12,8 @@ export class SettingsController {
     @UseGuards(JwtAuthGuard)
     @Get(':id')
     async findOne(@Param('id') id: string, @Headers() headers, @Req() request): Promise<Settings> {
-        var date = new Date();
-        var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
-        var timestamps_start = DateTime.substring(0, DateTime.lastIndexOf('.'));
-        var fullurl = request.get("Host") + request.originalUrl;
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var email = auth.email;
-
         var data = await this.settingsService.findOne(id);
-
-        var date = new Date();
-        var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
-        var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, null);
-
+        
         return data; 
         // return this.settingsService.findOne(id);
     }
