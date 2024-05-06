@@ -677,12 +677,14 @@ export class UserbankaccountsController {
             }
         }
 
-        if (language === "id") {
-            messageRespon = "Nama yang Anda masukkan salah, pastikan nama yang Anda masukkan sesuai dengan ID yang terdaftar di Hyppe, nama yang sudah terdaftar adalah " + namamediaprof.toUpperCase();;
-        }
-        else if (language === "en") {
-            messageRespon = "The name you entered is wrong, make sure the name you enter matches the ID registered on Hyppe, the registered name is " + namamediaprof.toUpperCase();;
-        }
+        // if (language === "id") {
+        //     messageRespon = "Nama yang Anda masukkan salah, pastikan nama yang Anda masukkan sesuai dengan ID yang terdaftar di Hyppe, nama yang sudah terdaftar adalah " + namamediaprof.toUpperCase();
+        //     throw new BadRequestException(messageRespon);
+        // }
+        // else if (language === "en") {
+        //     messageRespon = "The name you entered is wrong, make sure the name you enter matches the ID registered on Hyppe, the registered name is " + namamediaprof.toUpperCase();
+        //     throw new BadRequestException(messageRespon);
+        // }
 
         var lownama = nama.toLowerCase();
         var idakun = null;
@@ -706,33 +708,34 @@ export class UserbankaccountsController {
 
         if (datarekkembar === null) {
 
-            if (lownama === namamediaprof) {
-                try {
-                    var mongo = require('mongoose');
-                    CreateUserbankaccountsDto_.userId = new mongo.Types.ObjectId(iduser.toString());
-                    // CreateUserbankaccountsDto.noRek = noRek;
-                    CreateUserbankaccountsDto_.idBank = idBank;
-                    CreateUserbankaccountsDto_.createdAt = dt.toISOString();
-                    CreateUserbankaccountsDto_.updatedAt = dt.toISOString();
-                    CreateUserbankaccountsDto_.active = true;
+            // if (lownama === namamediaprof) {
 
-                    user = await this.userbankaccountsService.create(CreateUserbankaccountsDto_);
+            // } else {
+            //     return res.status(HttpStatus.OK).json({
+            //         response_code: 202,
+            //         "message": messageRespon
+            //     });
+            // }
+            try {
+                var mongo = require('mongoose');
+                CreateUserbankaccountsDto_.userId = new mongo.Types.ObjectId(iduser.toString());
+                // CreateUserbankaccountsDto.noRek = noRek;
+                CreateUserbankaccountsDto_.idBank = idBank;
+                CreateUserbankaccountsDto_.createdAt = dt.toISOString();
+                CreateUserbankaccountsDto_.updatedAt = dt.toISOString();
+                CreateUserbankaccountsDto_.active = true;
 
-                    // return res.status(HttpStatus.OK).json({
-                    //     response_code: 202,
-                    //     "data": data,
-                    //     "message": messages
-                    // });
-                } catch (e) {
-                    // return res.status(HttpStatus.OK).json({
-                    //     response_code: 202,
-                    //     "message": messagesEror
-                    // });
-                }
-            } else {
+                user = await this.userbankaccountsService.create(CreateUserbankaccountsDto_);
+
                 // return res.status(HttpStatus.OK).json({
                 //     response_code: 202,
-                //     "message": messageRespon
+                //     "data": data,
+                //     "message": messages
+                // });
+            } catch (e) {
+                // return res.status(HttpStatus.OK).json({
+                //     response_code: 202,
+                //     "message": messagesEror
                 // });
             }
 
