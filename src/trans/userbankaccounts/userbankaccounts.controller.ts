@@ -844,7 +844,7 @@ export class UserbankaccountsController {
             data = await this.userbankaccountsService.update(iduserbank, CreateUserbankaccountsDto_);
 
             try {
-                dataacount = await this.sendReportAppealBankFCM(email, "NOTIFY_APPEAL", "CREATE_APPEAL", "BANK", fullname);
+                this.sendReportAppealBankFCM(email, "NOTIFY_APPEAL", "CREATE_APPEAL", "BANK", fullname);
             } catch (e) {
                 await this.errorHandler.generateNotAcceptableException(
                     e.toString(),
