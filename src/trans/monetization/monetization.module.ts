@@ -25,6 +25,7 @@ import { TransactionsV2Module } from '../transactionsv2/transactionsv2.module';
     ], 'SERVER_FULL')
   ],
   controllers: [MonetizationController, transactionCoinController],
-  providers: [MonetizationService, transactionCoinService]
+  providers: [MonetizationService, transactionCoinService],
+  exports: [MonetizationService, transactionCoinService]
 })
 export class MonetizationModule { }

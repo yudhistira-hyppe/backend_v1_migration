@@ -25,7 +25,7 @@ import { Insights } from '../insights/schemas/insights.schema';
 import { DisquslogsService } from '../disquslogs/disquslogs.service';
 import { Disquslogs } from '../disquslogs/schemas/disquslogs.schema';
 import { DBRef, ObjectId } from 'mongodb';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { UserauthsService } from '../../trans/userauths/userauths.service';
 import { UserbasicnewService } from '../../trans/userbasicnew/userbasicnew.service';
 import { TemplatesRepo } from '../../infra/templates_repo/schemas/templatesrepo.schema';
@@ -34,6 +34,10 @@ import { NewpostService } from './newpost/newpost.service';
 import { Newpost } from './newpost/schemas/newpost.schema';
 import { ConfigService } from '@nestjs/config';
 import { RequestSoctDto } from '../mediastreaming/dto/mediastreaming.dto';
+import { Monetizenew2Service } from 'src/trans/transactionsv2/monetizenew/monetizenew.service';
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
+import { transactionCoin3Service } from 'src/trans/transactionsv2/monetizenew/transactionCoin.service';
+import { monetizenew2Schema } from 'src/trans/transactionsv2/monetizenew/schemas/Monetizenew.schema';
 
 const Long = require('mongodb').Long;
 @Controller('api/')
@@ -53,7 +57,11 @@ export class DisqusController {
     private readonly UserbasicnewService: UserbasicnewService,
     private readonly logapiSS: LogapisService,
     private readonly NewpostService: NewpostService,
-    private readonly configService: ConfigService,) { }
+    private readonly configService: ConfigService,
+    private readonly newMonetize: Monetizenew2Service,
+    private readonly transaction2SS:TransactionsV2Service,
+    private readonly transactionCoin2SS:transactionCoin3Service,
+  ) { }
 
   @Post('disqus')
   async create(@Body() CreateDisqusDto: CreateDisqusDto) {
@@ -1608,6 +1616,76 @@ export class DisqusController {
               }
               disqusLog_new.tags = Object(array_data);
             }
+
+            //proses masukkin gift ke dalam komentar dan transaksi
+            if(inDto.giftID != undefined && inDto.giftID != null)
+            {
+              var getgiftdata = await this.newMonetize.findOne(inDto.giftID.toString());
+              var setobjectgift = {};
+              setobjectgift['giftID'] = getgiftdata._id;
+              setobjectgift['giftThumbUrl'] = getgiftdata.thumbnail
+              if(getgiftdata.animation != undefined && getgiftdata.animation != null)
+              {
+                setobjectgift['giftAnimateUrl'] = getgiftdata.animation;
+              }
+              disqusLog_new.giftData = [
+                setobjectgift
+              ];
+
+              var getdatapenjual = await this.UserbasicnewService.findbyemail(inDto.receiverParty.toString());
+              var getdatapembeli = await this.UserbasicnewService.findbyemail(inDto.email.toString());
+
+              var setdetailgift = [
+                  {
+                      "id": "660f7d83c306d245ed2c2067",
+                      "category": "CONTENT",
+                      "tabelName": "gift",
+                      "qty": 1,
+                      "amount": 0
+                  }
+              ]
+
+              try
+              {
+                var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
+                var listtransaksi = [];
+                if(resultdata != false)
+                {
+                  var getdataresulttrans = resultdata.data;
+                  for(var i = 0; i < getdataresulttrans.length; i++)
+                  {
+                    var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+                    if(checkexist == false)
+                    {
+                      var upd_last_stock = getgiftdata.last_stock - 1;
+                      var upd_used_stock = getgiftdata.used_stock + 1;
+                      var detailtransdata = getdataresulttrans[i]._id;
+                      var insertlogtransaksi = 
+                      {
+                        "idPackage" : getgiftdata._id,
+                        "idTransaction" : detailtransdata,
+                        "status" : "SUCCESS",
+                        "quantity" : 1,
+                        "last_stock": upd_last_stock,
+                        "used_stock": upd_used_stock,
+                        "idUser" : getdatapembeli._id
+                      };
+  
+                      await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
+  
+                      await this.transactionCoin2SS.createTransaction(inDto.email.toString(), insertlogtransaksi);
+                      
+                      listtransaksi.push(getdataresulttrans[i].idTransaction);
+                    }
+                  }
+                }
+              }
+              catch(e)
+              {
+                await this.errorHandler.generateInternalServerErrorException(e.messages);
+              }
+            }
+
             disqusLog = disqusLog_new;
           }
         } else {
@@ -1688,6 +1766,64 @@ export class DisqusController {
               }
             }
             disqusLog_new.tags = Object(array_data);
+
+            //proses masukkin gift ke dalam komentar dan transaksi
+            if(inDto.giftID != undefined && inDto.giftID != null)
+            {
+              var getgiftdata = await this.newMonetize.findOne(inDto.giftID.toString());
+              var setobjectgift = {};
+              setobjectgift['giftID'] = getgiftdata._id;
+              setobjectgift['giftThumbUrl'] = getgiftdata.thumbnail
+              if(getgiftdata.animation != undefined && getgiftdata.animation != null)
+              {
+                setobjectgift['giftAnimateUrl'] = getgiftdata.animation;
+              }
+              disqusLog_new.giftData = [
+                setobjectgift
+              ];
+
+              var getdatapenjual = await this.UserbasicnewService.findbyemail(inDto.receiverParty.toString());
+              var getdatapembeli = await this.UserbasicnewService.findbyemail(inDto.email.toString());
+
+              var setdetailgift = [
+                  {
+                      "id": "660f7d83c306d245ed2c2067",
+                      "category": "CONTENT",
+                      "tabelName": "gift",
+                      "qty": 1,
+                      "amount": 0
+                  }
+              ]
+
+              try
+              {
+                var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
+                if(resultdata != false)
+                {
+                  var getdataresulttrans = resultdata.data;
+                  for(var i = 0; i < getdataresulttrans.length; i++)
+                  {
+                    var detailtransdata = getdataresulttrans[i]._id;
+                    var insertlogtransaksi = 
+                    {
+                      "idPackage" : getgiftdata._id,
+                      "idTransaction" : detailtransdata,
+                      "status" : "SUCCESS",
+                      "quantity" : 1,
+                      "last_stock": getgiftdata.last_stock - 1,
+                      "used_stock": getgiftdata.used_stock + 1,
+                      "idUser" : getdatapembeli._id
+                    };
+
+                    await this.transactionCoin2SS.createTransaction(inDto.email.toString(), insertlogtransaksi);
+                  }
+                }
+              }
+              catch(e)
+              {
+                await this.errorHandler.generateInternalServerErrorException(e.messages);
+              }
+            }
           }
           disqusLog = disqusLog_new;
         }

@@ -63,6 +63,8 @@ export class Disquslogs {
          $db: String;
       },
    ];
+   @Prop()
+   giftData: [];
  @Prop()
  _class:String
 }

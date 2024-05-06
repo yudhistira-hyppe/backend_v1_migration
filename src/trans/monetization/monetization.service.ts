@@ -316,8 +316,8 @@ export class MonetizationService {
         insertdata.endCouponDate = request_body.endCouponDate + " " + request_body.endCouponTime;
         insertdata.active = true;
         insertdata.status = false;
-        insertdata.nominal_discount = (request_body.nominal_discount != null && request_body.nominal_discount != undefined ? Number(request_body.nominal_discount) : null);
-        insertdata.min_use_disc = (request_body.min_use_disc != null && request_body.min_use_disc != undefined ? Number(request_body.min_use_disc) : null);
+        insertdata.nominal_discount = (request_body.nominal_discount != null && request_body.nominal_discount != undefined ? Number(request_body.nominal_discount) : 0);
+        insertdata.min_use_disc = (request_body.min_use_disc != null && request_body.min_use_disc != undefined ? Number(request_body.min_use_disc) : 0);
         insertdata.stock = (request_body.stock != null && request_body.stock != undefined ? Number(request_body.stock) : null);
         insertdata.last_stock = (request_body.stock != null && request_body.stock != undefined ? Number(request_body.stock) : null);
         insertdata.satuan_diskon = request_body.satuan_diskon;
@@ -793,6 +793,28 @@ export class MonetizationService {
                             then:"$endCouponDate",
                             else:"$$REMOVE"
                         }
+                    },
+                    available:
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$cond":
+                                {
+                                    if:
+                                    {
+                                        "$eq":
+                                        [
+                                            "$last_stock",
+                                            0
+                                        ]
+                                    },
+                                    then:false,
+                                    else:true
+                                }
+                            },
+                            false
+                        ]
                     },
                     createdAt:1,
                     updatedAt:1,

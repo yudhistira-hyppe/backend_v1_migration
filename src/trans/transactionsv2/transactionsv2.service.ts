@@ -55,6 +55,7 @@ export class TransactionsV2Service {
         idVoucher: any[],
         detail: any[],
         status: string) {
+        var outputdatatransaction = [];
         try {
             //Currency coin 
             const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
@@ -728,6 +729,8 @@ export class TransactionsV2Service {
                 transactionsV2_.totalPrice = totalPrice;
                 await this.transactionsModel.create(transactionsV2_);
 
+                outputdatatransaction.push(transactionsV2_);
+
                 //Get Saldo
                 let balancedUser = await this.transactionsBalancedsService.findsaldo(idUser.toString());
                 if (await this.utilsService.ceckData(balancedUser)) {
@@ -754,7 +757,10 @@ export class TransactionsV2Service {
                     await this.transactionsBalancedsService.create(Balanceds_);
                 }
             }
-            return true;
+            return {
+                "success":true,
+                "data":outputdatatransaction
+            };
         } catch (e) {
             console.log(e);
             return false;

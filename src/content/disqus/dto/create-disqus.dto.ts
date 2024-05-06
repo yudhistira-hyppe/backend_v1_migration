@@ -61,6 +61,7 @@ export class ContentDto {
   pageNumber: String;
   mate: String;
   disqus: Array<Object>;
+  giftID: String;
 }
 
 export class DisqusDto {

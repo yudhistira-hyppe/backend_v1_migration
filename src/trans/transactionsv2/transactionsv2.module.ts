@@ -29,6 +29,10 @@ import { TransactionsCoaTable, TransactionsCoaTableSchema } from './coa/schema/t
 import { TransactionsCoaTableService } from './coa/transactionscoatable.service';
 import { AdsBalaceCreditModule } from '../adsv2/adsbalacecredit/adsbalacecredit.module';
 import { LogapisModule } from '../logapis/logapis.module';
+import { Monetizenew2Service } from './monetizenew/monetizenew.service';
+import { transactionCoin3Service } from './monetizenew/transactionCoin.service';
+import { monetizenew2Schema, Monetizenew2 } from './monetizenew/schemas/monetizenew.schema';
+import { transactionCoin3Schema, transactionCoin3 } from './monetizenew/schemas/transactionCoin.schema';
 @Module({
 
     imports: [
@@ -46,11 +50,13 @@ import { LogapisModule } from '../logapis/logapis.module';
             { name: transactionsV2.name, schema: transactionsV2Schema },
             { name: TransactionsCoinSettings.name, schema: TransactionsCoinSettingsSchema },
             { name: TransactionsCredits.name, schema: TransactionsCreditsSchema },
-            { name: TransactionsCoaTable.name, schema: TransactionsCoaTableSchema }
+            { name: TransactionsCoaTable.name, schema: TransactionsCoaTableSchema },
+            { name: transactionCoin3.name, schema: transactionCoin3Schema },
+            { name: Monetizenew2.name, schema: monetizenew2Schema },
         ], 'SERVER_FULL')
     ],
     controllers: [TransactionsV2Controller, TransactionsCategorysController, TransactionsCoaController, TransactionsBalancedsController, TransactionsProductsController, TransactionsCoinSettingsController, TransactionsCreditsController],
-    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService],
-    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService],
+    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService, Monetizenew2Service, transactionCoin3Service],
+    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService, Monetizenew2Service, transactionCoin3Service],
 })
 export class TransactionsV2Module { }

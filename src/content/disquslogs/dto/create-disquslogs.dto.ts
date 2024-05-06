@@ -39,6 +39,7 @@ export class CreateDisquslogsDto {
     receiverActive: boolean;
   senderActive: boolean;
   idtransaction: mongoose.Types.ObjectId;
+  giftData: any[];
   }
 
 

@@ -20,9 +20,11 @@ import { UserbasicnewModule } from '../../trans/userbasicnew/userbasicnew.module
 // import { NewpostService } from './newpost/newpost.service';
 import { NewpostModule } from './newpost/newpost.module';
 import { HttpModule } from '@nestjs/axios';
+import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
 @Module({
 
     imports: [
+        TransactionsV2Module,
         NewpostModule,
         UserbasicnewModule,
         HttpModule,
