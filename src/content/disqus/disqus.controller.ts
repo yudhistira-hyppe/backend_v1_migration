@@ -37,7 +37,6 @@ import { RequestSoctDto } from '../mediastreaming/dto/mediastreaming.dto';
 import { Monetizenew2Service } from 'src/trans/transactionsv2/monetizenew/monetizenew.service';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { transactionCoin3Service } from 'src/trans/transactionsv2/monetizenew/transactionCoin.service';
-import { monetizenew2Schema } from 'src/trans/transactionsv2/monetizenew/schemas/Monetizenew.schema';
 
 const Long = require('mongodb').Long;
 @Controller('api/')
