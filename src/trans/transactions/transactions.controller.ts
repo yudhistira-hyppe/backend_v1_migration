@@ -19392,6 +19392,7 @@ export class TransactionsController {
                 price: price,
                 transaction_fee: transaction_fee,
                 discount: discount,
+                total_before_discount: price + transaction_fee,
                 total_payment: price + transaction_fee - discount
             },
             messages
