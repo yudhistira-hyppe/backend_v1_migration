@@ -2360,14 +2360,14 @@ export class TransactionsController {
             throw new BadRequestException("Unabled to proceed");
         }
 
-        if (request_json["amount"] !== undefined) {
-            amount = request_json["amount"];
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+        // if (request_json["amount"] !== undefined) {
+        //     amount = request_json["amount"];
+        // } else {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
 
-            throw new BadRequestException("Unabled to proceed");
-        }
+        //     throw new BadRequestException("Unabled to proceed");
+        // }
 
         if (request_json["productCode"] !== undefined) {
             productCode = request_json["productCode"];
