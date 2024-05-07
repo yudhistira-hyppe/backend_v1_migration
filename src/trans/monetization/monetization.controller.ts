@@ -333,6 +333,49 @@ export class MonetizationController {
     }
   }
 
+  @Post("/list/discount")
+  @UseGuards(JwtAuthGuard)
+  async listDiscountUser(@Req() request: Request, @Headers() headers) {
+    var data = null;
+    var timestamps_start = await this.utilService.getDateTimeString();
+    var url = headers.host + "/api/monetization/list/discount";
+    var token = headers['x-auth-token'];
+    var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    var email = auth.email;
+    var page = null;
+    var limit = null;
+    var productType = null;
+
+    var request_json = JSON.parse(JSON.stringify(request.body));
+
+    if (request_json.page != null && request_json.page != undefined) {
+        page = parseInt(request_json.page);
+    }
+
+    if (request_json.limit != null && request_json.limit != undefined) {
+        limit = parseInt(request_json.limit);
+    }
+
+    if (request_json.productType != null && request_json.productType != undefined) {
+        productType = request_json.productType;
+    }
+
+    var getuserdata = await this.basic2SS.findBymail(email);
+
+    data = await this.monetizationService.listDiscount(getuserdata._id.toString(), page, limit, productType);
+
+    var timestamps_end = await this.utilService.getDateTimeString();
+    this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    return {
+      response_code: 202,
+      data: data,
+      message: {
+        "info": ["The process was successful"],
+      }
+    }
+  }
+
   async sendNotifAudiens(data: any) {
 
     var templatedata = await this.repoSS.findOne("65e932f8c87900009e001bc2");

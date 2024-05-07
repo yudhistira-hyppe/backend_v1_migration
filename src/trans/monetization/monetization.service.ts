@@ -981,4 +981,206 @@ export class MonetizationService {
 
         return result;
     }
+
+    async listDiscount(userid:string, page:number, limit:number, productid:any[])
+    {
+        var date = (await this.utilsService.getDateTimeString()).split(" ")[0];
+        var pipeline = [];
+        pipeline.push(
+            {
+                "$match":
+                {
+                    "$and":
+                    [
+                        {
+                            "type":"DISCOUNT"
+                        },
+                        {
+                            "active":true
+                        },
+                        {
+                            "status":true
+                        },
+                        //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
+                        // {
+                        //     "startCouponDate":
+                        //     {
+                        //         "$gte":date
+                        //     }
+                        // },
+                    ]
+                }
+            },
+            {
+                "$lookup": 
+                {
+                    from: "transactionsProducts",
+                    localField: "productID",
+                    foreignField: "_id",
+                    as: "productData"
+                }
+            },
+        );
+
+        var insertsort = {};
+        var insertset = {};
+        var insertproject = {
+            _id:1,
+            type:1,
+            name:1,
+            code_package:1,
+            package_id:1,
+            amount:1,
+            stock:"$last_stock",
+            thumbnail:1,
+            audiens:1,
+            audiens_user:1,
+            satuan_diskon:1,
+            nominal_discount:1,
+            min_use_disc:1,
+            productID:1,
+            productCode:1,
+            productName:1,
+            startCouponDate:1,
+            endCouponDate:1,
+            available:
+            {
+                "$ifNull":
+                [
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$last_stock",
+                                    0
+                                ]
+                            },
+                            then:false,
+                            else:true
+                        }
+                    },
+                    false
+                ]
+            },
+            createdAt:1,
+            updatedAt:1,
+            used_stock:1,
+            last_stock:1,
+            active:1,
+            status:1,
+        };
+
+        insertset['checkaudiens'] = {
+            "$ifNull":
+            [
+                {
+                    "$filter":
+                    {
+                        input:"$audiens_user",
+                        as:"filter",
+                        cond:
+                        {
+                            "$eq":
+                            [
+                                "$$filter",
+                                new mongoose.Types.ObjectId(userid)
+                            ]
+                        }
+                    }
+                },
+                []
+            ]
+        };
+
+        if(productid != null)
+        {
+            var convertproduct = [];
+            for(var i = 0; i < productid.length; i++)
+            {
+                convertproduct.push(new mongoose.Types.ObjectId(productid[i]));   
+            }
+
+            insertset['checkdipilih'] = {
+                "$ifNull":
+                [
+                    {
+                        "$filter":
+                        {
+                            input:convertproduct,
+                            as:"filter",
+                            cond:
+                            {
+                                "$eq":
+                                [
+                                    "$$filter",
+                                    "$productID"
+                                ]
+                            }
+                        }
+                    },
+                    []
+                ]
+            }   
+
+            insertsort['available_to_choose'] = -1;
+
+            insertproject['available_to_choose'] = {
+                "$cond":
+                {
+                    if:
+                    {
+                        "$eq":
+                        [
+                            {
+                                "$size":"$checkdipilih"
+                            },
+                            0
+                        ]
+                    },
+                    then:false,
+                    else:true
+                }
+            };
+        }
+        else
+        {
+            insertproject['available_to_choose'] = true;
+        }
+
+        insertsort['productCode'] = 1;
+        insertsort['endCouponDate'] = 1;
+
+        pipeline.push(
+            {
+                "$set":insertset
+            },
+            {
+                "$project":insertproject
+            },
+            {
+                "$sort":insertsort
+            }
+        );
+
+        if(page != null && limit != null)
+        {
+            pipeline.push(
+                {
+                    $skip: page * limit
+                },
+                {
+                    $limit: limit
+                }
+            )
+        }
+
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
+        var data = await this.monetData.aggregate(pipeline);
+
+        return data;
+    }
 }
