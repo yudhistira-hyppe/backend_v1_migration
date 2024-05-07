@@ -47,7 +47,8 @@ import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 import { NewPostService } from 'src/content/new_post/new_post.service';
 import { CreateNewPostDTO } from 'src/content/new_post/dto/create-newPost.dto';
 import { NewPostContentService } from 'src/content/new_post/new_postcontent.service';
- import { MonetizenewService } from 'src/trans/transactions/monetizenew/monetizenew.service';
+import { MonetizenewService } from 'src/trans/transactions/monetizenew/monetizenew.service';
+import { MonetizationService } from '../monetization/monetization.service';
 
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
@@ -87,6 +88,7 @@ export class TransactionsController {
         private readonly posts2SS: NewPostService,
         private readonly postsContent2SS: NewPostContentService,
         private readonly MonetizenewService: MonetizenewService,
+        private readonly MonetizationService: MonetizationService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -2409,7 +2411,7 @@ export class TransactionsController {
         const mongoose = require('mongoose');
         var ObjectId = require('mongodb').ObjectId;
 
-       
+
         var email = email;
 
         var datatransaction = await this.transactionsService.findAll();
@@ -2468,23 +2470,23 @@ export class TransactionsController {
         //  var idmdradmin = "62bd413ff37a00001a004369";
         var idbankvacharge = "62bd40e0f37a00001a004366";
         var idexpiredva = "62bbbe8ea7520000050077a4";
-        var idhyppe="66261d89463c0000d2006a44";
-        var datauserhyppe=null;
+        var idhyppe = "66261d89463c0000d2006a44";
+        var datauserhyppe = null;
         var datenow = new Date(Date.now());
-        var useridHyppe=null;
-        var last_stock=0;
-        var used_stock=0;
-        var tsTock=0;
-        var minStock=0;
+        var useridHyppe = null;
+        var last_stock = 0;
+        var used_stock = 0;
+        var tsTock = 0;
+        var minStock = 0;
 
         try {
-          
+
             datauserhyppe = await this.settingsService.findOne(idhyppe);
-            useridHyppe=mongoose.Types.ObjectId(datauserhyppe.value);
+            useridHyppe = mongoose.Types.ObjectId(datauserhyppe.value);
 
         } catch (e) {
-            datauserhyppe=null;
-            useridHyppe=null;
+            datauserhyppe = null;
+            useridHyppe = null;
         }
 
 
@@ -2560,12 +2562,12 @@ export class TransactionsController {
         else {
 
             if (type === "COIN") {
-             
+
                 try {
                     datapost = await this.MonetizenewService.findOne(postid[0].id);
 
                 } catch (e) {
-                   
+
                     throw new BadRequestException("data not found..!");
                 }
                 try {
@@ -2573,69 +2575,69 @@ export class TransactionsController {
                     dataconten = await this.MonetizenewService.findOne(postid[0].id);
                     saleAmount = dataconten.price;
                     postType = dataconten.postType;
-                    last_stock=dataconten.last_stock;
-                    used_stock=dataconten.used_stock;
+                    last_stock = dataconten.last_stock;
+                    used_stock = dataconten.used_stock;
                 } catch (e) {
                     dataconten = null;
                     saleAmount = 0;
                     postType = "";
-                    last_stock=0;
-                    used_stock=0;
+                    last_stock = 0;
+                    used_stock = 0;
                 }
 
-                if(last_stock >0){
+                if (last_stock > 0) {
                     try {
 
                         datatrpending = await this.transactionsService.findpostidpending(postid[0].id);
-    
-    
+
+
                     } catch (e) {
                         datatrpending = null;
-    
+
                     }
-    
-    
+
+
                     var postIds = postid[0].id;
-    
+
                     //  var objid = mongoose.Types.ObjectId(postIds);
                     var qty = postid[0].qty;
-                    tsTock=Number(qty)+Number(used_stock);
-                    minStock=Number(last_stock) - Number(qty);
-                     totalamount = postid[0].totalAmount;
+                    tsTock = Number(qty) + Number(used_stock);
+                    minStock = Number(last_stock) - Number(qty);
+                    totalamount = postid[0].totalAmount;
                     var arraydetailobj = { "id": postIds, "qty": qty, "totalAmount": totalamount };
                     arrayDetail.push(arraydetailobj);
-    
+
                     postidTR = postIds;
                     arraypostids.push(postid[0].id);
-    
-    
+
+
                     if (datatrpending !== null) {
-    
+
                         let cekstatusva = await this.oyPgService.staticVaInfo(datatrpending.idva);
                         var expiredva = cekstatusva.trx_expiration_time;
                         var dex = new Date(expiredva);
                         dex.setHours(dex.getHours() + 7); // timestamp
                         dex = new Date(dex);
-    
+
                         if (cekstatusva.va_status === "WAITING_PAYMENT") {
                             var timestamps_end = await this.utilsService.getDateTimeString();
                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                             throw new BadRequestException("Tidak dapat melanjutkan. Konten ini sedang dalam proses pembelian");
                         }
                         else if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
-    
-    
+
+
                             // var datenow = new Date(Date.now());
                             // var expiredvas = dex;
                             // var dateVa = new Date(expiredvas);
                             // dateVa.setHours(dateVa.getHours() - 7); // timestamp
-    
-    
+
+
                             var idtransaction = datatrpending._id;
-    
+
                             // if (datenow > dateVa) {
-    
+
                             var datava = {
                                 "partner_user_id": userbuy.toString() + stringId,
                                 "amount": totalamount,
@@ -2647,7 +2649,7 @@ export class TransactionsController {
                                 "email": email,
                                 "trx_expiration_time": valueexpiredva,
                             }
-    
+
                             try {
                                 var datareqva = await this.oyPgService.generateStaticVa(datava);
                                 var idva = datareqva.id;
@@ -2658,22 +2660,22 @@ export class TransactionsController {
                                 var d1 = new Date(expiredva);
                                 d1.setHours(d1.getHours() + 7); // timestamp
                                 d1 = new Date(d1);
-    
-    
+
+
                             } catch (e) {
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 throw new BadRequestException("Not process..!");
-    
+
                             }
-    
+
                             if (statuscodeva == "000") {
-    
+
                                 try {
-    
+
                                     let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-    
+
                                     CreateTransactionsDto.iduserbuyer = iduser;
                                     CreateTransactionsDto.idusersell = useridHyppe;
                                     CreateTransactionsDto.timestamp = dt.toISOString();
@@ -2696,11 +2698,11 @@ export class TransactionsController {
                                     CreateTransactionsDto.postid = postidTR;
                                     CreateTransactionsDto.response = datareqva;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-    
+
                                     this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
                                     await this.transactionsService.updatestatuscancel(idtransaction);
-    
-    
+
+
                                     var data = {
                                         "noinvoice": datatr.noinvoice,
                                         "postid": postidTR,
@@ -2720,7 +2722,7 @@ export class TransactionsController {
                                         "bank": namabank,
                                         // "ppn": valueppn + " %",
                                         // "nominalppn": nominalppn,
-                                       // "bankvacharge": valuevacharge,
+                                        // "bankvacharge": valuevacharge,
                                         // "mdradmin": valuemradmin + " %",
                                         // "nominalmdradmin": nominalmradmin,
                                         "detail": arrayDetail,
@@ -2729,21 +2731,21 @@ export class TransactionsController {
                                         "timestamp": datatr.timestamp,
                                         "_id": datatr._id
                                     };
-    
-    
+
+
                                 } catch (e) {
                                     var timestamps_end = await this.utilsService.getDateTimeString();
                                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                     return res.status(HttpStatus.BAD_REQUEST).json({
-    
+
                                         "message": messagesEror + " " + e.toString()
                                     });
                                 }
-    
+
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 return res.status(HttpStatus.OK).json({
                                     response_code: 202,
                                     "data": data,
@@ -2753,7 +2755,7 @@ export class TransactionsController {
                             }
                             else {
                                 // throw new BadRequestException("Request is Rejected (API Key is not Valid)");
-    
+
                                 CreateTransactionsDto.iduserbuyer = iduser;
                                 CreateTransactionsDto.idusersell = useridHyppe;
                                 CreateTransactionsDto.timestamp = dt.toISOString();
@@ -2776,24 +2778,24 @@ export class TransactionsController {
                                 CreateTransactionsDto.postid = postidTR;
                                 CreateTransactionsDto.response = datareqva;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-    
+
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 return res.status(HttpStatus.BAD_REQUEST).json({
                                     response_code: statuscodeva,
                                     message: statusmessage
                                 });
-    
+
                             }
-    
+
                         }
-    
-    
-    
+
+
+
                     }
                     else {
-    
+
                         var datava = {
                             "partner_user_id": userbuy.toString() + stringId,
                             "amount": totalamount,
@@ -2805,7 +2807,7 @@ export class TransactionsController {
                             "email": email,
                             "trx_expiration_time": valueexpiredva,
                         }
-    
+
                         try {
                             var datareqva = await this.oyPgService.generateStaticVa(datava);
                             var idva = datareqva.id;
@@ -2816,23 +2818,23 @@ export class TransactionsController {
                             var d1 = new Date(expiredva);
                             d1.setHours(d1.getHours() + 7); // timestamp
                             d1 = new Date(d1);
-    
-    
+
+
                         } catch (e) {
                             var timestamps_end = await this.utilsService.getDateTimeString();
                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                             throw new BadRequestException("Not process..!");
-    
+
                         }
-    
+
                         if (statuscodeva == "000") {
-    
-    
+
+
                             try {
-    
+
                                 let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-    
+
                                 CreateTransactionsDto.iduserbuyer = iduser;
                                 CreateTransactionsDto.idusersell = useridHyppe;
                                 CreateTransactionsDto.timestamp = dt.toISOString();
@@ -2855,14 +2857,14 @@ export class TransactionsController {
                                 CreateTransactionsDto.postid = postidTR;
                                 CreateTransactionsDto.response = datareqva;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-                                try{
+                                try {
 
-                                    await this.MonetizenewService.updateStock(postIds,minStock,tsTock);
-                                }catch(e){
+                                    await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+                                } catch (e) {
 
                                 }
                                 this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postidTR, no);
-    
+
                                 var data = {
                                     "noinvoice": datatr.noinvoice,
                                     "postid": postidTR,
@@ -2894,16 +2896,16 @@ export class TransactionsController {
                             } catch (e) {
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 return res.status(HttpStatus.BAD_REQUEST).json({
-    
+
                                     "message": messagesEror + " " + e.toString()
                                 });
                             }
-    
+
                             var timestamps_end = await this.utilsService.getDateTimeString();
                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                             return res.status(HttpStatus.OK).json({
                                 response_code: 202,
                                 "data": data,
@@ -2935,26 +2937,26 @@ export class TransactionsController {
                             CreateTransactionsDto.postid = postidTR;
                             CreateTransactionsDto.response = datareqva;
                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-    
+
                             var timestamps_end = await this.utilsService.getDateTimeString();
                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                             return res.status(HttpStatus.BAD_REQUEST).json({
                                 response_code: statuscodeva,
                                 message: statusmessage
                             });
                         }
-    
+
                     }
-    
+
                 }
-                else{
+                else {
                     throw new BadRequestException("stock habis");
                 }
 
-               
+
             }
-           
+
         }
 
     }
@@ -4140,7 +4142,7 @@ export class TransactionsController {
                         var emailseller = ubasicsell.email;
 
 
-                       
+
                     } else {
                         var timestamps_end = await this.utilsService.getDateTimeString();
                         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, null, setiduser, null, reqbody);
@@ -4152,7 +4154,7 @@ export class TransactionsController {
                         });
                     }
                 }
-              
+
             } catch (e) {
                 throw new BadRequestException("Unabled to proceed" + e);
             }
@@ -4698,7 +4700,7 @@ export class TransactionsController {
                         datawithdraw.responOy = datadisbursemen;
                         datawithdraw.statusCode = statusdisb;
                         var datatr = await this.withdrawsService.create(datawithdraw);
-                       
+
                         var timestamps_end = await this.utilsService.getDateTimeString();
                         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
@@ -4731,7 +4733,7 @@ export class TransactionsController {
                     datawithdraw.responOy = datadisbursemen;
                     datawithdraw.statusCode = statusdisb;
                     var datatr = await this.withdrawsService.create(datawithdraw);
-                   
+
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
@@ -18512,7 +18514,7 @@ export class TransactionsController {
                 } catch (e) {
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-                    
+
                     throw new BadRequestException("Data not found...!");
                 }
                 try {
@@ -19351,6 +19353,49 @@ export class TransactionsController {
         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
 
         return { response_code: 202, data, messages };
+    }
+
+    @Post('api/transactions/coinpurchasedetail')
+    @UseGuards(JwtAuthGuard)
+    async coinpurchasedetail(@Req() request: Request, @Headers() headers): Promise<any> {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/coinpurchasedetail';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        var price = null;
+        var discount = 0;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
+        var transaction_fee = transaction_fee_data.value;
+        if (!request_json.price) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: price (number)");
+        } else price = request_json.price;
+
+        if (request_json.discount_id) {
+            var discount_data = await this.MonetizationService.findOne(request_json.discount_id);
+            discount = discount_data.nominal_discount;
+        }
+
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        return {
+            response_code: 202,
+            data: {
+                price: price,
+                transaction_fee: transaction_fee,
+                discount: discount,
+                total_payment: price + transaction_fee - discount
+            },
+            messages
+        }
     }
 }
 
