@@ -1061,7 +1061,7 @@ export class MonetizationService {
         );
 
         var insertsort = {};
-        var insertset = {};
+        var insertset = null;
         var insertproject = {
             _id:1,
             type:1,
@@ -1078,7 +1078,13 @@ export class MonetizationService {
             min_use_disc:1,
             productID:1,
             productCode:1,
-            productName:1,
+            productName:
+            {
+                "$arrayElemAt":
+                [
+                    "$productData.name", 0
+                ]
+            },
             startCouponDate:1,
             endCouponDate:1,
             available:
@@ -1111,7 +1117,11 @@ export class MonetizationService {
             status:1,
         };
 
-        if(productid != null)
+        insertproject['available_to_choose'] = {
+            "$toBool":'true'
+        };
+
+        if(productid != null && productid != undefined)
         {
             var convertproduct = [];
             for(var i = 0; i < productid.length; i++)
@@ -1119,27 +1129,30 @@ export class MonetizationService {
                 convertproduct.push(new mongoose.Types.ObjectId(productid[i]));   
             }
 
-            insertset['checkdipilih'] = {
-                "$ifNull":
-                [
-                    {
-                        "$filter":
+            insertset = {
+                'checkdipilih': 
+                {
+                    "$ifNull":
+                    [
                         {
-                            input:convertproduct,
-                            as:"filter",
-                            cond:
+                            "$filter":
                             {
-                                "$eq":
-                                [
-                                    "$$filter",
-                                    "$productID"
-                                ]
+                                input:convertproduct,
+                                as:"filter",
+                                cond:
+                                {
+                                    "$eq":
+                                    [
+                                        "$$filter",
+                                        "$productID"
+                                    ]
+                                }
                             }
-                        }
-                    },
-                    []
-                ]
-            }   
+                        },
+                        []
+                    ]
+                }
+            };
 
             insertsort['available_to_choose'] = -1;
 
@@ -1161,18 +1174,20 @@ export class MonetizationService {
                 }
             };
         }
-        else
-        {
-            insertproject['available_to_choose'] = true;
-        }
 
         insertsort['productCode'] = 1;
         insertsort['endCouponDate'] = 1;
 
+        if(insertset != null)
+        {
+            pipeline.push(
+                {
+                    "$set":insertset
+                }
+            );
+        }
+
         pipeline.push(
-            {
-                "$set":insertset
-            },
             {
                 "$project":insertproject
             },
