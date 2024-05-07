@@ -1672,7 +1672,7 @@ export class DisqusController {
   
                       await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
   
-                      await this.transactionCoin2SS.createTransaction(inDto.email.toString(), insertlogtransaksi);
+                      //await this.transactionCoin2SS.createTransaction(inDto.email.toString(), insertlogtransaksi);
                       
                       listtransaksi.push(getdataresulttrans[i].idTransaction);
                     }
@@ -1797,24 +1797,35 @@ export class DisqusController {
               try
               {
                 var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
+                var listtransaksi = [];
                 if(resultdata != false)
                 {
                   var getdataresulttrans = resultdata.data;
                   for(var i = 0; i < getdataresulttrans.length; i++)
                   {
-                    var detailtransdata = getdataresulttrans[i]._id;
-                    var insertlogtransaksi = 
+                    var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+                    if(checkexist == false)
                     {
-                      "idPackage" : getgiftdata._id,
-                      "idTransaction" : detailtransdata,
-                      "status" : "SUCCESS",
-                      "quantity" : 1,
-                      "last_stock": getgiftdata.last_stock - 1,
-                      "used_stock": getgiftdata.used_stock + 1,
-                      "idUser" : getdatapembeli._id
-                    };
-
-                    await this.transactionCoin2SS.createTransaction(inDto.email.toString(), insertlogtransaksi);
+                      var upd_last_stock = getgiftdata.last_stock - 1;
+                      var upd_used_stock = getgiftdata.used_stock + 1;
+                      var detailtransdata = getdataresulttrans[i]._id;
+                      var insertlogtransaksi = 
+                      {
+                        "idPackage" : getgiftdata._id,
+                        "idTransaction" : detailtransdata,
+                        "status" : "SUCCESS",
+                        "quantity" : 1,
+                        "last_stock": upd_last_stock,
+                        "used_stock": upd_used_stock,
+                        "idUser" : getdatapembeli._id
+                      };
+  
+                      await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
+  
+                      //await this.transactionCoin2SS.createTransaction(inDto.email.toString(), insertlogtransaksi);
+                      
+                      listtransaksi.push(getdataresulttrans[i].idTransaction);
+                    }
                   }
                 }
               }
