@@ -98,6 +98,8 @@ export class MediastreamingController {
     dataResponse['urlIngest'] = data.urlIngest;
     dataResponse['createAt'] = data.createAt;
     dataResponse['token'] = data.tokenAgora;
+    dataResponse['url'] = data.url;
+    dataResponse['textUrl'] = data.textUrl;
     const Response = {
       response_code: 202,
       data: dataResponse,
@@ -438,6 +440,9 @@ export class MediastreamingController {
             this.mediastreamingService.socketRequest(RequestSoctDto_);
           }
         }
+      }
+      //CECK TYPE DELETE COMMENT
+      if (MediastreamingDto_.type == "COMMENT_DELETE") {
       }
       //CECK TYPE COMMENT DISABLED
       if (MediastreamingDto_.type == "COMMENT_DISABLED") {
