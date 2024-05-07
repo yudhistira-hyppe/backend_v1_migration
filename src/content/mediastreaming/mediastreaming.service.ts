@@ -1815,6 +1815,17 @@ export class MediastreamingService {
     return data;
   }
 
+  async updateManyCommentPinned(_id: string, pinned: boolean, updateAt: string) {
+    const data = await this.MediastreamingModel.findOneAndUpdate({
+      _id: new mongoose.Types.ObjectId(_id)
+    },
+      {
+        $set: { "comment.$.pinned": pinned, "comment.$.updateAt": updateAt }
+      },
+    );
+    return data;
+  }
+
   async updateCommentPinned(_id: string, idComment: string, pinned: boolean, updateAt: string) {
     const data = await this.MediastreamingModel.findOneAndUpdate({
       _id: new mongoose.Types.ObjectId(_id),
