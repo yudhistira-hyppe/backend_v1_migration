@@ -300,6 +300,39 @@ export class MonetizationController {
     }
   }
 
+  @Post("/listActive")
+  @UseGuards(JwtAuthGuard)
+  async listActive(@Req() request: Request, @Headers() headers) {
+    let timestamps_start = await this.utilService.getDateTimeString();
+    let url = headers.host + "/api/monetization/listActive";
+    let token = headers['x-auth-token'];
+    let auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    let email = auth.email;
+    const types = ["COIN", "GIFT"];
+    const typesGift = ["CLASSIC", "DELUXE"];
+
+    var request_json = JSON.parse(JSON.stringify(request.body));
+    if (request_json.page == undefined || request_json.page == null) { throw new BadRequestException("Missing field page (number)"); }
+    if (request_json.limit == undefined || request_json.limit == null) { throw new BadRequestException("Missing field: limit (number)"); }
+    if (request_json.type == undefined || !request_json.type) { throw new BadRequestException("Missing field: type (string 'COIN'/'GIFT')"); }
+    if (types.indexOf(request_json.type) < 0) { throw new BadRequestException("type must be 'COIN' or 'GIFT'"); }
+    if (request_json.type == "GIFT" && (request_json.typeGift == undefined || !request_json.typeGift)) { throw new BadRequestException("Missing field: typeGift (string 'CLASSIC'/'DELUXE')"); }
+    if (request_json.typeGift && typesGift.indexOf(request_json.typeGift) < 0) { throw new BadRequestException("typeGift must be 'CLASSIC' or 'DELUXE'"); }
+
+    let skip = (request_json.page >= 0 ? request_json.page : 0) * request_json.limit;
+    let data = await this.monetizationService.listActiveItems(skip, request_json.limit, request_json.type, request_json.typeGift);
+    let timestamps_end = await this.utilService.getDateTimeString();
+    this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    return {
+      response_code: 202,
+      data: data,
+      message: {
+        "info": ["The process was successful"],
+      }
+    }
+  }
+
   async sendNotifAudiens(data: any) {
 
     var templatedata = await this.repoSS.findOne("65e932f8c87900009e001bc2");

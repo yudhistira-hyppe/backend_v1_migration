@@ -23,7 +23,7 @@ export class MonetizationService {
         private readonly postContentService: PostContentService,
         private readonly utilsService: UtilsService,
         private readonly UserbasicnewService: UserbasicnewService,
-        private readonly transProdService :TransactionsProductsService,
+        private readonly transProdService: TransactionsProductsService,
         private readonly LogAPISS: LogapisService,
         private readonly ossservices: OssService
     ) { }
@@ -126,8 +126,7 @@ export class MonetizationService {
         let url_filename = "";
         let now = await this.utilsService.getDateTimeString();
 
-        if(request.isUploadIcon == 'true' || request.isUploadIcon == true)
-        {
+        if (request.isUploadIcon == 'true' || request.isUploadIcon == true) {
             let image_information = await sharp(file.buffer).metadata();
             let extension = image_information.format;
 
@@ -147,8 +146,7 @@ export class MonetizationService {
                 }
             }
         }
-        else
-        {
+        else {
             url_filename = 'http://be-staging.oss-ap-southeast-5.aliyuncs.com/images/coin/default.jpg';
         }
 
@@ -274,8 +272,7 @@ export class MonetizationService {
         return insertdata;
     }
 
-    async createDiscount(header: any, thumb: Express.Multer.File, request: any)
-    {
+    async createDiscount(header: any, thumb: Express.Multer.File, request: any) {
         var timestamps_start = await this.utilsService.getDateTimeString();
         var url = header.host + "/api/monetization/create";
         var token = header['x-auth-token'];
@@ -380,7 +377,7 @@ export class MonetizationService {
         return result;
     }
 
-    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, tipegift?:string, jenisProduk?:any[]) {
+    async listAllCoin(skip: number, limit: number, descending: boolean, type?: string, name?: string, dateFrom?: string, dateTo?: string, stockFrom?: number, stockTo?: number, status?: boolean, audiens_type?: string, tipegift?: string, jenisProduk?: any[]) {
 
         let order = descending ? -1 : 1;
         let matchAnd = [];
@@ -495,18 +492,17 @@ export class MonetizationService {
         }
         if (type == "GIFT" && tipegift && tipegift !== undefined) {
             matchAnd.push({
-                "typeGift":tipegift
+                "typeGift": tipegift
             });
         }
-        if(jenisProduk && jenisProduk !== undefined) {
+        if (jenisProduk && jenisProduk !== undefined) {
             var setarray = [];
-            for (var i = 0; i < jenisProduk.length; i++)
-            {
-                setarray.push(new mongoose.Types.ObjectId(jenisProduk[i]));   
+            for (var i = 0; i < jenisProduk.length; i++) {
+                setarray.push(new mongoose.Types.ObjectId(jenisProduk[i]));
             }
             matchAnd.push({
-                "productID":{
-                    "$in":setarray
+                "productID": {
+                    "$in": setarray
                 }
             });
         }
@@ -524,7 +520,7 @@ export class MonetizationService {
 
         pipeline.push(
             {
-                "$lookup": 
+                "$lookup":
                 {
                     from: "transactionsProducts",
                     localField: "productID",
@@ -535,9 +531,9 @@ export class MonetizationService {
             {
                 "$project":
                 {
-                    _id:1,
-                    type:1,
-                    name:1,
+                    _id: 1,
+                    type: 1,
+                    name: 1,
                     code_package:
                     {
                         "$cond":
@@ -545,15 +541,15 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$code_package",
-                            else:"$$REMOVE"
+                            then: "$code_package",
+                            else: "$$REMOVE"
                         }
                     },
-                    package_id:1,
+                    package_id: 1,
                     price:
                     {
                         "$cond":
@@ -561,17 +557,17 @@ export class MonetizationService {
                             if:
                             {
                                 "$ne":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$price",
-                            else:"$$REMOVE"
+                            then: "$price",
+                            else: "$$REMOVE"
                         }
                     },
-                    amount:1,
-                    stock:"$last_stock",
-                    thumbnail:1,
+                    amount: 1,
+                    stock: "$last_stock",
+                    thumbnail: 1,
                     audiens:
                     {
                         "$cond":
@@ -579,23 +575,23 @@ export class MonetizationService {
                             if:
                             {
                                 "$or":
-                                [
-                                    {
-                                        "$eq":
-                                        [
-                                            "$type", "CREDIT"
-                                        ]
-                                    },
-                                    {
-                                        "$eq":
-                                        [
-                                            "$type", "DISCOUNT"
-                                        ]
-                                    }
-                                ]
+                                    [
+                                        {
+                                            "$eq":
+                                                [
+                                                    "$type", "CREDIT"
+                                                ]
+                                        },
+                                        {
+                                            "$eq":
+                                                [
+                                                    "$type", "DISCOUNT"
+                                                ]
+                                        }
+                                    ]
                             },
-                            then:"$audiens",
-                            else:"$$REMOVE"
+                            then: "$audiens",
+                            else: "$$REMOVE"
                         }
                     },
                     audiens_user:
@@ -605,23 +601,23 @@ export class MonetizationService {
                             if:
                             {
                                 "$or":
-                                [
-                                    {
-                                        "$eq":
-                                        [
-                                            "$type", "CREDIT"
-                                        ]
-                                    },
-                                    {
-                                        "$eq":
-                                        [
-                                            "$type", "DISCOUNT"
-                                        ]
-                                    }
-                                ]
+                                    [
+                                        {
+                                            "$eq":
+                                                [
+                                                    "$type", "CREDIT"
+                                                ]
+                                        },
+                                        {
+                                            "$eq":
+                                                [
+                                                    "$type", "DISCOUNT"
+                                                ]
+                                        }
+                                    ]
                             },
-                            then:"$audiens_user",
-                            else:"$$REMOVE"
+                            then: "$audiens_user",
+                            else: "$$REMOVE"
                         }
                     },
                     typeGift:
@@ -631,12 +627,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "GIFT"
-                                ]
+                                    [
+                                        "$type", "GIFT"
+                                    ]
                             },
-                            then:"$typeGift",
-                            else:"$$REMOVE"
+                            then: "$typeGift",
+                            else: "$$REMOVE"
                         }
                     },
                     animation:
@@ -646,12 +642,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "GIFT"
-                                ]
+                                    [
+                                        "$type", "GIFT"
+                                    ]
                             },
-                            then:"$animation",
-                            else:"$$REMOVE"
+                            then: "$animation",
+                            else: "$$REMOVE"
                         }
                     },
                     satuan_diskon:
@@ -661,12 +657,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$satuan_diskon",
-                            else:"$$REMOVE"
+                            then: "$satuan_diskon",
+                            else: "$$REMOVE"
                         }
                     },
                     nominal_discount:
@@ -676,12 +672,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$nominal_discount",
-                            else:"$$REMOVE"
+                            then: "$nominal_discount",
+                            else: "$$REMOVE"
                         }
                     },
                     min_use_disc:
@@ -691,12 +687,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$min_use_disc",
-                            else:"$$REMOVE"
+                            then: "$min_use_disc",
+                            else: "$$REMOVE"
                         }
                     },
                     productID:
@@ -706,12 +702,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$productID",
-                            else:"$$REMOVE"
+                            then: "$productID",
+                            else: "$$REMOVE"
                         }
                     },
                     productCode:
@@ -721,12 +717,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$productCode",
-                            else:"$$REMOVE"
+                            then: "$productCode",
+                            else: "$$REMOVE"
                         }
                     },
                     productName:
@@ -736,11 +732,11 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$productData", []
-                                ]
+                                    [
+                                        "$productData", []
+                                    ]
                             },
-                            then:"$$REMOVE",
+                            then: "$$REMOVE",
                             else:
                             {
                                 "$cond":
@@ -748,18 +744,18 @@ export class MonetizationService {
                                     if:
                                     {
                                         "$eq":
-                                        [
-                                            "$type", "DISCOUNT"
-                                        ]
+                                            [
+                                                "$type", "DISCOUNT"
+                                            ]
                                     },
                                     then:
                                     {
                                         "$arrayElemAt":
-                                        [
-                                            "$productData.name", 0
-                                        ]
+                                            [
+                                                "$productData.name", 0
+                                            ]
                                     },
-                                    else:"$$REMOVE"
+                                    else: "$$REMOVE"
                                 }
                             }
                         }
@@ -771,12 +767,12 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$startCouponDate",
-                            else:"$$REMOVE"
+                            then: "$startCouponDate",
+                            else: "$$REMOVE"
                         }
                     },
                     endCouponDate:
@@ -786,48 +782,116 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$type", "DISCOUNT"
-                                ]
+                                    [
+                                        "$type", "DISCOUNT"
+                                    ]
                             },
-                            then:"$endCouponDate",
-                            else:"$$REMOVE"
+                            then: "$endCouponDate",
+                            else: "$$REMOVE"
                         }
                     },
                     available:
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$cond":
+                            [
                                 {
-                                    if:
+                                    "$cond":
                                     {
-                                        "$eq":
-                                        [
-                                            "$last_stock",
-                                            0
-                                        ]
-                                    },
-                                    then:false,
-                                    else:true
-                                }
-                            },
-                            false
-                        ]
+                                        if:
+                                        {
+                                            "$eq":
+                                                [
+                                                    "$last_stock",
+                                                    0
+                                                ]
+                                        },
+                                        then: false,
+                                        else: true
+                                    }
+                                },
+                                false
+                            ]
                     },
-                    createdAt:1,
-                    updatedAt:1,
-                    used_stock:1,
-                    last_stock:1,
-                    active:1,
-                    status:1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    used_stock: 1,
+                    last_stock: 1,
+                    active: 1,
+                    status: 1,
                 }
             }
         );
 
         // var util = require('util');
         // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
+
+        var data = await this.monetData.aggregate(pipeline);
+        return data;
+    }
+
+    async listActiveItems(skip: number, limit: number, type: string, typeGift?: string) {
+        let pipeline = [];
+        switch (type) {
+            case "COIN":
+                pipeline.push(
+                    {
+                        $match: {
+                            type: type,
+                            active: true,
+                            status: true
+                        }
+                    },
+                    {
+                        $sort: {
+                            amount: 1
+                        }
+                    }
+                );
+                break;
+            case "GIFT":
+                pipeline.push(
+                    {
+                        $match: {
+                            type: type,
+                            typeGift: typeGift,
+                            active: true,
+                            status: true
+                        }
+                    },
+                    {
+                        $sort: {
+                            price: 1
+                        }
+                    }
+                );
+                break;
+            default:
+                pipeline.push(
+                    {
+                        $match: {
+                            type: type,
+                            active: true,
+                            status: true
+                        }
+                    },
+                    {
+                        $sort: {
+                            amount: 1
+                        }
+                    }
+                );
+        }
+        pipeline.push(
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+        )
+
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { depth: null, showHidden: false }));
 
         var data = await this.monetData.aggregate(pipeline);
         return data;
@@ -856,69 +920,61 @@ export class MonetizationService {
         return this.monetData.findByIdAndUpdate(id, { active: false, updatedAt: await this.utilsService.getDateTimeString() }, { new: true });
     }
 
-    async generatePackage(tipe:string)
-    {
+    async generatePackage(tipe: string) {
         var gettime = await this.utilsService.getDateTimeString();
         var getyear = gettime.split(" ")[0].split("-")[0];
         var gettipe = '';
         var listpaket = [
             {
-                tipe:"COIN",
-                kode:"04"
+                tipe: "COIN",
+                kode: "04"
             },
             {
-                tipe:"CREDIT",
-                kode:"05"
+                tipe: "CREDIT",
+                kode: "05"
             },
             {
-                tipe:"GIFT",
-                kode:"06"
+                tipe: "GIFT",
+                kode: "06"
             },
             {
-                tipe:"DISCOUNT",
-                kode:"XX"
+                tipe: "DISCOUNT",
+                kode: "XX"
             },
         ];
 
-        for(var i = 0; i < listpaket.length; i++)
-        {
+        for (var i = 0; i < listpaket.length; i++) {
             var getdata = listpaket[i];
-            if(getdata.tipe == tipe)
-            {
+            if (getdata.tipe == tipe) {
                 gettipe = getdata.kode;
-            }   
+            }
         }
 
         var getexist = await this.monetData.findOne(
             {
-                type:tipe,
+                type: tipe,
                 package_id:
                 {
-                    "$regex":getyear,
-                    "$options":"i"
+                    "$regex": getyear,
+                    "$options": "i"
                 }
             }
-        ).sort({ "createdAt":-1 });
+        ).sort({ "createdAt": -1 });
 
         var result = '';
-        if(getexist == null || getexist == undefined)
-        {
+        if (getexist == null || getexist == undefined) {
             result = getyear + "-" + gettipe + "-001";
         }
-        else
-        {
+        else {
             var pecahdata = getexist.package_id.split("-")[2];
             var tambah1 = parseInt(pecahdata) + 1;
-            if(tambah1 < 10)
-            {
-                result = getyear + "-" + gettipe + "-00" + tambah1.toString();   
+            if (tambah1 < 10) {
+                result = getyear + "-" + gettipe + "-00" + tambah1.toString();
             }
-            else if(tambah1 < 100 && tambah1 >= 10)
-            {
+            else if (tambah1 < 100 && tambah1 >= 10) {
                 result = getyear + "-" + gettipe + "-0" + tambah1.toString();
             }
-            else
-            {
+            else {
                 result = getyear + "-" + gettipe + "-" + tambah1.toString();
             }
         }
