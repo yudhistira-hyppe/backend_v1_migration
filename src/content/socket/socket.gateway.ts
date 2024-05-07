@@ -46,6 +46,8 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     }
 
     eventStream(event: string, payload: string): void {
+        console.log(event);
+        console.log(payload);
         this.server.emit(event, payload);
     }
 

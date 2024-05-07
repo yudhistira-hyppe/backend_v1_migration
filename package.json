@@ -45,6 +45,7 @@
     "@types/express-session": "^1.17.4",
     "@types/ioredis": "^5.0.0",
     "agora-access-token": "^2.0.4",
+    "agora-token": "^2.0.3",
     "ali-oss": "^6.17.1",
     "async-mutex": "^0.4.0",
     "aws-sdk": "^2.1179.0",

@@ -1793,6 +1793,30 @@ export class MediastreamingService {
     return data;
   }
 
+  async updateCommentPinned(_id: string, idComment: string, pinned: boolean, updateAt: string) {
+    const data = await this.MediastreamingModel.findOneAndUpdate({
+      _id: new mongoose.Types.ObjectId(_id),
+      "comment": { "$elemMatch": { "idComment": new mongoose.Types.ObjectId(idComment) } }
+    },
+      {
+        $set: { "comment.$.pinned": pinned, "comment.$.updateAt": updateAt }
+      },
+    );
+    return data;
+  }
+
+  async updateCommentDelete(_id: string, idComment: string, status: boolean, updateAt: string) {
+    const data = await this.MediastreamingModel.findOneAndUpdate({
+      _id: new mongoose.Types.ObjectId(_id),
+      "comment": { "$elemMatch": { "idComment": new mongoose.Types.ObjectId(idComment) } }
+    },
+      {
+        $set: { "comment.$.status": status, "comment.$.updateAt": updateAt }
+      },
+    );
+    return data;
+  }
+
   async insertView(_id: string, view: any) {
     const data = await this.MediastreamingModel.updateOne({
       _id: new mongoose.Types.ObjectId(_id)

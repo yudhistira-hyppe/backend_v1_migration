@@ -352,72 +352,122 @@ export class MediastreamingController {
       }
       //CECK TYPE COMMENT
       if (MediastreamingDto_.type == "COMMENT") {
-        if (MediastreamingDto_.messages !=undefined) {
-          //UPDATE COMMENT
-          const dataComment = {
-            userId: new mongoose.Types.ObjectId(profile._id.toString()),
-            status: true,
-            pinned: false,
-            messages: MediastreamingDto_.messages,
-            createAt: currentDate,
-            updateAt: currentDate
-          };
-          await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
-          if (MediastreamingDto_.idGift!=undefined){
-            await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-            this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString() ,profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
-          }
-          //SEND COMMENT SINGLE
+        if (MediastreamingDto_.commentType != undefined) {
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());
-          getUser[0]["idStream"] = MediastreamingDto_._id.toString();
-          getUser[0]["messages"] = MediastreamingDto_.messages;
-          const singleSend = {
-            data: getUser[0]
-          }
-          const STREAM_MODE = this.configService.get("STREAM_MODE");
-          if (STREAM_MODE == "1") {
-            this.appGateway.eventStream("COMMENT_STREAM_SINGLE", JSON.stringify(singleSend));
-          } else {
-            let RequestSoctDto_ = new RequestSoctDto();
-            RequestSoctDto_.event = "COMMENT_STREAM_SINGLE";
-            RequestSoctDto_.data = JSON.stringify(singleSend);
-            this.mediastreamingService.socketRequest(RequestSoctDto_);
-          }
-          //SEND COMMENT ALL
-          const getData = await this.mediastreamingService.getDataComment(MediastreamingDto_._id.toString())
-          const allSend = {
-            data: getData
-          }
-          if (STREAM_MODE == "1") {
-            this.appGateway.eventStream("COMMENT_STREAM_ALL", JSON.stringify(allSend));
-          } else {
-            let RequestSoctDto_ = new RequestSoctDto();
-            RequestSoctDto_.event = "COMMENT_STREAM_ALL";
-            RequestSoctDto_.data = JSON.stringify(allSend);
-            this.mediastreamingService.socketRequest(RequestSoctDto_);
+          if (await this.utilsService.ceckData(getUser)) {
+            let idComment = new mongoose.Types.ObjectId();
+            let dataComment = {};
+            if (MediastreamingDto_.commentType == "MESSAGGES") {
+              //SET DATA COMMENT
+              dataComment['idComment'] = idComment;
+              dataComment['commentType'] = MediastreamingDto_.commentType;
+              dataComment['userId'] = new mongoose.Types.ObjectId(profile._id.toString());
+              dataComment['status'] = true;
+              dataComment['pinned'] = false;
+              dataComment['messages'] = MediastreamingDto_.messages;
+              dataComment['createAt'] = currentDate;
+              dataComment['updateAt'] = currentDate;
+
+              getUser[0]["idStream"] = MediastreamingDto_._id.toString();
+              getUser[0]["commentType"] = MediastreamingDto_.commentType;
+              getUser[0]["userId"] = MediastreamingDto_.userId;
+              getUser[0]["status"] = true;
+              getUser[0]["pinned"] = false;
+              getUser[0]["messages"] = MediastreamingDto_.messages;
+              getUser[0]["createAt"] = currentDate;
+              getUser[0]["updateAt"] = currentDate;
+            }
+            if (MediastreamingDto_.commentType == "GIFT") {
+              //SET DATA COMMENT
+              dataComment['idComment'] = idComment;
+              dataComment['commentType'] = MediastreamingDto_.commentType;
+              dataComment['userId'] = new mongoose.Types.ObjectId(profile._id.toString());
+              dataComment['status'] = true;
+              dataComment['pinned'] = false;
+              dataComment['messages'] = MediastreamingDto_.messages;
+              dataComment['createAt'] = currentDate;
+              dataComment['updateAt'] = currentDate;
+
+              getUser[0]["idStream"] = MediastreamingDto_._id.toString();
+              getUser[0]["commentType"] = MediastreamingDto_.commentType;
+              getUser[0]["userId"] = MediastreamingDto_.userId;
+              getUser[0]["status"] = true;
+              getUser[0]["pinned"] = false;
+              getUser[0]["messages"] = MediastreamingDto_.messages;
+              getUser[0]["createAt"] = currentDate;
+              getUser[0]["updateAt"] = currentDate;
+
+              if (MediastreamingDto_.idGift != undefined) {
+                dataComment['idGift'] = MediastreamingDto_.idGift;
+                getUser[0]["idGift"] = MediastreamingDto_.idGift;
+                await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
+                this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
+              }
+              if (MediastreamingDto_.urlGift != undefined) {
+                dataComment['urlGift'] = MediastreamingDto_.urlGift;
+                getUser[0]["urlGift"] = MediastreamingDto_.urlGift;
+              }
+              if (MediastreamingDto_.urlGiftThum != undefined) {
+                dataComment['urlGiftThum'] = MediastreamingDto_.urlGiftThum;
+                getUser[0]["urlGiftThum"] = MediastreamingDto_.urlGiftThum;
+              }
+              if (MediastreamingDto_.idDiscond != undefined) {
+                dataComment['idDiscond'] = MediastreamingDto_.idDiscond;
+                getUser[0]["idDiscond"] = MediastreamingDto_.idDiscond;
+              }
+            }
+            //UPDATE COMMENT
+            await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
+            //GET SOCKET MODE
+            const STREAM_MODE = this.configService.get("STREAM_MODE");
+            //SEND COMMENT SINGLE
+            const singleSend = {
+              data: getUser[0]
+            }
+            if (STREAM_MODE == "1") {
+              this.appGateway.eventStream("COMMENT_STREAM_SINGLE", JSON.stringify(singleSend));
+            } else {
+              let RequestSoctDto_ = new RequestSoctDto();
+              RequestSoctDto_.event = "COMMENT_STREAM_SINGLE";
+              RequestSoctDto_.data = JSON.stringify(singleSend);
+              this.mediastreamingService.socketRequest(RequestSoctDto_);
+            }
+            //SEND COMMENT ALL
+            const getData = await this.mediastreamingService.getDataComment(MediastreamingDto_._id.toString())
+            const allSend = {
+              data: getData
+            }
+            if (STREAM_MODE == "1") {
+              this.appGateway.eventStream("COMMENT_STREAM_ALL", JSON.stringify(allSend));
+            } else {
+              let RequestSoctDto_ = new RequestSoctDto();
+              RequestSoctDto_.event = "COMMENT_STREAM_ALL";
+              RequestSoctDto_.data = JSON.stringify(allSend);
+              this.mediastreamingService.socketRequest(RequestSoctDto_);
+            }
           }
         }
       }
       //CECK TYPE COMMENT PINNED
       if (MediastreamingDto_.type == "COMMENT_PINNED") {
-        if (MediastreamingDto_.messages != undefined && MediastreamingDto_.userId != undefined) {
+        if (MediastreamingDto_._id != undefined && MediastreamingDto_.idComment != undefined) {
           let pinned_ = false;
           if (MediastreamingDto_.pinned != undefined){
             if (MediastreamingDto_.pinned){
               pinned_ = true;
             }
           }
-          await this.mediastreamingService.updateComment(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString(), MediastreamingDto_.messages.toString(), MediastreamingDto_.pinned, currentDate)
-
+          await this.mediastreamingService.updateCommentPinned(MediastreamingDto_._id.toString(), MediastreamingDto_.idComment.toString(),  MediastreamingDto_.pinned, currentDate)
+          //GET SOCKET MODE
+          const STREAM_MODE = this.configService.get("STREAM_MODE");
           //SEND COMMENT SINGLE
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());
           getUser[0]["idStream"] = MediastreamingDto_._id.toString();
-          getUser[0]["messages"] = MediastreamingDto_.messages;
+          getUser[0]["idComment"] = MediastreamingDto_.idComment.toString();
           getUser[0]["pinned"] = pinned_;
           const singleSend = {
             data: getUser[0]
           }
-          const STREAM_MODE = this.configService.get("STREAM_MODE");
           if (STREAM_MODE == "1") {
             this.appGateway.eventStream("COMMENT_PINNED_STREAM_SINGLE", JSON.stringify(singleSend));
           } else {
@@ -443,6 +493,41 @@ export class MediastreamingController {
       }
       //CECK TYPE DELETE COMMENT
       if (MediastreamingDto_.type == "COMMENT_DELETE") {
+        if (MediastreamingDto_._id != undefined && MediastreamingDto_.idComment != undefined) {
+          let status = false;
+          await this.mediastreamingService.updateCommentDelete(MediastreamingDto_._id.toString(), MediastreamingDto_.idComment.toString(), status, currentDate)
+
+          //SEND COMMENT SINGLE
+          const getUser = await this.userbasicnewService.getUser(profile._id.toString());
+          getUser[0]["idStream"] = MediastreamingDto_._id.toString();
+          getUser[0]["idComment"] = MediastreamingDto_.idComment.toString();
+          getUser[0]["status"] = status;
+          const singleSend = {
+            data: getUser[0]
+          }
+          const STREAM_MODE = this.configService.get("STREAM_MODE");
+          if (STREAM_MODE == "1") {
+            this.appGateway.eventStream("COMMENT_DELETE_STREAM_SINGLE", JSON.stringify(singleSend));
+          } else {
+            let RequestSoctDto_ = new RequestSoctDto();
+            RequestSoctDto_.event = "COMMENT_DELETE_STREAM_SINGLE";
+            RequestSoctDto_.data = JSON.stringify(singleSend);
+            this.mediastreamingService.socketRequest(RequestSoctDto_);
+          }
+          //SEND COMMENT ALL
+          const getData = await this.mediastreamingService.getDataCommentPinned(MediastreamingDto_._id.toString())
+          const allSend = {
+            data: getData
+          }
+          if (STREAM_MODE == "1") {
+            this.appGateway.eventStream("COMMENT_DELETE_STREAM_ALL", JSON.stringify(allSend));
+          } else {
+            let RequestSoctDto_ = new RequestSoctDto();
+            RequestSoctDto_.event = "COMMENT_DELETE_STREAM_ALL";
+            RequestSoctDto_.data = JSON.stringify(allSend);
+            this.mediastreamingService.socketRequest(RequestSoctDto_);
+          }
+        }
       }
       //CECK TYPE COMMENT DISABLED
       if (MediastreamingDto_.type == "COMMENT_DISABLED") {
@@ -468,8 +553,10 @@ export class MediastreamingController {
       }
       //CECK TYPE KICK
       if (MediastreamingDto_.type == "KICK") {
+        console.log(MediastreamingDto_.userId)
         if (MediastreamingDto_.userId != undefined) {
           const ceckView = await this.mediastreamingService.findView(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString());
+          console.log(ceckView)
           if (await this.utilsService.ceckData(ceckView)) {
             //UPDATE VIEW
             await this.mediastreamingService.updateView(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString(), true, false, currentDate);
@@ -487,7 +574,15 @@ export class MediastreamingController {
             const singleSend = {
               data: getUser[0]
             }
-            this.appGateway.eventStream("KICK_USER_STREAM", JSON.stringify(singleSend));
+            const STREAM_MODE = this.configService.get("STREAM_MODE");
+            if (STREAM_MODE == "1") {
+              this.appGateway.eventStream("KICK_USER_STREAM", JSON.stringify(singleSend));
+            } else {
+              let RequestSoctDto_ = new RequestSoctDto();
+              RequestSoctDto_.event = "KICK_USER_STREAM";
+              RequestSoctDto_.data = JSON.stringify(singleSend);
+              this.mediastreamingService.socketRequest(RequestSoctDto_);
+            }
             //SEND VIEW COUNT
             const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
             let viewCount = 0;
@@ -500,7 +595,14 @@ export class MediastreamingController {
                 viewCount: viewCount
               }
             }
-            this.appGateway.eventStream("VIEW_STREAM", JSON.stringify(dataStreamSend));
+            if (STREAM_MODE == "1") {
+              this.appGateway.eventStream("VIEW_STREAM", JSON.stringify(dataStreamSend));
+            } else {
+              let RequestSoctDto_ = new RequestSoctDto();
+              RequestSoctDto_.event = "VIEW_STREAM";
+              RequestSoctDto_.data = JSON.stringify(dataStreamSend);
+              this.mediastreamingService.socketRequest(RequestSoctDto_);
+            }
           }
         }
       }

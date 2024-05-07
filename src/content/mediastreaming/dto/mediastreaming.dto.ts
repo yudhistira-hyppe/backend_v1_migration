@@ -5,6 +5,10 @@ export class MediastreamingDto {
   _id: mongoose.Types.ObjectId;
   title: String;
   url: String;
+  urlGift: String;
+  urlGiftThum: String;
+  idComment: mongoose.Types.ObjectId;
+  commentType: String;
   textUrl: String;
   userId: mongoose.Types.ObjectId;
   expireTime: Long;

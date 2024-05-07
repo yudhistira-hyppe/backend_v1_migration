@@ -5,7 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { Mediastreaming, MediastreamingDocument } from './schema/mediastreaming.schema';
 import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
-import { RtcTokenBuilder, RtcRole } from 'agora-access-token';
+//import { RtcTokenBuilder, RtcRole } from 'agora-access-token';
+import { RtcTokenBuilder, RtcRole } from 'agora-token';
 import axios from 'axios';;
 
 @Injectable()
@@ -29,7 +30,8 @@ export class MediastreamingAgoraService {
     const ID_SETTING_PRIMARY_CERTIFICATE_KEY = this.configService.get("ID_SETTING_PRIMARY_CERTIFICATE_KEY");
     const GET_ID_SETTING_PRIMARY_CERTIFICATE_KEY = await this.utilsService.getSetting_Mixed(ID_SETTING_PRIMARY_CERTIFICATE_KEY);
     try {
-      const token = RtcTokenBuilder.buildTokenWithUid(GET_ID_SETTING_APP_ID.toString(), GET_ID_SETTING_PRIMARY_CERTIFICATE_KEY.toString(), channelName, 0, RtcRole.PUBLISHER, privilegeExpireTime);
+      //const token = RtcTokenBuilder.buildTokenWithUid(GET_ID_SETTING_APP_ID.toString(), GET_ID_SETTING_PRIMARY_CERTIFICATE_KEY.toString(), channelName, 0, RtcRole.PUBLISHER, privilegeExpireTime);
+      const token = RtcTokenBuilder.buildTokenWithUid(GET_ID_SETTING_APP_ID.toString(), GET_ID_SETTING_PRIMARY_CERTIFICATE_KEY.toString(), channelName, 0, RtcRole.PUBLISHER, privilegeExpireTime, privilegeExpireTime);
       return {
         token: token,
         channel: channelName,
