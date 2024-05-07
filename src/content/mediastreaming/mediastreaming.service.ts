@@ -1116,6 +1116,7 @@ export class MediastreamingService {
           },
           "messages": "$comment.messages",
           "idStream": "$_id",
+          "idComment": "$comment.idComment",
         }
       },
     ];

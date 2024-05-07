@@ -35,6 +35,7 @@ import { AdsPriceCreditsModule } from '../adsv2/adspricecredits/adspricecredits.
 import { UserbasicnewModule } from '../userbasicnew/userbasicnew.module';
 import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { MonetizenewModule } from 'src/trans/transactions/monetizenew/monetizenew.module';
+import { MonetizationModule } from '../monetization/monetization.module';
 
 @Module({
 
@@ -52,7 +53,7 @@ import { MonetizenewModule } from 'src/trans/transactions/monetizenew/monetizene
         UtilsModule,
         ConfigModule.forRoot(), GetusercontentsModule, UserbasicsModule, SettingsModule, MethodepaymentsModule, BanksModule, PostsModule, Pph21sModule, AccountbalancesModule, OyPgModule,
         InsightsModule, UserbankaccountsModule, WithdrawsModule, MediavideosModule, MediapictsModule, MediadiariesModule, UservouchersModule, VouchersModule, MediastoriesModule, LanguagesModule,
-        AdsModule,
+        AdsModule, MonetizationModule,
         MongooseModule.forFeature([{ name: Transactions.name, schema: TransactionsSchema }], 'SERVER_FULL')
     ],
     controllers: [TransactionsController],

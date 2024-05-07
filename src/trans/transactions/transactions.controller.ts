@@ -2645,7 +2645,6 @@ export class TransactionsController {
 
             if (type === "COIN") {
 
-
                 try {
                     datapost = await this.MonetizenewService.findOne(postid[0].id);
 
@@ -19427,6 +19426,50 @@ export class TransactionsController {
         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
 
         return { response_code: 202, data, messages };
+    }
+
+    @Post('api/transactions/coinpurchasedetail')
+    @UseGuards(JwtAuthGuard)
+    async coinpurchasedetail(@Req() request: Request, @Headers() headers): Promise<any> {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/coinpurchasedetail';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        var price = null;
+        var discount = 0;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
+        var transaction_fee = transaction_fee_data.value;
+        if (!request_json.price) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: price (number)");
+        } else price = request_json.price;
+
+        if (request_json.discount_id) {
+            var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
+            discount = discount_data.nominal_discount;
+        }
+
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        return {
+            response_code: 202,
+            data: {
+                price: price,
+                transaction_fee: transaction_fee,
+                discount: discount,
+                total_before_discount: price + transaction_fee,
+                total_payment: price + transaction_fee - discount
+            },
+            messages
+        }
     }
 }
 

@@ -369,6 +369,7 @@ export class MediastreamingController {
               dataComment['createAt'] = currentDate;
               dataComment['updateAt'] = currentDate;
 
+              getUser[0]["idComment"] = idComment;
               getUser[0]["idStream"] = MediastreamingDto_._id.toString();
               getUser[0]["commentType"] = MediastreamingDto_.commentType;
               getUser[0]["userId"] = MediastreamingDto_.userId;
@@ -389,6 +390,7 @@ export class MediastreamingController {
               dataComment['createAt'] = currentDate;
               dataComment['updateAt'] = currentDate;
 
+              getUser[0]["idComment"] = idComment;
               getUser[0]["idStream"] = MediastreamingDto_._id.toString();
               getUser[0]["commentType"] = MediastreamingDto_.commentType;
               getUser[0]["userId"] = MediastreamingDto_.userId;
