@@ -896,7 +896,8 @@ export class PostsReadController {
         try {
 
             //data = await this.postsReadService.landingpageMy2V2(email, postType, parseInt(pageNumber), parseInt(pageRow), emailLogin);
-            data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
+            // data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
+            data = await this.post2SS.landingpageMigrationUpdate(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
             lengpict = data.length;
             console.log("data", data);
         } catch (e) {
@@ -1911,8 +1912,7 @@ export class PostsReadController {
             for (var j = 0; j < data.length; j++) {
                 tempdata = data[j];
                 if (tempdata.postID != null && tempdata.postID != undefined) {
-                    if(tempdata.eventType != 'CHALLENGE')
-                    {
+                    if (tempdata.eventType != 'CHALLENGE') {
                         try {
                             if (tempdata.content.isApsara == true) {
                                 listdata.push(tempdata.content.apsaraId);
@@ -1934,7 +1934,7 @@ export class PostsReadController {
             for (var i = 0; i < data.length; i++) {
                 let getdetailpost = data[i];
                 if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
-                    if(getdetailpost.eventType != 'CHALLENGE') {
+                    if (getdetailpost.eventType != 'CHALLENGE') {
                         for (var j = 0; j < tempresult.length; j++) {
                             if (tempresult[j].ImageId == data[i].content.apsaraThumbId) {
                                 data[i].content.mediaThumbEndpoint = tempresult[j].URL;
@@ -1954,7 +1954,7 @@ export class PostsReadController {
             for (var i = 0; i < data.length; i++) {
                 let getdetailpost = data[i];
                 if (getdetailpost.postID != null && getdetailpost.postID != undefined) {
-                    if(getdetailpost.eventType != 'CHALLENGE') {
+                    if (getdetailpost.eventType != 'CHALLENGE') {
                         for (var j = 0; j < tempresult.length; j++) {
                             if (tempresult[j].VideoId == data[i].content.apsaraId) {
                                 data[i].content.mediaThumbEndpoint = tempresult[j].CoverURL;

@@ -167,18 +167,18 @@ export class NewPostController {
             }
 
 
-    
-                try {
-                    this.posttask(postID, email, current_date);
-                } catch (e) {
 
-                }
-                try {
-                    this.schedul(postID, email);
-                } catch (e) {
+            try {
+                this.posttask(postID, email, current_date);
+            } catch (e) {
 
-                }
-            
+            }
+            try {
+                this.schedul(postID, email);
+            } catch (e) {
+
+            }
+
 
             const databasic = await this.basic2SS.findBymail(
                 email
@@ -2657,7 +2657,8 @@ export class NewPostController {
 
         try {
 
-            data = await this.newPostService.landingpageMigration(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
+            // data = await this.newPostService.landingpageMigration(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
+            data = await this.newPostService.landingpageMigrationUpdate(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
             lengpict = data.length;
 
         } catch (e) {
@@ -5065,5 +5066,5 @@ export class NewPostController {
         }
     }
 
-    
+
 }
