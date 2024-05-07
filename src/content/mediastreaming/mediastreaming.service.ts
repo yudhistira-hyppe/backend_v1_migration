@@ -28,11 +28,9 @@ export class MediastreamingService {
   }
 
   async getDataListAgora(userId: string, email: string, arrayId: mongoose.Types.ObjectId[], pageNumber: number, pageSize: number) {
-    console.log(arrayId);
-    console.log(userId);
-    console.log(email);
     let skip_ = (pageNumber > 0) ? (pageNumber * pageSize) : pageNumber;
     let limit_ = pageSize;
+    const ID_SETTING_JENIS_REPORT = this.configService.get("ID_SETTING_JENIS_REPORT");
     const DataList = await this.MediastreamingModel.aggregate(
       [
         {
@@ -51,6 +49,25 @@ export class MediastreamingService {
               { "kick.userId": { $ne: '$dataUser' } }
             ]
           },
+        },
+        {
+          "$lookup": {
+            from: "settings",
+            as: "dataSettings",
+            let: {
+              id: new mongoose.Types.ObjectId(ID_SETTING_JENIS_REPORT.toString()),
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr:
+                  {
+                    $eq: ["$_id", "$$id"]
+                  },
+                }
+              }
+            ]
+          }
         },
         {
           "$lookup": {
@@ -270,7 +287,11 @@ export class MediastreamingService {
             totalLike: 1,
             totalFollower: 1,
             totalFriend: 1,
-            totalFollowing: 1,
+            totalFollowing: 1, 
+            settingsRemackReport:
+            {
+              $arrayElemAt: ["$dataSettings.value", 0]
+            },
             fullName:
             {
               $arrayElemAt: ["$userStream.fullName", 0]
