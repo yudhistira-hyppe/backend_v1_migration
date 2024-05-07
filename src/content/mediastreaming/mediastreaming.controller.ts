@@ -687,6 +687,7 @@ export class MediastreamingController {
         MediastreamingDto_Res.urlIngest = ceckId.urlIngest;
         MediastreamingDto_Res.createAt = ceckId.createAt;
         MediastreamingDto_Res.viewCountActive = dataStream[0].view.length;
+        MediastreamingDto_Res.comment = dataStream;
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", MediastreamingDto_Res
         );

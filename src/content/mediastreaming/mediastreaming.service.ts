@@ -855,14 +855,18 @@ export class MediastreamingService {
                 $eq: ["$$item.status", true]
               }
             }
+          },
+          comment: {
+            $filter: {
+              input: '$comment',
+              as: 'item',
+              cond: {
+                $eq: ["$$item.pinned", true]
+              }
+            }
           }
         }
       }
-      // {
-      //   "$project": {
-      //     "view": { "$setUnion": ["$view.userId", []] }
-      //   }
-      // },
     ];
     console.log(JSON.stringify(paramaggregate));
     const data = await this.MediastreamingModel.aggregate(paramaggregate);
@@ -1816,12 +1820,14 @@ export class MediastreamingService {
   }
 
   async updateManyCommentPinned(_id: string, pinned: boolean, updateAt: string) {
-    const data = await this.MediastreamingModel.findOneAndUpdate({
-      _id: new mongoose.Types.ObjectId(_id)
-    },
+    const data = await this.MediastreamingModel.updateMany(
+      {
+        _id: new mongoose.Types.ObjectId(_id),
+        "comment": { "$elemMatch": { "pinned": true } }
+      },
       {
         $set: { "comment.$.pinned": pinned, "comment.$.updateAt": updateAt }
-      },
+      }
     );
     return data;
   }
