@@ -866,7 +866,105 @@ export class MediastreamingService {
             }
           }
         }
-      }
+      },
+      {
+        $unwind:
+        {
+          path: "$comment",
+          includeArrayIndex: "updateAt_index",
+
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          as: "data_userbasics",
+          let: {
+            localID: "$comment.userId"
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$localID"]
+                },
+
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                avatar: {
+                  "mediaBasePath": "$mediaBasePath",
+                  "mediaUri": "$mediaUri",
+                  "mediaType": "$mediaType",
+                  "mediaEndpoint": "$mediaEndpoint",
+                }
+              }
+            },
+
+          ],
+        }
+      },
+      {
+        "$project": {
+          "_id": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "email": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.email"
+            }
+          },
+          "fullName": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+          "username": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          "avatar": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.avatar"
+            }
+          },
+          "messages": "$comment.messages",
+          "idStream": "$_id",
+          "idComment": "$comment.idComment",
+        }
+      },
     ];
     console.log(JSON.stringify(paramaggregate));
     const data = await this.MediastreamingModel.aggregate(paramaggregate);
