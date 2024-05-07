@@ -65,7 +65,8 @@ export class Transactions {
     voucherpromo: any[];
     @Prop([])
     datavoucherpromo: any[];
-
+    @Prop()
+    productCode: string
 
 }
 

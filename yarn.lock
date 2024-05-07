@@ -2972,6 +2972,15 @@
     "crc-32" "1.2.0"
     "cuint" "0.2.2"
 
+"agora-token@^2.0.3":
+  "integrity" "sha512-2+iWWKNb/Rd7afPbWhkK5K/N8RMb10CVEgtPxuI35URQvpI4aFw9aL9s02NSP24BDrIJZ0k5CTH3fGrjmFcloA=="
+  "resolved" "https://registry.npmjs.org/agora-token/-/agora-token-2.0.3.tgz"
+  "version" "2.0.3"
+  dependencies:
+    "crc-32" "^1.2.0"
+    "cuint" "0.2.2"
+    "md5" "^2.3.0"
+
 "ajv-formats@2.1.1":
   "integrity" "sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA=="
   "resolved" "https://registry.npmjs.org/ajv-formats/-/ajv-formats-2.1.1.tgz"
@@ -4308,7 +4317,7 @@
     "path-type" "^4.0.0"
     "yaml" "^1.10.0"
 
-"crc-32@~1.2.0", "crc-32@~1.2.1":
+"crc-32@^1.2.0", "crc-32@~1.2.0", "crc-32@~1.2.1":
   "integrity" "sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ=="
   "resolved" "https://registry.npmjs.org/crc-32/-/crc-32-1.2.2.tgz"
   "version" "1.2.2"

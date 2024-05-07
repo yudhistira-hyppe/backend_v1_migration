@@ -30,6 +30,7 @@ export class CreateTransactionsNewDto {
     updatedAt: string;
     voucherpromo: any[];
     datavoucherpromo: any[];
+    productCode: string
 
 }
 
