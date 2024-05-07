@@ -2385,9 +2385,7 @@ export class TransactionsController {
 
             throw new BadRequestException("Unabled to proceed");
         }
-        if (request_json["discount"] !== undefined) {
-            discount = request_json["discount"];
-        }
+       
         //var splitPostid = postid.split(',');
         var lenghtpostid = postid.length;
 
@@ -2498,6 +2496,8 @@ export class TransactionsController {
         var used_stock = 0;
         var tsTock = 0;
         var minStock = 0;
+        var tsTockDiskon = 0;
+        var minStockDiskon = 0;
         var amountTotal = 0;
         var diskon = 0;
         var stockDiskon = 0;
@@ -2517,24 +2517,24 @@ export class TransactionsController {
 
             if (dataDiskon !== null) {
                 try {
-                    diskon = dataDiskon.nominal_discount;
+                    diskon = dataDiskon._doc.nominal_discount;
                 } catch (e) {
                     diskon = 0;
                 }
 
                 try {
-                    stockDiskon = dataDiskon.stock;
+                    stockDiskon = dataDiskon._doc.stock;
                 } catch (e) {
                     stockDiskon = 0;
                 }
 
                 try {
-                    last_stockDiskon = dataDiskon.last_stock;
+                    last_stockDiskon = dataDiskon._doc.last_stock;
                 } catch (e) {
                     last_stockDiskon = 0;
                 }
                 try {
-                    used_stockDiskon = dataDiskon.used_stock;
+                    used_stockDiskon = dataDiskon._doc.used_stock;
                 } catch (e) {
                     used_stockDiskon = 0;
                 }
@@ -2546,7 +2546,7 @@ export class TransactionsController {
         try {
 
             datauserhyppe = await this.settingsService.findOne(idhyppe);
-            useridHyppe = mongoose.Types.ObjectId(datauserhyppe.value);
+            useridHyppe = mongoose.Types.ObjectId(datauserhyppe._doc.value);
 
         } catch (e) {
             datauserhyppe = null;
@@ -2555,7 +2555,7 @@ export class TransactionsController {
         try {
 
             dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
-            valAdmin = mongoose.Types.ObjectId(dataadmincoin.value);
+            valAdmin =dataadmincoin._doc.value;
 
         } catch (e) {
             dataadmincoin = null;
@@ -2565,7 +2565,7 @@ export class TransactionsController {
         try {
 
             dataadminoy = await this.settingsService.findOne(ID_SETTING_COST_PG_OY);
-            valAdminOy = mongoose.Types.ObjectId(dataadminoy.value);
+            valAdminOy =dataadminoy._doc.value;
 
         } catch (e) {
             dataadminoy = null;
@@ -2684,6 +2684,8 @@ export class TransactionsController {
                     var qty = postid[0].qty;
                     tsTock = Number(qty) + Number(used_stock);
                     minStock = Number(last_stock) - Number(qty);
+                    tsTockDiskon = 1 + Number(used_stockDiskon);
+                    minStockDiskon = Number(last_stockDiskon) - 1;
                     totalamount = Number(postid[0].totalAmount)+ Number(valAdmin);
                     amountTotal=Number(totalamount) -Number(diskon);
                     var arraydetailobj = { "id": postIds, "qty": qty, "totalAmount": totalamount };
@@ -2935,6 +2937,13 @@ export class TransactionsController {
                                 try {
 
                                     await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+                                } catch (e) {
+
+                                }
+
+                                try {
+
+                                    await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
                                 } catch (e) {
 
                                 }
