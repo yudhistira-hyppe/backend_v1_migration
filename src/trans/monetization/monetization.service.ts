@@ -990,24 +990,62 @@ export class MonetizationService {
             {
                 "$match":
                 {
-                    "$and":
+                    "$or":
                     [
                         {
-                            "type":"DISCOUNT"
+                            "$and":
+                            [
+                                {
+                                    "type":"DISCOUNT"
+                                },
+                                {
+                                    "audiens":"PUBLIC"
+                                },
+                                {
+                                    "active":true
+                                },
+                                {
+                                    "status":true
+                                },
+                                //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
+                                // {
+                                //     "startCouponDate":
+                                //     {
+                                //         "$gte":date
+                                //     }
+                                // },
+                            ]
                         },
                         {
-                            "active":true
+                            "$and":
+                            [
+                                {
+                                    "type":"DISCOUNT"
+                                },
+                                {
+                                    "audiens":"SPECIAL"
+                                },
+                                {
+                                    "active":true
+                                },
+                                {
+                                    "status":true
+                                },
+                                //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
+                                // {
+                                //     "startCouponDate":
+                                //     {
+                                //         "$gte":date
+                                //     }
+                                // },
+                                {
+                                    "audiens_user":
+                                    {
+                                        "$in":[new mongoose.Types.ObjectId(userid)]
+                                    }
+                                }
+                            ]
                         },
-                        {
-                            "status":true
-                        },
-                        //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
-                        // {
-                        //     "startCouponDate":
-                        //     {
-                        //         "$gte":date
-                        //     }
-                        // },
                     ]
                 }
             },
@@ -1071,28 +1109,6 @@ export class MonetizationService {
             last_stock:1,
             active:1,
             status:1,
-        };
-
-        insertset['checkaudiens'] = {
-            "$ifNull":
-            [
-                {
-                    "$filter":
-                    {
-                        input:"$audiens_user",
-                        as:"filter",
-                        cond:
-                        {
-                            "$eq":
-                            [
-                                "$$filter",
-                                new mongoose.Types.ObjectId(userid)
-                            ]
-                        }
-                    }
-                },
-                []
-            ]
         };
 
         if(productid != null)
