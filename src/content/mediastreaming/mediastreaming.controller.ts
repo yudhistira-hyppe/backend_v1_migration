@@ -221,7 +221,6 @@ export class MediastreamingController {
       //CECK TYPE OPEN_VIEW
       if (MediastreamingDto_.type == "OPEN_VIEW") {
         const ceckView = await this.mediastreamingService.findView(MediastreamingDto_._id.toString(), profile._id.toString());
-        console.log("ceckView",ceckView);
         if (!(await this.utilsService.ceckData(ceckView))) {
           //UPDATE VIEW
           const dataView = {
@@ -232,7 +231,9 @@ export class MediastreamingController {
           }
           await this.mediastreamingService.insertView(MediastreamingDto_._id.toString(), dataView);
           //UPDATE COMMENT
+          let idComment = new mongoose.Types.ObjectId();
           const dataComment = {
+            idComment: idComment,
             userId: new mongoose.Types.ObjectId(profile._id.toString()),
             status: true,
             messages: "joined",
@@ -610,7 +611,9 @@ export class MediastreamingController {
       if (MediastreamingDto_.type == "REPORT") {
         if (MediastreamingDto_.messages != undefined) {
           //UPDATE REPORT
+          let idReport = new mongoose.Types.ObjectId();
           const dataReport = {
+            idReport: idReport,
             userId: new mongoose.Types.ObjectId(profile._id.toString()),
             messages: MediastreamingDto_.messages,
             createAt: currentDate,
@@ -623,8 +626,28 @@ export class MediastreamingController {
             if (getReportlength) {
               const ID_SETTING_MAX_REPORT = this.configService.get("ID_SETTING_MAX_REPORT");
               const GET_ID_SETTING_MAX_REPORT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_MAX_REPORT);
-              if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)){
-
+              if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)) {
+                _MediastreamingDto_.status = false;
+                _MediastreamingDto_.endLive = currentDate;
+                await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
+                const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
+                //SEND STATUS STOP
+                const dataPause = {
+                  data: {
+                    idStream: MediastreamingDto_._id.toString(),
+                    status: false,
+                    totalViews: getDataStream[0].view_unique.length,
+                  }
+                }
+                const STREAM_MODE = this.configService.get("STREAM_MODE");
+                if (STREAM_MODE == "1") {
+                  this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
+                } else {
+                  let RequestSoctDto_ = new RequestSoctDto();
+                  RequestSoctDto_.event = "STATUS_STREAM";
+                  RequestSoctDto_.data = JSON.stringify(dataPause);
+                  this.mediastreamingService.socketRequest(RequestSoctDto_);
+                }
               }
             }
           }
