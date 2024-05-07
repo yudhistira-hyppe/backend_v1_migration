@@ -65,6 +65,8 @@ export class Monetizenew {
     productID: mongoose.Types.ObjectId;
     @Prop()
     productCode: string;
+    @Prop()
+    nominal_discount: number;
 }
 
 export const monetizenewSchema = SchemaFactory.createForClass(Monetizenew);
