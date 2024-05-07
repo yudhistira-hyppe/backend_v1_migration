@@ -4,7 +4,7 @@ import { Long } from "mongodb";
 export class MediastreamingDto {
   _id: mongoose.Types.ObjectId;
   title: String;
-  Url: String;
+  url: String;
   textUrl: String;
   userId: mongoose.Types.ObjectId;
   expireTime: Long;
