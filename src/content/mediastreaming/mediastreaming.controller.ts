@@ -460,6 +460,7 @@ export class MediastreamingController {
               pinned_ = true;
             }
           }
+          await this.mediastreamingService.updateManyCommentPinned(MediastreamingDto_._id.toString(), false, currentDate);
           await this.mediastreamingService.updateCommentPinned(MediastreamingDto_._id.toString(), MediastreamingDto_.idComment.toString(),  MediastreamingDto_.pinned, currentDate)
           //GET SOCKET MODE
           const STREAM_MODE = this.configService.get("STREAM_MODE");
