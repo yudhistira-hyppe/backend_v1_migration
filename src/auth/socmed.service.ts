@@ -1511,7 +1511,7 @@ export class SocmedService {
             data_CreateActivityeventsDto_child.sequenceNumber = new Int32(1);
             data_CreateActivityeventsDto_child.flowIsDone = false;
             data_CreateActivityeventsDto_child.parentActivityEventID =
-              user_activityevents[0].activityEventID;
+              user_activityevents.activityEventID;
             data_CreateActivityeventsDto_child.userbasic =
               datauserbasicsService._id;
 
@@ -1541,7 +1541,7 @@ export class SocmedService {
 
           //Update ActivityEvent Parent
           try {
-            const data_transitions = user_activityevents[0].transitions;
+            const data_transitions = user_activityevents.transitions;
             data_transitions.push({
               $ref: 'activityevents',
               $id: new Object(ID_child_ActivityEvent),
@@ -1552,7 +1552,7 @@ export class SocmedService {
             const update_activityevents_parent =
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   transitions: data_transitions,
