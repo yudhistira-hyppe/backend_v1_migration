@@ -33,6 +33,8 @@ export class Mediastreaming{
     @Prop()
     share: any[];
     @Prop()
+    shareCount: number;
+    @Prop()
     follower: any[];
     @Prop()
     gift: any[];
