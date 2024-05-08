@@ -2349,6 +2349,7 @@ export class TransactionsController {
         var bodyensukses = "Please complete your payment Click Here to View";
         var eventType = "TRANSACTION";
         var event = "TRANSACTION";
+        var platform=null;
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
@@ -2359,7 +2360,9 @@ export class TransactionsController {
 
             throw new BadRequestException("Unabled to proceed");
         }
-
+        if (request_json["platform"] !== undefined) {
+            platform = request_json["platform"];
+        }
         // if (request_json["amount"] !== undefined) {
         //     amount = request_json["amount"];
         // } else {
@@ -2775,6 +2778,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.postid = postidTR;
                                     CreateTransactionsDto.response = datareqva;
                                     CreateTransactionsDto.productCode=productCode;
+                                    CreateTransactionsDto.platform=platform;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                     this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
@@ -2804,6 +2808,7 @@ export class TransactionsController {
                                         "accountbalance": datatr.accountbalance,
                                         "timestamp": datatr.timestamp,
                                         "diskon":diskon,
+                                        "platform":platform,
                                         "_id": datatr._id
                                     };
 
@@ -2853,6 +2858,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.postid = postidTR;
                                 CreateTransactionsDto.response = datareqva;
                                 CreateTransactionsDto.productCode=productCode;
+                                CreateTransactionsDto.platform=platform;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2933,6 +2939,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.postid = postidTR;
                                 CreateTransactionsDto.response = datareqva;
                                 CreateTransactionsDto.productCode=productCode;
+                                CreateTransactionsDto.platform=platform;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
                                 try {
 
@@ -2972,6 +2979,7 @@ export class TransactionsController {
                                     "accountbalance": datatr.accountbalance,
                                     "timestamp": datatr.timestamp,
                                     "diskon":diskon,
+                                    "platform":platform,
                                     "_id": datatr._id
                                 };
                             } catch (e) {
@@ -3018,6 +3026,7 @@ export class TransactionsController {
                             CreateTransactionsDto.postid = postidTR;
                             CreateTransactionsDto.response = datareqva;
                             CreateTransactionsDto.productCode=productCode;
+                            CreateTransactionsDto.platform=platform;
                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                             var timestamps_end = await this.utilsService.getDateTimeString();

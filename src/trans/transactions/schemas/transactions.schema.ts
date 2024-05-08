@@ -67,6 +67,8 @@ export class Transactions {
     datavoucherpromo: any[];
     @Prop()
     productCode: string
+    @Prop()
+    platform: string
 
 }
 
