@@ -1485,7 +1485,6 @@ export class MediastreamingService {
               }
             }
           },
-
         }
       },
       {
@@ -2081,10 +2080,9 @@ export class MediastreamingService {
     );
   }
 
-  async transactionGift(emailGift: string, idStream: string, idUser: string, idGift: string, idDiscond: any) {
+  async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: any) {
     const getDataGift = await this.monetizationService.findOne(idGift);
     const getDataStream = await this.findById(idStream);
-    const getUser = await this.userbasicnewService.findOne(getDataStream.userId.toString());
     let amount = 0;
     let disconCoin = 0;
     let totalAmount = 0;
@@ -2122,7 +2120,6 @@ export class MediastreamingService {
       }
       totalIncome = amount - coinProfitSharingGF;
       this.updateIncome(idStream, totalIncome);
-      this.utilsService.sendFcmV2(getUser.email.toString(), emailGift.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, totalIncome.toString());
     }
   }
 
