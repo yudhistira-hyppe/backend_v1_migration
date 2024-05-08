@@ -2918,7 +2918,6 @@ export class AuthService {
         expdate.getTime(),
         iatdate.getTime(),
       );
-      console.log('masuk');
       return refreshToken;
     } catch (err) {
       await this.errorHandler.generateNotAcceptableException(

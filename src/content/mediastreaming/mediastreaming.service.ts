@@ -856,6 +856,23 @@ export class MediastreamingService {
               }
             }
           },
+        }
+      },
+    ];
+    console.log(JSON.stringify(paramaggregate));
+    const data = await this.MediastreamingModel.aggregate(paramaggregate);
+    return data;
+  }
+
+  async findOneStreamingPinned(_id: string): Promise<Mediastreaming[]> {
+    let paramaggregate = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id)
+        }
+      },
+      {
+        $project: {
           comment: {
             $filter: {
               input: '$comment',
@@ -871,8 +888,7 @@ export class MediastreamingService {
         $unwind:
         {
           path: "$comment",
-          includeArrayIndex: "updateAt_index",
-
+          includeArrayIndex: "updateAt_index"
         }
       },
       {
@@ -963,7 +979,6 @@ export class MediastreamingService {
           "messages": "$comment.messages",
           "idStream": "$_id",
           "idComment": "$comment.idComment",
-          "view": "$view",
         }
       },
     ];

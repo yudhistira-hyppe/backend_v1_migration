@@ -460,7 +460,9 @@ export class MediastreamingController {
               pinned_ = true;
             }
           }
-          await this.mediastreamingService.updateManyCommentPinned(MediastreamingDto_._id.toString(), false, currentDate);
+          if (pinned_) {
+            await this.mediastreamingService.updateManyCommentPinned(MediastreamingDto_._id.toString(), false, currentDate);
+          }
           await this.mediastreamingService.updateCommentPinned(MediastreamingDto_._id.toString(), MediastreamingDto_.idComment.toString(),  MediastreamingDto_.pinned, currentDate)
           //GET SOCKET MODE
           const STREAM_MODE = this.configService.get("STREAM_MODE");
@@ -670,7 +672,8 @@ export class MediastreamingController {
           "Update stream succesfully", dataResponse
         );
       } else if (MediastreamingDto_.type == "OPEN_VIEW") {
-        const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+        const dataStreamView = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+        const dataStreamPinned = await this.mediastreamingService.findOneStreamingPinned(MediastreamingDto_._id.toString());
         const MediastreamingDto_Res = new MediastreamingDto();
         MediastreamingDto_Res._id = ceckId._id;
         MediastreamingDto_Res.title = ceckId.title;
@@ -686,8 +689,8 @@ export class MediastreamingController {
         MediastreamingDto_Res.urlStream = ceckId.urlStream;
         MediastreamingDto_Res.urlIngest = ceckId.urlIngest;
         MediastreamingDto_Res.createAt = ceckId.createAt;
-        MediastreamingDto_Res.viewCountActive = dataStream[0].view.length;
-        MediastreamingDto_Res.comment = dataStream;
+        MediastreamingDto_Res.viewCountActive = dataStreamView[0].view.length;
+        MediastreamingDto_Res.comment = dataStreamPinned;
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", MediastreamingDto_Res
         );
