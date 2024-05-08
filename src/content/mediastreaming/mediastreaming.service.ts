@@ -8,6 +8,8 @@ import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { MonetizationService } from './monetization/monetization.service';
+import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
+import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
 @Injectable()
 export class MediastreamingService {
   private readonly logger = new Logger(MediastreamingService.name);
@@ -19,12 +21,17 @@ export class MediastreamingService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly monetizationService: MonetizationService,
-    private readonly transactionsV2Service: TransactionsV2Service,
+    private readonly transactionsV2Service: TransactionsV2Service, 
+    private readonly userbasicnewService: UserbasicnewService,
   ) {}
 
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
     const DataSave = await this.MediastreamingModel.create(MediastreamingDto_);
     return DataSave;
+  }
+
+  async findById(id: string): Promise<Mediastreaming> {
+    return this.MediastreamingModel.findOne({ _id: new mongoose.Types.ObjectId(id) }).exec();
   }
 
   async getDataListAgora(userId: string, email: string, arrayId: mongoose.Types.ObjectId[], pageNumber: number, pageSize: number) {
@@ -2058,7 +2065,7 @@ export class MediastreamingService {
     );
   }
 
-  async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: string) {
+  async transactionGift(emailGift: string, idStream: string, idUser: string, idGift: string, idDiscond: string) {
     const getDataGift = await this.monetizationService.findOne(idGift);
     let amount = 0;
     let disconCoin = 0;
@@ -2096,7 +2103,20 @@ export class MediastreamingService {
         }
       }
       totalIncome = amount - coinProfitSharingGF;
-      this.updateIncome(idStream, totalIncome)
+      this.updateIncome(idStream, totalIncome);
+      const getDataStream = await this.findById(idStream);
+      const getUser = await this.userbasicnewService.findOne(getDataStream.userId.toString());
+      this.utilsService.sendFcmV2(getUser.email.toString(), emailGift.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, totalIncome.toString());
+    }
+  }
+
+  async broadcastFCMLive(Userbasicnew_: Userbasicnew, title: string){
+    const dataFollower = Userbasicnew_.follower;
+    const emailUser = Userbasicnew_.email;
+    if (Userbasicnew_.follower.length>0){
+      for (let k; k < Userbasicnew_.follower.length;k++){
+        this.utilsService.sendFcmV2(Userbasicnew_.follower[k].toString(), emailUser.toString(), 'NOTIFY_LIVE', 'LIVE', 'LIVE_START', null, null, null, title.toString());
+      }
     }
   }
 

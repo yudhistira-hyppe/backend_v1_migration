@@ -510,6 +510,11 @@ export class UtilsService {
         } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
           title_send = "Hi, @" + get_username_senderParty;
         } else {
+          // if (typeTemplate == "LIVE_START") {
+          //   title_send = Templates_.subject.toString().replace("${user_name}", get_username_senderParty)
+          // } else {
+          //   title_send = Templates_.subject.toString();
+          // }
           title_send = Templates_.subject.toString();
         }
       } else {
@@ -518,6 +523,11 @@ export class UtilsService {
         } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
           title_send = "Hi, @" + get_username_senderParty;
         } else {
+          // if (typeTemplate == "LIVE_START") {
+          //   title_send = Templates_.subject_id.toString().replace("${user_name}", get_username_senderParty)
+          // } else {
+          //   title_send = Templates_.subject_id.toString();
+          // }
           title_send = Templates_.subject_id.toString();
         }
       }
@@ -556,6 +566,20 @@ export class UtilsService {
       if (event == "ADS VIEW" || event == "ADS CLICK") {
         body_save_id = body_save_id_get.toString().replace("${rewards}", customText)
         body_save_en = body_save_en_get.toString().replace("${rewards}", customText)
+      } else if (eventType == "NOTIFY_LIVE") {
+        if (event == "LIVE_GIFT") {
+          body_save_id = body_save_id_get.toString().replace("${nominal}", await this.numberFormatString(customText))
+          body_save_en = body_save_en_get.toString().replace("${nominal}", await this.numberFormatString(customText))
+        }
+        if (event == "LIVE") {
+          if (customText != null) {
+            body_save_id = body_save_id_get.toString().replace(", jangan ketinggalan. Yuk nonton sekarang!", ":" + customText)
+            body_save_en = body_save_en_get.toString().replace(", jangan ketinggalan. Yuk nonton sekarang!", ":" + customText)
+          } else {
+            body_save_id = body_save_id_get.toString()
+            body_save_en = body_save_en_get.toString()
+          }
+        }
       } else if (eventType == "REACTION") {
         if (typeTemplate == "POST_TAG") {
           body_save_id = body_save_id_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
@@ -712,6 +736,10 @@ export class UtilsService {
     } else {
       await this.notificationsService.create(createNotificationsDto);
     }
+  }
+
+  async numberFormatString(nominal: string){
+    return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, ".")
   }
 
   async sendFcmCMod(receiverParty: string, eventType: string, event: string, postID?: string, postType?: string) {

@@ -404,7 +404,7 @@ export class MediastreamingController {
                 dataComment['idGift'] = MediastreamingDto_.idGift;
                 getUser[0]["idGift"] = MediastreamingDto_.idGift;
                 await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-                this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
+                this.mediastreamingService.transactionGift(profile.email.toString() ,MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
               }
               if (MediastreamingDto_.urlGift != undefined) {
                 dataComment['urlGift'] = MediastreamingDto_.urlGift;
