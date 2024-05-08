@@ -2110,7 +2110,7 @@ export class MediastreamingService {
     }
   }
 
-  async broadcastFCMLive(Userbasicnew_: Userbasicnew, title: string){
+  async broadcastFCMLive(Userbasicnew_: Userbasicnew, title: String){
     const dataFollower = Userbasicnew_.follower;
     const emailUser = Userbasicnew_.email;
     if (Userbasicnew_.follower.length>0){

@@ -82,6 +82,8 @@ export class MediastreamingController {
     _MediastreamingDto_.tokenAgora = generateToken.token;
 
     const data = await this.mediastreamingService.createStreaming(_MediastreamingDto_);
+    this.mediastreamingService.broadcastFCMLive(profile, MediastreamingDto_.title);
+
     const dataResponse = {};
     dataResponse['_id'] = data._id;
     dataResponse['title'] = data.title;
