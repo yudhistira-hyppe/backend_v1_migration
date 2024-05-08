@@ -1458,9 +1458,18 @@ export class SocmedService {
       }
 
       //Ceck User jwtrefresh token
-      const datajwtrefreshtoken = await this.jwtrefreshtokenService.findOne(
+      var datajwtrefreshtoken = await this.jwtrefreshtokenService.findOne(
         user_email,
       );
+
+      if(datajwtrefreshtoken == null)
+      {
+        await this.authService.updateRefreshToken2(user_email);
+        
+        datajwtrefreshtoken = await this.jwtrefreshtokenService.findOne(
+          user_email,
+        );
+      }
 
       if ((await this.utilsService.ceckData(datauserbasicsService)) && (await this.utilsService.ceckData(datajwtrefreshtoken))) {
         var ID_user_userdevicesService = null;
