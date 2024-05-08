@@ -4168,6 +4168,7 @@ export class TransactionsController {
         var timedate = splitdate[0];
         var platform=null;
         var productCode=null;
+        var jmlCoin=null;
 
         try {
 
@@ -4205,6 +4206,7 @@ export class TransactionsController {
                 type = datatransaksi.type;
                 platform=datatransaksi.platform;
                 productCode=datatransaksi.productCode;
+                jmlCoin=datatransaksi.jmlCoin;
 
                 var idtransaction = datatransaksi._id;
                 var noinvoice = datatransaksi.noinvoice;
@@ -4237,7 +4239,7 @@ export class TransactionsController {
                     var price = databuy[0].price;
 
                     // try{
-                    //     await this.TransactionsV2Service.insertTransaction(platform,productCode,"BUY",);
+                    //     await this.TransactionsV2Service.insertTransaction(platform,productCode,"BUY",jmlCoin,);
                     // }catch(e){
 
                     // }

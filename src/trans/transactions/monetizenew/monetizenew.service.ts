@@ -23,8 +23,8 @@ export class MonetizenewService {
         return this.monetData.find().exec();
     }
 
-    async findByid(id:string): Promise<Monetizenew[]> {
-        return this.monetData.find({_id:new mongoose.Types.ObjectId(id)}).exec();
+    async findByid(id:string): Promise<Monetizenew> {
+        return this.monetData.findOne({_id:new mongoose.Types.ObjectId(id)}).exec();
     }
     async findbyTypeProduc(type:string,productCode:string): Promise<Monetizenew[]> {
         return this.monetData.find({type:type,productCode:productCode}).exec();
