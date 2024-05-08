@@ -674,6 +674,10 @@ export class MediastreamingController {
       } else if (MediastreamingDto_.type == "OPEN_VIEW") {
         const dataStreamView = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
         const dataStreamPinned = await this.mediastreamingService.findOneStreamingPinned(MediastreamingDto_._id.toString());
+        //GET ID JENIS REPORT
+        const ID_SETTING_JENIS_REPORT = this.configService.get("ID_SETTING_JENIS_REPORT");
+        const GET_ID_SETTING_JENIS_REPORT = await this.utilsService.getSetting_Mixed(ID_SETTING_JENIS_REPORT);
+
         const MediastreamingDto_Res = new MediastreamingDto();
         MediastreamingDto_Res._id = ceckId._id;
         MediastreamingDto_Res.title = ceckId.title;
@@ -691,6 +695,7 @@ export class MediastreamingController {
         MediastreamingDto_Res.createAt = ceckId.createAt;
         MediastreamingDto_Res.viewCountActive = dataStreamView[0].view.length;
         MediastreamingDto_Res.comment = dataStreamPinned;
+        MediastreamingDto_Res.reportRemark = GET_ID_SETTING_JENIS_REPORT;
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", MediastreamingDto_Res
         );
