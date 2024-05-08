@@ -1047,15 +1047,18 @@ export class AuthController {
     var _class_UserDevices = 'io.melody.core.domain.UserDevices';
 
     var _isEmailVerified = false;
+    var arr=[];
 
     //Ceck User ActivityEvent Parent
-    const data_activityevents = await this.activityeventsService.findParent(
+    const data_activityevents_ = await this.activityeventsService.findParent(
       LoginRequest_.email,
       LoginRequest_.deviceId,
       'LOGIN',
       false,
     );
-
+   
+    const data_activityevents=arr.push(data_activityevents_);
+    console.log(data_activityevents)
     //Generate Refresh Token
     await this.authService.updateRefreshToken2(LoginRequest_.email.toString());
 
@@ -1093,8 +1096,7 @@ export class AuthController {
       if (_isEmailVerified == true) {
         var mongo = require('mongoose');
         let messages_response;
-        // if (Object.keys(data_activityevents).length > 0) {
-          if (Object.keys(data_activityevents)!==null) {
+        if (Object.keys(data_activityevents).length > 0) {
           var Activityevents_child = new CreateActivityeventsDto();
           var generate_id_Activityevents_child = new mongoose.Types.ObjectId();
           var generate_activityEventID_Activityevents_child = (await this.utilsService.generateId()).toLowerCase();

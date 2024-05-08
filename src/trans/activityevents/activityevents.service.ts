@@ -143,7 +143,7 @@ export class ActivityeventsService {
     login_device: string,
     activityType: string,
     flowIsDone_: boolean,
-  ): Promise<Object> {
+  ): Promise<Activityevents> {
     return this.activityeventsModel
       .findOne({
         'payload.email': email,
