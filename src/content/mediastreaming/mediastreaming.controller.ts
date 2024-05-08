@@ -4,7 +4,6 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UtilsService } from '../../utils/utils.service';
 import { ErrorHandler } from '../../utils/error.handler';
 import { Long } from 'mongodb';
-import { UserbasicsService } from '../../trans/userbasics/userbasics.service';
 import mongoose from 'mongoose';
 import { CallbackModeration, MediastreamingDto, MediastreamingRequestDto, RequestSoctDto } from './dto/mediastreaming.dto';
 import { ConfigService } from '@nestjs/config';
@@ -14,8 +13,6 @@ import { UserauthsService } from 'src/trans/userauths/userauths.service';
 import { MediastreamingrequestService } from './mediastreamingrequest.service';
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
-import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
-import { MonetizationService } from 'src/trans/monetization/monetization.service';
 
 @Controller("api/live") 
 export class MediastreamingController {
@@ -406,7 +403,7 @@ export class MediastreamingController {
                 dataComment['idGift'] = MediastreamingDto_.idGift;
                 getUser[0]["idGift"] = MediastreamingDto_.idGift;
                 await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-                this.mediastreamingService.transactionGift(profile.email.toString(), MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond);
+                this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond);
               }
               if (MediastreamingDto_.urlGift != undefined) {
                 dataComment['urlGift'] = MediastreamingDto_.urlGift;
@@ -672,13 +669,16 @@ export class MediastreamingController {
 
       if (MediastreamingDto_.type == "STOP") {
         const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
+        const getUser = await this.userbasicnewService.findOne(getDataStream[0].userId.toString());
         const dataResponse = {
           totalViews: getDataStream[0].view_unique.length,
-          totalShare: getDataStream[0].share.length,
+          totalShare: getDataStream[0].shareCount,
           totalFollower: getDataStream[0].follower.length, 
           totalComment: getDataStream[0].comment.length,
-          totalLike: getDataStream[0].like.length
+          totalLike: getDataStream[0].like.length,
+          totalIncome: getDataStream[0].income
         }
+        this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(getDataStream[0].income.toString()));
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", dataResponse
         );
