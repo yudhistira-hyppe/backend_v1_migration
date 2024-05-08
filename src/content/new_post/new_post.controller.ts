@@ -4345,7 +4345,8 @@ export class NewPostController {
         var datatag = null;
 
         try {
-            datasearch = await this.newPostService.detailinterestmigration3(keys, email, skip, limit, listpict, listvid, listdiary);
+            // datasearch = await this.newPostService.detailinterestmigration3(keys, email, skip, limit, listpict, listvid, listdiary);
+            datasearch = await this.TempPostService.detailinterestmigration4(keys, email, skip, limit, listpict, listvid, listdiary);
             interests = datasearch[0].interest;
 
         } catch (e) {
