@@ -50,6 +50,8 @@ import { NewPostContentService } from 'src/content/new_post/new_postcontent.serv
 import { MonetizenewService } from 'src/trans/transactions/monetizenew/monetizenew.service';
 import { ConfigService } from '@nestjs/config';
 
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
+
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
 @Controller()
@@ -85,6 +87,7 @@ export class TransactionsController {
         private readonly postsContent2SS: NewPostContentService,
         private readonly MonetizenewService: MonetizenewService,
         private readonly configService: ConfigService,
+        private readonly TransactionsV2Service: TransactionsV2Service,
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -2779,6 +2782,8 @@ export class TransactionsController {
                                     CreateTransactionsDto.response = datareqva;
                                     CreateTransactionsDto.productCode=productCode;
                                     CreateTransactionsDto.platform=platform;
+                                    CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
+                                    CreateTransactionsDto.diskon=diskon;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                     this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
@@ -2859,6 +2864,8 @@ export class TransactionsController {
                                 CreateTransactionsDto.response = datareqva;
                                 CreateTransactionsDto.productCode=productCode;
                                 CreateTransactionsDto.platform=platform;
+                                CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
+                                CreateTransactionsDto.diskon=diskon;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2940,6 +2947,8 @@ export class TransactionsController {
                                 CreateTransactionsDto.response = datareqva;
                                 CreateTransactionsDto.productCode=productCode;
                                 CreateTransactionsDto.platform=platform;
+                                CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
+                                CreateTransactionsDto.diskon=diskon;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
                                 try {
 
@@ -3027,6 +3036,8 @@ export class TransactionsController {
                             CreateTransactionsDto.response = datareqva;
                             CreateTransactionsDto.productCode=productCode;
                             CreateTransactionsDto.platform=platform;
+                            CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
+                            CreateTransactionsDto.diskon=diskon;
                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                             var timestamps_end = await this.utilsService.getDateTimeString();
