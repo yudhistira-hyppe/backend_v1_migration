@@ -73,6 +73,8 @@ export class Transactions {
     idDiskon: mongoose.Types.ObjectId;
     @Prop()
     diskon: number;
+    @Prop()
+    jmlCoin: number;
 }
 
 export const TransactionsSchema = SchemaFactory.createForClass(Transactions);
