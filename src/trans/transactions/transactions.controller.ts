@@ -2386,12 +2386,7 @@ export class TransactionsController {
         }
         if (request_json["idDiscount"] !== undefined) {
             idDiscount = request_json["idDiscount"];
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-            throw new BadRequestException("Unabled to proceed");
-        }
+        } 
        
         //var splitPostid = postid.split(',');
         var lenghtpostid = postid.length;
