@@ -68,8 +68,11 @@ export class Transactions {
     @Prop()
     productCode: string
     @Prop()
-    platform: string
-
+    platform: string;
+    @Prop()
+    idDiskon: mongoose.Types.ObjectId;
+    @Prop()
+    diskon: number;
 }
 
 export const TransactionsSchema = SchemaFactory.createForClass(Transactions);

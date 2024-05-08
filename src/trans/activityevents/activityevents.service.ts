@@ -145,7 +145,7 @@ export class ActivityeventsService {
     flowIsDone_: boolean,
   ): Promise<Object> {
     return this.activityeventsModel
-      .find({
+      .findOne({
         'payload.email': email,
         'payload.login_device': login_device,
         activityType: activityType,
@@ -161,7 +161,7 @@ export class ActivityeventsService {
     flowIsDone_: boolean,
   ): Promise<Object> {
     return this.activityeventsModel
-      .find({
+      .findOne({
         'payload.email': email,
         activityType: activityType,
         parentActivityEventID: { $eq: null },

@@ -31,7 +31,9 @@ export class CreateTransactionsNewDto {
     voucherpromo: any[];
     datavoucherpromo: any[];
     productCode: string;
-    platform: string
+    platform: string;
+    idDiskon: mongoose.Types.ObjectId;
+    diskon: number;
 
 }
 
