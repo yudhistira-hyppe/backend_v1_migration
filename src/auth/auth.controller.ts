@@ -1093,7 +1093,8 @@ export class AuthController {
       if (_isEmailVerified == true) {
         var mongo = require('mongoose');
         let messages_response;
-        if (Object.keys(data_activityevents).length > 0) {
+        // if (Object.keys(data_activityevents).length > 0) {
+          if (Object.keys(data_activityevents)!==null) {
           var Activityevents_child = new CreateActivityeventsDto();
           var generate_id_Activityevents_child = new mongoose.Types.ObjectId();
           var generate_activityEventID_Activityevents_child = (await this.utilsService.generateId()).toLowerCase();
