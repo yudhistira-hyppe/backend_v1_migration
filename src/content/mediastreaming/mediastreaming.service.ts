@@ -2065,8 +2065,26 @@ export class MediastreamingService {
     );
   }
 
-  async transactionGift(emailGift: string, idStream: string, idUser: string, idGift: string, idDiscond: string) {
+  async updateShare(_id: string, share: number) {
+    this.MediastreamingModel.updateOne(
+      {
+        _id: new mongoose.Types.ObjectId(_id),
+      },
+      { $inc: { shareCount: share } },
+      function (err, docs) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(docs);
+        }
+      },
+    );
+  }
+
+  async transactionGift(emailGift: string, idStream: string, idUser: string, idGift: string, idDiscond: any) {
     const getDataGift = await this.monetizationService.findOne(idGift);
+    const getDataStream = await this.findById(idStream);
+    const getUser = await this.userbasicnewService.findOne(getDataStream.userId.toString());
     let amount = 0;
     let disconCoin = 0;
     let totalAmount = 0;
@@ -2088,7 +2106,7 @@ export class MediastreamingService {
     dataDetail["totalAmount"] = totalAmount
     detail.push(dataDetail);
     
-    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, idUser, undefined, voucher, detail,"SUCCESS")
+    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", getDataGift.amount, disconCoin, undefined, undefined, getDataStream.userId.toString(), idUser, voucher, detail,"SUCCESS")
     if (data) {
       let coinProfitSharingGF = 0;
       let totalIncome = 0;
@@ -2104,8 +2122,6 @@ export class MediastreamingService {
       }
       totalIncome = amount - coinProfitSharingGF;
       this.updateIncome(idStream, totalIncome);
-      const getDataStream = await this.findById(idStream);
-      const getUser = await this.userbasicnewService.findOne(getDataStream.userId.toString());
       this.utilsService.sendFcmV2(getUser.email.toString(), emailGift.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, totalIncome.toString());
     }
   }

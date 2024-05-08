@@ -406,7 +406,7 @@ export class MediastreamingController {
                 dataComment['idGift'] = MediastreamingDto_.idGift;
                 getUser[0]["idGift"] = MediastreamingDto_.idGift;
                 await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-                this.mediastreamingService.transactionGift(profile.email.toString() ,MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond.toString());
+                this.mediastreamingService.transactionGift(profile.email.toString(), MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond);
               }
               if (MediastreamingDto_.urlGift != undefined) {
                 dataComment['urlGift'] = MediastreamingDto_.urlGift;
@@ -561,7 +561,6 @@ export class MediastreamingController {
       }
       //CECK TYPE KICK
       if (MediastreamingDto_.type == "KICK") {
-        console.log(MediastreamingDto_.userId)
         if (MediastreamingDto_.userId != undefined) {
           const ceckView = await this.mediastreamingService.findView(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString());
           console.log(ceckView)
@@ -656,6 +655,16 @@ export class MediastreamingController {
                   this.mediastreamingService.socketRequest(RequestSoctDto_);
                 }
               }
+            }
+          }
+        }
+      }
+      //CECK TYPE SHARE
+      if (MediastreamingDto_.type == "SHARE") {
+        if (MediastreamingDto_._id != undefined) {
+          if (MediastreamingDto_.shareCount != undefined) {
+            if (MediastreamingDto_.shareCount > 0) {
+              await this.mediastreamingService.updateShare(MediastreamingDto_._id.toString(), Number(MediastreamingDto_.shareCount))
             }
           }
         }

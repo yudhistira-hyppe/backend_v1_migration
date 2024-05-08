@@ -19,6 +19,7 @@ export class MediastreamingDto {
   comment: any[];
   like: any[];
   share: any[];
+  shareCount: number;
   follower: any[];
   gift: any[];
   urlStream: String;
