@@ -1483,7 +1483,7 @@ export class SocmedService {
           await this.utilsService.generateId()
         ).toLowerCase();
 
-        if (Object.keys(user_activityevents).length > 0) {
+        if (user_activityevents != null) {
           //Create ActivityEvent child
           try {
             var data_CreateActivityeventsDto_child = new CreateActivityeventsDto();
