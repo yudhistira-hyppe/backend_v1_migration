@@ -573,8 +573,8 @@ export class UtilsService {
         }
         if (event == "LIVE") {
           if (customText != null) {
-            body_save_id = body_save_id_get.toString().replace(", jangan ketinggalan. Yuk nonton sekarang!", ":" + customText)
-            body_save_en = body_save_en_get.toString().replace(", don't miss out. Let's watch now!", ":" + customText)
+            body_save_id = body_save_id_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", jangan ketinggalan. Yuk nonton sekarang!", ":" + customText)
+            body_save_en = body_save_en_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", don't miss out. Let's watch now!", ":" + customText)
           } else {
             body_save_id = body_save_id_get.toString()
             body_save_en = body_save_en_get.toString()
