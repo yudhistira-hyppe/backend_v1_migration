@@ -2353,6 +2353,7 @@ export class TransactionsController {
         var eventType = "TRANSACTION";
         var event = "TRANSACTION";
         var platform=null;
+        var jmlcoin=null;
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
@@ -2700,6 +2701,12 @@ export class TransactionsController {
                     postidTR = postIds;
                     arraypostids.push(postid[0].id);
 
+                    try{
+                        jmlcoin=postid[0].jmlcoin;
+                    }catch(e){
+                        jmlcoin=0;
+                    }
+
 
                     if (datatrpending !== null) {
 
@@ -2784,6 +2791,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.platform=platform;
                                     CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
                                     CreateTransactionsDto.diskon=diskon;
+                                    CreateTransactionsDto.jmlCoin=Number(jmlcoin);
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                     this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
@@ -2866,6 +2874,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.platform=platform;
                                 CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
                                 CreateTransactionsDto.diskon=diskon;
+                                CreateTransactionsDto.jmlCoin=Number(jmlcoin);
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2949,6 +2958,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.platform=platform;
                                 CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
                                 CreateTransactionsDto.diskon=diskon;
+                                CreateTransactionsDto.jmlCoin=Number(jmlcoin);
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
                                 try {
 
@@ -3038,6 +3048,7 @@ export class TransactionsController {
                             CreateTransactionsDto.platform=platform;
                             CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
                             CreateTransactionsDto.diskon=diskon;
+                            CreateTransactionsDto.jmlCoin=Number(jmlcoin);
                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                             var timestamps_end = await this.utilsService.getDateTimeString();
@@ -4155,6 +4166,8 @@ export class TransactionsController {
         var repdate = strdate.replace('T', ' ');
         var splitdate = repdate.split('.');
         var timedate = splitdate[0];
+        var platform=null;
+        var productCode=null;
 
         try {
 
@@ -4180,6 +4193,7 @@ export class TransactionsController {
             try {
 
                 datatransaksi = await this.transactionsService.findva(nova);
+
                 idbank = datatransaksi.bank.toString();
                 try {
                     databank = await this.banksService.findOne(idbank);
@@ -4189,6 +4203,9 @@ export class TransactionsController {
                     throw new BadRequestException("Banks not found...!");
                 }
                 type = datatransaksi.type;
+                platform=datatransaksi.platform;
+                productCode=datatransaksi.productCode;
+
                 var idtransaction = datatransaksi._id;
                 var noinvoice = datatransaksi.noinvoice;
                 var postid = datatransaksi.postid;
@@ -4204,20 +4221,26 @@ export class TransactionsController {
                 var setiduser = iduserbuy;
                 var reqbody = JSON.parse(JSON.stringify(payload));
 
-                try {
-                    salelike = datatransaksi.salelike;
-                    saleview = datatransaksi.saleview;
-                } catch (e) {
-                    salelike = null;
-                    saleview = null;
-                }
+                // try {
+                //     salelike = datatransaksi.salelike;
+                //     saleview = datatransaksi.saleview;
+                // } catch (e) {
+                //     salelike = null;
+                //     saleview = null;
+                // }
 
-                var lengtvoucherid = detail.length;
+                // var lengtvoucherid = detail.length;
 
                 if (type === "COIN") {
                     let databuy = await this.MonetizenewService.findOne(postid);
 
-                    var saleAmount = databuy[0].price;
+                    var price = databuy[0].price;
+
+                    // try{
+                    //     await this.TransactionsV2Service.insertTransaction(platform,productCode,"BUY",);
+                    // }catch(e){
+
+                    // }
                     // try {
 
                     //     datamradmin = await this.settingsService.findOne(idmdradmin);

@@ -34,6 +34,7 @@ export class CreateTransactionsNewDto {
     platform: string;
     idDiskon: mongoose.Types.ObjectId;
     diskon: number;
+    jmlCoin: number;
 
 }
 
