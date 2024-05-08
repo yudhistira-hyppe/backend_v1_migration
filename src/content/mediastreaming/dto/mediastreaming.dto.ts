@@ -42,6 +42,7 @@ export class MediastreamingDto {
   idDiscond: String;
   pinned: boolean;
   income: number;
+  reportRemark: any;
 }
 
 export class MediastreamingRequestDto{

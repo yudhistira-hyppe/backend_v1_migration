@@ -1436,7 +1436,7 @@ export class SocmedService {
       }
 
       //Ceck User Userdevices
-      const user_userdevicesService = await this.userdevicesService.findOneEmail(user_email, user_deviceId);
+      //const user_userdevicesService = await this.userdevicesService.findOneEmail(user_email, user_deviceId);
 
       //Ceck User ActivityEvent Parent
       var user_activityevents = null;
@@ -1779,9 +1779,9 @@ export class SocmedService {
         ).toString();
 
         //Ceck User jwtrefresh token
-        const datajwtrefreshtoken_data = await this.jwtrefreshtokenService.findOne(
-          user_email,
-        );
+        // const datajwtrefreshtoken_data = await this.jwtrefreshtokenService.findOne(
+        //   user_email,
+        // );
 
         var user_interest = [];
         let ins = datauserbasicsService.userInterests;
@@ -1890,7 +1890,7 @@ export class SocmedService {
             iduser: String(datauserbasicsService._id),
             isComplete: "false",
             status: "INITIAL",
-            refreshToken: datajwtrefreshtoken_data.refresh_token_id,
+            refreshToken: datajwtrefreshtoken.refresh_token_id,
             tutor: arrayTutor,
             statusKyc: datauserbasicsService.statusKyc
           },
@@ -2367,19 +2367,19 @@ export class SocmedService {
         // }
 
         //Create Or Update refresh Token
-        await this.authService.updateRefreshToken2(user_email);
+        const refreshToken = await this.authService.updateRefreshToken2(user_email);
 
         //Ceck User Userdevices
-        const user_userdevicesService = await this.userdevicesService.findOneEmail_(user_email);
+        //const user_userdevicesService = await this.userdevicesService.findOneEmail_(user_email);
 
         var token = (
-          await this.utilsService.generateToken(user_email, user_userdevicesService.deviceID)
+          await this.utilsService.generateToken(user_email, ID_device)
         ).toString();
 
         //Ceck User jwtrefresh token
-        const datajwtrefreshtoken_data = await this.jwtrefreshtokenService.findOne(
-          user_email,
-        );
+        // const datajwtrefreshtoken_data = await this.jwtrefreshtokenService.findOne(
+        //   user_email,
+        // );
 
         this.userbasicsService.updatebyEmail(user_email, {
           status: 'IN_PROGRESS',
@@ -2456,7 +2456,7 @@ export class SocmedService {
             },
             logout_date: undefined,
             login_date: current_date,
-            login_device: user_userdevicesService.deviceID,
+            login_device: ID_device,
             email: user_email,
           };
           data_CreateActivityeventsDto_parent.createdAt = current_date;
@@ -2534,7 +2534,7 @@ export class SocmedService {
             username: username_,
             isComplete: "false",
             status: "INITIAL",
-            refreshToken: datajwtrefreshtoken_data.refresh_token_id,
+            refreshToken: refreshToken,
             tutor: arrayTutor,
             statusKyc: data_CreateUserbasicDto.statusKyc
           },
