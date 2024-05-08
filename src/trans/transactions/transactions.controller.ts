@@ -2947,7 +2947,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.paymentmethod = idmethode;
                                 // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
                                 CreateTransactionsDto.ppn = null;
-                                CreateTransactionsDto.totalamount = totalamount;
+                                CreateTransactionsDto.totalamount = amountTotal;
                                 CreateTransactionsDto.description = "buy " + type + " pending";
                                 CreateTransactionsDto.payload = null;
                                 CreateTransactionsDto.expiredtimeva = d1.toISOString();
@@ -3037,7 +3037,7 @@ export class TransactionsController {
                             CreateTransactionsDto.paymentmethod = idmethode;
                             // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
                             CreateTransactionsDto.ppn = null;
-                            CreateTransactionsDto.totalamount = totalamount;
+                            CreateTransactionsDto.totalamount = amountTotal;
                             CreateTransactionsDto.description = statusmessage;
                             CreateTransactionsDto.payload = null;
                             CreateTransactionsDto.expiredtimeva = d1.toISOString();
