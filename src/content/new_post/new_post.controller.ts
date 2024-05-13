@@ -4975,8 +4975,6 @@ export class NewPostController {
 
         var getdata = await this.newPostService.findUserPostfirst(auth.email);
 
-        console.log(getdata);
-
         if(getdata.length == 0)
         {
             return {
