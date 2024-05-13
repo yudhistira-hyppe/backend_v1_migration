@@ -86,7 +86,7 @@ export class MonetizationController {
 
     switch (type) {
       case 'COIN':
-        data = await this.monetizationService.createCoin(file.coinThumb[0], body);
+        data = await this.monetizationService.createCoin(body, file.coinThumb ? file.coinThumb[0] : undefined);
         break;
       case 'CREDIT':
         data = await this.monetizationService.createCredit(headers, body);
@@ -349,15 +349,15 @@ export class MonetizationController {
     var request_json = JSON.parse(JSON.stringify(request.body));
 
     if (request_json.page != null && request_json.page != undefined) {
-        page = parseInt(request_json.page);
+      page = parseInt(request_json.page);
     }
 
     if (request_json.limit != null && request_json.limit != undefined) {
-        limit = parseInt(request_json.limit);
+      limit = parseInt(request_json.limit);
     }
 
     if (request_json.productType != null && request_json.productType != undefined) {
-        productType = request_json.productType;
+      productType = request_json.productType;
     }
 
     var getuserdata = await this.basic2SS.findBymail(email);

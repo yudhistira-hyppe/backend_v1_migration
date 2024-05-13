@@ -121,7 +121,7 @@ export class MonetizationService {
         return this.monetData.findByIdAndUpdate(setid, data, { new: true });
     }
 
-    async createCoin(file: Express.Multer.File, request: any): Promise<Monetize> {
+    async createCoin(request: any, file?: Express.Multer.File): Promise<Monetize> {
         let id = new mongoose.Types.ObjectId();
         let url_filename = "";
         let now = await this.utilsService.getDateTimeString();
@@ -982,8 +982,7 @@ export class MonetizationService {
         return result;
     }
 
-    async listDiscount(userid:string, page:number, limit:number, productid:any[])
-    {
+    async listDiscount(userid: string, page: number, limit: number, productid: any[]) {
         var date = (await this.utilsService.getDateTimeString()).split(" ")[0];
         var pipeline = [];
         pipeline.push(
@@ -991,66 +990,66 @@ export class MonetizationService {
                 "$match":
                 {
                     "$or":
-                    [
-                        {
-                            "$and":
-                            [
-                                {
-                                    "type":"DISCOUNT"
-                                },
-                                {
-                                    "audiens":"PUBLIC"
-                                },
-                                {
-                                    "active":true
-                                },
-                                {
-                                    "status":true
-                                },
-                                //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
-                                // {
-                                //     "startCouponDate":
-                                //     {
-                                //         "$gte":date
-                                //     }
-                                // },
-                            ]
-                        },
-                        {
-                            "$and":
-                            [
-                                {
-                                    "type":"DISCOUNT"
-                                },
-                                {
-                                    "audiens":"SPECIAL"
-                                },
-                                {
-                                    "active":true
-                                },
-                                {
-                                    "status":true
-                                },
-                                //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
-                                // {
-                                //     "startCouponDate":
-                                //     {
-                                //         "$gte":date
-                                //     }
-                                // },
-                                {
-                                    "audiens_user":
-                                    {
-                                        "$in":[new mongoose.Types.ObjectId(userid)]
-                                    }
-                                }
-                            ]
-                        },
-                    ]
+                        [
+                            {
+                                "$and":
+                                    [
+                                        {
+                                            "type": "DISCOUNT"
+                                        },
+                                        {
+                                            "audiens": "PUBLIC"
+                                        },
+                                        {
+                                            "active": true
+                                        },
+                                        {
+                                            "status": true
+                                        },
+                                        //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
+                                        // {
+                                        //     "startCouponDate":
+                                        //     {
+                                        //         "$gte":date
+                                        //     }
+                                        // },
+                                    ]
+                            },
+                            {
+                                "$and":
+                                    [
+                                        {
+                                            "type": "DISCOUNT"
+                                        },
+                                        {
+                                            "audiens": "SPECIAL"
+                                        },
+                                        {
+                                            "active": true
+                                        },
+                                        {
+                                            "status": true
+                                        },
+                                        //hanya menampilkan diskon yang saat ini sedang aktif dan belum expired
+                                        // {
+                                        //     "startCouponDate":
+                                        //     {
+                                        //         "$gte":date
+                                        //     }
+                                        // },
+                                        {
+                                            "audiens_user":
+                                            {
+                                                "$in": [new mongoose.Types.ObjectId(userid)]
+                                            }
+                                        }
+                                    ]
+                            },
+                        ]
                 }
             },
             {
-                "$lookup": 
+                "$lookup":
                 {
                     from: "transactionsProducts",
                     localField: "productID",
@@ -1063,94 +1062,92 @@ export class MonetizationService {
         var insertsort = {};
         var insertset = null;
         var insertproject = {
-            _id:1,
-            type:1,
-            name:1,
-            code_package:1,
-            package_id:1,
-            amount:1,
-            stock:"$last_stock",
-            thumbnail:1,
-            audiens:1,
-            audiens_user:1,
-            satuan_diskon:1,
-            nominal_discount:1,
-            min_use_disc:1,
-            productID:1,
-            productCode:1,
+            _id: 1,
+            type: 1,
+            name: 1,
+            code_package: 1,
+            package_id: 1,
+            amount: 1,
+            stock: "$last_stock",
+            thumbnail: 1,
+            audiens: 1,
+            audiens_user: 1,
+            satuan_diskon: 1,
+            nominal_discount: 1,
+            min_use_disc: 1,
+            productID: 1,
+            productCode: 1,
             productName:
             {
                 "$arrayElemAt":
-                [
-                    "$productData.name", 0
-                ]
+                    [
+                        "$productData.name", 0
+                    ]
             },
-            startCouponDate:1,
-            endCouponDate:1,
+            startCouponDate: 1,
+            endCouponDate: 1,
             available:
             {
                 "$ifNull":
-                [
-                    {
-                        "$cond":
+                    [
                         {
-                            if:
+                            "$cond":
                             {
-                                "$eq":
-                                [
-                                    "$last_stock",
-                                    0
-                                ]
-                            },
-                            then:false,
-                            else:true
-                        }
-                    },
-                    false
-                ]
+                                if:
+                                {
+                                    "$eq":
+                                        [
+                                            "$last_stock",
+                                            0
+                                        ]
+                                },
+                                then: false,
+                                else: true
+                            }
+                        },
+                        false
+                    ]
             },
-            createdAt:1,
-            updatedAt:1,
-            used_stock:1,
-            last_stock:1,
-            active:1,
-            status:1,
+            createdAt: 1,
+            updatedAt: 1,
+            used_stock: 1,
+            last_stock: 1,
+            active: 1,
+            status: 1,
         };
 
         insertproject['available_to_choose'] = {
-            "$toBool":'true'
+            "$toBool": 'true'
         };
 
-        if(productid != null && productid != undefined)
-        {
+        if (productid != null && productid != undefined) {
             var convertproduct = [];
-            for(var i = 0; i < productid.length; i++)
-            {
-                convertproduct.push(new mongoose.Types.ObjectId(productid[i]));   
+            for (var i = 0; i < productid.length; i++) {
+                convertproduct.push(new mongoose.Types.ObjectId(productid[i]));
             }
 
             insertset = {
-                'checkdipilih': 
+                'checkdipilih':
                 {
                     "$ifNull":
-                    [
-                        {
-                            "$filter":
+                        [
                             {
-                                input:convertproduct,
-                                as:"filter",
-                                cond:
+                                "$filter":
                                 {
-                                    "$eq":
-                                    [
-                                        "$$filter",
-                                        "$productID"
-                                    ]
+                                    input: convertproduct,
+                                    as: "filter",
+                                    cond:
+                                    {
+                                        "$eq":
+                                            [
+                                                "$$filter",
+                                                "$productID"
+                                            ]
+                                    }
                                 }
-                            }
-                        },
-                        []
-                    ]
+                            },
+                            []
+                        ]
                 }
             };
 
@@ -1162,15 +1159,15 @@ export class MonetizationService {
                     if:
                     {
                         "$eq":
-                        [
-                            {
-                                "$size":"$checkdipilih"
-                            },
-                            0
-                        ]
+                            [
+                                {
+                                    "$size": "$checkdipilih"
+                                },
+                                0
+                            ]
                     },
-                    then:false,
-                    else:true
+                    then: false,
+                    else: true
                 }
             };
         }
@@ -1178,26 +1175,24 @@ export class MonetizationService {
         insertsort['productCode'] = 1;
         insertsort['endCouponDate'] = 1;
 
-        if(insertset != null)
-        {
+        if (insertset != null) {
             pipeline.push(
                 {
-                    "$set":insertset
+                    "$set": insertset
                 }
             );
         }
 
         pipeline.push(
             {
-                "$project":insertproject
+                "$project": insertproject
             },
             {
-                "$sort":insertsort
+                "$sort": insertsort
             }
         );
 
-        if(page != null && limit != null)
-        {
+        if (page != null && limit != null) {
             pipeline.push(
                 {
                     $skip: page * limit
