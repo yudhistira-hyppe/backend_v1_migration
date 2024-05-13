@@ -1448,8 +1448,7 @@ export class MediaController {
                     //await this.utilsService.sendFcm(emailuserbasic, titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event);
 
                     var checkreferraldata = await this.referralSS.findPendingStatusByChildren(datauserbasicsService.email.toString());
-                    if(await this.utilsService.ceckData(checkreferraldata) == true)
-                    {
+                    if (await this.utilsService.ceckData(checkreferraldata) == true) {
                         this.followUser(datauserbasicsService, checkreferraldata, listchallenge);
                     }
 
@@ -3329,8 +3328,7 @@ export class MediaController {
                 await this.basic2SS.updateStatusKycName(nama, jenisKelamin, email, true, "verified", tglLahir, [loaddatakyc]);
                 await this.utilsService.sendFcmV2(email.toString(), email.toString(), 'KYC', 'REQUEST', 'KYC_VERIFIED');
                 var checkreferraldata = await this.referralSS.findPendingStatusByChildren(dataemailuser.email.toString());
-                if(await this.utilsService.ceckData(checkreferraldata) == true)
-                {
+                if (await this.utilsService.ceckData(checkreferraldata) == true) {
                     this.followUser(dataemailuser, checkreferraldata, listchallenge);
                 }
 
@@ -4279,7 +4277,7 @@ export class MediaController {
                     },
                     kyc: [CreateMediaproofpictsDto_]
                 });
-                await this.utilsService.sendFcmV2(datauserbasicsService.email.toString(), datauserbasicsService.email.toString(), 'KYC', 'REQUEST', 'KYC_REVIEW');
+                this.utilsService.sendFcmV2(datauserbasicsService.email.toString(), datauserbasicsService.email.toString(), 'KYC', 'REQUEST', 'KYC_REVIEW');
 
                 // await this.utilsService.sendFcm(emailuserbasic, titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event);
             } catch (err) {
@@ -4307,17 +4305,14 @@ export class MediaController {
         }
     }
 
-    async followUser(data:any, list:any, listchallenge:any[])
-    {
+    async followUser(data: any, list: any, listchallenge: any[]) {
         console.log('Proses follow orang buat referral');
         var tempfollow = data.following;
-        for(var i = 0; i < list.length; i++)
-        {
+        for (var i = 0; i < list.length; i++) {
             var gettempdata = list[i];
 
             var checkfollowing = tempfollow.filter(emaildata => emaildata == gettempdata.parent);
-            if(checkfollowing.length == 0)
-            {
+            if (checkfollowing.length == 0) {
                 var current_date = await this.utilsService.getDateTimeString()
                 var _id_1 = (await this.utilsService.generateId());
                 var _id_2 = (await this.utilsService.generateId());
@@ -4402,12 +4397,12 @@ export class MediaController {
 
             var insertreferraldata = {
                 "_id": gettempdata._id,
-                "active":gettempdata.active,
-                "verified":gettempdata.verified,
-                "imei":gettempdata.imei,
-                "createdAt":gettempdata.createdAt,
-                "updatedAt":current_date,
-                "email":gettempdata.children
+                "active": gettempdata.active,
+                "verified": gettempdata.verified,
+                "imei": gettempdata.imei,
+                "createdAt": gettempdata.createdAt,
+                "updatedAt": current_date,
+                "email": gettempdata.children
             };
 
             var updatereferral = new CreateReferralDto();
@@ -4418,23 +4413,23 @@ export class MediaController {
             await this.basic2SS.updateReferralSystem(insertreferraldata, gettempdata.parent);
 
             const databasic = await this.basic2SS.findbyemail(
-              gettempdata.parent,
+                gettempdata.parent,
             );
 
             if (databasic !== null) {
-              var idref = gettempdata._id;
-              this.userChallenge(databasic._id.toString(), idref.toString(), "referral", "REFERAL");
+                var idref = gettempdata._id;
+                this.userChallenge(databasic._id.toString(), idref.toString(), "referral", "REFERAL");
             }
 
             if (databasic !== null) {
-              var idref = gettempdata._id;
-              try {
-                //this.userChallenge(databasic._id.toString(), idref.toString(), "referral", "REFERAL");
-                this.scorereferralrequest(databasic._id.toString(), idref.toString(), "referral", "REFERAL", listchallenge)
+                var idref = gettempdata._id;
+                try {
+                    //this.userChallenge(databasic._id.toString(), idref.toString(), "referral", "REFERAL");
+                    this.scorereferralrequest(databasic._id.toString(), idref.toString(), "referral", "REFERAL", listchallenge)
 
-              } catch (e) {
+                } catch (e) {
 
-              }
+                }
             }
 
             console.log(data.email + ' berhasil follow si ' + gettempdata.parent);
@@ -4449,11 +4444,11 @@ export class MediaController {
     async userChallenge(iduser: string, idref: string, nametable: string, action: string) {
         const mongoose = require('mongoose');
         var ObjectId = require('mongodb').ObjectId;
-    
+
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
-    
+
         var strdate = dt.toISOString();
         var repdate = strdate.replace('T', ' ');
         var splitdate = repdate.split('.');
@@ -4464,95 +4459,95 @@ export class MediaController {
         var arrdata = [];
         var objintr = {};
         var datasubchallenge = null;
-    
-    
+
+
         try {
-          datachallenge = await this.challengeService.challengeReferal();
+            datachallenge = await this.challengeService.challengeReferal();
         } catch (e) {
-          datachallenge = null;
+            datachallenge = null;
         }
-    
+
         if (datachallenge !== null && datachallenge.length > 0) {
-          lengchal = datachallenge.length;
-    
-          for (let i = 0; i < lengchal; i++) {
-            var idChallenge = datachallenge[i]._id.toString();
-            var poinReferal = datachallenge[i].poinReferal;
-            try {
-              datauserchall = await this.userchallengesService.userChallengebyIdChall(iduser, idChallenge);
-            } catch (e) {
-              datauserchall = null;
-            }
-    
-            if (datauserchall !== null) {
-    
-              let leng = null;
-              try {
-                leng = datauserchall.length;
-              } catch (e) {
-                leng = 0;
-              }
-    
-    
-              if (leng > 0) {
-    
-    
-                for (let y = 0; y < leng; y++) {
-    
-                  var iduserchall = datauserchall[y]._id;
-                  var idsubchallenge = datauserchall[y].idSubChallenge;
-                  var idChallenges = datauserchall[y].idChallenge;
-                  var start = new Date(datauserchall[y].startDatetime);
-                  var end = new Date(datauserchall[y].endDatetime);
-                  var datenow = new Date(Date.now());
-    
-                  if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
-    
-                    var obj = {};
-    
-                    obj = {
-                      "updatedAt": datauserchall[y].updatedAt,
-                      "score": datauserchall[y].score,
-                      "ranking": datauserchall[y].ranking,
-                    }
-                    await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
-                    await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poinReferal);
-                    var detail = await this.userchallengesService.findOne(iduserchall.toString());
-                    var activity = detail.activity;
-                    objintr = { "type": nametable, "id": idref, "desc": action }
-                    console.log(objintr)
-                    activity.push(objintr)
-                    await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
-                    var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
-    
-                    if (datauschall.length > 0) {
-                      for (let x = 0; x < datauschall.length; x++) {
-    
-                        let iducall = datauschall[x]._id;
-                        let start = new Date(datauschall[x].startDatetime);
-                        let end = new Date(datauschall[x].endDatetime);
-                        let datenow = new Date(Date.now());
-                        let idChallenges2 = datauschall[x].idChallenge;
-                        let rank = x + 1;
-    
-                        //if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
-                        await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
-                        // }
-    
-                      }
-                    }
-                  }
+            lengchal = datachallenge.length;
+
+            for (let i = 0; i < lengchal; i++) {
+                var idChallenge = datachallenge[i]._id.toString();
+                var poinReferal = datachallenge[i].poinReferal;
+                try {
+                    datauserchall = await this.userchallengesService.userChallengebyIdChall(iduser, idChallenge);
+                } catch (e) {
+                    datauserchall = null;
                 }
-              }
+
+                if (datauserchall !== null) {
+
+                    let leng = null;
+                    try {
+                        leng = datauserchall.length;
+                    } catch (e) {
+                        leng = 0;
+                    }
+
+
+                    if (leng > 0) {
+
+
+                        for (let y = 0; y < leng; y++) {
+
+                            var iduserchall = datauserchall[y]._id;
+                            var idsubchallenge = datauserchall[y].idSubChallenge;
+                            var idChallenges = datauserchall[y].idChallenge;
+                            var start = new Date(datauserchall[y].startDatetime);
+                            var end = new Date(datauserchall[y].endDatetime);
+                            var datenow = new Date(Date.now());
+
+                            if (datenow >= start && datenow <= end && idChallenges == idChallenge) {
+
+                                var obj = {};
+
+                                obj = {
+                                    "updatedAt": datauserchall[y].updatedAt,
+                                    "score": datauserchall[y].score,
+                                    "ranking": datauserchall[y].ranking,
+                                }
+                                await this.userchallengesService.updateHistory(iduserchall.toString(), idsubchallenge.toString(), obj);
+                                await this.userchallengesService.updateUserchallenge(iduserchall.toString(), idsubchallenge.toString(), poinReferal);
+                                var detail = await this.userchallengesService.findOne(iduserchall.toString());
+                                var activity = detail.activity;
+                                objintr = { "type": nametable, "id": idref, "desc": action }
+                                console.log(objintr)
+                                activity.push(objintr)
+                                await this.userchallengesService.updateActivity(iduserchall.toString(), activity, timedate);
+                                var datauschall = await this.userchallengesService.datauserchallbyidchall(idChallenges, idsubchallenge);
+
+                                if (datauschall.length > 0) {
+                                    for (let x = 0; x < datauschall.length; x++) {
+
+                                        let iducall = datauschall[x]._id;
+                                        let start = new Date(datauschall[x].startDatetime);
+                                        let end = new Date(datauschall[x].endDatetime);
+                                        let datenow = new Date(Date.now());
+                                        let idChallenges2 = datauschall[x].idChallenge;
+                                        let rank = x + 1;
+
+                                        //if (datenow >= start && datenow <= end && idChallenges == idChallenges2) {
+                                        await this.userchallengesService.updateRangking(iducall.toString(), rank, timedate);
+                                        // }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+
             }
-    
-    
-    
-          }
-    
-    
+
+
         }
-    
+
     }
 
     async scorereferralrequest(iduser: string, idevent: string, namatabel: string, event: string, listchallenge: any[]) {
