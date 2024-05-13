@@ -1047,15 +1047,18 @@ export class AuthController {
     var _class_UserDevices = 'io.melody.core.domain.UserDevices';
 
     var _isEmailVerified = false;
+    var arr=[];
 
     //Ceck User ActivityEvent Parent
-    const data_activityevents = await this.activityeventsService.findParent(
+    const data_activityevents_ = await this.activityeventsService.findParent(
       LoginRequest_.email,
       LoginRequest_.deviceId,
       'LOGIN',
       false,
     );
-
+   
+    const data_activityevents=arr.push(data_activityevents_);
+    console.log(data_activityevents)
     //Generate Refresh Token
     await this.authService.updateRefreshToken2(LoginRequest_.email.toString());
 
@@ -4278,6 +4281,42 @@ export class AuthController {
     updatedata.updatedAt = await this.utilsService.getDateTimeString();
 
     var getdata = await this.basic2SS.findOne(request_json.idUser);
+
+    await this.basic2SS.updateData(getdata.email.toString(), updatedata);
+
+    var timestamps_end = await this.utilsService.getDateTimeString();
+    var reqbody = JSON.parse(JSON.stringify(request.body));
+    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+
+    return {
+      "response_code": 202,
+      "messages": {
+        "info": [
+          "The process successful"
+        ]
+      }
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Post('api/user/updatestatusgift')
+  async updateGiftStatus2(@Req() request: any, @Headers() headers) {
+    var timestamps_start = await this.utilsService.getDateTimeString();
+    var fullurl = request.get("Host") + request.originalUrl;
+    var token = headers['x-auth-token'];
+    var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+
+    var request_json = JSON.parse(JSON.stringify(request.body));
+    if (request_json.GiftActivation == null || request_json.GiftActivation == undefined) {
+      await this.errorHandler.generateNotAcceptableException("Unable to proceed. GiftActivation field is required");
+    }
+
+    var updatedata = new CreateuserbasicnewDto();
+    updatedata.GiftActivation = request_json.GiftActivation;
+    updatedata.updatedAt = await this.utilsService.getDateTimeString();
+
+    var getdata = await this.basic2SS.findbyemail(auth.email);
 
     await this.basic2SS.updateData(getdata.email.toString(), updatedata);
 
