@@ -4300,6 +4300,42 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
+  @Post('api/user/updatestatusgift')
+  async updateGiftStatus2(@Req() request: any, @Headers() headers) {
+    var timestamps_start = await this.utilsService.getDateTimeString();
+    var fullurl = request.get("Host") + request.originalUrl;
+    var token = headers['x-auth-token'];
+    var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+
+    var request_json = JSON.parse(JSON.stringify(request.body));
+    if (request_json.GiftActivation == null || request_json.GiftActivation == undefined) {
+      await this.errorHandler.generateNotAcceptableException("Unable to proceed. GiftActivation field is required");
+    }
+
+    var updatedata = new CreateuserbasicnewDto();
+    updatedata.GiftActivation = request_json.GiftActivation;
+    updatedata.updatedAt = await this.utilsService.getDateTimeString();
+
+    var getdata = await this.basic2SS.findbyemail(auth.email);
+
+    await this.basic2SS.updateData(getdata.email.toString(), updatedata);
+
+    var timestamps_end = await this.utilsService.getDateTimeString();
+    var reqbody = JSON.parse(JSON.stringify(request.body));
+    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+
+    return {
+      "response_code": 202,
+      "messages": {
+        "info": [
+          "The process successful"
+        ]
+      }
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.ACCEPTED)
   @Post('api/user/noneactive')
   async noneActive(@Req() request: any, @Headers() headers) {
     var timestamps_start = await this.utilsService.getDateTimeString();

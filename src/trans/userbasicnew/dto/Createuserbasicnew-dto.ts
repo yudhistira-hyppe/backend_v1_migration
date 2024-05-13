@@ -134,6 +134,7 @@ export class CreateuserbasicnewDto {
   otp_expired_time: Long;
   urlLink: string;
   judulLink: string;
+  GiftActivation: boolean;
 }
 
 export class SearchUserbasicDto {

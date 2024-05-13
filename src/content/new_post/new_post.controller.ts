@@ -1116,7 +1116,6 @@ export class NewPostController {
 
         var token = headers['x-auth-token'];
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        console.log(auth);
         var profile = await this.basic2SS.findbyemail(auth.email);
         if (profile == null) {
             var dt = new Date(Date.now());
@@ -4962,6 +4961,36 @@ export class NewPostController {
             }
         }
         return Response;
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('posts/check-post')
+    async checkTotalPost(@Headers() headers): Promise<any> {
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var profile = await this.basic2SS.findbyemail(auth.email);
+        if(profile == null) {
+            await this.errorHandler.generateUnauthorizedException("profile not found!!")
+        }
+
+        var getdata = await this.newPostService.findUserPostfirst(auth.email);
+
+        console.log(getdata);
+
+        if(getdata.length == 0)
+        {
+            return {
+                response_code:202,
+                result:false
+            }   
+        }
+        else
+        {
+            return {
+                response_code:202,
+                result:true
+            }
+        }
     }
 
     async posttask(postID: string, email: string, createdAt: string) {

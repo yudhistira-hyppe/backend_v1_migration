@@ -257,6 +257,8 @@ export class Userbasicnew {
     liveBanned: boolean;
     @Prop()
     liveBannedDate: string;
+    @Prop()
+    GiftActivation: boolean;
 }
 
 export const UserbasicnewSchema = SchemaFactory.createForClass(Userbasicnew);
