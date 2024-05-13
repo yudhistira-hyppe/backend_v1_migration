@@ -692,6 +692,8 @@ export class MediastreamingController {
         const MediastreamingDto_Res = new MediastreamingDto();
         MediastreamingDto_Res._id = ceckId._id;
         MediastreamingDto_Res.title = ceckId.title;
+        MediastreamingDto_Res.url = ceckId.url;
+        MediastreamingDto_Res.textUrl = ceckId.textUrl;
         MediastreamingDto_Res.userId = ceckId.userId;
         MediastreamingDto_Res.expireTime = ceckId.expireTime;
         MediastreamingDto_Res.startLive = ceckId.startLive;
