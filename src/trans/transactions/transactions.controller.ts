@@ -2352,8 +2352,8 @@ export class TransactionsController {
         var bodyensukses = "Please complete your payment Click Here to View";
         var eventType = "TRANSACTION";
         var event = "TRANSACTION";
-        var platform=null;
-        var jmlcoin=null;
+        var platform = null;
+        var jmlcoin = null;
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
@@ -2386,8 +2386,8 @@ export class TransactionsController {
         }
         if (request_json["idDiscount"] !== undefined) {
             idDiscount = request_json["idDiscount"];
-        } 
-       
+        }
+
         //var splitPostid = postid.split(',');
         var lenghtpostid = postid.length;
 
@@ -2505,10 +2505,10 @@ export class TransactionsController {
         var stockDiskon = 0;
         var last_stockDiskon = 0;
         var used_stockDiskon = 0;
-        var dataadmincoin=null;
-        var dataadminoy=null;
-        var valAdmin=null;
-        var valAdminOy=null;
+        var dataadmincoin = null;
+        var dataadminoy = null;
+        var valAdmin = null;
+        var valAdminOy = null;
 
         if (idDiscount !== undefined) {
             try {
@@ -2557,7 +2557,7 @@ export class TransactionsController {
         try {
 
             dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
-            valAdmin =dataadmincoin._doc.value;
+            valAdmin = dataadmincoin._doc.value;
 
         } catch (e) {
             dataadmincoin = null;
@@ -2567,7 +2567,7 @@ export class TransactionsController {
         try {
 
             dataadminoy = await this.settingsService.findOne(ID_SETTING_COST_PG_OY);
-            valAdminOy =dataadminoy._doc.value;
+            valAdminOy = dataadminoy._doc.value;
 
         } catch (e) {
             dataadminoy = null;
@@ -2688,18 +2688,18 @@ export class TransactionsController {
                     minStock = Number(last_stock) - Number(qty);
                     tsTockDiskon = 1 + Number(used_stockDiskon);
                     minStockDiskon = Number(last_stockDiskon) - 1;
-                    totalamount = Number(postid[0].totalAmount)+ Number(valAdmin);
-                    amountTotal=Number(totalamount) -Number(diskon);
+                    totalamount = Number(postid[0].totalAmount) + Number(valAdmin);
+                    amountTotal = Number(totalamount) - Number(diskon);
                     var arraydetailobj = { "id": postIds, "qty": qty, "totalAmount": totalamount };
                     arrayDetail.push(arraydetailobj);
 
                     postidTR = postIds;
                     arraypostids.push(postid[0].id);
 
-                    try{
-                        jmlcoin=postid[0].jmlcoin;
-                    }catch(e){
-                        jmlcoin=0;
+                    try {
+                        jmlcoin = postid[0].jmlcoin;
+                    } catch (e) {
+                        jmlcoin = 0;
                     }
 
 
@@ -2782,11 +2782,11 @@ export class TransactionsController {
                                     CreateTransactionsDto.detail = arrayDetail;
                                     CreateTransactionsDto.postid = postidTR;
                                     CreateTransactionsDto.response = datareqva;
-                                    CreateTransactionsDto.productCode=productCode;
-                                    CreateTransactionsDto.platform=platform;
-                                    CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
-                                    CreateTransactionsDto.diskon=diskon;
-                                    CreateTransactionsDto.jmlCoin=Number(jmlcoin);
+                                    CreateTransactionsDto.productCode = productCode;
+                                    CreateTransactionsDto.platform = platform;
+                                    CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                                    CreateTransactionsDto.diskon = diskon;
+                                    CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                     this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
@@ -2815,8 +2815,8 @@ export class TransactionsController {
                                         "totalamount": datatr.totalamount,
                                         "accountbalance": datatr.accountbalance,
                                         "timestamp": datatr.timestamp,
-                                        "diskon":diskon,
-                                        "platform":platform,
+                                        "diskon": diskon,
+                                        "platform": platform,
                                         "_id": datatr._id
                                     };
 
@@ -2865,11 +2865,11 @@ export class TransactionsController {
                                 CreateTransactionsDto.detail = arrayDetail;
                                 CreateTransactionsDto.postid = postidTR;
                                 CreateTransactionsDto.response = datareqva;
-                                CreateTransactionsDto.productCode=productCode;
-                                CreateTransactionsDto.platform=platform;
-                                CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
-                                CreateTransactionsDto.diskon=diskon;
-                                CreateTransactionsDto.jmlCoin=Number(jmlcoin);
+                                CreateTransactionsDto.productCode = productCode;
+                                CreateTransactionsDto.platform = platform;
+                                CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                                CreateTransactionsDto.diskon = diskon;
+                                CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2949,11 +2949,11 @@ export class TransactionsController {
                                 CreateTransactionsDto.detail = arrayDetail;
                                 CreateTransactionsDto.postid = postidTR;
                                 CreateTransactionsDto.response = datareqva;
-                                CreateTransactionsDto.productCode=productCode;
-                                CreateTransactionsDto.platform=platform;
-                                CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
-                                CreateTransactionsDto.diskon=diskon;
-                                CreateTransactionsDto.jmlCoin=Number(jmlcoin);
+                                CreateTransactionsDto.productCode = productCode;
+                                CreateTransactionsDto.platform = platform;
+                                CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                                CreateTransactionsDto.diskon = diskon;
+                                CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
                                 try {
 
@@ -2992,8 +2992,8 @@ export class TransactionsController {
                                     "totalamount": datatr.totalamount,
                                     "accountbalance": datatr.accountbalance,
                                     "timestamp": datatr.timestamp,
-                                    "diskon":diskon,
-                                    "platform":platform,
+                                    "diskon": diskon,
+                                    "platform": platform,
                                     "_id": datatr._id
                                 };
                             } catch (e) {
@@ -3039,11 +3039,11 @@ export class TransactionsController {
                             CreateTransactionsDto.detail = arrayDetail;
                             CreateTransactionsDto.postid = postidTR;
                             CreateTransactionsDto.response = datareqva;
-                            CreateTransactionsDto.productCode=productCode;
-                            CreateTransactionsDto.platform=platform;
-                            CreateTransactionsDto.idDiskon=mongoose.Types.ObjectId(idDiscount);
-                            CreateTransactionsDto.diskon=diskon;
-                            CreateTransactionsDto.jmlCoin=Number(jmlcoin);
+                            CreateTransactionsDto.productCode = productCode;
+                            CreateTransactionsDto.platform = platform;
+                            CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                            CreateTransactionsDto.diskon = diskon;
+                            CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                             var timestamps_end = await this.utilsService.getDateTimeString();
@@ -4161,9 +4161,9 @@ export class TransactionsController {
         var repdate = strdate.replace('T', ' ');
         var splitdate = repdate.split('.');
         var timedate = splitdate[0];
-        var platform=null;
-        var productCode=null;
-        var jmlCoin=null;
+        var platform = null;
+        var productCode = null;
+        var jmlCoin = null;
 
         try {
 
@@ -4199,9 +4199,9 @@ export class TransactionsController {
                     throw new BadRequestException("Banks not found...!");
                 }
                 type = datatransaksi.type;
-                platform=datatransaksi.platform;
-                productCode=datatransaksi.productCode;
-                jmlCoin=datatransaksi.jmlCoin;
+                platform = datatransaksi.platform;
+                productCode = datatransaksi.productCode;
+                jmlCoin = datatransaksi.jmlCoin;
 
                 var idtransaction = datatransaksi._id;
                 var noinvoice = datatransaksi.noinvoice;
@@ -19518,6 +19518,56 @@ export class TransactionsController {
                 total_payment: price + transaction_fee - discount
             },
             messages
+        }
+    }
+
+    @Post('api/transactions/coinorderhistory')
+    @UseGuards(JwtAuthGuard)
+    async coinorderhistory(@Req() request: Request, @Headers() headers): Promise<any> {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/coinorderhistory';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var user_data = await this.basic2SS.findBymail(setemail);
+        if (!user_data) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("User data not found");
+        }
+        if (request_json.page == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: page (number)");
+        }
+        if (request_json.limit == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: limit (number)");
+        }
+
+        try {
+            var data = await this.transactionsService.getUserCoinOrderHistory(user_data._id, request_json.page * request_json.limit, request_json.limit, request_json.startdate, request_json.enddate);
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
         }
     }
 }
