@@ -1,5 +1,6 @@
 
 import { TransactionsV2Service } from './transactionsv2.service';
+import { TransactionsProductsService } from './products/transactionsproducts.service';
 import { Controller, HttpCode, HttpStatus, Post, Req, UseGuards, Headers, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UtilsService } from '../../utils/utils.service';
@@ -9,6 +10,7 @@ import { LogapisService } from '../logapis/logapis.service';
 export class TransactionsV2Controller {
     constructor(
         private readonly transactionsV2Service: TransactionsV2Service,
+        private readonly transactionsProductsService: TransactionsProductsService,
         private readonly utilsService: UtilsService,
         private readonly logapiSS: LogapisService
     ) { }
@@ -46,7 +48,8 @@ export class TransactionsV2Controller {
         var descending = null;
         var types = [];
         var startdate = null;
-        var enddate = null; const messages = {
+        var enddate = null;
+        const messages = {
             "info": ["The process was successful"],
         };
         if (request_json["page"] !== undefined) {
@@ -99,11 +102,88 @@ export class TransactionsV2Controller {
         }
 
         let data = await this.transactionsV2Service.getCoinHistory(email, page, limit, descending, startdate, enddate, types);
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
         return {
             response_code: 202,
             data,
             messages
         }
 
+    }
+
+    @Post('/boostpostdetail')
+    @UseGuards(JwtAuthGuard)
+    async boostPostPaymentDetail(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/boostpostdetail';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            let priceData = await this.transactionsProductsService.findOneByCode("BP");
+            let price = priceData.price;
+            let data = {
+                posttype: request_json.posttype,
+                startdate: request_json.startdate,
+                price: price,
+                discount: request_json.discount ? request_json.discount : 0,
+                total: price - (request_json.discount ? request_json.discount : 0)
+            }
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            return {
+                response_code: 202,
+                data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('/createboostpost')
+    @UseGuards(JwtAuthGuard)
+    async createBoostPostTransaction(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/createboostpost';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            var data = await this.transactionsV2Service.insertTransaction(
+                request_json.platform,
+                request_json.transactionProductCode,
+                request_json.category ? request_json.category : undefined,
+                request_json.coin,
+                request_json.discountCoin ? request_json.discountCoin : 0,
+                request_json.price,
+                request_json.discountPrice,
+                request_json.idUserBuy,
+                request_json.idUserSell ? request_json.idUserSell : undefined,
+                request_json.idVoucher ? request_json.idVoucher : undefined,
+                request_json.detail,
+                request_json.status);
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            return {
+                response_code: 202,
+                data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
+        }
     }
 }

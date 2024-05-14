@@ -16,5 +16,7 @@ export class TransactionsProducts {
     updatedAt: string;
     @Prop()
     isDelete: boolean;
+    @Prop()
+    price: number;
 }
 export const TransactionsProductsSchema = SchemaFactory.createForClass(TransactionsProducts);
