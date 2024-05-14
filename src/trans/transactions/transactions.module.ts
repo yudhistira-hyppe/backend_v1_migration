@@ -5,7 +5,7 @@ import { TransactionsService } from './transactions.service';
 import { ConfigModule } from '@nestjs/config';
 import { Transactions, TransactionsSchema } from './schemas/transactions.schema';
 import { UserbasicsModule } from '../userbasics/userbasics.module';
-import { SettingsModule } from '../settings/settings.module';
+import { Settings2Module } from '../settings2/settings2.module';
 import { MethodepaymentsModule } from '../methodepayments/methodepayments.module';
 import { BanksModule } from '../banks/banks.module';
 import { PostsModule } from '../../content/posts/posts.module';
@@ -52,7 +52,7 @@ import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.mo
         BoostintervalModule,
         BoostsessionModule,
         UtilsModule,
-        ConfigModule.forRoot(), GetusercontentsModule, UserbasicsModule, SettingsModule, MethodepaymentsModule, BanksModule, PostsModule, Pph21sModule, AccountbalancesModule, OyPgModule,
+        ConfigModule.forRoot(), GetusercontentsModule, UserbasicsModule, Settings2Module, MethodepaymentsModule, BanksModule, PostsModule, Pph21sModule, AccountbalancesModule, OyPgModule,
         InsightsModule, UserbankaccountsModule, WithdrawsModule, MediavideosModule, MediapictsModule, MediadiariesModule, UservouchersModule, VouchersModule, MediastoriesModule, LanguagesModule,
         AdsModule, MonetizationModule,
         MongooseModule.forFeature([{ name: Transactions.name, schema: TransactionsSchema }], 'SERVER_FULL')

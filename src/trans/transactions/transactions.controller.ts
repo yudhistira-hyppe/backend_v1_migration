@@ -4,7 +4,7 @@ import { CreateTransactionsDto, CreateTransactionsNewDto, CreateWithdraws, OyAcc
 import { Transactions } from './schemas/transactions.schema';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UserbasicsService } from '../userbasics/userbasics.service';
-import { SettingsService } from '../settings/settings.service';
+import { Settings2Service } from '../settings2/settings2.service';
 import { MethodepaymentsService } from '../methodepayments/methodepayments.service';
 import { PostsService } from '../../content/posts/posts.service';
 import { BanksService } from '../banks/banks.service';
@@ -58,7 +58,7 @@ const nodeHtmlToImage = require('node-html-to-image');
 export class TransactionsController {
     constructor(private readonly transactionsService: TransactionsService,
         private readonly userbasicsService: UserbasicsService,
-        private readonly settingsService: SettingsService,
+        private readonly settingsService: Settings2Service,
         private readonly methodepaymentsService: MethodepaymentsService,
         private readonly banksService: BanksService,
         private readonly postsService: PostsService,
@@ -4184,7 +4184,8 @@ export class TransactionsController {
         try {
 
             datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
-            useridHyppe = mongoose.Types.ObjectId(datauserhyppe.value);
+            useridHyppe = mongoose.Types.ObjectId(datauserhyppe._doc.value);
+
 
         } catch (e) {
             datauserhyppe = null;
@@ -4312,10 +4313,10 @@ export class TransactionsController {
                       
 
                         var createbalance = await this.accontbalanceBuyCoin(postid, idusersell, amount,idtransaction,jmlCoin);
-                        var createbalanceadmin = await this.accontbalanceAdminCoin("Admin", useridHyppe, valAdmin,iduserbuy.toString());
+                        var createbalanceadmin = await this.accontbalanceAdminCoin("Admin", useridHyppe, valAdmin,iduserbuy.toString(),idtransaction);
                        
-                        var createbalanceadminVa = await this.accontbalanceAdminCoin("Bank VA", useridHyppe, valAdminOy,iduserbuy.toString());
-                        let databalance = await this.accountbalancesService.findOne(idusersell);
+                        var createbalanceadminVa = await this.accontbalanceAdminCoin("Bank VA", useridHyppe, valAdminOy,iduserbuy.toString(),idtransaction);
+                        let databalance = await this.accountbalancesService.findOneCoin(idusersell,idtransaction);
 
                         var idbalance = databalance._id;
                         await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
@@ -7761,7 +7762,7 @@ export class TransactionsController {
             idtrans:idtrans,
             debet: 0,
             kredit: amount,
-            type: "buy",
+            type: "sell",
             timestamp: dt.toISOString(),
             description: "buy coin " + jmlCoin,
 
@@ -7817,7 +7818,7 @@ export class TransactionsController {
 
         await this.accountbalancesService.createdata(dataacountbalance);
     }
-    async accontbalanceAdminCoin(type: string, iduseradmin:  { oid: string }, amount: number,iduserbuy:string) {
+    async accontbalanceAdminCoin(type: string, iduseradmin:  { oid: string }, amount: number,iduserbuy:string,idtrans:Object) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
@@ -7825,6 +7826,7 @@ export class TransactionsController {
 
         var dataacountbalance = {
             iduser: iduseradmin,
+            idtrans:idtrans,
             debet: 0,
             kredit: amount,
             type: type,
