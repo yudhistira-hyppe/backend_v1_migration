@@ -62,6 +62,7 @@ export class ProfileDTO {
     urluserBadge: any[];
     tutor: any[];
     creator: boolean;
+    GiftActivation: boolean;
     following: boolean;
     urlLink: string;
     judulLink: string;

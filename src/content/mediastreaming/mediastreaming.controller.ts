@@ -61,6 +61,8 @@ export class MediastreamingController {
     //const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
     let _MediastreamingDto_ = new MediastreamingDto();
     _MediastreamingDto_._id = generateId;
+    _MediastreamingDto_.url = MediastreamingDto_.url;
+    _MediastreamingDto_.textUrl = MediastreamingDto_.textUrl;
     _MediastreamingDto_.userId = new mongoose.Types.ObjectId(profile._id.toString());
     _MediastreamingDto_.expireTime = Long.fromInt(expireTime);
     _MediastreamingDto_.view = [];
@@ -84,6 +86,8 @@ export class MediastreamingController {
     const dataResponse = {};
     dataResponse['_id'] = data._id;
     dataResponse['title'] = data.title;
+    dataResponse['url'] = data.url;
+    dataResponse['textUrl'] = data.textUrl;
     dataResponse['userId'] = data.userId;
     dataResponse['expireTime'] = Number(data.expireTime);
     dataResponse['startLive'] = data.startLive;
@@ -264,6 +268,7 @@ export class MediastreamingController {
           //SEND COMMENT SINGLE
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());
           getUser[0]["idStream"] = MediastreamingDto_._id.toString();
+          getUser[0]["commentType"] = "MESSAGGES";
           getUser[0]["messages"] = "joined";
           const singleSend = {
             data: getUser[0]
@@ -401,20 +406,23 @@ export class MediastreamingController {
 
               if (MediastreamingDto_.idGift != undefined) {
                 dataComment['idGift'] = MediastreamingDto_.idGift;
+                if (MediastreamingDto_.urlGift != undefined) {
+                  dataComment['urlGift'] = MediastreamingDto_.urlGift;
+                }
+                if (MediastreamingDto_.urlGiftThum != undefined) {
+                  dataComment['urlGiftThum'] = MediastreamingDto_.urlGiftThum;
+                }
                 getUser[0]["idGift"] = MediastreamingDto_.idGift;
                 await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
                 this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond);
               }
               if (MediastreamingDto_.urlGift != undefined) {
-                dataComment['urlGift'] = MediastreamingDto_.urlGift;
                 getUser[0]["urlGift"] = MediastreamingDto_.urlGift;
               }
               if (MediastreamingDto_.urlGiftThum != undefined) {
-                dataComment['urlGiftThum'] = MediastreamingDto_.urlGiftThum;
                 getUser[0]["urlGiftThum"] = MediastreamingDto_.urlGiftThum;
               }
               if (MediastreamingDto_.idDiscond != undefined) {
-                dataComment['idDiscond'] = MediastreamingDto_.idDiscond;
                 getUser[0]["idDiscond"] = MediastreamingDto_.idDiscond;
               }
             }
@@ -666,19 +674,24 @@ export class MediastreamingController {
           }
         }
       }
-
+      //CECK TYPE STOP
       if (MediastreamingDto_.type == "STOP") {
+        let income = 0;
         const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
         const getUser = await this.userbasicnewService.findOne(getDataStream[0].userId.toString());
+        if (getDataStream[0].income != undefined) {
+          income = getDataStream[0].income;
+        }
         const dataResponse = {
           totalViews: getDataStream[0].view_unique.length,
           totalShare: getDataStream[0].shareCount,
           totalFollower: getDataStream[0].follower.length, 
           totalComment: getDataStream[0].comment.length,
-          totalLike: getDataStream[0].like.length,
-          totalIncome: getDataStream[0].income
+          totalLike: getDataStream[0].like.length, 
+          totalIncome: income,
+          gift: getDataStream[0].gift,
         }
-        this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(getDataStream[0].income.toString()));
+        this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", dataResponse
         );
@@ -692,6 +705,8 @@ export class MediastreamingController {
         const MediastreamingDto_Res = new MediastreamingDto();
         MediastreamingDto_Res._id = ceckId._id;
         MediastreamingDto_Res.title = ceckId.title;
+        MediastreamingDto_Res.url = ceckId.url;
+        MediastreamingDto_Res.textUrl = ceckId.textUrl;
         MediastreamingDto_Res.userId = ceckId.userId;
         MediastreamingDto_Res.expireTime = ceckId.expireTime;
         MediastreamingDto_Res.startLive = ceckId.startLive;

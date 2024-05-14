@@ -87,6 +87,10 @@ export class NewPostService {
     return this.loaddata.where('email', email).where('active', true).where('postType').ne('story').count();
   }
 
+  async findUserPostfirst(email: string) {
+    return this.loaddata.where('email', email).where('active', true).where('postType').ne('story').limit(1);
+  }
+
   async findNewpostid(id: string): Promise<newPosts> {
     return this.loaddata.findOne({ _id: id }).exec();
   }

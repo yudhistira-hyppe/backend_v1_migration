@@ -449,292 +449,299 @@ export class UtilsService {
   // }
 
   async sendFcmV2(receiverParty: string, senderParty: string, eventType: string, event: string, typeTemplate: string, postID?: string, postType?: string, idtransaction?: string, customText?: any) {
-    //GET DATE
-    var currentDate = await this.getDateTimeString()
+    try{
 
-    //GET TEMPLATE
-    var Templates_ = new TemplatesRepo();
-    Templates_ = await this.getTemplate_repo(typeTemplate, 'NOTIFICATION');
+      //GET DATE
+      var currentDate = await this.getDateTimeString()
 
-    //GET USERNAME
-    // var get_username_receiverParty = await this.getUsertname(receiverParty);
-    // var get_username_senderParty = await this.getUsertname(senderParty);
-    var get_username_receiverParty = await this.getUsertname2(receiverParty);
-    var get_username_senderParty = await this.getUsertname2(senderParty);
+      //GET TEMPLATE
+      var Templates_ = new TemplatesRepo();
+      Templates_ = await this.getTemplate_repo(typeTemplate, 'NOTIFICATION');
 
-    //GET PROFILE
-    // var profile_receiverParty = await this.generateProfile(receiverParty, "FULL");
-    // var profile_senderParty = await this.generateProfile(senderParty, "FULL");
-    var profile_receiverParty = await this.generateProfile2(receiverParty, "FULL");
-    var profile_senderParty = await this.generateProfile2(senderParty, "FULL");
+      //GET USERNAME
+      // var get_username_receiverParty = await this.getUsertname(receiverParty);
+      // var get_username_senderParty = await this.getUsertname(senderParty);
+      console.log(receiverParty);
+      console.log(senderParty);
+      var get_username_receiverParty = await this.getUsertname2(receiverParty);
+      var get_username_senderParty = await this.getUsertname2(senderParty);
 
-    //GET REGSRC
-    // var profile_regsrc = await this.getregSrc(receiverParty);
-    var profile_regsrc = await this.getregSrc2(receiverParty);
+      //GET PROFILE
+      // var profile_receiverParty = await this.generateProfile(receiverParty, "FULL");
+      // var profile_senderParty = await this.generateProfile(senderParty, "FULL");
+      var profile_receiverParty = await this.generateProfile2(receiverParty, "FULL");
+      var profile_senderParty = await this.generateProfile2(senderParty, "FULL");
 
-    //GET LANGISO
-    const langIso_receiverParty = (profile_receiverParty.langIso != undefined) ? profile_receiverParty.langIso : "id";
-    const langIso_senderParty = (profile_senderParty.langIso != undefined) ? profile_senderParty.langIso : "id";
+      //GET REGSRC
+      // var profile_regsrc = await this.getregSrc(receiverParty);
+      var profile_regsrc = await this.getregSrc2(receiverParty);
 
-    //SET POST TYPE UPPERCASE
-    var Post_type_upper = "";
-    if (postType == undefined) {
-      Post_type_upper = "";
-    } else {
-      Post_type_upper = postType[0].toUpperCase() + postType.substring(1)
-    }
+      //GET LANGISO
+      const langIso_receiverParty = (profile_receiverParty.langIso != undefined) ? profile_receiverParty.langIso : "id";
+      const langIso_senderParty = (profile_senderParty.langIso != undefined) ? profile_senderParty.langIso : "id";
 
-    //SET VARIABLE
-    let title_send = "";
-    let body_send = "";
-    let data_send = {};
-
-    let body_save_id = "";
-    let body_save_en = "";
-
-    let body_save_id_get = "";
-    let body_save_en_get = "";
-
-    //CECK EVENTTYPE
-    if (eventType == "COMMENT_TAG") {
-      eventType = "REACTION"
-    }
-
-    //SET TITLE AND BODY
-    body_save_en_get = Templates_.body_detail.toString();
-    body_save_id_get = Templates_.body_detail_id.toString();
-    if (langIso_receiverParty == "en") {
-      if (Templates_.subject != undefined) {
-        if (Templates_.subject.toString() == "${user_name}") {
-          title_send = "@" + get_username_senderParty;
-        } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
-          title_send = "Hi, @" + get_username_senderParty;
-        } else {
-          // if (typeTemplate == "LIVE_START") {
-          //   title_send = Templates_.subject.toString().replace("${user_name}", get_username_senderParty)
-          // } else {
-          //   title_send = Templates_.subject.toString();
-          // }
-          title_send = Templates_.subject.toString();
-        }
+      //SET POST TYPE UPPERCASE
+      var Post_type_upper = "";
+      if (postType == undefined) {
+        Post_type_upper = "";
       } else {
-        if (Templates_.subject_id.toString() == "${user_name}") {
-          title_send = "@" + get_username_senderParty;
-        } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
-          title_send = "Hi, @" + get_username_senderParty;
-        } else {
-          // if (typeTemplate == "LIVE_START") {
-          //   title_send = Templates_.subject_id.toString().replace("${user_name}", get_username_senderParty)
-          // } else {
-          //   title_send = Templates_.subject_id.toString();
-          // }
-          title_send = Templates_.subject_id.toString();
-        }
-      }
-    } else {
-      if (Templates_.subject_id != undefined) {
-        if (Templates_.subject_id.toString() == "${user_name}") {
-          title_send = "@" + get_username_senderParty;
-        } else if (Templates_.subject_id.toString() == "Hi, ${user_name}") {
-          title_send = "Hi, @" + get_username_senderParty;
-        } else {
-          title_send = Templates_.subject.toString();
-        }
-      } else {
-        if (Templates_.subject.toString() == "${user_name}") {
-          title_send = "@" + get_username_senderParty;
-        } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
-          title_send = "Hi, @" + get_username_senderParty;
-        } else {
-          title_send = Templates_.subject.toString();
-        }
-      }
-    }
-
-    //SET BODY SAVE
-    if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST")) {
-      if (event == "BOOST_SUCCES" || event == "ADS VIEW" || event == "ADS CLICK") {
-        if (idtransaction != null) {
-          data_send['postID'] = idtransaction
-        }
-        data_send['postType'] = eventType
-      } else {
-        data_send['postID'] = postID
-        data_send['postType'] = postType
+        Post_type_upper = postType[0].toUpperCase() + postType.substring(1)
       }
 
-      if (event == "ADS VIEW" || event == "ADS CLICK") {
-        body_save_id = body_save_id_get.toString().replace("${rewards}", customText)
-        body_save_en = body_save_en_get.toString().replace("${rewards}", customText)
-      } else if (eventType == "NOTIFY_LIVE") {
-        if (event == "LIVE_GIFT") {
-          body_save_id = body_save_id_get.toString().replace("${nominal}", await this.numberFormatString(customText))
-          body_save_en = body_save_en_get.toString().replace("${nominal}", await this.numberFormatString(customText))
-        }
-        if (event == "LIVE") {
-          if (customText != null) {
-            body_save_id = body_save_id_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", jangan ketinggalan. Yuk nonton sekarang!", ":" + customText)
-            body_save_en = body_save_en_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", don't miss out. Let's watch now!", ":" + customText)
+      //SET VARIABLE
+      let title_send = "";
+      let body_send = "";
+      let data_send = {};
+
+      let body_save_id = "";
+      let body_save_en = "";
+
+      let body_save_id_get = "";
+      let body_save_en_get = "";
+
+      //CECK EVENTTYPE
+      if (eventType == "COMMENT_TAG") {
+        eventType = "REACTION"
+      }
+
+      //SET TITLE AND BODY
+      body_save_en_get = Templates_.body_detail.toString();
+      body_save_id_get = Templates_.body_detail_id.toString();
+      if (langIso_receiverParty == "en") {
+        if (Templates_.subject != undefined) {
+          if (Templates_.subject.toString() == "${user_name}") {
+            title_send = "@" + get_username_senderParty;
+          } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
+            title_send = "Hi, @" + get_username_senderParty;
           } else {
-            body_save_id = body_save_id_get.toString()
-            body_save_en = body_save_en_get.toString()
+            // if (typeTemplate == "LIVE_START") {
+            //   title_send = Templates_.subject.toString().replace("${user_name}", get_username_senderParty)
+            // } else {
+            //   title_send = Templates_.subject.toString();
+            // }
+            title_send = Templates_.subject.toString();
+          }
+        } else {
+          if (Templates_.subject_id.toString() == "${user_name}") {
+            title_send = "@" + get_username_senderParty;
+          } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
+            title_send = "Hi, @" + get_username_senderParty;
+          } else {
+            // if (typeTemplate == "LIVE_START") {
+            //   title_send = Templates_.subject_id.toString().replace("${user_name}", get_username_senderParty)
+            // } else {
+            //   title_send = Templates_.subject_id.toString();
+            // }
+            title_send = Templates_.subject_id.toString();
           }
         }
-      } else if (eventType == "REACTION") {
-        if (typeTemplate == "POST_TAG") {
+      } else {
+        if (Templates_.subject_id != undefined) {
+          if (Templates_.subject_id.toString() == "${user_name}") {
+            title_send = "@" + get_username_senderParty;
+          } else if (Templates_.subject_id.toString() == "Hi, ${user_name}") {
+            title_send = "Hi, @" + get_username_senderParty;
+          } else {
+            title_send = Templates_.subject.toString();
+          }
+        } else {
+          if (Templates_.subject.toString() == "${user_name}") {
+            title_send = "@" + get_username_senderParty;
+          } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
+            title_send = "Hi, @" + get_username_senderParty;
+          } else {
+            title_send = Templates_.subject.toString();
+          }
+        }
+      }
+
+      //SET BODY SAVE
+      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST")) {
+        if (event == "BOOST_SUCCES" || event == "ADS VIEW" || event == "ADS CLICK") {
+          if (idtransaction != null) {
+            data_send['postID'] = idtransaction
+          }
+          data_send['postType'] = eventType
+        } else {
+          data_send['postID'] = postID
+          data_send['postType'] = postType
+        }
+
+        if (event == "ADS VIEW" || event == "ADS CLICK") {
+          body_save_id = body_save_id_get.toString().replace("${rewards}", customText)
+          body_save_en = body_save_en_get.toString().replace("${rewards}", customText)
+        } else if (eventType == "NOTIFY_LIVE") {
+          if (event == "LIVE_GIFT") {
+            body_save_id = body_save_id_get.toString().replace("${nominal}", await this.numberFormatString(customText))
+            body_save_en = body_save_en_get.toString().replace("${nominal}", await this.numberFormatString(customText))
+          }
+          if (event == "LIVE") {
+            if (customText != null) {
+              body_save_id = body_save_id_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", jangan ketinggalan. Yuk nonton sekarang!", ":" + customText)
+              body_save_en = body_save_en_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", don't miss out. Let's watch now!", ":" + customText)
+            } else {
+              body_save_id = body_save_id_get.toString()
+              body_save_en = body_save_en_get.toString()
+            }
+          }
+        } else if (eventType == "REACTION") {
+          if (typeTemplate == "POST_TAG") {
+            body_save_id = body_save_id_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
+            body_save_en = body_save_en_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
+          } else {
+            body_save_id = body_save_id_get.toString().replace("${emoticon}", customText)
+            body_save_en = body_save_en_get.toString().replace("${emoticon}", customText)
+          }
+        } else {
           body_save_id = body_save_id_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
           body_save_en = body_save_en_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
+        }
+      } else {
+        if (eventType == "FOLLOWER" || eventType == "FOLLOWING") {
+          data_send['postType'] = eventType
+          data_send['postID'] = get_username_senderParty
+        } else if (eventType == "KYC") {
+          data_send['postID'] = ''
+          data_send['postType'] = ''
         } else {
-          body_save_id = body_save_id_get.toString().replace("${emoticon}", customText)
-          body_save_en = body_save_en_get.toString().replace("${emoticon}", customText)
+          data_send['postID'] = postID
+          data_send['postType'] = postType
         }
+
+        if (eventType == "KYC") {
+          body_save_id = body_save_id_get.toString().replace("${user_name}", get_username_senderParty)
+          body_save_en = body_save_en_get.toString().replace("${user_name}", get_username_senderParty)
+        } else {
+          body_save_id = body_save_id_get.toString();
+          body_save_en = body_save_en_get.toString();
+        }
+      }
+
+      //SET BODY SEND
+      if (langIso_receiverParty == "en") {
+        body_send = body_save_en
       } else {
-        body_save_id = body_save_id_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
-        body_save_en = body_save_en_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
-      }
-    } else {
-      if (eventType == "FOLLOWER" || eventType == "FOLLOWING") {
-        data_send['postType'] = eventType
-        data_send['postID'] = get_username_senderParty
-      } else if (eventType == "KYC") {
-        data_send['postID'] = ''
-        data_send['postType'] = ''
-      } else {
-        data_send['postID'] = postID
-        data_send['postType'] = postType
+        body_send = body_save_id
       }
 
-      if (eventType == "KYC") {
-        body_save_id = body_save_id_get.toString().replace("${user_name}", get_username_senderParty)
-        body_save_en = body_save_en_get.toString().replace("${user_name}", get_username_senderParty)
-      } else {
-        body_save_id = body_save_id_get.toString();
-        body_save_en = body_save_en_get.toString();
+      // if (eventType == "KYC") {
+      //   if (langIso_receiverParty == "en") {
+      //     body_send = body_save_en
+      //   } else {
+      //     body_send = body_save_id
+      //   }
+      // }
+
+      //SET RECEIVER OR SENDER
+      var senderOrReceiverInfo = {
+        fullName: (profile_senderParty.fullName != undefined) ? profile_senderParty.fullName : null,
+        avatar: {
+          mediaBasePath: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaBasePath != undefined) ? profile_senderParty.avatar.mediaBasePath : null : null,
+          mediaUri: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaUri != undefined) ? profile_senderParty.avatar.mediaUri : null : null,
+          mediaType: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaType != undefined) ? profile_senderParty.avatar.mediaType : null : null,
+          mediaEndpoint: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaEndpoint != undefined) ? profile_senderParty.avatar.mediaEndpoint : null : null,
+        },
+        username: (profile_senderParty.username != undefined) ? profile_senderParty.username : null
+      };
+
+      //SEND FCM
+      var datadevice = await this.userdevicesService.findActive(receiverParty);
+      var device_user = [];
+      var getDate = await ((await this.getDateTime()).getTime()).toString();
+
+      data_send['title'] = title_send;
+      data_send['body'] = body_send;
+      if (typeTemplate != "REACTION") {
+        for (var i = 0; i < datadevice.length; i++) {
+          var notification = {
+            data: data_send,
+          }
+          var option = {
+            priority: "high",
+            contentAvailable: true
+          }
+          console.log("NOTIFICTION ------------------------------------------------------------------->", notification);
+
+          // if (profile_regsrc == "android") {
+          //   notification = {
+          //     data: data_send,
+          //   }
+          // } else if (profile_regsrc == "iOS") {
+          //   notification = {
+          //     notification: {
+          //       title: data_send['title'],
+          //       body: data_send['body']
+          //     }
+          //   };
+          // } else if (profile_regsrc == "ios") {
+          //   notification = {
+          //     notification: {
+          //       title: data_send['title'],
+          //       body: data_send['body']
+          //     }
+          //   };
+          // } else {
+          //   notification = {
+          //     data: data_send,
+          //   }
+          // }
+          try {
+            await admin.messaging().sendToDevice(datadevice[i].deviceID, notification, option);
+          }
+          catch (e) {
+            console.log('-------------------------------------------------- FCM ERROR --------------------------------------------------');
+            console.log(e);
+          }
+          device_user.push(datadevice[i].deviceID)
+        }
       }
-    }
 
-    //SET BODY SEND
-    if (langIso_receiverParty == "en") {
-      body_send = body_save_en
-    } else {
-      body_send = body_save_id
-    }
-
-    // if (eventType == "KYC") {
-    //   if (langIso_receiverParty == "en") {
-    //     body_send = body_save_en
-    //   } else {
-    //     body_send = body_save_id
-    //   }
-    // }
-
-    //SET RECEIVER OR SENDER
-    var senderOrReceiverInfo = {
-      fullName: (profile_senderParty.fullName != undefined) ? profile_senderParty.fullName : null,
-      avatar: {
-        mediaBasePath: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaBasePath != undefined) ? profile_senderParty.avatar.mediaBasePath : null : null,
-        mediaUri: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaUri != undefined) ? profile_senderParty.avatar.mediaUri : null : null,
-        mediaType: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaType != undefined) ? profile_senderParty.avatar.mediaType : null : null,
-        mediaEndpoint: (profile_senderParty.avatar != undefined) ? (profile_senderParty.avatar.mediaEndpoint != undefined) ? profile_senderParty.avatar.mediaEndpoint : null : null,
-      },
-      username: (profile_senderParty.username != undefined) ? profile_senderParty.username : null
-    };
-
-    //SEND FCM
-    var datadevice = await this.userdevicesService.findActive(receiverParty);
-    var device_user = [];
-    var getDate = await ((await this.getDateTime()).getTime()).toString();
-
-    data_send['title'] = title_send;
-    data_send['body'] = body_send;
-    if (typeTemplate != "REACTION") {
-      for (var i = 0; i < datadevice.length; i++) {
-        var notification = {
-          data: data_send,
-        }
-        var option = {
-          priority: "high",
-          contentAvailable: true
-        }
-        console.log("NOTIFICTION ------------------------------------------------------------------->", notification);
-
-        // if (profile_regsrc == "android") {
-        //   notification = {
-        //     data: data_send,
-        //   }
-        // } else if (profile_regsrc == "iOS") {
-        //   notification = {
-        //     notification: {
-        //       title: data_send['title'],
-        //       body: data_send['body']
-        //     }
-        //   };
-        // } else if (profile_regsrc == "ios") {
-        //   notification = {
-        //     notification: {
-        //       title: data_send['title'],
-        //       body: data_send['body']
-        //     }
-        //   };
-        // } else {
-        //   notification = {
-        //     data: data_send,
-        //   }
-        // }
-        try {
-          await admin.messaging().sendToDevice(datadevice[i].deviceID, notification, option);
-        }
-        catch (e) {
-          console.log('-------------------------------------------------- FCM ERROR --------------------------------------------------');
-          console.log(e);
-        }
-        device_user.push(datadevice[i].deviceID)
+      //INSERT NOTIFICATION
+      var generateID = await this.generateId();
+      var createNotificationsDto = new CreateNotificationsDto();
+      createNotificationsDto._id = generateID;
+      createNotificationsDto.notificationID = generateID;
+      createNotificationsDto.email = receiverParty;
+      createNotificationsDto.eventType = eventType;
+      createNotificationsDto.event = event;
+      createNotificationsDto.mate = senderParty;
+      createNotificationsDto.devices = device_user;
+      createNotificationsDto.title = title_send;
+      createNotificationsDto.body = body_save_en;
+      createNotificationsDto.bodyId = body_save_id;
+      createNotificationsDto.active = true;
+      createNotificationsDto.flowIsDone = true;
+      createNotificationsDto.createdAt = currentDate;
+      createNotificationsDto.updatedAt = currentDate;
+      // createNotificationsDto.idEmail = new mongoose.Types.ObjectId(profile_receiverParty.iduser.toString());
+      // createNotificationsDto.user = {
+      //   _id: new mongoose.Types.ObjectId(profile_receiverParty.iduser.toString()),
+      //   idEmail: new mongoose.Types.ObjectId(profile_receiverParty.iduser.toString()),
+      //   email: receiverParty,
+      //   emailEvent: receiverParty
+      // };
+      createNotificationsDto.actionButtons = null;
+      createNotificationsDto.contentEventID = null;
+      createNotificationsDto.senderOrReceiverInfo = senderOrReceiverInfo;
+      if (postID != undefined) {
+        createNotificationsDto.postID = postID.toString();
       }
-    }
+      if (postType != undefined) {
+        createNotificationsDto.postType = postType.toString();
+      }
 
-    //INSERT NOTIFICATION
-    var generateID = await this.generateId();
-    var createNotificationsDto = new CreateNotificationsDto();
-    createNotificationsDto._id = generateID;
-    createNotificationsDto.notificationID = generateID;
-    createNotificationsDto.email = receiverParty;
-    createNotificationsDto.eventType = eventType;
-    createNotificationsDto.event = event;
-    createNotificationsDto.mate = senderParty;
-    createNotificationsDto.devices = device_user;
-    createNotificationsDto.title = title_send;
-    createNotificationsDto.body = body_save_en;
-    createNotificationsDto.bodyId = body_save_id;
-    createNotificationsDto.active = true;
-    createNotificationsDto.flowIsDone = true;
-    createNotificationsDto.createdAt = currentDate;
-    createNotificationsDto.updatedAt = currentDate;
-    // createNotificationsDto.idEmail = new mongoose.Types.ObjectId(profile_receiverParty.iduser.toString());
-    // createNotificationsDto.user = {
-    //   _id: new mongoose.Types.ObjectId(profile_receiverParty.iduser.toString()),
-    //   idEmail: new mongoose.Types.ObjectId(profile_receiverParty.iduser.toString()),
-    //   email: receiverParty,
-    //   emailEvent: receiverParty
-    // };
-    createNotificationsDto.actionButtons = null;
-    createNotificationsDto.contentEventID = null;
-    createNotificationsDto.senderOrReceiverInfo = senderOrReceiverInfo;
-    if (postID != undefined) {
-      createNotificationsDto.postID = postID.toString();
-    }
-    if (postType != undefined) {
-      createNotificationsDto.postType = postType.toString();
-    }
-
-    if (eventType == "FOLLOWER") {
-      var ceckNotification = await this.notificationsService.findCriteria(receiverParty, eventType, senderParty);
-      if (await this.ceckData(ceckNotification)) {
-        await this.notificationsService.updateNotifiaction(receiverParty, eventType, senderParty, currentDate);
+      if (eventType == "FOLLOWER") {
+        var ceckNotification = await this.notificationsService.findCriteria(receiverParty, eventType, senderParty);
+        if (await this.ceckData(ceckNotification)) {
+          await this.notificationsService.updateNotifiaction(receiverParty, eventType, senderParty, currentDate);
+        } else {
+          await this.notificationsService.create(createNotificationsDto);
+        }
       } else {
         await this.notificationsService.create(createNotificationsDto);
       }
-    } else {
-      await this.notificationsService.create(createNotificationsDto);
+    }catch(e){
+
     }
   }
 
@@ -2520,6 +2527,13 @@ export class UtilsService {
         }
         else {
           ProfileDTO_.creator = false;
+        }
+
+        if (get_userbasic.GiftActivation != undefined) {
+          ProfileDTO_.GiftActivation = get_userbasic.GiftActivation;
+        }
+        else {
+          ProfileDTO_.GiftActivation = false;
         }
       }
     }
