@@ -61,6 +61,8 @@ export class MediastreamingController {
     //const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
     let _MediastreamingDto_ = new MediastreamingDto();
     _MediastreamingDto_._id = generateId;
+    _MediastreamingDto_.url = MediastreamingDto_.url;
+    _MediastreamingDto_.textUrl = MediastreamingDto_.textUrl;
     _MediastreamingDto_.userId = new mongoose.Types.ObjectId(profile._id.toString());
     _MediastreamingDto_.expireTime = Long.fromInt(expireTime);
     _MediastreamingDto_.view = [];
@@ -84,6 +86,8 @@ export class MediastreamingController {
     const dataResponse = {};
     dataResponse['_id'] = data._id;
     dataResponse['title'] = data.title;
+    dataResponse['url'] = data.url;
+    dataResponse['textUrl'] = data.textUrl;
     dataResponse['userId'] = data.userId;
     dataResponse['expireTime'] = Number(data.expireTime);
     dataResponse['startLive'] = data.startLive;
