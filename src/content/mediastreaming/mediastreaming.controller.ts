@@ -268,6 +268,7 @@ export class MediastreamingController {
           //SEND COMMENT SINGLE
           const getUser = await this.userbasicnewService.getUser(profile._id.toString());
           getUser[0]["idStream"] = MediastreamingDto_._id.toString();
+          getUser[0]["commentType"] = "MESSAGGES";
           getUser[0]["messages"] = "joined";
           const singleSend = {
             data: getUser[0]
