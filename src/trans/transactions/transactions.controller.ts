@@ -4276,12 +4276,7 @@ export class TransactionsController {
                 if (type === "COIN") {
 
                     if (status == "WAITING_PAYMENT") {
-                        try {
-                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), [],detail,"SUCCESS");
-                        } catch (e) {
-    
-                        }
-                      
+                       
                         var ubasic = await this.basic2SS.findOne(iduserbuy);
                         var userbuyer = ubasic.username;
                         // var ubasicsell = await this.basic2SS.findOne(idusersell);
@@ -4320,6 +4315,12 @@ export class TransactionsController {
 
                         var idbalance = databalance._id;
                         await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
+                        try {
+                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), [],detail,"SUCCESS");
+                        } catch (e) {
+    
+                        }
+                      
                        // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
                         this.notifbuyer(userbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", postid, noinvoice);
                         return res.status(HttpStatus.OK).json({
