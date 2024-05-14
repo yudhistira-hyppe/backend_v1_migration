@@ -11496,18 +11496,19 @@ export class AuthService {
     //Ceck User Userdevices
     const datauserdevicesService = await this.userdevicesService.findOneEmail(user_email, user_deviceId);
 
-    if (await this.utilsService.ceckData(datauserbasicsService) && isNotInitial) {
-      const dataactivityevents =
+    if (await this.utilsService.ceckData(datauserbasicsService) && isNotInitial) {      
+      var dataactivityevents = null;
+      dataactivityevents =
         await this.activityeventsService.findParentWitoutDevice(
           user_email,
           'ENROL',
           false,
         );
 
-      if (Object.keys(dataactivityevents).length > 0) {
+      if (dataactivityevents != null) {
         let last;
-        if (dataactivityevents[0].transitions.length > 0) {
-          const json_transition = JSON.parse(JSON.stringify(dataactivityevents[0].transitions[0]));
+        if (dataactivityevents.transitions.length > 0) {
+          const json_transition = JSON.parse(JSON.stringify(dataactivityevents.transitions[0]));
           last = await this.activityeventsService.findbyactivityEventID(
             user_email,
             json_transition.$id,
@@ -11515,7 +11516,7 @@ export class AuthService {
             false,
           );
         } else {
-          last = dataactivityevents;
+          last = [dataactivityevents];
         }
 
         let StatusNext;
@@ -11587,7 +11588,7 @@ export class AuthService {
                     },
                     logout_date: undefined,
                     login_date: undefined,
-                    login_device: dataactivityevents[0].payload.login_device,
+                    login_device: dataactivityevents.payload.login_device,
                     email: user_email,
                   };
                   data_CreateActivityeventsDto_child.createdAt = current_date;
@@ -11597,7 +11598,7 @@ export class AuthService {
                   );
                   data_CreateActivityeventsDto_child.flowIsDone = false;
                   data_CreateActivityeventsDto_child.parentActivityEventID =
-                    dataactivityevents[0].activityEventID;
+                    dataactivityevents.activityEventID;
                   data_CreateActivityeventsDto_child.userbasic =
                     datauserbasicsService._id;
 
@@ -11619,7 +11620,7 @@ export class AuthService {
 
                 //Update ActivityEvent Parent
                 try {
-                  const data_transitions = dataactivityevents[0].transitions;
+                  const data_transitions = dataactivityevents.transitions;
                   data_transitions.push({
                     $ref: 'activityevents',
                     $id: new Object(gen_ID_child_ActivityEvent),
@@ -11627,7 +11628,7 @@ export class AuthService {
                   });
                   await this.activityeventsService.update(
                     {
-                      _id: dataactivityevents[0]._id,
+                      _id: dataactivityevents._id,
                     },
                     {
                       flowIsDone: false,
@@ -11760,7 +11761,7 @@ export class AuthService {
                     },
                     logout_date: undefined,
                     login_date: undefined,
-                    login_device: dataactivityevents[0].payload.login_device,
+                    login_device: dataactivityevents.payload.login_device,
                     email: user_email,
                   };
                   data_CreateActivityeventsDto_child.createdAt = current_date;
@@ -11770,7 +11771,7 @@ export class AuthService {
                   );
                   data_CreateActivityeventsDto_child.flowIsDone = false;
                   data_CreateActivityeventsDto_child.parentActivityEventID =
-                    dataactivityevents[0].activityEventID;
+                    dataactivityevents.activityEventID;
                   data_CreateActivityeventsDto_child.userbasic =
                     datauserbasicsService._id;
                   data_CreateActivityeventsDto_child._class = _class_ActivityEvent;
@@ -11788,7 +11789,7 @@ export class AuthService {
 
                 //Update ActivityEvent Parent
                 try {
-                  const data_transitions = dataactivityevents[0].transitions;
+                  const data_transitions = dataactivityevents.transitions;
                   data_transitions.push({
                     $ref: 'activityevents',
                     $id: new Object(gen_ID_child_ActivityEvent),
@@ -11796,7 +11797,7 @@ export class AuthService {
                   });
                   await this.activityeventsService.update(
                     {
-                      _id: dataactivityevents[0]._id,
+                      _id: dataactivityevents._id,
                     },
                     {
                       flowIsDone: false,
@@ -12202,7 +12203,7 @@ export class AuthService {
                   data_CreateActivityeventsDto_child.flowIsDone = false;
                   data_CreateActivityeventsDto_child.__v = undefined;
                   data_CreateActivityeventsDto_child.parentActivityEventID =
-                    dataactivityevents[0].activityEventID;
+                    dataactivityevents.activityEventID;
                   data_CreateActivityeventsDto_child.userbasic =
                     datauserbasicsService._id;
 
@@ -12222,7 +12223,7 @@ export class AuthService {
 
                 //Update ActivityEvent Parent
                 try {
-                  const data_transitions = dataactivityevents[0].transitions;
+                  const data_transitions = dataactivityevents.transitions;
                   data_transitions.push({
                     $ref: 'activityevents',
                     $id: new Object(gen_ID_child_ActivityEvent),
@@ -12232,7 +12233,7 @@ export class AuthService {
                   //Update ActivityEvent Parent
                   await this.activityeventsService.update(
                     {
-                      _id: dataactivityevents[0]._id,
+                      _id: dataactivityevents._id,
                     },
                     {
                       transitions: data_transitions,

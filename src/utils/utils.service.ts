@@ -2521,6 +2521,13 @@ export class UtilsService {
         else {
           ProfileDTO_.creator = false;
         }
+
+        if (get_userbasic.GiftActivation != undefined) {
+          ProfileDTO_.GiftActivation = get_userbasic.GiftActivation;
+        }
+        else {
+          ProfileDTO_.GiftActivation = false;
+        }
       }
     }
     ProfileDTO_.urlLink = get_userbasic.urlLink;

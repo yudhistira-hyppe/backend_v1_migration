@@ -454,7 +454,8 @@ export class UserbasicnewService {
                     "kyc": 1,
                     "creator": 1,
                     "urlLink": 1,
-                    "judulLink": 1
+                    "judulLink": 1,
+                    "GiftActivation": 1
                 }
             }
         ]);

@@ -20,6 +20,7 @@ import { CreateWithdrawsDto } from '../withdraws/dto/create-withdraws.dto';
 import { Withdraws } from '../withdraws/schemas/withdraws.schema';
 import { CreateAccountbalancesDto } from '../accountbalances/dto/create-accountbalances.dto';
 import { AccountbalancesService } from '../accountbalances/accountbalances.service';
+import { timestamp } from 'rxjs';
 
 @Injectable()
 export class TransactionsService {
@@ -10853,6 +10854,87 @@ export class TransactionsService {
 
         var query = await this.transactionsModel.aggregate(pipeline);
         return query;
+    }
+
+    async getUserCoinOrderHistory(userid: mongoose.Types.ObjectId, skip: number, limit: number, startdate?: string, enddate?: string) {
+        let pipeline = [];
+        let matchAnd = [];
+        matchAnd.push(
+            {
+                iduserbuyer: userid
+            },
+            {
+                type: "COIN"
+            }
+        )
+        if (startdate && startdate != "") matchAnd.push({
+            timestamp: { $gte: startdate }
+        });
+        if (enddate && enddate != "") {
+            try {
+                var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
+
+                var dateend = currentdate.toISOString();
+
+
+            } catch (e) {
+                dateend = "";
+            }
+            matchAnd.push({
+                timestamp: { $lte: dateend }
+            });
+        }
+        pipeline.push(
+            {
+                $match: {
+                    $and: matchAnd
+                }
+            },
+            {
+                $project: {
+                    status: 1,
+                    description: 1,
+                    va_status: "$response.va_status",
+                    totalamount: 1,
+                    timestamp: 1,
+                    detailId: {
+                        $toObjectId: {
+                            $arrayElemAt: ["$detail.id", 0]
+                        }
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "monetize",
+                    localField: "detailId",
+                    foreignField: "_id",
+                    as: "monetizeData"
+                }
+            },
+            {
+                $project: {
+                    status: 1,
+                    description: 1,
+                    va_status: 1,
+                    totalamount: 1,
+                    timestamp: 1,
+                    packagename: {
+                        $arrayElemAt: ["$monetizeData.name", 0]
+                    }
+                }
+            }
+        );
+        pipeline.push({ $sort: { timestamp: -1 } });
+        if (skip > 0) {
+            pipeline.push({ $skip: skip });
+        }
+        if (limit > 0) {
+            pipeline.push({ $limit: limit });
+        }
+
+        let data = await this.transactionsModel.aggregate(pipeline);
+        return data;
     }
 
     async ceckStatusDisbursement() {
