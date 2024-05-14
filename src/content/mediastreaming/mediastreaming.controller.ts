@@ -676,16 +676,17 @@ export class MediastreamingController {
         let income = 0;
         const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
         const getUser = await this.userbasicnewService.findOne(getDataStream[0].userId.toString());
+        if (getDataStream[0].income != undefined) {
+          income = getDataStream[0].income;
+        }
         const dataResponse = {
           totalViews: getDataStream[0].view_unique.length,
           totalShare: getDataStream[0].shareCount,
           totalFollower: getDataStream[0].follower.length, 
           totalComment: getDataStream[0].comment.length,
-          totalLike: getDataStream[0].like.length,
-          totalIncome: getDataStream[0].income
-        }
-        if (getDataStream[0].income!=undefined){
-          income = getDataStream[0].income;
+          totalLike: getDataStream[0].like.length, 
+          totalIncome: income,
+          gift: getDataStream[0].gift,
         }
         this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
         return await this.errorHandler.generateAcceptResponseCodeWithData(
