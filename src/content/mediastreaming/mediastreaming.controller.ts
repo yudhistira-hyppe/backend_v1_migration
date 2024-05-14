@@ -683,7 +683,7 @@ export class MediastreamingController {
           totalLike: getDataStream[0].like.length,
           totalIncome: getDataStream[0].income
         }
-        this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(getDataStream[0].income.toString()));
+        //this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(getDataStream[0].income.toString()));
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", dataResponse
         );
