@@ -2354,6 +2354,8 @@ export class TransactionsController {
         var event = "TRANSACTION";
         var platform = null;
         var jmlcoin = null;
+        var platform = null;
+        var jmlcoin = null;
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
@@ -2486,11 +2488,12 @@ export class TransactionsController {
         var postType = null;
         const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
+        const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
         var idppn = "62bbbe43a7520000050077a3";
         //  var idmdradmin = "62bd413ff37a00001a004369";
         var idbankvacharge = "62bd40e0f37a00001a004366";
         var idexpiredva = "62bbbe8ea7520000050077a4";
-        var idhyppe = "66261d89463c0000d2006a44";
+      
         var datauserhyppe = null;
         var datenow = new Date(Date.now());
         var useridHyppe = null;
@@ -2547,7 +2550,7 @@ export class TransactionsController {
 
         try {
 
-            datauserhyppe = await this.settingsService.findOne(idhyppe);
+            datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
             useridHyppe = mongoose.Types.ObjectId(datauserhyppe._doc.value);
 
         } catch (e) {
@@ -4109,11 +4112,10 @@ export class TransactionsController {
         var datapost = null;
         var datainsight = null;
         var data_media = null;
-        var iduseradmin = "62144381602c354635ed786a";
+     
         const mongoose = require('mongoose');
         var ObjectId = require('mongodb').ObjectId;
-        var idadmin = mongoose.Types.ObjectId(iduseradmin);
-
+      
         var idmdradmin = "62bd413ff37a00001a004369";
         var idbankvachargeBCA = "63217919ec46000002007403";
         var idbankvachargeLainya = "6321796aec46000002007404";
@@ -4150,6 +4152,11 @@ export class TransactionsController {
         var bodyinsuksesvoucher = "Voucher Anda Telah Terjual Saldo akan diteruskan ke akun hype Anda.";
         var bodyensuksesvoucher = "Your Voucher Has Been Sold The balance will be forwarded to your Hyppe Account.";
 
+        var titleinsuksesCOIN = null;
+        var titleensuksesCOIN =null;
+        var bodyinsuksesCOIN =null;
+        var bodyensuksesCOIN = null;
+
         var titleinsuksesbelivoucher = "Selamat!";
         var titleensuksesbelivoucher = "Congratulation!";
         var bodyinsuksesbelivoucher = "Voucher Berhasil Dibeli";
@@ -4164,7 +4171,44 @@ export class TransactionsController {
         var platform = null;
         var productCode = null;
         var jmlCoin = null;
+        const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
+        const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
+        const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
+        var dataadmincoin=null;
+        var valAdmin=null;
+        var dataadminoy=null;
+        var valAdminOy=null;
+        var datauserhyppe=null;
+        var useridHyppe=null;
 
+        try {
+
+            datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
+            useridHyppe = mongoose.Types.ObjectId(datauserhyppe.value);
+
+        } catch (e) {
+            datauserhyppe = null;
+            useridHyppe = null;
+        }
+        try {
+
+            dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
+            valAdmin = dataadmincoin._doc.value;
+
+        } catch (e) {
+            dataadmincoin = null;
+            valAdmin = null;
+        }
+
+        try {
+
+            dataadminoy = await this.settingsService.findOne(ID_SETTING_COST_PG_OY);
+            valAdminOy = dataadminoy._doc.value;
+
+        } catch (e) {
+            dataadminoy = null;
+            valAdminOy = null;
+        }
         try {
 
             datavabankbca = await this.settingsService.findOne(idbankvachargeBCA);
@@ -4211,59 +4255,76 @@ export class TransactionsController {
                 var amount = datatransaksi.amount;
                 var tamount = datatransaksi.totalamount;
                 var status = datatransaksi.status;
-                var detail = datatransaksi.detail;
-
+                var reqbody = JSON.parse(JSON.stringify(payload));
+                var diskon = datatransaksi.diskon;
                 var timestamps_start = await this.utilsService.getDateTimeString();
                 var fullurl = req.get("Host") + req.originalUrl;
                 var setiduser = iduserbuy;
-                var reqbody = JSON.parse(JSON.stringify(payload));
-
-                // try {
-                //     salelike = datatransaksi.salelike;
-                //     saleview = datatransaksi.saleview;
-                // } catch (e) {
-                //     salelike = null;
-                //     saleview = null;
-                // }
-
-                // var lengtvoucherid = detail.length;
+                var respon = datatransaksi.response;
+                var detail = [
+                    {
+                        "biayPG": valAdminOy,
+                        "transactionFees": valAdmin,
+                        "amount": amount,
+                        "totalDiskon": diskon,
+                        "totalAmount": tamount,
+                        "payload": payload,
+                        "response":respon
+                    }]
 
                 if (type === "COIN") {
-                    let databuy = await this.MonetizenewService.findOne(postid);
-
-                    var price = databuy[0].price;
-
-                    // try{
-                    //     await this.TransactionsV2Service.insertTransaction(platform,productCode,"BUY",jmlCoin,);
-                    // }catch(e){
-
-                    // }
-                    // try {
-
-                    //     datamradmin = await this.settingsService.findOne(idmdradmin);
-                    //     var valuemradmin = datamradmin._doc.value;
-                    //     nominalmradmin = Math.ceil(saleAmount * valuemradmin / 100);
-
-                    // } catch (e) {
-                    //     nominalmradmin = 0;
-                    // }
-
-
-                    // amontVA = tamount - (amount + nominalmradmin);
-                    // var amounvaadmin = null;
-                    // if (bankcode === "014") {
-                    //     amounvaadmin = amontVA - valuevaBCA;
-                    // } else {
-                    //     amounvaadmin = amontVA - valuevalainya;
-                    // }
 
                     if (status == "WAITING_PAYMENT") {
+                        try {
+                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), [],detail,"SUCCESS");
+                        } catch (e) {
+    
+                        }
+                      
                         var ubasic = await this.basic2SS.findOne(iduserbuy);
-                        var emailbuyer = ubasic.email;
-                        var ubasicsell = await this.basic2SS.findOne(idusersell);
-                        var emailseller = ubasicsell.email;
+                        var userbuyer = ubasic.username;
+                        // var ubasicsell = await this.basic2SS.findOne(idusersell);
+                        // var userseller = ubasicsell.username;
+                        var Templates_=null;
+                        try{
+                        Templates_ = await this.utilsService.getTemplate_repo("TOPUP_COIN", 'NOTIFICATION');
+                        }catch(e){
+                            Templates_=null;
+                        }
 
+                      
+                        var titlein = Templates_.subject_id.toString();
+                        var titleen = Templates_.subject.toString();
+                        var bodyin = "";
+                        var bodyen = "";
+                
+                       
+                        var bodyin_get = Templates_.body_detail_id.toString();
+                        var bodyen_get = Templates_.body_detail.toString();
+                       
+                        var new_bodyin_get = bodyin_get.replace("${coin}", jmlCoin);
+                        var new_bodyen_get = bodyen_get.replace("${coin}", jmlCoin);
+                
+                         bodyin = new_bodyin_get;
+                         bodyen = new_bodyen_get;
+                
+                        var eventType = "TRANSACTION";
+                      
 
+                        var createbalance = await this.accontbalanceBuyCoin(postid, idusersell, amount,idtransaction,jmlCoin);
+                        var createbalanceadmin = await this.accontbalanceAdminCoin("Admin", useridHyppe, valAdmin,iduserbuy.toString());
+                       
+                        var createbalanceadminVa = await this.accontbalanceAdminCoin("Bank VA", useridHyppe, valAdminOy,iduserbuy.toString());
+                        let databalance = await this.accountbalancesService.findOne(idusersell);
+
+                        var idbalance = databalance._id;
+                        await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
+                       // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
+                        this.notifbuyer(userbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", postid, noinvoice);
+                        return res.status(HttpStatus.OK).json({
+                            response_code: 202,
+                            "message": messages
+                        });
 
                     } else {
                         var timestamps_end = await this.utilsService.getDateTimeString();
@@ -7690,6 +7751,25 @@ export class TransactionsController {
         await this.accountbalancesService.createdata(dataacountbalance);
     }
 
+    async accontbalanceBuyCoin(postid: string, idusersell: { oid: string }, amount: number,idtrans:Object,jmlCoin:number) {
+        var dt = new Date(Date.now());
+        dt.setHours(dt.getHours() + 7); // timestamp
+        dt = new Date(dt);
+       
+        var dataacountbalance = {
+            iduser: idusersell,
+            idtrans:idtrans,
+            debet: 0,
+            kredit: amount,
+            type: "buy",
+            timestamp: dt.toISOString(),
+            description: "buy coin " + jmlCoin,
+
+        };
+
+        await this.accountbalancesService.createdata(dataacountbalance);
+    }
+
     async accontbalanceVoucher(postid: any[], idusersell: { oid: string }, amount: number) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
@@ -7737,7 +7817,24 @@ export class TransactionsController {
 
         await this.accountbalancesService.createdata(dataacountbalance);
     }
+    async accontbalanceAdminCoin(type: string, iduseradmin:  { oid: string }, amount: number,iduserbuy:string) {
+        var dt = new Date(Date.now());
+        dt.setHours(dt.getHours() + 7); // timestamp
+        dt = new Date(dt);
 
+
+        var dataacountbalance = {
+            iduser: iduseradmin,
+            debet: 0,
+            kredit: amount,
+            type: type,
+            timestamp: dt.toISOString(),
+            description: type + " Charge dari user " + iduserbuy,
+
+        };
+
+        await this.accountbalancesService.createdata(dataacountbalance);
+    }
     async accontbalanceAdminWitdraw(type: string, iduseradmin: { oid: string }, idusersell: { oid: String }, amount: number) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
@@ -17958,6 +18055,16 @@ export class TransactionsController {
     async notifbuyer(emailbuyer: string, titleinsuksesbeli: string, titleensuksesbeli: string, bodyinsuksesbeli: string, bodyensuksesbeli: string, eventType: string, event: string, postid: string, noinvoice: string) {
         await this.utilsService.sendFcm(emailbuyer.toString(), titleinsuksesbeli, titleensuksesbeli, bodyinsuksesbeli, bodyensuksesbeli, eventType, event, postid, "TRANSACTION", noinvoice, "TRANSACTION");
     }
+
+    async notifsellerCoin(emailseller: string, titleinsukses: string, titleensukses: string, bodyinsukses: string, bodyensukses: string, eventType: string, event: string, postid: string, noinvoice: string) {
+        await this.utilsService.sendFcm(emailseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, "TRANSACTION", noinvoice, "TRANSACTION");
+
+    }
+
+    async notifbuyerCoin(emailbuyer: string, titleinsuksesbeli: string, titleensuksesbeli: string, bodyinsuksesbeli: string, bodyensuksesbeli: string, eventType: string, event: string, postid: string, noinvoice: string) {
+        await this.utilsService.sendFcm(emailbuyer.toString(), titleinsuksesbeli, titleensuksesbeli, bodyinsuksesbeli, bodyensuksesbeli, eventType, event, postid, "TRANSACTION", noinvoice, "TRANSACTION");
+    }
+
 
     async notifbuy(emailbuy: string, titleinsukses: string, titleensukses: string, bodyinsukses: string, bodyensukses: string, eventType: string, event: string, postIds: string, no: string) {
         await this.utilsService.sendFcm(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, "TRANSACTION", no, "TRANSACTION");
