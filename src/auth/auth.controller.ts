@@ -2445,22 +2445,23 @@ export class AuthController {
       }
 
       //Ceck User ActivityEvent Parent
-      const user_activityevents = await this.activityeventsService.findParent(
+      var user_activityevents = null;
+      user_activityevents = await this.activityeventsService.findParent(
         user_email,
         user_deviceId,
         activityevent_process,
         false,
       );
 
-      if (Object.keys(user_activityevents).length > 0) {
+      if (user_activityevents != undefined) {
         var latitude_ = undefined;
         var longitude_ = undefined;
-        if (user_activityevents[0].payload.login_location != undefined) {
-          if (user_activityevents[0].payload.login_location.latitude != undefined) {
-            latitude_ = user_activityevents[0].payload.login_location.latitude;
+        if (user_activityevents.payload.login_location != undefined) {
+          if (user_activityevents.payload.login_location.latitude != undefined) {
+            latitude_ = user_activityevents.payload.login_location.latitude;
           }
-          if (user_activityevents[0].payload.login_location.longitude != undefined) {
-            longitude_ = user_activityevents[0].payload.login_location.longitude;
+          if (user_activityevents.payload.login_location.longitude != undefined) {
+            longitude_ = user_activityevents.payload.login_location.longitude;
           }
         }
         //Create ActivityEvent Child
@@ -2481,7 +2482,7 @@ export class AuthController {
               longitude: longitude_,
             },
             logout_date: current_date,
-            login_date: user_activityevents[0].payload.login_date,
+            login_date: user_activityevents.payload.login_date,
             login_device: user_deviceId,
             email: user_email,
           };
@@ -2491,7 +2492,7 @@ export class AuthController {
           data_CreateActivityeventsDto_child.flowIsDone = false;
           data_CreateActivityeventsDto_child.__v = undefined;
           data_CreateActivityeventsDto_child.parentActivityEventID =
-            user_activityevents[0].activityEventID;
+            user_activityevents.activityEventID;
           data_CreateActivityeventsDto_child.userbasic = new mongo.Types.ObjectId(user_userbasics._id);
 
           //Insert ActivityEvent Child
@@ -2517,7 +2518,7 @@ export class AuthController {
 
         //Update ActivityEvent Parent
         try {
-          const data_transitions = user_activityevents[0].transitions;
+          const data_transitions = user_activityevents.transitions;
           data_transitions.push({
             $ref: 'activityevents',
             $id: new Object(ID_child_ActivityEvent),
@@ -2525,7 +2526,7 @@ export class AuthController {
           });
           await this.activityeventsService.update(
             {
-              _id: user_activityevents[0]._id,
+              _id: user_activityevents._id,
             },
             {
               flowIsDone: false,
