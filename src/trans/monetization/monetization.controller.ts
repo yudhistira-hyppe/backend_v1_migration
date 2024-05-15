@@ -25,7 +25,7 @@ export class MonetizationController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.monetizationService.findOne(id);
+    return this.monetizationService.detailOneV2(id);
   }
 
   @Get('/summary/:id')

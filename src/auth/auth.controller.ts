@@ -1960,7 +1960,8 @@ export class AuthController {
     const user_userbasics = await this.basic2SS.findbyemail(user_email);
 
     //Ceck Activity Events
-    const user_activityevents = await this.activityeventsService.findParent(
+    var user_activityevents = null;
+    user_activityevents = await this.activityeventsService.findParent(
       user_email,
       user_deviceId,
       'LOGIN',
@@ -1982,17 +1983,17 @@ export class AuthController {
       var konvert = user_userbasics._id;
       await this.basic2SS.update(konvert.toString(), updateactivityevent);
 
-      if (Object.keys(user_activityevents).length > 0) {
+      if (user_activityevents != undefined) {
         //Create ActivityEvent Child
         try {
           var latitude_ = undefined;
           var longitude_ = undefined;
-          if (user_activityevents[0].payload.login_location != undefined) {
-            if (user_activityevents[0].payload.login_location.latitude != undefined) {
-              latitude_ = user_activityevents[0].payload.login_location.latitude;
+          if (user_activityevents.payload.login_location != undefined) {
+            if (user_activityevents.payload.login_location.latitude != undefined) {
+              latitude_ = user_activityevents.payload.login_location.latitude;
             }
-            if (user_activityevents[0].payload.login_location.longitude != undefined) {
-              longitude_ = user_activityevents[0].payload.login_location.longitude;
+            if (user_activityevents.payload.login_location.longitude != undefined) {
+              longitude_ = user_activityevents.payload.login_location.longitude;
             }
           }
           data_CreateActivityeventsDto_child._id = id_Activityevents_child;
@@ -2011,7 +2012,7 @@ export class AuthController {
               longitude: longitude_,
             },
             logout_date: current_date,
-            login_date: user_activityevents[0].payload.login_date,
+            login_date: user_activityevents.payload.login_date,
             login_device: user_deviceId,
             email: user_email,
           };
@@ -2021,7 +2022,7 @@ export class AuthController {
           data_CreateActivityeventsDto_child.flowIsDone = true;
           data_CreateActivityeventsDto_child.__v = undefined;
           data_CreateActivityeventsDto_child.parentActivityEventID =
-            user_activityevents[0].activityEventID;
+            user_activityevents.activityEventID;
           var mongo = require('mongoose');
           data_CreateActivityeventsDto_child.userbasic = new mongo.Types.ObjectId(user_userbasics._id);
 
@@ -2049,15 +2050,15 @@ export class AuthController {
         try {
           var latitude_ = undefined;
           var longitude_ = undefined;
-          if (user_activityevents[0].payload.login_location != undefined) {
-            if (user_activityevents[0].payload.login_location.latitude != undefined) {
-              latitude_ = user_activityevents[0].payload.login_location.latitude;
+          if (user_activityevents.payload.login_location != undefined) {
+            if (user_activityevents.payload.login_location.latitude != undefined) {
+              latitude_ = user_activityevents.payload.login_location.latitude;
             }
-            if (user_activityevents[0].payload.login_location.longitude != undefined) {
-              longitude_ = user_activityevents[0].payload.login_location.longitude;
+            if (user_activityevents.payload.login_location.longitude != undefined) {
+              longitude_ = user_activityevents.payload.login_location.longitude;
             }
           }
-          const data_transitions = user_activityevents[0].transitions;
+          const data_transitions = user_activityevents.transitions;
           data_transitions.push({
             $ref: 'activityevents',
             $id: new Object(ID_child_ActivityEvent),
@@ -2065,7 +2066,7 @@ export class AuthController {
           });
           await this.activityeventsService.update(
             {
-              _id: user_activityevents[0]._id,
+              _id: user_activityevents._id,
             },
             {
               payload: {
@@ -2077,7 +2078,7 @@ export class AuthController {
                   0,
                   current_date.lastIndexOf('.'),
                 ),
-                login_date: user_activityevents[0].payload.login_date,
+                login_date: user_activityevents.payload.login_date,
                 login_device: user_deviceId,
                 email: user_email,
               },
@@ -2098,7 +2099,7 @@ export class AuthController {
         //Update ActivityEvent All Child True
         try {
           await this.activityeventsService.updateFlowDone(
-            user_activityevents[0].activityEventID,
+            user_activityevents.activityEventID,
           );
         } catch (error) {
           var fullurl = req.get("Host") + req.originalUrl;
@@ -5354,15 +5355,16 @@ export class AuthController {
 
     if (await this.utilsService.ceckData(datauserbasicsService)) {
       //Ceck User ActivityEvent Parent
-      const user_activityevents = await this.activityeventsService.findParentWitoutDevice(user_email, type, false,);
-      if (Object.keys(user_activityevents).length > 0) {
+      var user_activityevents = null;
+      user_activityevents = await this.activityeventsService.findParentWitoutDevice(user_email, type, false,);
+      if (user_activityevents != null) {
         if (type == "FORGOT_PIN") {
           let last;
-          const count_transition = user_activityevents[0].transitions.length;
-          if (user_activityevents[0].transitions.length > 0) {
+          const count_transition = user_activityevents.transitions.length;
+          if (user_activityevents.transitions.length > 0) {
             last = await this.activityeventsService.findbyactivityEventID(user_email, user_activityevents[0].transitions[count_transition - 1].oid, type, false,);
           } else {
-            last = user_activityevents;
+            last = [user_activityevents];
           }
 
           let StatusNext;
@@ -5375,8 +5377,8 @@ export class AuthController {
             StatusNext = 'INITIAL';
             EventNext = 'CREATE_PIN';
           } else if (last[0].status == 'INITIAL') {
-            StatusNext = user_activityevents[0].status;
-            EventNext = user_activityevents[0].event;
+            StatusNext = user_activityevents.status;
+            EventNext = user_activityevents.event;
           }
 
           if ('otp' in body_) {
@@ -5444,7 +5446,7 @@ export class AuthController {
                       new Int32(2);
                     data_CreateActivityeventsDto_child.flowIsDone = false;
                     data_CreateActivityeventsDto_child.parentActivityEventID =
-                      user_activityevents[0].activityEventID;
+                      user_activityevents.activityEventID;
                     data_CreateActivityeventsDto_child.userbasic =
                       Object(datauserbasicsService._id.toString());
 
@@ -5461,7 +5463,7 @@ export class AuthController {
 
                   //Update ActivityEvent Parent
                   try {
-                    const data_transitions = user_activityevents[0].transitions;
+                    const data_transitions = user_activityevents.transitions;
                     data_transitions.push({
                       $ref: 'activityevents',
                       $id: new Object(ID_child_ActivityEvent),
@@ -5469,7 +5471,7 @@ export class AuthController {
                     });
                     await this.activityeventsService.update(
                       {
-                        _id: user_activityevents[0]._id,
+                        _id: user_activityevents._id,
                       },
                       {
                         payload: {
@@ -5478,7 +5480,7 @@ export class AuthController {
                             longitude: undefined,
                           },
                           logout_date: undefined,
-                          login_date: user_activityevents[0].payload.login_date,
+                          login_date: user_activityevents.payload.login_date,
                           login_device: undefined,
                           email: user_email,
                         },
@@ -5556,7 +5558,7 @@ export class AuthController {
             EventNext == EventCurrent
           ) {
 
-            let data_transitions = user_activityevents[0].transitions;
+            let data_transitions = user_activityevents.transitions;
 
             //Create ActivityEvent child
             try {
@@ -5588,7 +5590,7 @@ export class AuthController {
               );
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 Object(datauserbasicsService._id.toString());
 
@@ -5610,7 +5612,7 @@ export class AuthController {
 
             //Update ActivityEvent Parent
             try {
-              data_transitions = user_activityevents[0].transitions;
+              data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent),
@@ -5621,7 +5623,7 @@ export class AuthController {
               const update_activityevents_parent =
                 await this.activityeventsService.update(
                   {
-                    _id: user_activityevents[0]._id,
+                    _id: user_activityevents._id,
                   },
                   {
                     transitions: data_transitions,
@@ -5683,7 +5685,7 @@ export class AuthController {
                 new Int32(4);
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 Object(datauserbasicsService._id.toString());
 
@@ -5715,7 +5717,7 @@ export class AuthController {
               const update_activityevents_parent =
                 await this.activityeventsService.update(
                   {
-                    _id: user_activityevents[0]._id,
+                    _id: user_activityevents._id,
                   },
                   {
                     transitions: data_transitions,
@@ -5736,7 +5738,7 @@ export class AuthController {
             //Update ActivityEvent All Child True
             try {
               await this.activityeventsService.updateFlowDone(
-                user_activityevents[0].activityEventID,
+                user_activityevents.activityEventID,
               );
             } catch (error) {
               var fullurl = request.get("Host") + request.originalUrl;
@@ -5793,7 +5795,7 @@ export class AuthController {
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_child.__v = undefined;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 Object(datauserbasicsService._id.toString());
 
@@ -5815,7 +5817,7 @@ export class AuthController {
 
             //Update ActivityEvent Parent
             try {
-              const data_transitions = user_activityevents[0].transitions;
+              const data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent),
@@ -5825,7 +5827,7 @@ export class AuthController {
               //Update ActivityEvent Parent
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   transitions: data_transitions,
@@ -5893,10 +5895,10 @@ export class AuthController {
           }
         } else {
           let last;
-          if (user_activityevents[0].transitions.length > 0) {
+          if (user_activityevents.transitions.length > 0) {
             last = await this.activityeventsService.findbyactivityEventID(user_email, user_activityevents[0].transitions[0].oid, type, false,);
           } else {
-            last = user_activityevents;
+            last = [user_activityevents];
           }
 
           let StatusNext;
@@ -5905,8 +5907,8 @@ export class AuthController {
             StatusNext = 'REPLY';
             EventNext = 'VERIFY_OTP';
           } else if (last[0].status == 'INITIAL') {
-            StatusNext = user_activityevents[0].status;
-            EventNext = user_activityevents[0].event;
+            StatusNext = user_activityevents.status;
+            EventNext = user_activityevents.event;
           }
           if ('otp' in body_) {
             user_otp = body_.otp;
@@ -5957,7 +5959,7 @@ export class AuthController {
                 );
                 data_CreateActivityeventsDto_child.flowIsDone = false;
                 data_CreateActivityeventsDto_child.parentActivityEventID =
-                  user_activityevents[0].activityEventID;
+                  user_activityevents.activityEventID;
                 data_CreateActivityeventsDto_child.userbasic =
                   Object(datauserbasicsService._id.toString());
 
@@ -5979,7 +5981,7 @@ export class AuthController {
 
               //Update ActivityEvent Parent
               try {
-                const data_transitions = user_activityevents[0].transitions;
+                const data_transitions = user_activityevents.transitions;
                 data_transitions.push({
                   $ref: 'activityevents',
                   $id: new Object(ID_child_ActivityEvent),
@@ -5989,7 +5991,7 @@ export class AuthController {
                 //Update ActivityEvent Parent
                 await this.activityeventsService.update(
                   {
-                    _id: user_activityevents[0]._id,
+                    _id: user_activityevents._id,
                   },
                   {
                     transitions: data_transitions,
@@ -6052,7 +6054,7 @@ export class AuthController {
                       new Int32(4);
                     data_CreateActivityeventsDto_child.flowIsDone = false;
                     data_CreateActivityeventsDto_child.parentActivityEventID =
-                      user_activityevents[0].activityEventID;
+                      user_activityevents.activityEventID;
                     data_CreateActivityeventsDto_child.userbasic =
                       Object(datauserbasicsService._id);
 
@@ -6074,7 +6076,7 @@ export class AuthController {
 
                   //Update ActivityEvent Parent
                   try {
-                    const data_transitions = user_activityevents[0].transitions;
+                    const data_transitions = user_activityevents.transitions;
                     data_transitions.push({
                       $ref: 'activityevents',
                       $id: new Object(ID_child_ActivityEvent),
@@ -6082,7 +6084,7 @@ export class AuthController {
                     });
                     await this.activityeventsService.update(
                       {
-                        _id: user_activityevents[0]._id,
+                        _id: user_activityevents._id,
                       },
                       {
                         payload: {
@@ -6091,7 +6093,7 @@ export class AuthController {
                             longitude: undefined,
                           },
                           logout_date: undefined,
-                          login_date: user_activityevents[0].payload.login_date,
+                          login_date: user_activityevents.payload.login_date,
                           login_device: undefined,
                           email: user_email,
                         },
@@ -6114,7 +6116,7 @@ export class AuthController {
                   //Update ActivityEvent All Child True
                   try {
                     await this.activityeventsService.updateFlowDone(
-                      user_activityevents[0].activityEventID,
+                      user_activityevents.activityEventID,
                     );
                   } catch (error) {
                     var fullurl = request.get("Host") + request.originalUrl;
@@ -6206,7 +6208,7 @@ export class AuthController {
                 );
                 data_CreateActivityeventsDto_child.flowIsDone = false;
                 data_CreateActivityeventsDto_child.parentActivityEventID =
-                  user_activityevents[0].activityEventID;
+                  user_activityevents.activityEventID;
                 data_CreateActivityeventsDto_child.userbasic =
                   Object(datauserbasicsService._id.toString());
 
@@ -6228,7 +6230,7 @@ export class AuthController {
 
               //Update ActivityEvent Parent
               try {
-                const data_transitions = user_activityevents[0].transitions;
+                const data_transitions = user_activityevents.transitions;
                 data_transitions.push({
                   $ref: 'activityevents',
                   $id: new Object(ID_child_ActivityEvent),
@@ -6239,7 +6241,7 @@ export class AuthController {
                 const update_activityevents_parent =
                   await this.activityeventsService.update(
                     {
-                      _id: user_activityevents[0]._id,
+                      _id: user_activityevents._id,
                     },
                     {
                       transitions: data_transitions,
@@ -6339,7 +6341,7 @@ export class AuthController {
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_child.__v = undefined;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 Object(datauserbasicsService._id.toString());
 
@@ -6361,7 +6363,7 @@ export class AuthController {
 
             //Update ActivityEvent Parent
             try {
-              const data_transitions = user_activityevents[0].transitions;
+              const data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent),
@@ -6371,7 +6373,7 @@ export class AuthController {
               //Update ActivityEvent Parent
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   transitions: data_transitions,

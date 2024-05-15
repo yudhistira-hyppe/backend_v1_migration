@@ -13416,7 +13416,8 @@ export class AuthService {
     if (await this.utilsService.ceckData(datauserbasicsService)) {
       if (datauserbasicsService._id != null) {
         //Ceck User ActivityEvent Parent
-        const user_activityevents =
+        var user_activityevents = null;
+        user_activityevents =
           await this.activityeventsService.findParentWitoutDevice(
             user_email,
             'RECOVER_PASS',
@@ -13426,17 +13427,17 @@ export class AuthService {
         // const user_userAuth = await this.userauthsService.findOne(user_email);
 
         //ActivityEvent Parent > 0
-        if (Object.keys(user_activityevents).length > 0) {
+        if (user_activityevents != undefined) {
           let last;
-          if (user_activityevents[0].transitions.length > 0) {
+          if (user_activityevents.transitions.length > 0) {
             last = await this.activityeventsService.findbyactivityEventID(
               user_email,
-              user_activityevents[0].transitions[(user_activityevents[0].transitions.length) - 1].oid,
+              user_activityevents.transitions[(user_activityevents.transitions.length) - 1].oid,
               'RECOVER_PASS',
               false,
             );
           } else {
-            last = user_activityevents;
+            last = [user_activityevents];
           }
 
           let StatusNext;
@@ -13449,8 +13450,8 @@ export class AuthService {
             StatusNext = 'COMPLETE';
             EventNext = 'COMPLETE';
           } else if (last[0].status == 'INITIAL') {
-            StatusNext = user_activityevents[0].status;
-            EventNext = user_activityevents[0].event;
+            StatusNext = user_activityevents.status;
+            EventNext = user_activityevents.event;
           }
 
           const StatusCurrent = req.body.status;
@@ -13518,7 +13519,7 @@ export class AuthService {
                     );
                     data_CreateActivityeventsDto_child.flowIsDone = false;
                     data_CreateActivityeventsDto_child.parentActivityEventID =
-                      user_activityevents[0].activityEventID;
+                      user_activityevents.activityEventID;
                     data_CreateActivityeventsDto_child.userbasic =
                       mongo.Types.ObjectId(datauserbasicsService._id);
 
@@ -13540,7 +13541,7 @@ export class AuthService {
 
                   //Update ActivityEvent Parent
                   try {
-                    const data_transitions = user_activityevents[0].transitions;
+                    const data_transitions = user_activityevents.transitions;
                     data_transitions.push({
                       $ref: 'activityevents',
                       $id: new Object(ID_child_ActivityEvent),
@@ -13551,7 +13552,7 @@ export class AuthService {
                     const update_activityevents_parent =
                       await this.activityeventsService.update(
                         {
-                          _id: user_activityevents[0]._id,
+                          _id: user_activityevents._id,
                         },
                         {
                           transitions: data_transitions,
@@ -13708,7 +13709,7 @@ export class AuthService {
 
                   //Update ActivityEvent Parent
                   try {
-                    const data_transitions = user_activityevents[0].transitions;
+                    const data_transitions = user_activityevents.transitions;
                     data_transitions.push({
                       $ref: 'activityevents',
                       $id: new Object(ID_child_ActivityEvent),
@@ -13718,7 +13719,7 @@ export class AuthService {
                     //Update ActivityEvent Parent
                     await this.activityeventsService.update(
                       {
-                        _id: user_activityevents[0]._id,
+                        _id: user_activityevents._id,
                       },
                       {
                         transitions: data_transitions,
@@ -13889,7 +13890,7 @@ export class AuthService {
                 new Int32(4);
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 mongo.Types.ObjectId(datauserbasicsService._id);
 
@@ -13911,7 +13912,7 @@ export class AuthService {
 
             // Update ActivityEvent Parent
             try {
-              const data_transitions = user_activityevents[0].transitions;
+              const data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent),
@@ -13919,7 +13920,7 @@ export class AuthService {
               });
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   payload: {
@@ -13928,7 +13929,7 @@ export class AuthService {
                       longitude: undefined,
                     },
                     logout_date: current_date,
-                    login_date: user_activityevents[0].payload.login_date,
+                    login_date: user_activityevents.payload.login_date,
                     login_device: undefined,
                     email: user_email,
                   },
@@ -13951,7 +13952,7 @@ export class AuthService {
             // Update ActivityEvent All Child True
             try {
               await this.activityeventsService.updateFlowDone(
-                user_activityevents[0].activityEventID,
+                user_activityevents.activityEventID,
               );
             } catch (error) {
               var fullurl = req.get("Host") + req.originalUrl;
@@ -14020,7 +14021,7 @@ export class AuthService {
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_child.__v = undefined;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 mongo.Types.ObjectId(datauserbasicsService._id);
 
@@ -14042,7 +14043,7 @@ export class AuthService {
 
             //Update ActivityEvent Parent
             try {
-              const data_transitions = user_activityevents[0].transitions;
+              const data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent),
@@ -14052,7 +14053,7 @@ export class AuthService {
               //Update ActivityEvent Parent
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   transitions: data_transitions,
@@ -14136,7 +14137,7 @@ export class AuthService {
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_child.__v = undefined;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 mongo.Types.ObjectId(datauserbasicsService._id);
 
@@ -14158,7 +14159,7 @@ export class AuthService {
 
             //Update ActivityEvent Parent
             try {
-              const data_transitions = user_activityevents[0].transitions;
+              const data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent),
@@ -14168,7 +14169,7 @@ export class AuthService {
               //Update ActivityEvent Parent
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   transitions: data_transitions,
@@ -14661,7 +14662,8 @@ export class AuthService {
     var _class_ActivityEvent = 'io.melody.hyppe.trans.domain.ActivityEvent';
 
     //Ceck User ActivityEvent Parent
-    const user_activityevents = await this.activityeventsService.findParentWitoutDevice(
+    var user_activityevents = null;
+    user_activityevents = await this.activityeventsService.findParentWitoutDevice(
       user_email_header,
       type,
       false,
@@ -14701,7 +14703,7 @@ export class AuthService {
         status: datauserbasicsService.status,
       }
       if (await this.utilsService.isAuthVerified(Data)) {
-        if (Object.keys(user_activityevents).length > 0) {
+        if (user_activityevents != undefined) {
 
           if ((event == 'UPDATE_BIO') && (status == 'IN_PROGRESS')) {
             //Update Profile Bio
@@ -14846,7 +14848,7 @@ export class AuthService {
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_parent.__v = undefined;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 mongo.Types.ObjectId(datauserbasicsService._id);
 
@@ -14862,7 +14864,7 @@ export class AuthService {
 
             //Update ActivityEvent Parent 1
             try {
-              const data_transitions = user_activityevents[0].transitions;
+              const data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent_1),
@@ -14872,7 +14874,7 @@ export class AuthService {
               //Update ActivityEvent Parent 1
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   transitions: data_transitions,
@@ -15027,7 +15029,7 @@ export class AuthService {
               data_CreateActivityeventsDto_child.flowIsDone = false;
               data_CreateActivityeventsDto_parent.__v = undefined;
               data_CreateActivityeventsDto_child.parentActivityEventID =
-                user_activityevents[0].activityEventID;
+                user_activityevents.activityEventID;
               data_CreateActivityeventsDto_child.userbasic =
                 mongo.Types.ObjectId(datauserbasicsService._id);
 
@@ -15043,7 +15045,7 @@ export class AuthService {
 
             //Update ActivityEvent Parent
             try {
-              const data_transitions = user_activityevents[0].transitions;
+              const data_transitions = user_activityevents.transitions;
               data_transitions.push({
                 $ref: 'activityevents',
                 $id: new Object(ID_child_ActivityEvent_2),
@@ -15053,7 +15055,7 @@ export class AuthService {
               //Update ActivityEvent Parent
               await this.activityeventsService.update(
                 {
-                  _id: user_activityevents[0]._id,
+                  _id: user_activityevents._id,
                 },
                 {
                   transitions: data_transitions,
@@ -15068,7 +15070,7 @@ export class AuthService {
 
             //Update ActivityEvent All Child True
             try {
-              await this.activityeventsService.updateFlowDone(user_activityevents[0].activityEventID.toString());
+              await this.activityeventsService.updateFlowDone(user_activityevents.activityEventID.toString());
             } catch (error) {
               await this.errorHandler.generateNotAcceptableException(
                 'Unabled to proceed Update ActivityEvent All Child True. Error:' +
