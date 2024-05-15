@@ -188,7 +188,8 @@ export class TransactionsV2Controller {
             throw new BadRequestException("Unable to proceed: Missing param: pin");
         }
         try {
-            var data = await this.transactionsV2Service.insertTransaction(
+            var data;
+            data = await this.transactionsV2Service.insertTransaction(
                 request_json.platform,
                 request_json.transactionProductCode,
                 request_json.category ? request_json.category : undefined,
@@ -201,6 +202,8 @@ export class TransactionsV2Controller {
                 request_json.idVoucher ? request_json.idVoucher : undefined,
                 request_json.detail,
                 request_json.status);
+            data.transactionType = "BOOST POST";
+            data.transactionUnit = "COIN";
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
                 response_code: 202,
