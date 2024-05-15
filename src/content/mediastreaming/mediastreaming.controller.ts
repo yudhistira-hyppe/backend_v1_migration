@@ -152,6 +152,7 @@ export class MediastreamingController {
     }
 
     const ceckId = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
+    let UserReport = false;
     let _MediastreamingDto_ = new MediastreamingDto();
     if (await this.utilsService.ceckData(ceckId)){
       //CECK TYPE START
@@ -405,7 +406,7 @@ export class MediastreamingController {
               getUser[0]["updateAt"] = currentDate;
 
               if (MediastreamingDto_.idGift != undefined) {
-                dataComment['idGift'] = MediastreamingDto_.idGift;
+                dataComment['idGift'] = new mongoose.Types.ObjectId(MediastreamingDto_.idGift.toString());
                 if (MediastreamingDto_.urlGift != undefined) {
                   dataComment['urlGift'] = MediastreamingDto_.urlGift;
                 }
@@ -620,6 +621,10 @@ export class MediastreamingController {
       }
       //CECK TYPE REPORT
       if (MediastreamingDto_.type == "REPORT") {
+        const ceckReport = await this.mediastreamingService.findReport(MediastreamingDto_._id.toString(), profile._id.toString());
+        if (await this.utilsService.ceckData(ceckReport)) {
+          UserReport = true;
+        }
         if (MediastreamingDto_.messages != undefined) {
           //UPDATE REPORT
           let idReport = new mongoose.Types.ObjectId();
@@ -702,12 +707,14 @@ export class MediastreamingController {
         const ID_SETTING_JENIS_REPORT = this.configService.get("ID_SETTING_JENIS_REPORT");
         const GET_ID_SETTING_JENIS_REPORT = await this.utilsService.getSetting_Mixed(ID_SETTING_JENIS_REPORT);
 
+        const getUser = await this.userbasicnewService.getUser(ceckId.userId.toString());
         const MediastreamingDto_Res = new MediastreamingDto();
         MediastreamingDto_Res._id = ceckId._id;
         MediastreamingDto_Res.title = ceckId.title;
         MediastreamingDto_Res.url = ceckId.url;
         MediastreamingDto_Res.textUrl = ceckId.textUrl;
         MediastreamingDto_Res.userId = ceckId.userId;
+        MediastreamingDto_Res.user = getUser[0];
         MediastreamingDto_Res.expireTime = ceckId.expireTime;
         MediastreamingDto_Res.startLive = ceckId.startLive;
         MediastreamingDto_Res.status = ceckId.status;
@@ -725,6 +732,16 @@ export class MediastreamingController {
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", MediastreamingDto_Res
         );
+      } if (MediastreamingDto_.type == "REPORT") {
+        if (UserReport) {
+          await this.errorHandler.generateInternalServerErrorException(
+            'Unabled to proceed, Report User Stream not exist',
+          );
+        } else {
+          return await this.errorHandler.generateAcceptResponseCode(
+            "Update stream succesfully",
+          );
+        }
       } else {
         return await this.errorHandler.generateAcceptResponseCode(
           "Update stream succesfully",
@@ -768,6 +785,34 @@ export class MediastreamingController {
     }
     return await this.errorHandler.generateAcceptResponseCodeWithData(
       "Get view succesfully", data,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/gift')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async getGiftStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+    //VALIDASI PARAM _id
+    var ceckId = await this.utilsService.validateParam("_id", MediastreamingDto_._id.toString(), "string")
+    if (ceckId != "") {
+      await this.errorHandler.generateBadRequestException(
+        ceckId,
+      );
+    }
+    let data = [];
+    data = await this.mediastreamingService.getDataGift(MediastreamingDto_._id.toString(), MediastreamingDto_.page, MediastreamingDto_.limit);
+    return await this.errorHandler.generateAcceptResponseCodeWithData(
+      "Get gift succesfully", data,
     );
   }
 

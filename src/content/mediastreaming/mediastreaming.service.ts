@@ -1035,6 +1035,16 @@ export class MediastreamingService {
     return data;
   }
 
+  async findReport(_id: string, userID: string) {
+    const data = await this.MediastreamingModel.find({
+      _id: new mongoose.Types.ObjectId(_id),
+      report: {
+        $elemMatch: { userId: new mongoose.Types.ObjectId(userID) }
+      }
+    });
+    return data;
+  }
+
   async getDataComment(_id: string) {
     let paramaggregate = [
       {
@@ -1902,6 +1912,314 @@ export class MediastreamingService {
               "vars": {
                 "tmp": {
                   "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.avatar"
+            }
+          },
+        }
+      },
+    ];
+    console.log(JSON.stringify(paramaggregate));
+    const data = await this.MediastreamingModel.aggregate(paramaggregate);
+    return data;
+  }
+
+  async getDataGift(_id: string, page: number, limit: number) {
+    let paramaggregate = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id)
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "gift": 1,
+
+        }
+      },
+      {
+        $unwind:
+        {
+          path: "$gift"
+        }
+      },
+      {
+        $lookup:
+        {
+          from: "monetize",
+          localField: "gift.idGift",
+          foreignField: "_id",
+          as: "data_gift"
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          as: "data_userbasics",
+          let: {
+            localID: "$gift.userId"
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$localID"]
+                },
+
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                follower: 1,
+                following: 1,
+                avatar: {
+                  "mediaBasePath": "$mediaBasePath",
+                  "mediaUri": "$mediaUri",
+                  "mediaType": "$mediaType",
+                  "mediaEndpoint": "$mediaEndpoint",
+
+                }
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                avatar: 1,
+                follower: 1,
+                following: 1,
+
+              }
+            },
+
+          ],
+
+        }
+      },
+      {
+        "$project": {
+          "giftId": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "name": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.name"
+            }
+          },
+          "thumbnail": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.thumbnail"
+            }
+          },
+          "animation": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.animation"
+            }
+          },
+          "typeGift": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.typeGift"
+            }
+          },
+          "userId": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "email": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.email"
+            }
+          },
+          "fullName": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+          "username": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          "avatar": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.avatar"
+            }
+          },
+
+        }
+      },
+      {
+        "$group": {
+          "_id": {
+            "userId": "$userId",
+            "giftId": "$giftId",
+
+          },
+          "count": {
+            "$sum": 1
+          },
+          data: {
+            $push: '$$ROOT'
+          }
+        }
+      },
+      {
+        $project: {
+          "count": 1,
+          "_id": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "giftId": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.giftId"
+            }
+          },
+          "name": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.name"
+            }
+          },
+          "thumbnail": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.thumbnail"
+            }
+          },
+          "typeGift": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.typeGift"
+            }
+          },
+          "userId": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.userId"
+            }
+          },
+          "fullName": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+          "username": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          "email": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
+                }
+              },
+              "in": "$$tmp.email"
+            }
+          },
+          "avatar": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data", 0]
                 }
               },
               "in": "$$tmp.avatar"

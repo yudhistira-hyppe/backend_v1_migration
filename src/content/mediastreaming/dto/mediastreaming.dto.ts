@@ -44,6 +44,7 @@ export class MediastreamingDto {
   pinned: boolean;
   income: number;
   reportRemark: any;
+  user: any;
 }
 
 export class MediastreamingRequestDto{

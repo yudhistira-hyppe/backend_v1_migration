@@ -29,6 +29,7 @@ export class CreateDisqusDto {
 export class ContentDto {
   email: String;
   postID: String;
+  streamID: String;
   mediaID: String;
   disqusID: String;
   disqusLogID: String;

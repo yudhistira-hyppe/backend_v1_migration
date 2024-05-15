@@ -21,9 +21,11 @@ import { UserbasicnewModule } from '../../trans/userbasicnew/userbasicnew.module
 import { NewpostModule } from './newpost/newpost.module';
 import { HttpModule } from '@nestjs/axios';
 import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
+import { MediastreamingModule } from '../mediastreaming/mediastreaming.module';
 @Module({
 
     imports: [
+        MediastreamingModule,
         TransactionsV2Module,
         NewpostModule,
         UserbasicnewModule,

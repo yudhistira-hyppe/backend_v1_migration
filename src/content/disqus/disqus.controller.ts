@@ -37,6 +37,7 @@ import { RequestSoctDto } from '../mediastreaming/dto/mediastreaming.dto';
 import { Monetizenew2Service } from 'src/trans/transactionsv2/monetizenew/monetizenew.service';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { transactionCoin3Service } from 'src/trans/transactionsv2/monetizenew/transactionCoin.service';
+import { MediastreamingService } from '../mediastreaming/mediastreaming.service';
 
 const Long = require('mongodb').Long;
 @Controller('api/')
@@ -59,7 +60,8 @@ export class DisqusController {
     private readonly configService: ConfigService,
     private readonly newMonetize: Monetizenew2Service,
     private readonly transaction2SS:TransactionsV2Service,
-    private readonly transactionCoin2SS:transactionCoin3Service,
+    private readonly transactionCoin2SS: transactionCoin3Service, 
+    private readonly mediastreamingService: MediastreamingService, 
   ) { }
 
   @Post('disqus')
@@ -2450,6 +2452,49 @@ export class DisqusController {
         }
         if (media[0].mediaSource[0].apsaraId != undefined) {
           media_["apsaraId"] = media[0].mediaSource[0].apsaraId
+        }
+        dl.medias = [media_];
+      }
+    }
+    if (dto.streamID != undefined) {
+      dl.streamID = dto.streamID;
+
+      const dataStream = await this.mediastreamingService.findById(dto.streamID.toString());
+      const getUser = await this.UserbasicnewService.getUser(dataStream.userId.toString());
+      var media_ = {}
+      if (await this.utilsService.ceckData(dataStream)) {
+        if (dataStream._id != undefined) {
+          media_["_id"] = dataStream._id;
+        }
+        if (dataStream.title != undefined) {
+          media_["title"] = dataStream.title;
+        }
+        if (dataStream.url != undefined) {
+          media_["url"] = dataStream.url;
+        }
+        if (dataStream.textUrl != undefined) {
+          media_["textUrl"] = dataStream.textUrl;
+        }
+        if (dataStream.userId != undefined) {
+          media_["userId"] = dataStream.userId;
+        }
+        if (dataStream.userId != undefined) {
+          media_["user"] = getUser[0];
+        }
+        if (dataStream.status != undefined) {
+          media_["status"] = dataStream.status;
+        }
+        if (dataStream.status != undefined) {
+          media_["status"] = dataStream.status;
+        }
+        if (dataStream.expireTime != undefined) {
+          media_["expireTime"] = dataStream.expireTime;
+        }
+        if (dataStream.createAt != undefined) {
+          media_["createAt"] = dataStream.createAt;
+        }
+        if (dataStream.tokenAgora != undefined) {
+          media_["tokenAgora"] = dataStream.tokenAgora;
         }
         dl.medias = [media_];
       }
