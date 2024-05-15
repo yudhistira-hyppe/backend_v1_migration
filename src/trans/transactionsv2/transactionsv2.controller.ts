@@ -5,6 +5,7 @@ import { Controller, HttpCode, HttpStatus, Post, Req, UseGuards, Headers, BadReq
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UtilsService } from '../../utils/utils.service';
 import { LogapisService } from '../logapis/logapis.service';
+import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
 
 @Controller('api/transactionsV2')
 export class TransactionsV2Controller {
@@ -12,7 +13,8 @@ export class TransactionsV2Controller {
         private readonly transactionsV2Service: TransactionsV2Service,
         private readonly transactionsProductsService: TransactionsProductsService,
         private readonly utilsService: UtilsService,
-        private readonly logapiSS: LogapisService
+        private readonly logapiSS: LogapisService,
+        private readonly basic2SS: UserbasicnewService
     ) { }
 
     @Post('/insert')
@@ -160,6 +162,31 @@ export class TransactionsV2Controller {
         const messages = {
             "info": ["The process was successful"],
         };
+        var ubasic = await this.basic2SS.findOneBymail(email);
+        if (request_json.pin && request_json.pin != "") {
+            if (await this.utilsService.ceckData(ubasic)) {
+                if (ubasic.pin && ubasic.pin != "") {
+                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+                    if (pinDecrypt != request_json.pin) {
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        throw new BadRequestException("Unable to proceed: PIN mismatch");
+                    }
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: User data not found");
+            }
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Unable to proceed: Missing param: pin");
+        }
         try {
             var data = await this.transactionsV2Service.insertTransaction(
                 request_json.platform,
