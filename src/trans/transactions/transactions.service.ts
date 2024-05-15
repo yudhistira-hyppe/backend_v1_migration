@@ -165,7 +165,11 @@ export class TransactionsService {
         }
         return data;
     }
-
+    async updateoneCoin(id: Types.ObjectId, idaccountbalance: Types.ObjectId, payload: VaCallback): Promise<Object> {
+        let data = await this.transactionsModel.updateOne({ "_id": id },
+            { $set: { "status": "Success", "description": "buy COIN success", "accountbalance": idaccountbalance, payload: payload } });
+        return data;
+    }
     async updateone(id: Types.ObjectId, idaccountbalance: Types.ObjectId, payload: VaCallback): Promise<Object> {
         let data = await this.transactionsModel.updateOne({ "_id": id },
             { $set: { "status": "Success", "description": "buy CONTENT success", "accountbalance": idaccountbalance, payload: payload } });

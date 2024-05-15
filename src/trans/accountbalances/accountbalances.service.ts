@@ -21,6 +21,12 @@ export class AccountbalancesService {
         }).limit(1).exec();
     }
 
+    async findOneCoin(iduser: Types.ObjectId,idtrans:Types.ObjectId): Promise<Accountbalances> {
+        return this.accountbalancesModel.findOne({ $and: [{ "iduser": iduser }, { "idtrans": idtrans }] }).sort({
+            _id: -1
+        }).limit(1).exec();
+    }
+
     async findsaldo(iduser: object) {
         const query = await this.accountbalancesModel.aggregate([
 
