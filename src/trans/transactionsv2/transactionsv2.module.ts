@@ -33,6 +33,7 @@ import { Monetizenew2Service } from './monetizenew/monetizenew.service';
 import { transactionCoin3Service } from './monetizenew/transactionCoin.service';
 import { monetizenew2Schema, Monetizenew2 } from './monetizenew/schemas/monetizenew.schema';
 import { transactionCoin3Schema, transactionCoin3 } from './monetizenew/schemas/transactionCoin.schema';
+// import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { TransactionsDiscounts, TransactionsDiscountsSchema } from './discount/schema/transactionsdiscount.schema';
 import { TransactionsDiscountsService } from './discount/transactionsdiscount.service';
 @Module({
@@ -42,11 +43,12 @@ import { TransactionsDiscountsService } from './discount/transactionsdiscount.se
         AdsPriceCreditsModule,
         AdsBalaceCreditModule,
         UserbasicnewModule,
+        // NewPostModule,
         UtilsModule,
         ConfigModule.forRoot(),
         MongooseModule.forFeature([
             { name: TransactionsCategorys.name, schema: TransactionsCategorysSchema },
-            { name: TransactionsCoa.name, schema: TransactionsCoaSchema }, 
+            { name: TransactionsCoa.name, schema: TransactionsCoaSchema },
             { name: TransactionsBalanceds.name, schema: TransactionsBalancedsSchema },
             { name: TransactionsProducts.name, schema: TransactionsProductsSchema },
             { name: transactionsV2.name, schema: transactionsV2Schema },

@@ -41,7 +41,7 @@ import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.mo
     ScheduleinjectModule,
     PosttaskModule,
     SocketModule,
-    DisqusModule, 
+    DisqusModule,
     DisquslogsModule,
     TransactionsPostModule,
     ConfigModule.forRoot(),
