@@ -211,10 +211,10 @@ export class NewPostController {
             var discount_id = null;
             var discount_fee = 0;
             if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined) {
-                transaction_fee = CreatePostRequest_.transaction_fee;
+                transaction_fee = Number(CreatePostRequest_.transaction_fee.toString());
                 if (CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined) {
                     discount_id = CreatePostRequest_.discount_id;
-                    discount_fee = CreatePostRequest_.discount_fee;
+                    discount_fee = Number(CreatePostRequest_.discount_fee.toString());
                 }
 
                 if (data.data.certified == true) {
