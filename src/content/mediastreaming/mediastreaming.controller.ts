@@ -728,6 +728,7 @@ export class MediastreamingController {
         MediastreamingDto_Res.createAt = ceckId.createAt;
         MediastreamingDto_Res.viewCountActive = dataStreamView[0].view.length;
         MediastreamingDto_Res.comment = dataStreamPinned;
+        MediastreamingDto_Res.tokenAgora = ceckId.tokenAgora;
         MediastreamingDto_Res.reportRemark = GET_ID_SETTING_JENIS_REPORT;
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", MediastreamingDto_Res
