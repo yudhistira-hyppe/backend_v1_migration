@@ -2498,7 +2498,7 @@ export class TransactionsController {
         //  var idmdradmin = "62bd413ff37a00001a004369";
         var idbankvacharge = "62bd40e0f37a00001a004366";
         var idexpiredva = "62bbbe8ea7520000050077a4";
-      
+
         var datauserhyppe = null;
         var datenow = new Date(Date.now());
         var useridHyppe = null;
@@ -4117,10 +4117,10 @@ export class TransactionsController {
         var datapost = null;
         var datainsight = null;
         var data_media = null;
-     
+
         const mongoose = require('mongoose');
         var ObjectId = require('mongodb').ObjectId;
-      
+
         var idmdradmin = "62bd413ff37a00001a004369";
         var idbankvachargeBCA = "63217919ec46000002007403";
         var idbankvachargeLainya = "6321796aec46000002007404";
@@ -4158,8 +4158,8 @@ export class TransactionsController {
         var bodyensuksesvoucher = "Your Voucher Has Been Sold The balance will be forwarded to your Hyppe Account.";
 
         var titleinsuksesCOIN = null;
-        var titleensuksesCOIN =null;
-        var bodyinsuksesCOIN =null;
+        var titleensuksesCOIN = null;
+        var bodyinsuksesCOIN = null;
         var bodyensuksesCOIN = null;
 
         var titleinsuksesbelivoucher = "Selamat!";
@@ -4179,12 +4179,12 @@ export class TransactionsController {
         const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
-        var dataadmincoin=null;
-        var valAdmin=null;
-        var dataadminoy=null;
-        var valAdminOy=null;
-        var datauserhyppe=null;
-        var useridHyppe=null;
+        var dataadmincoin = null;
+        var valAdmin = null;
+        var dataadminoy = null;
+        var valAdminOy = null;
+        var datauserhyppe = null;
+        var useridHyppe = null;
 
         try {
 
@@ -4275,58 +4275,58 @@ export class TransactionsController {
                         "totalDiskon": diskon,
                         "totalAmount": tamount,
                         "payload": payload,
-                        "response":respon
+                        "response": respon
                     }]
 
                 if (type === "COIN") {
 
                     if (status == "WAITING_PAYMENT") {
-                       
+
                         var ubasic = await this.basic2SS.findOne(iduserbuy);
                         var userbuyer = ubasic.username;
                         // var ubasicsell = await this.basic2SS.findOne(idusersell);
                         // var userseller = ubasicsell.username;
-                        var Templates_=null;
-                        try{
-                        Templates_ = await this.utilsService.getTemplate_repo("TOPUP_COIN", 'NOTIFICATION');
-                        }catch(e){
-                            Templates_=null;
+                        var Templates_ = null;
+                        try {
+                            Templates_ = await this.utilsService.getTemplate_repo("TOPUP_COIN", 'NOTIFICATION');
+                        } catch (e) {
+                            Templates_ = null;
                         }
 
-                      
+
                         var titlein = Templates_.subject_id.toString();
                         var titleen = Templates_.subject.toString();
                         var bodyin = "";
                         var bodyen = "";
-                
-                       
+
+
                         var bodyin_get = Templates_.body_detail_id.toString();
                         var bodyen_get = Templates_.body_detail.toString();
-                       
+
                         var new_bodyin_get = bodyin_get.replace("${coin}", jmlCoin);
                         var new_bodyen_get = bodyen_get.replace("${coin}", jmlCoin);
-                
-                         bodyin = new_bodyin_get;
-                         bodyen = new_bodyen_get;
-                
-                        var eventType = "TRANSACTION";
-                      
 
-                        var createbalance = await this.accontbalanceBuyCoin(postid, idusersell, amount,idtransaction,jmlCoin);
-                        var createbalanceadmin = await this.accontbalanceAdminCoin("Admin", useridHyppe, valAdmin,iduserbuy.toString(),idtransaction);
-                       
-                        var createbalanceadminVa = await this.accontbalanceAdminCoin("Bank VA", useridHyppe, valAdminOy,iduserbuy.toString(),idtransaction);
-                        let databalance = await this.accountbalancesService.findOneCoin(idusersell,idtransaction);
+                        bodyin = new_bodyin_get;
+                        bodyen = new_bodyen_get;
+
+                        var eventType = "TRANSACTION";
+
+
+                        var createbalance = await this.accontbalanceBuyCoin(postid, idusersell, amount, idtransaction, jmlCoin);
+                        var createbalanceadmin = await this.accontbalanceAdminCoin("Admin", useridHyppe, valAdmin, iduserbuy.toString(), idtransaction);
+
+                        var createbalanceadminVa = await this.accontbalanceAdminCoin("Bank VA", useridHyppe, valAdminOy, iduserbuy.toString(), idtransaction);
+                        let databalance = await this.accountbalancesService.findOneCoin(idusersell, idtransaction);
 
                         var idbalance = databalance._id;
                         await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
                         try {
-                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), [],detail,"SUCCESS");
+                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), [], detail, "SUCCESS");
                         } catch (e) {
-    
+
                         }
-                      
-                       // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
+
+                        // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
                         this.notifbuyer(userbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", postid, noinvoice);
                         return res.status(HttpStatus.OK).json({
                             response_code: 202,
@@ -7758,14 +7758,14 @@ export class TransactionsController {
         await this.accountbalancesService.createdata(dataacountbalance);
     }
 
-    async accontbalanceBuyCoin(postid: string, idusersell: { oid: string }, amount: number,idtrans:Object,jmlCoin:number) {
+    async accontbalanceBuyCoin(postid: string, idusersell: { oid: string }, amount: number, idtrans: Object, jmlCoin: number) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
-       
+
         var dataacountbalance = {
             iduser: idusersell,
-            idtrans:idtrans,
+            idtrans: idtrans,
             debet: 0,
             kredit: amount,
             type: "sell",
@@ -7824,7 +7824,7 @@ export class TransactionsController {
 
         await this.accountbalancesService.createdata(dataacountbalance);
     }
-    async accontbalanceAdminCoin(type: string, iduseradmin:  { oid: string }, amount: number,iduserbuy:string,idtrans:Object) {
+    async accontbalanceAdminCoin(type: string, iduseradmin: { oid: string }, amount: number, iduserbuy: string, idtrans: Object) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
@@ -7832,7 +7832,7 @@ export class TransactionsController {
 
         var dataacountbalance = {
             iduser: iduseradmin,
-            idtrans:idtrans,
+            idtrans: idtrans,
             debet: 0,
             kredit: amount,
             type: type,
@@ -19607,36 +19607,34 @@ export class TransactionsController {
         };
 
         var request_json = JSON.parse(JSON.stringify(request.body));
-        if(request_json.typeTransaction == null || request_json.typeTransaction == undefined)
-        {
-            await this.errorHandler.generateBadRequestException("typeTransaction required");    
+        if (request_json.typeTransaction == null || request_json.typeTransaction == undefined) {
+            await this.errorHandler.generateBadRequestException("typeTransaction required");
         }
 
         var transaction_fee_data = null;
         var transaction_fee = null;
-        switch(request_json.typeTransaction)
-        {
-            case("TOPUP"):
-            {
-                transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
-                transaction_fee = transaction_fee_data.value;
-                price = request_json.price;
-                break;
-            }
-            case("CONTENT_OWNERSHIP"):
-            {
-                transaction_fee_data = await this.transProdSS.findOneByCode("CO");
-                transaction_fee = 0;
-                price = transaction_fee_data.price;
-                break;
-            }
+        switch (request_json.typeTransaction) {
+            case ("TOPUP"):
+                {
+                    transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
+                    transaction_fee = transaction_fee_data.value;
+                    price = request_json.price;
+                    break;
+                }
+            case ("CONTENT_OWNERSHIP"):
+                {
+                    transaction_fee_data = await this.transProdSS.findOneByCode("CO");
+                    transaction_fee = 0;
+                    price = transaction_fee_data.price;
+                    break;
+                }
             default:
-            {
-                await this.errorHandler.generateBadRequestException("transaction type don't found");
-                break;   
-            }
+                {
+                    await this.errorHandler.generateBadRequestException("Transaction type not found");
+                    break;
+                }
         }
-            
+
         if (request_json.discount_id) {
             var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
             discount = discount_data.nominal_discount;
@@ -19650,8 +19648,7 @@ export class TransactionsController {
         var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
         selisih = cekSaldo[0].totalSaldo - total_payment_after;
         var resultKurang = false;
-        if(selisih < 0)
-        {
+        if (selisih < 0) {
             resultKurang = true;
         }
 
@@ -19662,18 +19659,16 @@ export class TransactionsController {
         setoutput['total_payment'] = total_payment_after;
         setoutput['balance'] = cekSaldo[0].totalSaldo;
         setoutput['needTopUp'] = resultKurang;
+        setoutput['discount'] = discount;
 
-        if(request_json.typeTransaction == "CONTENT_OWNERSHIP")
-        {
-            if(request_json.sell_content == true)
-            {
+        if (request_json.typeTransaction == "CONTENT_OWNERSHIP") {
+            if (request_json.sell_content == true) {
                 setoutput['sell_content'] = true;
-                setoutput['sell_like'] = request_json.sell_like;   
+                setoutput['sell_like'] = request_json.sell_like;
                 setoutput['sell_viewer'] = request_json.sell_viewer;
                 setoutput['sell_price'] = request_json.sell_price;
             }
-            else
-            {
+            else {
                 setoutput['sell_content'] = false;
             }
         }
