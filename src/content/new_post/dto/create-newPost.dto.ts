@@ -326,6 +326,9 @@ export class CreatePostRequest {
   isOwned: boolean;
   tagDescription: string;
   isShared: boolean;
+  transaction_fee: number;
+  discount_fee: number;
+  discount_id: string;
 } 
 
 export class GetcontenteventsDto {

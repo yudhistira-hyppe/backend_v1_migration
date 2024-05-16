@@ -34,6 +34,9 @@ import { PosttaskService } from '../../content/posttask/posttask.service';
 import { ScheduleinjectService } from '../../schedule/scheduleinject/scheduleinject.service';
 import { Scheduleinject } from '../../schedule/scheduleinject/schemas/scheduleinject.schema';
 import { TempPOSTService } from './temp_post.service';
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service'; 
+import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
+import { TransactionsDiscounts, TransactionsDiscountsSchema } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -59,7 +62,9 @@ export class NewPostController {
         private readonly newPostModService: NewPostModService,
         private readonly PosttaskService: PosttaskService,
         private readonly ScheduleinjectService: ScheduleinjectService,
-        private readonly TempPostService: TempPOSTService
+        private readonly TempPostService: TempPOSTService,
+        private readonly transV2Service:TransactionsV2Service,
+        private readonly transDiscountService:TransactionsDiscountsService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -198,6 +203,24 @@ export class NewPostController {
 
             //untuk temppost
             this.TempPostService.duplicatedata(data.data, null, "create");
+
+            var transaction_fee = 0;
+            var discount_id = null;
+            var discount_fee = 0;
+            if(CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined)
+            {
+                transaction_fee = CreatePostRequest_.transaction_fee;
+                if(CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined)
+                {
+                    discount_id = CreatePostRequest_.discount_id;
+                    discount_fee = CreatePostRequest_.discount_fee;
+                }
+
+                if(data.data.certified == true)
+                {
+                    this.setTransaksiContentOwnership(postID, transaction_fee, discount_id, discount_fee);
+                }
+            }
         }
 
         return data;
@@ -559,6 +582,25 @@ export class NewPostController {
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
                 this.TempPostService.updateByPostId(body, headers, dataUser);
+
+                var transaction_fee = 0;
+                var discount_id = null;
+                var discount_fee = 0;
+                if(body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined)
+                {
+                    transaction_fee = body.transaction_fee;
+                    if(body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined)
+                    {
+                        discount_id = body.discount_id;
+                        discount_fee = body.discount_fee;
+                    }
+
+                    if(body.certified == true)
+                    {
+                        this.setTransaksiContentOwnership(body.postID, transaction_fee, discount_id, discount_fee);
+                    }
+                }
+
                 //tags
                 if (body.tags !== undefined && body.tags.length > 0) {
                     var tag2 = body.tags;
@@ -5094,5 +5136,55 @@ export class NewPostController {
         }
     }
 
+    async setTransaksiContentOwnership(postID:string, transaction_fee:number, discount_id:string, discount_fee:number)
+    {
+        var getPost = await this.newPostService.findByPostId(postID);
+        var getUserData = await this.basic2SS.findBymail(getPost.email.toString());
+        var setDetail = [];
+        var setVoucher = [];
 
+        if(discount_id != undefined && discount_id != null)
+        {
+            setVoucher.push(discount_id);
+        }
+
+        setDetail.push(
+            {
+                "postID":postID,
+                "typeData":"POST", 
+                "qty":1,
+                "amount":transaction_fee,
+                "discountCoin":discount_fee,
+                "totalAmount":transaction_fee - discount_fee
+            }
+        )
+
+        var userhyppe = await this.settingsService.findOne(process.env.ID_USER_HYPPE);
+
+        var resultTransaksi = await this.transV2Service.insertTransaction("APP", "CO", null, transaction_fee, discount_fee, 0, 0, getUserData._id.toString(), userhyppe.value.toString(), setVoucher, setDetail, "SUCCESS");
+        
+        if(resultTransaksi != false)
+        {
+            var resultArray = resultTransaksi.data;
+            var listid = [];
+            for(var i = 0; i < resultArray.length; i++)
+            {
+                var checkexist = listid.includes(resultArray[i].idTransaction);
+                if(checkexist == false)
+                {
+                    var insertDatatransDiscount = new TransactionsDiscounts();
+                    insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                    insertDatatransDiscount.idTransaction = resultArray[i].idTransaction;
+                    insertDatatransDiscount.idUser = resultArray[i].idUser;
+                    insertDatatransDiscount.totalPayment = resultArray[i].totalCoin;
+                    insertDatatransDiscount.transactionDate = resultArray[i].createdAt;
+                    insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                    insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                    await this.transDiscountService.create(insertDatatransDiscount);
+                    
+                    listid.push(resultArray[i].idTransaction);
+                }
+            }
+        }
+    }
 }
