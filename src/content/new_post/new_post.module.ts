@@ -37,6 +37,8 @@ import { PosttaskModule } from '../../content/posttask/posttask.module';
 import { ScheduleinjectModule } from '../../schedule/scheduleinject/scheduleinject.module';
 import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
 import { MonetizationModule } from 'src/trans/monetization/monetization.module';
+import { BoostintervalModule } from '../boostinterval/boostinterval.module';
+import { BoostsessionModule } from '../boostsession/boostsession.module';
 @Module({
   imports: [
     ScheduleinjectModule,
@@ -70,6 +72,8 @@ import { MonetizationModule } from 'src/trans/monetization/monetization.module';
     MediamusicModule,
     TransactionsV2Module,
     MonetizationModule,
+    BoostintervalModule,
+    BoostsessionModule,
     MongooseModule.forFeature([{ name: newPosts.name, schema: NewpostsSchema }, { name: tempposts.name, schema: temppostsSchema }], 'SERVER_FULL')
   ],
   controllers: [NewPostController],
