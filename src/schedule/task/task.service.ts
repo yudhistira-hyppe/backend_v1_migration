@@ -39,5 +39,11 @@ export class TaskService {
     this.adsService.ceckAdsActive();
   }
 
+  @Cron('0 */10 * * * *')
+  ceckUserStream() {
+    this.logger.debug('----------STREAM JOB START----------', new Date());
+    //this.adsService.ceckAdsActive();
+  }
+
  
 }
