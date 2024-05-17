@@ -8167,4 +8167,12 @@ export class UserbasicnewService {
 
         return result;
     }
+
+    async getUserStreamWrning(){
+
+    }
+    
+    async refreshUserWarning(){
+        let getDataUser = await this.UserbasicnewModel.find()
+    }
 }
