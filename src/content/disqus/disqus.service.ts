@@ -4450,6 +4450,20 @@ export class DisqusService {
         return query;
     }
 
+    async noneActiveAllDiscusNew(postID: string) {
+        var query = await this.DisqusModel.updateMany(
+            { postID: postID },
+            { active: false },
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            }).clone().exec();
+        return query;
+    }
+
     async socketRequest(RequestSoctDto_: RequestSoctDto) {
         let config = { headers: { "Content-Type": "application/json" } };
         const res = await this.httpService.post(this.configService.get("URL_CHALLENGE") + "api/send/socket/dm", RequestSoctDto_, config).toPromise();

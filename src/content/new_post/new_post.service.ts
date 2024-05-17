@@ -60634,8 +60634,17 @@ export class NewPostService {
     return query;
   }
 
+  async noneActiveAllDiscusLognew(postID: string) {
+    var query = await this.disquslogsService.noneActiveAllDiscusLognew(postID);
+    return query;
+  }
   async noneActiveAllDiscus(postID: string, idtransaction: string) {
     var query = await this.disqusService.noneActiveAllDiscus(postID, idtransaction);
+    return query;
+  }
+
+  async noneActiveAllDiscusnew(postID: string) {
+    var query = await this.disqusService.noneActiveAllDiscusNew(postID);
     return query;
   }
   async updateemail(id: string, email: string, iduser: {

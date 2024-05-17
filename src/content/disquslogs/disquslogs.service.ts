@@ -628,4 +628,18 @@ export class DisquslogsService {
       }).clone().exec();
     return query;
   }
+
+  async noneActiveAllDiscusLognew(postID: string) {
+    var query = await this.DisquslogsModel.updateMany(
+      { postID: postID },
+      { active: false },
+      function (err, docs) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(docs);
+        }
+      }).clone().exec();
+    return query;
+  }
 }

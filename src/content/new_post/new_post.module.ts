@@ -15,6 +15,7 @@ import { PostsModule } from '../posts/posts.module';
 import { GetusercontentsModule } from 'src/trans/getusercontents/getusercontents.module';
 import { MediamusicModule } from '../mediamusic/mediamusic.module';
 import { SettingsModule } from 'src/trans/settings/settings.module';
+import { Settings2Module } from 'src/trans/settings2/settings2.module';
 import { MediastikerModule } from '../mediastiker/mediastiker.module';
 import { NewPostContentService } from './new_postcontent.service';
 import { InterestsModule } from 'src/infra/interests/interests.module';
@@ -55,6 +56,7 @@ import { BoostsessionModule } from '../boostsession/boostsession.module';
     PostchallengeModule,
     UserchallengesModule,
     SettingsModule,
+    Settings2Module,
     ContenteventsModule,
     UserbasicnewModule,
     MediavideosModule,

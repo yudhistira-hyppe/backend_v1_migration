@@ -38,9 +38,12 @@ import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.s
 import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
 import { TransactionsDiscounts, TransactionsDiscountsSchema } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
 import { TransactionsBalancedsService } from 'src/trans/transactionsv2/balanceds/transactionsbalanceds.service';
+import { TransactionsCategorysService } from 'src/trans/transactionsv2/categorys/transactionscategorys.service';
+import { TransactionsProductsService } from 'src/trans/transactionsv2/products/transactionsproducts.service';
 import { MonetizationService } from 'src/trans/monetization/monetization.service';
 import { CreateNewPostDTO } from './dto/create-newPost.dto';
 import { TemplatesRepo } from 'src/infra/templates_repo/schemas/templatesrepo.schema';
+import { Settings2Service } from 'src/trans/settings2/settings2.service';
 import { BoostintervalService } from '../boostinterval/boostinterval.service';
 import { BoostsessionService } from '../boostsession/boostsession.service';
 
@@ -55,6 +58,7 @@ export class NewPostController {
         private readonly basic2SS: UserbasicnewService,
         private readonly logapiSS: LogapisService,
         private readonly settingsService: SettingsService,
+        private readonly settings2Service: Settings2Service,
         private readonly utilsService: UtilsService,
         private transactionsPostService: TransactionsPostService,
         private readonly errorHandler: ErrorHandler,
@@ -73,6 +77,8 @@ export class NewPostController {
         private readonly transV2Service: TransactionsV2Service,
         private readonly transDiscountService: TransactionsDiscountsService,
         private readonly transBalancedService: TransactionsBalancedsService,
+        private readonly transCategoryService: TransactionsCategorysService,
+        private readonly transProductsService: TransactionsProductsService,
         private readonly monetizationService: MonetizationService,
         private readonly boostIntervalService: BoostintervalService,
         private readonly boostSessionService: BoostsessionService
@@ -226,7 +232,19 @@ export class NewPostController {
                 }
 
                 if (data.data.certified == true) {
-                    this.setTransaksiContentOwnership(postID, transaction_fee, discount_id, discount_fee);
+                    var resultTrans = await this.setTransaksiContentOwnership(postID, transaction_fee, discount_id, discount_fee);
+
+                    data['DetailTransaction'] = {
+                        invoiceID: resultTrans.noInvoice,
+                        totalPayment: resultTrans.detail[0].totalAmount,
+                        transactionID: resultTrans.idTransaction,
+                        transactionTitle: resultTrans.transactionType,
+                        packageTitle: resultTrans.productionTitle,
+                        email: resultTrans.email,
+                        paymentMethod: resultTrans.paymentMethod,
+                        date: resultTrans.createdAt.split(" ")[0],
+                        time: resultTrans.createdAt.split(" ")[1],
+                    }
                 }
             }
         }
@@ -241,6 +259,9 @@ export class NewPostController {
         var timestamps_start = await this.utilsService.getDateTimeString();
         var fullurl = headers.host + "/api/posts/updatepost/v2";
         var reqbody = body;
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
 
         this.logger.log("updatePost >>> start");
         var email = headers['x-auth-user'];
@@ -261,7 +282,7 @@ export class NewPostController {
         var dataTransaction = await this.transactionsPostService.findpostid(body.postID.toString());
         if (await this.utilsService.ceckData(dataTransaction)) {
             var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
             if (((dataUser.languagesLangIso != undefined ? dataUser.languagesLangIso : "id")) == "id") {
                 await this.errorHandler.generateNotAcceptableException(
                     "Tidak bisa mengedit postingan karena sedang dalam proses pembayaran",
@@ -448,7 +469,7 @@ export class NewPostController {
                 // }
 
                 var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
                 let datapostchallenge2 = null;
                 try {
@@ -602,7 +623,18 @@ export class NewPostController {
                     }
 
                     if (body.certified == true) {
-                        this.setTransaksiContentOwnership(body.postID, transaction_fee, discount_id, discount_fee);
+                        var resultTrans = await this.setTransaksiContentOwnership(body.postID, transaction_fee, discount_id, discount_fee);
+                        data['DetailTransaction'] = {
+                            invoiceID: resultTrans.noInvoice,
+                            totalPayment: resultTrans.detail[0].totalAmount,
+                            transactionID: resultTrans.idTransaction,
+                            transactionTitle: resultTrans.transactionType,
+                            packageTitle: resultTrans.productionTitle,
+                            email: resultTrans.email,
+                            paymentMethod: resultTrans.paymentMethod,
+                            date: resultTrans.createdAt.split(" ")[0],
+                            time: resultTrans.createdAt.split(" ")[1],
+                        }
                     }
                 }
 
@@ -810,7 +842,7 @@ export class NewPostController {
                 }
 
                 var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
                 return data;
             } else {
@@ -820,7 +852,7 @@ export class NewPostController {
 
                 if (datenow >= new Date(startDatetime) && datenow <= new Date(endDatetime) && saleAmount > 0) {
                     var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
                     await this.errorHandler.generateNotAcceptableException(
                         'Unabled to proceed, content is participating in the challenge',
@@ -1122,7 +1154,7 @@ export class NewPostController {
                     }
 
                     var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
                     return data;
                 }
@@ -1138,7 +1170,7 @@ export class NewPostController {
         }
 
         var timestamps_end = await this.utilsService.getDateTimeString();
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
         return data;
     }
 
@@ -5348,16 +5380,17 @@ export class NewPostController {
             }
         )
 
-        var userhyppe = await this.settingsService.findOne(process.env.ID_USER_HYPPE);
+        var userhyppe = await this.settings2Service.findOne(process.env.ID_USER_HYPPE);
 
         var resultTransaksi = await this.transV2Service.insertTransaction("APP", "CO", null, transaction_fee, discount_fee, 0, 0, getUserData._id.toString(), userhyppe.value.toString(), setVoucher, setDetail, "SUCCESS");
 
         if (resultTransaksi != false) {
             var resultArray = resultTransaksi.data;
             var listid = [];
+            var response = null;
             for (var i = 0; i < resultArray.length; i++) {
                 var checkexist = listid.includes(resultArray[i].idTransaction);
-                if (checkexist == false) {
+                if (checkexist == false && getUserData._id.toString() == resultArray[i].idUser.toString()) {
                     var insertDatatransDiscount = new TransactionsDiscounts();
                     insertDatatransDiscount._id = new mongoose.Types.ObjectId();
                     insertDatatransDiscount.idTransaction = resultArray[i].idTransaction;
@@ -5369,12 +5402,23 @@ export class NewPostController {
                     await this.transDiscountService.create(insertDatatransDiscount);
 
                     listid.push(resultArray[i].idTransaction);
+                    response = resultArray[i];
                 }
             }
 
             if (discount_id != undefined && discount_id != null) {
                 await this.monetizationService.updateStock(discount_id, 1, true);
             }
+
+            var getcatdata = await this.transCategoryService.findOne(response.category.toString());
+            var getproddata = await this.transProductsService.findOne(response.product.toString());
+
+            response.transactionType = getcatdata.coa;
+            response.productionTitle = getproddata.name;
+            response.email = getUserData.email;
+            response.paymentMethod = 'COIN';
+
+            return response;
         }
     }
 
