@@ -239,6 +239,7 @@ export class MediastreamingController {
           const dataComment = {
             idComment: idComment,
             userId: new mongoose.Types.ObjectId(profile._id.toString()),
+            commentType: "JOIN",
             status: true,
             messages: "joined",
             createAt: currentDate,
@@ -646,13 +647,25 @@ export class MediastreamingController {
                 _MediastreamingDto_.status = false;
                 _MediastreamingDto_.endLive = currentDate;
                 await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
+                
+                let income = 0;
                 const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
+                const getUser = await this.userbasicnewService.findOne(getDataStream[0].userId.toString());
+                if (getDataStream[0].income != undefined) {
+                  income = getDataStream[0].income;
+                }
                 //SEND STATUS STOP
                 const dataPause = {
                   data: {
                     idStream: MediastreamingDto_._id.toString(),
                     status: false,
                     totalViews: getDataStream[0].view_unique.length,
+                    totalShare: getDataStream[0].shareCount,
+                    totalFollower: getDataStream[0].follower.length,
+                    totalComment: getDataStream[0].comment.length,
+                    totalLike: getDataStream[0].like.length,
+                    totalIncome: income,
+                    gift: getDataStream[0].gift,
                   }
                 }
                 const STREAM_MODE = this.configService.get("STREAM_MODE");
@@ -663,6 +676,7 @@ export class MediastreamingController {
                   RequestSoctDto_.event = "STATUS_STREAM";
                   RequestSoctDto_.data = JSON.stringify(dataPause);
                   this.mediastreamingService.socketRequest(RequestSoctDto_);
+                  this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
                 }
               }
             }
@@ -679,7 +693,8 @@ export class MediastreamingController {
           }
         }
       }
-      //CECK TYPE STOP
+
+      //SET RESPONSE
       if (MediastreamingDto_.type == "STOP") {
         let income = 0;
         const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
@@ -706,6 +721,21 @@ export class MediastreamingController {
         //GET ID JENIS REPORT
         const ID_SETTING_JENIS_REPORT = this.configService.get("ID_SETTING_JENIS_REPORT");
         const GET_ID_SETTING_JENIS_REPORT = await this.utilsService.getSetting_Mixed(ID_SETTING_JENIS_REPORT);
+        const dataSetting :any= GET_ID_SETTING_JENIS_REPORT;
+
+        //SET Seeting REPORT
+        const getUserViewLanguage = await this.utilsService.getUserlanguages(profile.email.toString());
+        let remarkSetting = [];
+        if (getUserViewLanguage=="id"){
+          remarkSetting = dataSetting.filter(function (el) {
+            return el.language == "ID";
+          });
+        }
+        if (getUserViewLanguage == "en") {
+          remarkSetting = dataSetting.filter(function (el) {
+            return el.language == "EN";
+          });
+        }
 
         const getUser = await this.userbasicnewService.getUser(ceckId.userId.toString());
         const MediastreamingDto_Res = new MediastreamingDto();
@@ -729,11 +759,11 @@ export class MediastreamingController {
         MediastreamingDto_Res.viewCountActive = dataStreamView[0].view.length;
         MediastreamingDto_Res.comment = dataStreamPinned;
         MediastreamingDto_Res.tokenAgora = ceckId.tokenAgora;
-        MediastreamingDto_Res.reportRemark = GET_ID_SETTING_JENIS_REPORT;
+        MediastreamingDto_Res.reportRemark = remarkSetting[0].value;
         return await this.errorHandler.generateAcceptResponseCodeWithData(
           "Update stream succesfully", MediastreamingDto_Res
         );
-      } if (MediastreamingDto_.type == "REPORT") {
+      } else if (MediastreamingDto_.type == "REPORT") {
         if (UserReport) {
           await this.errorHandler.generateInternalServerErrorException(
             'Unabled to proceed, Report User Stream not exist',
