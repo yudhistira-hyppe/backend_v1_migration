@@ -1501,7 +1501,7 @@ export class MediastreamingService {
               input: "$comment",
               as: "comment",
               cond: {
-                $eq: ["$$view.commentType", "MESSAGGES"]
+                $eq: ["$$comment.commentType", "MESSAGGES"]
               }
             }
           },

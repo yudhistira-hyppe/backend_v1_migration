@@ -49,6 +49,12 @@ export class MediastreamingController {
       );
     }
 
+    if (profile.streamBanned) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed user is Banned',
+      );
+    }
+
     //Get EXPIRATION_TIME_LIVE
     const GET_EXPIRATION_TIME_LIVE = this.configService.get("EXPIRATION_TIME_LIVE");
     const EXPIRATION_TIME_LIVE = await this.utilsService.getSetting_Mixed(GET_EXPIRATION_TIME_LIVE);
@@ -621,93 +627,111 @@ export class MediastreamingController {
       }
       //CECK TYPE REPORT
       if (MediastreamingDto_.type == "REPORT") {
+        //CECK USER REPORT
         const ceckReport = await this.mediastreamingService.findReport(MediastreamingDto_._id.toString(), profile._id.toString());
         if (await this.utilsService.ceckData(ceckReport)) {
           UserReport = true;
         }
-        if (MediastreamingDto_.messages != undefined) {
-          //UPDATE REPORT
-          let idReport = new mongoose.Types.ObjectId();
-          const dataReport = {
-            idReport: idReport,
-            userId: new mongoose.Types.ObjectId(profile._id.toString()),
-            streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
-            messages: MediastreamingDto_.messages,
-            createAt: currentDate,
-            updateAt: currentDate
-          };
-          await this.mediastreamingService.insertReport(MediastreamingDto_._id.toString(), dataReport);
+        if (!UserReport) {
+          if (MediastreamingDto_.messages != undefined) {
+            //SET REPORT
+            let idReport = new mongoose.Types.ObjectId();
+            const dataReport = {
+              idReport: idReport,
+              userId: new mongoose.Types.ObjectId(profile._id.toString()),
+              streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
+              messages: MediastreamingDto_.messages,
+              createAt: currentDate,
+              updateAt: currentDate
+            };
+            //UPDATE REPORT
+            await this.mediastreamingService.insertReport(MediastreamingDto_._id.toString(), dataReport);
+            const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
+            const getUser = await this.userbasicnewService.findOne(ceckId.userId.toString());
 
-          let Userbasicnew_ = new Userbasicnew();
-          let _update_streamReportUser = (profile.streamReportUser != undefined) ? profile.streamReportUser :[];
-          _update_streamReportUser.push(dataReport)
-          Userbasicnew_.streamReportUser = _update_streamReportUser;
+            //SET DATA USER STREAM
+            let Userbasicnew_ = new Userbasicnew();
+            let _update_streamReportUser = (getUser.streamReportUser != undefined) ? getUser.streamReportUser : [];
+            _update_streamReportUser.push(dataReport)
+            Userbasicnew_.streamReportUser = _update_streamReportUser;
 
-          let getData = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
-          if (await this.utilsService.ceckData(getData)){
-            if (getData.report != undefined) {
-              let getReportlength = getData.report.length;
-              const ID_SETTING_MAX_REPORT = this.configService.get("ID_SETTING_MAX_REPORT");
-              const GET_ID_SETTING_MAX_REPORT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_MAX_REPORT);
-              if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)) {
-                _MediastreamingDto_.status = false;
-                _MediastreamingDto_.endLive = currentDate;
-                await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
-                
-                let income = 0;
-                const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
-                const getUser = await this.userbasicnewService.findOne(getDataStream[0].userId.toString());
-                if (getDataStream[0].income != undefined) {
-                  income = getDataStream[0].income;
-                }
-                //SEND STATUS STOP
-                const dataPause = {
-                  data: {
-                    idStream: MediastreamingDto_._id.toString(),
-                    status: false,
-                    totalViews: getDataStream[0].view_unique.length,
-                    totalShare: getDataStream[0].shareCount,
-                    totalFollower: getDataStream[0].follower.length,
-                    totalComment: getDataStream[0].comment.length,
-                    totalLike: getDataStream[0].like.length,
-                    totalIncome: income,
-                    gift: getDataStream[0].gift,
+            if (await this.utilsService.ceckData(getDataStream)) {
+              if (getDataStream[0].report != undefined) {
+                //COUNT REPORT LENGTH
+                let getReportlength = getDataStream[0].report.length;
+
+                //GET ID SETTING MAX REPORT
+                const ID_SETTING_MAX_REPORT = this.configService.get("ID_SETTING_MAX_REPORT");
+                const GET_ID_SETTING_MAX_REPORT = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_REPORT);
+
+                //CECK REPORT LENGTH
+                if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)) {
+                  _MediastreamingDto_.status = false;
+                  _MediastreamingDto_.endLive = currentDate;
+                  await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
+
+                  let income = 0;
+                  if (getDataStream[0].income != undefined) {
+                    income = getDataStream[0].income;
+                  }
+
+                  //SEND STATUS STOP
+                  const dataPause = {
+                    data: {
+                      idStream: MediastreamingDto_._id.toString(),
+                      status: false,
+                      totalViews: getDataStream[0].view_unique.length,
+                      totalShare: getDataStream[0].shareCount,
+                      totalFollower: getDataStream[0].follower.length,
+                      totalComment: getDataStream[0].comment.length,
+                      totalLike: getDataStream[0].like.length,
+                      totalIncome: income,
+                      gift: getDataStream[0].gift,
+                    }
+                  }
+                  const STREAM_MODE = this.configService.get("STREAM_MODE");
+                  if (STREAM_MODE == "1") {
+                    this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
+                  } else {
+                    let RequestSoctDto_ = new RequestSoctDto();
+                    RequestSoctDto_.event = "STATUS_STREAM";
+                    RequestSoctDto_.data = JSON.stringify(dataPause);
+                    this.mediastreamingService.socketRequest(RequestSoctDto_);
+                    this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
+                  }
+
+                  //SET DATA WARNING
+                  const dataWarning = {
+                    idReport: idReport,
+                    userId: new mongoose.Types.ObjectId(profile._id.toString()),
+                    streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
+                    createAt: currentDate,
+                    updateAt: currentDate
+                  };
+
+                  //SET DATA USER STREAM
+                  let _update_streamHystoryWarning = (getUser.streamHystoryWarning != undefined) ? getUser.streamHystoryWarning : [];
+                  _update_streamHystoryWarning.push(dataWarning)
+                  Userbasicnew_.streamHystoryWarning = _update_streamHystoryWarning;
+
+                  //SET DATA USER STREAM
+                  let _update_streamWarning = (getUser.streamWarning != undefined) ? getUser.streamWarning : [];
+                  _update_streamWarning.push(dataWarning)
+                  Userbasicnew_.streamWarning = _update_streamWarning;
+
+                  //GET ID SETTING MAX BANNED
+                  const ID_ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+                  const GET_ID_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_ID_SETTING_MAX_BANNED);
+
+                  //CECK WARNING LENGTH
+                  if (_update_streamWarning.length == Number(GET_ID_ID_SETTING_MAX_BANNED)) {
+                    Userbasicnew_.streamBanned = true;
+                    Userbasicnew_.streamBannedDate = currentDate;
                   }
                 }
-
-                const STREAM_MODE = this.configService.get("STREAM_MODE");
-                if (STREAM_MODE == "1") {
-                  this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
-                } else {
-                  let RequestSoctDto_ = new RequestSoctDto();
-                  RequestSoctDto_.event = "STATUS_STREAM";
-                  RequestSoctDto_.data = JSON.stringify(dataPause);
-                  this.mediastreamingService.socketRequest(RequestSoctDto_);
-                  this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
-                }
-
-                const dataWarning = {
-                  idReport: idReport,
-                  userId: new mongoose.Types.ObjectId(profile._id.toString()),
-                  streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
-                  createAt: currentDate,
-                  updateAt: currentDate
-                };
-                let _update_streamHystoryWarning = (profile.streamHystoryWarning != undefined) ? profile.streamHystoryWarning : [];
-                _update_streamHystoryWarning.push(dataWarning)
-                Userbasicnew_.streamHystoryWarning = _update_streamHystoryWarning;
-
-                let _update_streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
-                _update_streamWarning.push(dataWarning)
-                Userbasicnew_.streamWarning = _update_streamWarning;
-
-                const ID_ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
-                const GET_ID_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed_Data(ID_ID_SETTING_MAX_BANNED);
-                if (_update_streamWarning.length == Number(GET_ID_ID_SETTING_MAX_BANNED)){
-                  Userbasicnew_.streamBanned = true;
-                }
+                //UPDATE DATA USER STREAM
+                await await this.userbasicnewService.update2(getUser._id.toString(), Userbasicnew_);
               }
-              await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
             }
           }
         }
