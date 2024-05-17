@@ -2365,6 +2365,14 @@ export class TransactionsController {
         var detailTr = null;
         var arrDt = [];
 
+        var dt = new Date(Date.now());
+        dt.setHours(dt.getHours() + 7); // timestamp
+        dt = new Date(dt);
+        var strdate = dt.toISOString();
+        var repdate = strdate.replace('T', ' ');
+        var splitdate = repdate.split('.');
+        var timedate = splitdate[0];
+
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
             postid = request_json["postid"];
@@ -3085,7 +3093,14 @@ export class TransactionsController {
         else if (type === "CONTENT") {
 
             let saleAmount = 0;
-            var request_json = JSON.parse(JSON.stringify(request.body));
+            var dUser = null;
+            var idbuyer = null;
+            dUser = await this.basic2SS.findBymail(email);
+
+            if (dUser !== null) {
+                idbuyer = dUser._id;
+            }
+
             const messages = {
                 "info": ["The process was successful"],
             };
@@ -3150,7 +3165,7 @@ export class TransactionsController {
                 amountTotal = Number(totalAmount) - Number(diskon);
                 tsTockDiskon = 1 + Number(used_stockDiskon);
                 minStockDiskon = Number(last_stockDiskon) - 1;
-                
+
                 detailTr = {
                     "postID": postIds,
                     "typeData": "POST",
@@ -3187,6 +3202,23 @@ export class TransactionsController {
                 } catch (e) {
 
                 }
+                try {
+                    await this.posts2SS.updateemail(postid, email.toString(), idbuyer, timedate);
+                } catch (e) {
+
+                }
+
+                try {
+                    await this.posts2SS.noneActiveAllDiscusnew(postid);
+                } catch (e) {
+
+                }
+                try {
+                    this.posts2SS.noneActiveAllDiscusLognew(postid);
+                } catch (e) {
+
+                }
+              
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                 return {
                     response_code: 202,
@@ -4264,36 +4296,9 @@ export class TransactionsController {
         var valuevaBCA = null;
         var valuevalainya = null;
         var databank = null;
-        var amontVA = null;
-        var languages = null;
-        var idlanguages = null;
-        var datalanguage = null;
-        var langIso = null;
-        var titleinsukses = "Selamat!";
-        var titleensukses = "Congratulation!";
-        var bodyinsukses = "Konten Anda Telah Terjual Saldo akan diteruskan ke akun hype Anda.";
-        var bodyensukses = "Your Content Has Been Sold The balance will be forwarded to your Hyppe Account.";
+    
         var eventType = "TRANSACTION";
-        var event = "TRANSACTION";
-        var titleinsuksesbeli = "Selamat!";
-        var titleensuksesbeli = "Congratulation!";
-        var bodyinsuksesbeli = "Konten Berhasil Dibeli";
-        var bodyensuksesbeli = "Content Successfully Purchased";
-
-        var titleinsuksesvoucher = "Selamat!";
-        var titleensuksesvoucher = "Congratulation!";
-        var bodyinsuksesvoucher = "Voucher Anda Telah Terjual Saldo akan diteruskan ke akun hype Anda.";
-        var bodyensuksesvoucher = "Your Voucher Has Been Sold The balance will be forwarded to your Hyppe Account.";
-
-        var titleinsuksesCOIN = null;
-        var titleensuksesCOIN = null;
-        var bodyinsuksesCOIN = null;
-        var bodyensuksesCOIN = null;
-
-        var titleinsuksesbelivoucher = "Selamat!";
-        var titleensuksesbelivoucher = "Congratulation!";
-        var bodyinsuksesbelivoucher = "Voucher Berhasil Dibeli";
-        var bodyensuksesbelivoucher = "Voucher Successfully Purchased";
+       
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
@@ -4412,6 +4417,7 @@ export class TransactionsController {
 
                         var ubasic = await this.basic2SS.findOne(iduserbuy);
                         var userbuyer = ubasic.username;
+                        var emailbuyer = ubasic.email;
                         // var ubasicsell = await this.basic2SS.findOne(idusersell);
                         // var userseller = ubasicsell.username;
                         var Templates_ = null;
@@ -4455,7 +4461,10 @@ export class TransactionsController {
                         }
 
                         // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
-                        this.notifbuyer(userbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", postid, noinvoice);
+
+                        
+
+                        this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", postid, noinvoice);
                         return res.status(HttpStatus.OK).json({
                             response_code: 202,
                             "message": messages
@@ -18198,7 +18207,7 @@ export class TransactionsController {
     }
 
     async notifbuyerCoin(emailbuyer: string, titleinsuksesbeli: string, titleensuksesbeli: string, bodyinsuksesbeli: string, bodyensuksesbeli: string, eventType: string, event: string, postid: string, noinvoice: string) {
-        await this.utilsService.sendFcm(emailbuyer.toString(), titleinsuksesbeli, titleensuksesbeli, bodyinsuksesbeli, bodyensuksesbeli, eventType, event, postid, "TRANSACTION", noinvoice, "TRANSACTION");
+        await this.utilsService.sendFcm(emailbuyer.toString(), titleinsuksesbeli, titleensuksesbeli, bodyinsuksesbeli, bodyensuksesbeli, eventType, event, postid, "COIN", noinvoice, "TRANSACTION");
     }
 
 
