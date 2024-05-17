@@ -5100,7 +5100,9 @@ export class NewPostController {
                 "idusersell": data.data[1].idUser,
                 "iduserbuyer": data.data[0].idUser,
                 "NamaPembeli": buyerubasic.fullName,
+                "emailbuyer": emailbuyer.toString(),
                 "amount": data.data[0].coin,
+                "discount": data.data[0].discountCoin,
                 "paymentmethod": "COIN",
                 "status": data.data[0].status,
                 "description": "BOOST",
@@ -5118,7 +5120,7 @@ export class NewPostController {
                 "_id": data.data[0]._id
             }
             this.editPostBoost(request_json.detail[0].postID, request_json.detail);
-            this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
+            // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
                 response_code: 202,
