@@ -229,66 +229,68 @@ export class MediastreamingController {
       }
       //CECK TYPE OPEN_VIEW
       if (MediastreamingDto_.type == "OPEN_VIEW") {
-        const ceckView = await this.mediastreamingService.findView(MediastreamingDto_._id.toString(), profile._id.toString());
-        if (!(await this.utilsService.ceckData(ceckView))) {
-          //UPDATE VIEW
-          const dataView = {
-            userId: new mongoose.Types.ObjectId(profile._id.toString()),
-            status: true,
-            createAt: currentDate,
-            updateAt: currentDate
-          }
-          await this.mediastreamingService.insertView(MediastreamingDto_._id.toString(), dataView);
-          //UPDATE COMMENT
-          let idComment = new mongoose.Types.ObjectId();
-          const dataComment = {
-            idComment: idComment,
-            userId: new mongoose.Types.ObjectId(profile._id.toString()),
-            commentType: "JOIN",
-            status: true,
-            messages: "joined",
-            createAt: currentDate,
-            updateAt: currentDate
-          }
-          await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
-          //SEND VIEW COUNT
-          const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
-          let viewCount = 0;
-          if (dataStream.length > 0) {
-            viewCount = dataStream[0].view.length;
-          }
-          const dataStreamSend = {
-            data: {
-              idStream: MediastreamingDto_._id.toString(),
-              viewCount: viewCount
+        if (ceckId.status) {
+          const ceckView = await this.mediastreamingService.findView(MediastreamingDto_._id.toString(), profile._id.toString());
+          if (!(await this.utilsService.ceckData(ceckView))) {
+            //UPDATE VIEW
+            const dataView = {
+              userId: new mongoose.Types.ObjectId(profile._id.toString()),
+              status: true,
+              createAt: currentDate,
+              updateAt: currentDate
             }
-          }
-          const STREAM_MODE = this.configService.get("STREAM_MODE");
-          if (STREAM_MODE == "1") {
-            this.appGateway.eventStream("VIEW_STREAM", JSON.stringify(dataStreamSend));
-          } else {
-            let RequestSoctDto_ = new RequestSoctDto();
-            RequestSoctDto_.event = "VIEW_STREAM";
-            RequestSoctDto_.data = JSON.stringify(dataStreamSend);
-            this.mediastreamingService.socketRequest(RequestSoctDto_);
-          }
-          //SEND COMMENT SINGLE
-          const getUser = await this.userbasicnewService.getUser(profile._id.toString());
-          getUser[0]["idStream"] = MediastreamingDto_._id.toString();
-          getUser[0]["commentType"] = "MESSAGGES";
-          getUser[0]["messages"] = "joined";
-          const singleSend = {
-            data: getUser[0]
-          }
-          if (STREAM_MODE == "1") {
-            this.appGateway.eventStream("COMMENT_STREAM_SINGLE", JSON.stringify(singleSend));
-          } else {
-            let RequestSoctDto_ = new RequestSoctDto();
-            RequestSoctDto_.event = "COMMENT_STREAM_SINGLE";
-            RequestSoctDto_.data = JSON.stringify(singleSend);
-            this.mediastreamingService.socketRequest(RequestSoctDto_);
-          }
-        } 
+            await this.mediastreamingService.insertView(MediastreamingDto_._id.toString(), dataView);
+            //UPDATE COMMENT
+            let idComment = new mongoose.Types.ObjectId();
+            const dataComment = {
+              idComment: idComment,
+              userId: new mongoose.Types.ObjectId(profile._id.toString()),
+              commentType: "JOIN",
+              status: true,
+              messages: "joined",
+              createAt: currentDate,
+              updateAt: currentDate
+            }
+            await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
+            //SEND VIEW COUNT
+            const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+            let viewCount = 0;
+            if (dataStream.length > 0) {
+              viewCount = dataStream[0].view.length;
+            }
+            const dataStreamSend = {
+              data: {
+                idStream: MediastreamingDto_._id.toString(),
+                viewCount: viewCount
+              }
+            }
+            const STREAM_MODE = this.configService.get("STREAM_MODE");
+            if (STREAM_MODE == "1") {
+              this.appGateway.eventStream("VIEW_STREAM", JSON.stringify(dataStreamSend));
+            } else {
+              let RequestSoctDto_ = new RequestSoctDto();
+              RequestSoctDto_.event = "VIEW_STREAM";
+              RequestSoctDto_.data = JSON.stringify(dataStreamSend);
+              this.mediastreamingService.socketRequest(RequestSoctDto_);
+            }
+            //SEND COMMENT SINGLE
+            const getUser = await this.userbasicnewService.getUser(profile._id.toString());
+            getUser[0]["idStream"] = MediastreamingDto_._id.toString();
+            getUser[0]["commentType"] = "JOIN";
+            getUser[0]["messages"] = "joined";
+            const singleSend = {
+              data: getUser[0]
+            }
+            if (STREAM_MODE == "1") {
+              this.appGateway.eventStream("COMMENT_STREAM_SINGLE", JSON.stringify(singleSend));
+            } else {
+              let RequestSoctDto_ = new RequestSoctDto();
+              RequestSoctDto_.event = "COMMENT_STREAM_SINGLE";
+              RequestSoctDto_.data = JSON.stringify(singleSend);
+              this.mediastreamingService.socketRequest(RequestSoctDto_);
+            }
+          } 
+        }
       }
       //CECK TYPE CLOSE_VIEW
       if (MediastreamingDto_.type == "CLOSE_VIEW") {

@@ -6,6 +6,7 @@ import { ChallengeService } from "src/trans/challenge/challenge.service";
 import { TransactionsService } from "src/trans/transactions/transactions.service";
 import { NewPostService } from 'src/content/new_post/new_post.service';
 import { PosttaskService } from '../../content/posttask/posttask.service';
+import { UserbasicnewService } from "src/trans/userbasicnew/userbasicnew.service";
 @Injectable()
 export class TaskService {
   constructor(
@@ -13,7 +14,7 @@ export class TaskService {
     private readonly transactionsService: TransactionsService,
     private readonly adsService: AdsService,
     private readonly NewPostService: NewPostService,
-    private readonly PosttaskService: PosttaskService,
+    private readonly userbasicnewService: UserbasicnewService,
   ) { }
 
 
@@ -39,11 +40,9 @@ export class TaskService {
     this.adsService.ceckAdsActive();
   }
 
-  @Cron('0 */10 * * * *')
+  @Cron('0 */1 * * * *')
   ceckUserStream() {
     this.logger.debug('----------STREAM JOB START----------', new Date());
-    //this.adsService.ceckAdsActive();
+    this.userbasicnewService.refreshUserWarning();
   }
-
- 
 }

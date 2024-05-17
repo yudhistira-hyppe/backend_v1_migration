@@ -12,8 +12,10 @@ import { TransactionsModule } from 'src/trans/transactions/transactions.module';
 import { AdsModule } from 'src/trans/adsv2/ads/ads.module';
 import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { PosttaskModule } from '../../content/posttask/posttask.module';
+import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 @Module({
   imports: [
+    UserbasicnewModule,
     PosttaskModule,
     NewPostModule,
       AdsModule,
