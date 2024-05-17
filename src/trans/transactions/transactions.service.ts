@@ -65,7 +65,9 @@ export class TransactionsService {
     async findpostidpending(postid: string): Promise<Transactions> {
         return this.transactionsModel.findOne({ postid: postid, status: "WAITING_PAYMENT" }).exec();
     }
-
+    async findpostidpendingnew(iduserbuyer: string): Promise<Transactions> {
+        return this.transactionsModel.findOne({ iduserbuyer: new mongoose.Types.ObjectId(iduserbuyer), status: "WAITING_PAYMENT" }).exec();
+    }
     async findPendingByUser(iduserbuyer: string): Promise<Transactions> {
         return this.transactionsModel.findOne({ iduserbuyer: new mongoose.Types.ObjectId(iduserbuyer), status: "WAITING_PAYMENT" }).exec();
     }
