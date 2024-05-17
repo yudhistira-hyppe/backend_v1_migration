@@ -2328,6 +2328,7 @@ export class TransactionsController {
         var timestamps_start = await this.utilsService.getDateTimeString();
         var fullurl = request.get("Host") + request.originalUrl;
 
+        var timestamps_start = await this.utilsService.getDateTimeString();
         const messages = {
             "info": ["The create successful"],
         };
@@ -2361,6 +2362,8 @@ export class TransactionsController {
         var jmlcoin = null;
         var platform = null;
         var jmlcoin = null;
+        var detailTr = null;
+        var arrDt = [];
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
@@ -2645,15 +2648,16 @@ export class TransactionsController {
             statuswait = null;
         }
 
-        if (statuswait === "WAITING_PAYMENT" && datenow > expiredvanew) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+        if (type === "COIN") {
+            if (statuswait === "WAITING_PAYMENT" && datenow > expiredvanew) {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
 
-            throw new BadRequestException("Tidak dapat melanjutkan. Selesaikan pembayaran transaksi anda dahulu !");
-        }
-        else {
+                throw new BadRequestException("Tidak dapat melanjutkan. Selesaikan pembayaran transaksi anda dahulu !");
+            }
+            else {
 
-            if (type === "COIN") {
+
 
                 try {
                     datapost = await this.MonetizenewService.findOne(postid[0].id);
@@ -3071,9 +3075,133 @@ export class TransactionsController {
                 }
 
 
+
+
+
+
+            }
+        }
+
+        else if (type === "CONTENT") {
+
+            let saleAmount = 0;
+            var request_json = JSON.parse(JSON.stringify(request.body));
+            const messages = {
+                "info": ["The process was successful"],
+            };
+            var ubasic = await this.basic2SS.findOneBymail(email);
+            if (request_json.pin && request_json.pin != "") {
+                if (await this.utilsService.ceckData(ubasic)) {
+                    if (ubasic.pin && ubasic.pin != "") {
+                        let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+                        if (pinDecrypt != request_json.pin) {
+                            var timestamps_end = await this.utilsService.getDateTimeString();
+                            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                            throw new BadRequestException("Unable to proceed: PIN mismatch");
+                        }
+                    } else {
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        throw new BadRequestException("Unable to proceed: Please create a PIN first");
+                    }
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    throw new BadRequestException("Unable to proceed: User data not found");
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: Missing param: pin");
             }
 
+            try {
+                datapost = await this.posts2SS.findOne(postid[0].id);
+
+                emailseller = datapost._doc.email;
+
+                ubasicseller = await this.basic2SS.findBymail(emailseller);
+                iduserseller = ubasicseller._id;
+                namapenjual = ubasicseller.fullName;
+
+            } catch (e) {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                throw new BadRequestException("User not found..!");
+            }
+
+            try {
+
+                dataconten = await this.posts2SS.findOne(postid[0].id);
+                saleAmount = dataconten.saleAmount;
+                postType = dataconten.postType;
+            } catch (e) {
+                dataconten = null;
+                saleAmount = 0;
+                postType = "";
+
+
+                var postIds = postid[0].id;
+
+                // //  var objid = mongoose.Types.ObjectId(postIds);
+                var qty = postid[0].qty;
+                var totalAmount = postid[0].totalAmount;
+                amountTotal = Number(totalAmount) - Number(diskon);
+                tsTockDiskon = 1 + Number(used_stockDiskon);
+                minStockDiskon = Number(last_stockDiskon) - 1;
+                
+                detailTr = {
+                    "postID": postIds,
+                    "typeData": "POST",
+                    "qty": qty,
+                    "amount": totalAmount,
+                    "discountCoin": diskon,
+                    "totalAmount": amountTotal,
+                    "like": salelike,
+                    "view": saleview
+                };
+
+                arrDt.push(detailTr)
+
+                var dataT;
+                dataT = await this.TransactionsV2Service.insertTransaction(
+                    request_json.platform,
+                    request_json.productCode,
+                    "BUY",
+                    request_json.coin,
+                    diskon,
+                    totalAmount,
+                    0,
+                    iduser.toString(),
+                    iduserseller.toString(),
+                    [],
+                    arrDt,
+                    "SUCCESS");
+                dataT.transactionType = "CONTENT";
+                dataT.transactionUnit = "COIN";
+
+                try {
+
+                    await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                } catch (e) {
+
+                }
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                return {
+                    response_code: 202,
+                    data: dataT,
+                    messages
+                }
+
+            }
+
+
+
+
         }
+
+
 
     }
     // @Post('api/pg/oy/callback/va')
