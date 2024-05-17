@@ -5279,6 +5279,10 @@ export class NewPostController {
                     listid.push(resultArray[i].idTransaction);
                 }
             }
+
+            if (discount_id != undefined && discount_id != null) {
+                await this.monetizationService.updateStock(discount_id, 1, true);
+            }
         }
     }
 
