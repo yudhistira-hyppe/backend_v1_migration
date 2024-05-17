@@ -8,7 +8,6 @@ import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { MonetizationService } from './monetization/monetization.service';
-import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
 @Injectable()
 export class MediastreamingService {
@@ -22,7 +21,6 @@ export class MediastreamingService {
     private readonly configService: ConfigService,
     private readonly monetizationService: MonetizationService,
     private readonly transactionsV2Service: TransactionsV2Service, 
-    private readonly userbasicnewService: UserbasicnewService,
   ) {}
 
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
@@ -2359,6 +2357,7 @@ export class MediastreamingService {
       _id: new mongoose.Types.ObjectId(_id)
     },
       {
+        "banned":false,
         $push: {
           "report": report
         }
