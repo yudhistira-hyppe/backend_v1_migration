@@ -252,13 +252,19 @@ export class Userbasicnew {
     @Prop()
     urlLink: string;
     @Prop()
-    judulLink: string;
-    @Prop()
-    liveBanned: boolean;
-    @Prop()
-    liveBannedDate: string;
-    @Prop()
     GiftActivation: boolean;
+    @Prop()
+    streamReportUser: any[];
+    @Prop()
+    streamHystoryWarning: any[];
+    @Prop()
+    streamWarning: any[];
+    @Prop()
+    streamBanding: any[];
+    @Prop()
+    streamBanned: boolean;
+    @Prop()
+    streamBannedDate: string;
 }
 
 export const UserbasicnewSchema = SchemaFactory.createForClass(Userbasicnew);

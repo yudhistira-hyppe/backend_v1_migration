@@ -9,10 +9,10 @@ import { CallbackModeration, MediastreamingDto, MediastreamingRequestDto, Reques
 import { ConfigService } from '@nestjs/config';
 import { MediastreamingalicloudService } from './mediastreamingalicloud.service';
 import { AppGateway } from '../socket/socket.gateway';
-import { UserauthsService } from 'src/trans/userauths/userauths.service';
 import { MediastreamingrequestService } from './mediastreamingrequest.service';
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
+import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
 
 @Controller("api/live") 
 export class MediastreamingController {
@@ -24,7 +24,6 @@ export class MediastreamingController {
     private readonly mediastreamingalicloudService: MediastreamingalicloudService,
     private readonly mediastreamingAgoraService: MediastreamingAgoraService,
     private readonly userbasicnewService: UserbasicnewService,
-    private readonly userauthService: UserauthsService, 
     private readonly mediastreamingrequestService: MediastreamingrequestService, 
     private readonly appGateway: AppGateway,) { } 
 
@@ -632,15 +631,22 @@ export class MediastreamingController {
           const dataReport = {
             idReport: idReport,
             userId: new mongoose.Types.ObjectId(profile._id.toString()),
+            streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
             messages: MediastreamingDto_.messages,
             createAt: currentDate,
             updateAt: currentDate
           };
           await this.mediastreamingService.insertReport(MediastreamingDto_._id.toString(), dataReport);
+
+          let Userbasicnew_ = new Userbasicnew();
+          let _update_streamReportUser = (profile.streamReportUser != undefined) ? profile.streamReportUser :[];
+          _update_streamReportUser.push(dataReport)
+          Userbasicnew_.streamReportUser = _update_streamReportUser;
+
           let getData = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
           if (await this.utilsService.ceckData(getData)){
-            let getReportlength = getData.report.length;
-            if (getReportlength) {
+            if (getData.report != undefined) {
+              let getReportlength = getData.report.length;
               const ID_SETTING_MAX_REPORT = this.configService.get("ID_SETTING_MAX_REPORT");
               const GET_ID_SETTING_MAX_REPORT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_MAX_REPORT);
               if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)) {
@@ -668,6 +674,7 @@ export class MediastreamingController {
                     gift: getDataStream[0].gift,
                   }
                 }
+
                 const STREAM_MODE = this.configService.get("STREAM_MODE");
                 if (STREAM_MODE == "1") {
                   this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
@@ -678,7 +685,29 @@ export class MediastreamingController {
                   this.mediastreamingService.socketRequest(RequestSoctDto_);
                   this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
                 }
+
+                const dataWarning = {
+                  idReport: idReport,
+                  userId: new mongoose.Types.ObjectId(profile._id.toString()),
+                  streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
+                  createAt: currentDate,
+                  updateAt: currentDate
+                };
+                let _update_streamHystoryWarning = (profile.streamHystoryWarning != undefined) ? profile.streamHystoryWarning : [];
+                _update_streamHystoryWarning.push(dataWarning)
+                Userbasicnew_.streamHystoryWarning = _update_streamHystoryWarning;
+
+                let _update_streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
+                _update_streamWarning.push(dataWarning)
+                Userbasicnew_.streamWarning = _update_streamWarning;
+
+                const ID_ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+                const GET_ID_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed_Data(ID_ID_SETTING_MAX_BANNED);
+                if (_update_streamWarning.length == Number(GET_ID_ID_SETTING_MAX_BANNED)){
+                  Userbasicnew_.streamBanned = true;
+                }
               }
+              await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
             }
           }
         }
@@ -765,7 +794,7 @@ export class MediastreamingController {
         );
       } else if (MediastreamingDto_.type == "REPORT") {
         if (UserReport) {
-          await this.errorHandler.generateInternalServerErrorException(
+          await this.errorHandler.generateNotAcceptableException(
             'Unabled to proceed, Report User Stream not exist',
           );
         } else {
