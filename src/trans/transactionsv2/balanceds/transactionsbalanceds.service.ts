@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { TransactionsBalanceds, TransactionsBalancedsDocument } from './schema/transactionsbalanceds.schema';
 
 @Injectable()
@@ -27,8 +27,8 @@ export class TransactionsBalancedsService {
         return await this.transactionsBalancedsModel.findOne({ _id: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
     }
 
-    async findOneByTransactionId(id: string): Promise<TransactionsBalanceds> {
-        return await this.transactionsBalancedsModel.findOne({ idTransaction: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
+    async findOneByTransactionId(id: Types.ObjectId): Promise<TransactionsBalanceds> {
+        return await this.transactionsBalancedsModel.findOne({ idTransaction: id }).exec();
     }
 
     async filAll(): Promise<TransactionsBalanceds[]> {

@@ -44,6 +44,8 @@ import { MonetizationService } from 'src/trans/monetization/monetization.service
 import { CreateNewPostDTO } from './dto/create-newPost.dto';
 import { TemplatesRepo } from 'src/infra/templates_repo/schemas/templatesrepo.schema';
 import { Settings2Service } from 'src/trans/settings2/settings2.service';
+import { BoostintervalService } from '../boostinterval/boostinterval.service';
+import { BoostsessionService } from '../boostsession/boostsession.service';
 
 @Controller('api/')
 export class NewPostController {
@@ -75,9 +77,11 @@ export class NewPostController {
         private readonly transV2Service: TransactionsV2Service,
         private readonly transDiscountService: TransactionsDiscountsService,
         private readonly transBalancedService: TransactionsBalancedsService,
-        private readonly transCategoryService: TransactionsCategorysService, 
-        private readonly transProductsService: TransactionsProductsService, 
-        private readonly monetizationService: MonetizationService
+        private readonly transCategoryService: TransactionsCategorysService,
+        private readonly transProductsService: TransactionsProductsService,
+        private readonly monetizationService: MonetizationService,
+        private readonly boostIntervalService: BoostintervalService,
+        private readonly boostSessionService: BoostsessionService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -234,12 +238,12 @@ export class NewPostController {
                         invoiceID: resultTrans.noInvoice,
                         totalPayment: resultTrans.detail[0].totalAmount,
                         transactionID: resultTrans.idTransaction,
-                        transactionTitle : resultTrans.transactionType,
-                        packageTitle : resultTrans.productionTitle,
-                        email : resultTrans.email,
-                        paymentMethod : resultTrans.paymentMethod,
-                        date:resultTrans.createdAt.split(" ")[0],
-                        time:resultTrans.createdAt.split(" ")[1],
+                        transactionTitle: resultTrans.transactionType,
+                        packageTitle: resultTrans.productionTitle,
+                        email: resultTrans.email,
+                        paymentMethod: resultTrans.paymentMethod,
+                        date: resultTrans.createdAt.split(" ")[0],
+                        time: resultTrans.createdAt.split(" ")[1],
                     }
                 }
             }
@@ -624,12 +628,12 @@ export class NewPostController {
                             invoiceID: resultTrans.noInvoice,
                             totalPayment: resultTrans.detail[0].totalAmount,
                             transactionID: resultTrans.idTransaction,
-                            transactionTitle : resultTrans.transactionType,
-                            packageTitle : resultTrans.productionTitle,
-                            email : resultTrans.email,
-                            paymentMethod : resultTrans.paymentMethod,
-                            date:resultTrans.createdAt.split(" ")[0],
-                            time:resultTrans.createdAt.split(" ")[1],
+                            transactionTitle: resultTrans.transactionType,
+                            packageTitle: resultTrans.productionTitle,
+                            email: resultTrans.email,
+                            paymentMethod: resultTrans.paymentMethod,
+                            date: resultTrans.createdAt.split(" ")[0],
+                            time: resultTrans.createdAt.split(" ")[1],
                         }
                     }
                 }
@@ -5077,8 +5081,8 @@ export class NewPostController {
             "info": ["The process was successful"],
         };
         var ubasic = await this.basic2SS.findOneBymail(email);
-        var buyerubasic = await this.basic2SS.findOne(request_json.idUserBuy);
-        var emailbuyer = buyerubasic.email;
+        // var buyerubasic = await this.basic2SS.findOne(request_json.idUserBuy);
+        // var emailbuyer = buyerubasic.email;
         if (request_json.pin && request_json.pin != "") {
             if (await this.utilsService.ceckData(ubasic)) {
                 if (ubasic.pin && ubasic.pin != "") {
@@ -5104,20 +5108,106 @@ export class NewPostController {
             throw new BadRequestException("Unable to proceed: Missing param: pin");
         }
         try {
+            //Generate detail
+            var detail;
+            var interval;
+            var session;
+            if (request_json.type == "automatic") {
+                //CHECK INTERVAL
+                interval = await this.boostIntervalService.findByType("automatic");
+                if (!(await this.utilsService.ceckData(interval))) {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                    throw new BadRequestException(
+                        'Unable to proceed: interval not found',
+                    );
+                }
+
+                //CHECK SESSION
+                session = await this.boostSessionService.findByType("automatic");
+                if (!(await this.utilsService.ceckData(session))) {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                    throw new BadRequestException(
+                        'Unable to proceed: session not found',
+                    );
+                }
+            } else if (request_json.type == "manual") {
+                //CHECK PARAM INTERVAL, SESSION
+                if (request_json.interval == undefined) {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                    throw new BadRequestException(
+                        'Unable to proceed: interval is required',
+                    );
+                }
+                if (request_json.session.toLowerCase() == undefined) {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                    throw new BadRequestException(
+                        'Unable to proceed: session is required',
+                    );
+                }
+
+                //CHECK INTERVAL
+                interval = await this.boostIntervalService.findById(request_json.interval);
+                if (!(await this.utilsService.ceckData(interval))) {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                    throw new BadRequestException(
+                        'Unable to proceed: interval not found',
+                    );
+                }
+
+                //CHECK SESSION
+                session = await this.boostSessionService.findById(request_json.session);
+                if (!(await this.utilsService.ceckData(session))) {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                    throw new BadRequestException(
+                        'Unable to proceed: session not found',
+                    );
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
+            }
+            detail = {
+                "postID": request_json.postId,
+                "typeData": "POST",
+                "discont": "0",
+                "amount": request_json.coin,
+                "discountCoin": request_json.discountCoin ? request_json.discountCoin : 0,
+                "totalAmount": request_json.coin - (request_json.discountCoin ? request_json.discountCoin : 0),
+                "qty": 1,
+                "interval": interval,
+                "session": session,
+                "type": request_json.type,
+                "dateStart": request_json.dateStart,
+                "datedateEnd": request_json.dateEnd
+            }
             var data;
             data = await this.transV2Service.insertTransaction(
                 request_json.platform,
-                request_json.transactionProductCode,
-                request_json.category ? request_json.category : undefined,
+                "BP",
+                undefined,
                 request_json.coin,
                 request_json.discountCoin ? request_json.discountCoin : 0,
-                request_json.price,
-                request_json.discountPrice,
-                request_json.idUserBuy,
-                request_json.idUserSell ? request_json.idUserSell : undefined,
+                0,
+                0,
+                ubasic._id.toString(),
+                undefined,
                 request_json.idVoucher ? request_json.idVoucher : undefined,
-                request_json.detail,
-                request_json.status);
+                detail,
+                "SUCCESS");
+            console.log("data.data[0]:", data.data[0])
             // data.transactionType = "BOOST POST";
             // data.transactionUnit = "COIN";
             if (request_json.idVoucher && request_json.idVoucher.length > 0) {
@@ -5125,14 +5215,14 @@ export class NewPostController {
                     this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
                 }
             }
-            var balanceData = await this.transBalancedService.findOneByTransactionId(data.data[0].detail._id.toString());
+            var balanceData = await this.transBalancedService.findOneByTransactionId(data.data[0]._id);
             var data_response = {
-                "noinvoice": data.data[0].noinvoice,
+                "noinvoice": data.data[0].noInvoice,
                 "postid": data.data[0].detail.postID,
                 "idusersell": data.data[1].idUser,
                 "iduserbuyer": data.data[0].idUser,
-                "NamaPembeli": buyerubasic.fullName,
-                "emailbuyer": emailbuyer.toString(),
+                "NamaPembeli": ubasic.fullName,
+                "emailbuyer": email,
                 "amount": data.data[0].coin,
                 "discount": data.data[0].discountCoin,
                 "paymentmethod": "COIN",
@@ -5151,7 +5241,7 @@ export class NewPostController {
                 "timestamp": data.data[0].createdAt,
                 "_id": data.data[0]._id
             }
-            this.editPostBoost(request_json.detail[0].postID, request_json.detail);
+            this.editPostBoost(request_json.postId, request_json.detail);
             // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
@@ -5312,7 +5402,7 @@ export class NewPostController {
                     await this.transDiscountService.create(insertDatatransDiscount);
 
                     listid.push(resultArray[i].idTransaction);
-                    response = resultArray[i]; 
+                    response = resultArray[i];
                 }
             }
 
