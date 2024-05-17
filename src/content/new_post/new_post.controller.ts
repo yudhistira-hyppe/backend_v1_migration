@@ -34,9 +34,14 @@ import { PosttaskService } from '../../content/posttask/posttask.service';
 import { ScheduleinjectService } from '../../schedule/scheduleinject/scheduleinject.service';
 import { Scheduleinject } from '../../schedule/scheduleinject/schemas/scheduleinject.schema';
 import { TempPOSTService } from './temp_post.service';
-import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service'; 
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
 import { TransactionsDiscounts, TransactionsDiscountsSchema } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
+import { TransactionsBalancedsService } from 'src/trans/transactionsv2/balanceds/transactionsbalanceds.service';
+import { MonetizationService } from 'src/trans/monetization/monetization.service';
+import { CreateNewPostDTO } from './dto/create-newPost.dto';
+import { TemplatesRepo } from 'src/infra/templates_repo/schemas/templatesrepo.schema';
+
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -63,8 +68,10 @@ export class NewPostController {
         private readonly PosttaskService: PosttaskService,
         private readonly ScheduleinjectService: ScheduleinjectService,
         private readonly TempPostService: TempPOSTService,
-        private readonly transV2Service:TransactionsV2Service,
-        private readonly transDiscountService:TransactionsDiscountsService,
+        private readonly transV2Service: TransactionsV2Service,
+        private readonly transDiscountService: TransactionsDiscountsService,
+        private readonly transBalancedService: TransactionsBalancedsService,
+        private readonly monetizationService: MonetizationService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -207,17 +214,14 @@ export class NewPostController {
             var transaction_fee = 0;
             var discount_id = null;
             var discount_fee = 0;
-            if(CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined)
-            {
-                transaction_fee = CreatePostRequest_.transaction_fee;
-                if(CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined)
-                {
+            if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined) {
+                transaction_fee = Number(CreatePostRequest_.transaction_fee.toString());
+                if (CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined) {
                     discount_id = CreatePostRequest_.discount_id;
-                    discount_fee = CreatePostRequest_.discount_fee;
+                    discount_fee = Number(CreatePostRequest_.discount_fee.toString());
                 }
 
-                if(data.data.certified == true)
-                {
+                if (data.data.certified == true) {
                     this.setTransaksiContentOwnership(postID, transaction_fee, discount_id, discount_fee);
                 }
             }
@@ -586,17 +590,14 @@ export class NewPostController {
                 var transaction_fee = 0;
                 var discount_id = null;
                 var discount_fee = 0;
-                if(body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined)
-                {
+                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
                     transaction_fee = body.transaction_fee;
-                    if(body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined)
-                    {
+                    if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
                         discount_id = body.discount_id;
                         discount_fee = body.discount_fee;
                     }
 
-                    if(body.certified == true)
-                    {
+                    if (body.certified == true) {
                         this.setTransaksiContentOwnership(body.postID, transaction_fee, discount_id, discount_fee);
                     }
                 }
@@ -5011,25 +5012,125 @@ export class NewPostController {
         var token = headers['x-auth-token'];
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
         var profile = await this.basic2SS.findbyemail(auth.email);
-        if(profile == null) {
+        if (profile == null) {
             await this.errorHandler.generateUnauthorizedException("profile not found!!")
         }
 
         var getdata = await this.newPostService.findUserPostfirst(auth.email);
 
-        if(getdata.length == 0)
-        {
+        if (getdata.length == 0) {
             return {
-                response_code:202,
-                result:false
-            }   
-        }
-        else
-        {
-            return {
-                response_code:202,
-                result:true
+                response_code: 202,
+                result: false
             }
+        }
+        else {
+            return {
+                response_code: 202,
+                result: true
+            }
+        }
+    }
+
+    @Post('/transactionsv2/createboostpost')
+    @UseGuards(JwtAuthGuard)
+    async createBoostPostTransaction(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/createboostpost';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        var ubasic = await this.basic2SS.findOneBymail(email);
+        var buyerubasic = await this.basic2SS.findOne(request_json.idUserBuy);
+        var emailbuyer = buyerubasic.email;
+        if (request_json.pin && request_json.pin != "") {
+            if (await this.utilsService.ceckData(ubasic)) {
+                if (ubasic.pin && ubasic.pin != "") {
+                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+                    if (pinDecrypt != request_json.pin) {
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        throw new BadRequestException("Unable to proceed: PIN mismatch");
+                    }
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: User data not found");
+            }
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Unable to proceed: Missing param: pin");
+        }
+        try {
+            var data;
+            data = await this.transV2Service.insertTransaction(
+                request_json.platform,
+                request_json.transactionProductCode,
+                request_json.category ? request_json.category : undefined,
+                request_json.coin,
+                request_json.discountCoin ? request_json.discountCoin : 0,
+                request_json.price,
+                request_json.discountPrice,
+                request_json.idUserBuy,
+                request_json.idUserSell ? request_json.idUserSell : undefined,
+                request_json.idVoucher ? request_json.idVoucher : undefined,
+                request_json.detail,
+                request_json.status);
+            // data.transactionType = "BOOST POST";
+            // data.transactionUnit = "COIN";
+            if (request_json.idVoucher && request_json.idVoucher.length > 0) {
+                for (let i = 0; i < request_json.idVoucher.length; i++) {
+                    this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
+                }
+            }
+            var balanceData = await this.transBalancedService.findOneByTransactionId(data.data[0].detail._id.toString());
+            var data_response = {
+                "noinvoice": data.data[0].noinvoice,
+                "postid": data.data[0].detail.postID,
+                "idusersell": data.data[1].idUser,
+                "iduserbuyer": data.data[0].idUser,
+                "NamaPembeli": buyerubasic.fullName,
+                "emailbuyer": emailbuyer.toString(),
+                "amount": data.data[0].coin,
+                "discount": data.data[0].discountCoin,
+                "paymentmethod": "COIN",
+                "status": data.data[0].status,
+                "description": "BOOST",
+                // "idva": transaction_boost.idva,
+                // "nova": transaction_boost.nova,
+                // "expiredtimeva": transaction_boost.expiredtimeva,
+                // "salelike": transaction_boost.saleview,
+                // "saleview": transaction_boost.salelike,
+                // "bank": bank.bankname,
+                // "bankvacharge": BankVaCharge,
+                "detail": data.data[0].detail,
+                "totalamount": data.data[0].totalCoin,
+                "accountbalance": balanceData.saldo,
+                "timestamp": data.data[0].createdAt,
+                "_id": data.data[0]._id
+            }
+            this.editPostBoost(request_json.detail[0].postID, request_json.detail);
+            // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            return {
+                response_code: 202,
+                data_response,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
         }
     }
 
@@ -5136,42 +5237,37 @@ export class NewPostController {
         }
     }
 
-    async setTransaksiContentOwnership(postID:string, transaction_fee:number, discount_id:string, discount_fee:number)
-    {
+    async setTransaksiContentOwnership(postID: string, transaction_fee: number, discount_id: string, discount_fee: number) {
         var getPost = await this.newPostService.findByPostId(postID);
         var getUserData = await this.basic2SS.findBymail(getPost.email.toString());
         var setDetail = [];
         var setVoucher = [];
 
-        if(discount_id != undefined && discount_id != null)
-        {
+        if (discount_id != undefined && discount_id != null) {
             setVoucher.push(discount_id);
         }
 
         setDetail.push(
             {
-                "postID":postID,
-                "typeData":"POST", 
-                "qty":1,
-                "amount":transaction_fee,
-                "discountCoin":discount_fee,
-                "totalAmount":transaction_fee - discount_fee
+                "postID": postID,
+                "typeData": "POST",
+                "qty": 1,
+                "amount": transaction_fee,
+                "discountCoin": discount_fee,
+                "totalAmount": transaction_fee - discount_fee
             }
         )
 
         var userhyppe = await this.settingsService.findOne(process.env.ID_USER_HYPPE);
 
         var resultTransaksi = await this.transV2Service.insertTransaction("APP", "CO", null, transaction_fee, discount_fee, 0, 0, getUserData._id.toString(), userhyppe.value.toString(), setVoucher, setDetail, "SUCCESS");
-        
-        if(resultTransaksi != false)
-        {
+
+        if (resultTransaksi != false) {
             var resultArray = resultTransaksi.data;
             var listid = [];
-            for(var i = 0; i < resultArray.length; i++)
-            {
+            for (var i = 0; i < resultArray.length; i++) {
                 var checkexist = listid.includes(resultArray[i].idTransaction);
-                if(checkexist == false)
-                {
+                if (checkexist == false) {
                     var insertDatatransDiscount = new TransactionsDiscounts();
                     insertDatatransDiscount._id = new mongoose.Types.ObjectId();
                     insertDatatransDiscount.idTransaction = resultArray[i].idTransaction;
@@ -5181,10 +5277,111 @@ export class NewPostController {
                     insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
                     insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
                     await this.transDiscountService.create(insertDatatransDiscount);
-                    
+
                     listid.push(resultArray[i].idTransaction);
                 }
             }
+
+            if (discount_id != undefined && discount_id != null) {
+                await this.monetizationService.updateStock(discount_id, 1, true);
+            }
         }
+    }
+
+    async editPostBoost(postid: string, detail: any[]) {
+        // var databoost = null;
+        // if (detail != undefined) {
+        //     if (detail.length > 0) {
+        //         databoost = detail.filter((item, index) => {
+        //             return (item.description == "BOOST");
+        //         });
+        //     }
+        // }
+
+        var GetMaxBoost = await this.utilsService.getSetting_("636212526f07000023005ce3");
+        let ContInterval = Number(detail[0].interval.value.toString()) * Number(GetMaxBoost.toString());
+        // let ContInterval = Number(databoost[0].interval.value.toString()) * Number(GetMaxBoost.toString());
+
+        var boost = [];
+        var dateStartString = (detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")
+        // var dateStartString = (databoost[0].dateStart.toString() + "T" + databoost[0].session.start.toString() + ".000Z")
+        // var dateStartDate = new Date(dateStartString)
+        // var dateStartAdd = new Date(dateStartDate.getTime() + ContInterval * 60000)
+        // var dateStartGetTime = dateStartAdd.toISOString().split('T')[1].split(".")[0]
+
+        // console.log("date String", dateStartString);
+        // console.log("date Date", new Date(dateStartString));
+        // console.log("date Add", dateStartAdd);
+        // console.log("date GetTime", dateStartGetTime);
+
+        var dataBoost = {
+            type: detail[0].type.toString(),
+            // type: databoost[0].type.toString(),
+            boostDate: new Date(detail[0].dateStart.toString()),
+            // boostDate: new Date(databoost[0].dateStart.toString()),
+            boostInterval: {
+                id: new mongoose.Types.ObjectId(detail[0].interval._id.toString()),
+                // id: new mongoose.Types.ObjectId(databoost[0].interval._id.toString()),
+                value: detail[0].interval.value.toString(),
+                // value: databoost[0].interval.value.toString(),
+                remark: detail[0].interval.remark.toString(),
+                // remark: databoost[0].interval.remark.toString(),
+            },
+            boostSession: {
+                id: new mongoose.Types.ObjectId(detail[0].session._id.toString()),
+                // id: new mongoose.Types.ObjectId(databoost[0].session._id.toString()),
+                //start: new Date((detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")),
+                //end: new Date((detail[0].datedateEnd.toString() + "T" + detail[0].session.end.toString() + ".000Z")),
+
+                start: (detail[0].dateStart.toString() + " " + detail[0].session.start.toString()),
+                // start: (databoost[0].dateStart.toString() + " " + databoost[0].session.start.toString()),
+                end: (detail[0].datedateEnd.toString() + " " + detail[0].session.end.toString()),
+                // end: (databoost[0].datedateEnd.toString() + " " + dateStartGetTime),
+                timeStart: detail[0].session.start,
+                // timeStart: databoost[0].session.start,
+                timeEnd: detail[0].session.end,
+                name: detail[0].session.name,
+                // name: databoost[0].session.name,
+            },
+            boostViewer: [],
+        }
+        boost.push(dataBoost);
+        var CreateNewPostDTO_ = new CreateNewPostDTO();
+        CreateNewPostDTO_.boostCount = 0;
+        CreateNewPostDTO_.isBoost = 5;
+        CreateNewPostDTO_.boosted = boost;
+        await this.newPostService.updateByPostId(postid, CreateNewPostDTO_)
+    }
+
+    async sendCommentFCM(type: string, postID: string, receiverParty: string, idtransaction?: string) {
+        var Templates_ = new TemplatesRepo();
+        Templates_ = await this.utilsService.getTemplate_repo(type, 'NOTIFICATION');
+
+        var email = receiverParty;
+        var titlein = Templates_.subject.toString();
+        var titleen = Templates_.subject.toString();
+        var bodyin = "";
+        var bodyen = "";
+
+        var email_post = "";
+        var posts = await this.newPostService.findid(postID);
+        var bodyin_get = Templates_.body_detail_id.toString();
+        var bodyen_get = Templates_.body_detail.toString();
+        var post_type = "";
+        if (await this.utilsService.ceckData(posts)) {
+            post_type = posts.postType.toString();
+            email_post = posts.email.toString();
+        }
+        var new_bodyin_get = bodyin_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
+        var new_bodyen_get = bodyen_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
+
+        var bodyin = new_bodyin_get;
+        var bodyen = new_bodyen_get;
+
+        var eventType = "TRANSACTION";
+        var event = type;
+
+        await this.utilsService.sendFcmV2(email, email, eventType, event, type, postID, post_type, idtransaction)
+        //await this.utilsService.sendFcm(email, titlein, titleen, bodyin, bodyen, eventType, event);
     }
 }

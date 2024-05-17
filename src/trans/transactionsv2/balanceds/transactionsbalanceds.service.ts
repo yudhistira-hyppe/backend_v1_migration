@@ -27,6 +27,10 @@ export class TransactionsBalancedsService {
         return await this.transactionsBalancedsModel.findOne({ _id: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
     }
 
+    async findOneByTransactionId(id: string): Promise<TransactionsBalanceds> {
+        return await this.transactionsBalancedsModel.findOne({ idTransaction: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
+    }
+
     async filAll(): Promise<TransactionsBalanceds[]> {
         return await this.transactionsBalancedsModel.find().exec();
     }

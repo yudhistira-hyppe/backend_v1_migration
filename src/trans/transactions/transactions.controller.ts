@@ -49,6 +49,9 @@ import { CreateNewPostDTO } from 'src/content/new_post/dto/create-newPost.dto';
 import { NewPostContentService } from 'src/content/new_post/new_postcontent.service';
 import { MonetizenewService } from 'src/trans/transactions/monetizenew/monetizenew.service';
 import { ConfigService } from '@nestjs/config';
+import { TransactionsBalancedsService } from '../transactionsv2/balanceds/transactionsbalanceds.service';
+import { TransactionsProductsService } from '../transactionsv2/products/transactionsproducts.service';
+
 
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 
@@ -88,6 +91,8 @@ export class TransactionsController {
         private readonly MonetizenewService: MonetizenewService,
         private readonly configService: ConfigService,
         private readonly TransactionsV2Service: TransactionsV2Service,
+        private readonly transBalanceSS: TransactionsBalancedsService,
+        private readonly transProdSS: TransactionsProductsService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -19730,31 +19735,77 @@ export class TransactionsController {
         };
 
         var request_json = JSON.parse(JSON.stringify(request.body));
-        var transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
-        var transaction_fee = transaction_fee_data.value;
-        if (!request_json.price) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        if (request_json.typeTransaction == null || request_json.typeTransaction == undefined) {
+            await this.errorHandler.generateBadRequestException("typeTransaction required");
+        }
 
-            throw new BadRequestException("Missing field: price (number)");
-        } else price = request_json.price;
+        var transaction_fee_data = null;
+        var transaction_fee = null;
+        switch (request_json.typeTransaction) {
+            case ("TOPUP"):
+                {
+                    transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
+                    transaction_fee = transaction_fee_data.value;
+                    price = request_json.price;
+                    break;
+                }
+            case ("CONTENT_OWNERSHIP"):
+                {
+                    transaction_fee_data = await this.transProdSS.findOneByCode("CO");
+                    transaction_fee = 0;
+                    price = transaction_fee_data.price;
+                    break;
+                }
+            default:
+                {
+                    await this.errorHandler.generateBadRequestException("Transaction type not found");
+                    break;
+                }
+        }
 
         if (request_json.discount_id) {
             var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
             discount = discount_data.nominal_discount;
         }
 
+        var total_payment_before = price + transaction_fee;
+        var total_payment_after = price + transaction_fee - discount;
+
+        var selisih = 0;
+        var getbasicdata = await this.basic2SS.findBymail(setemail);
+        var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
+        selisih = cekSaldo[0].totalSaldo - total_payment_after;
+        var resultKurang = false;
+        if (selisih < 0) {
+            resultKurang = true;
+        }
+
+        var setoutput = {};
+        setoutput['price'] = price;
+        setoutput['transaction_fee'] = transaction_fee;
+        setoutput['total_before_discount'] = total_payment_before;
+        setoutput['total_payment'] = total_payment_after;
+        setoutput['balance'] = cekSaldo[0].totalSaldo;
+        setoutput['needTopUp'] = resultKurang;
+        setoutput['discount'] = discount;
+
+        if (request_json.typeTransaction == "CONTENT_OWNERSHIP") {
+            if (request_json.sell_content == true) {
+                setoutput['sell_content'] = true;
+                setoutput['sell_like'] = request_json.sell_like;
+                setoutput['sell_viewer'] = request_json.sell_viewer;
+                setoutput['sell_price'] = request_json.sell_price;
+            }
+            else {
+                setoutput['sell_content'] = false;
+            }
+        }
+
         var timestamps_end = await this.utilsService.getDateTimeString();
         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
         return {
             response_code: 202,
-            data: {
-                price: price,
-                transaction_fee: transaction_fee,
-                discount: discount,
-                total_before_discount: price + transaction_fee,
-                total_payment: price + transaction_fee - discount
-            },
+            data: setoutput,
             messages
         }
     }

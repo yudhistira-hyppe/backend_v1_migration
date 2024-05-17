@@ -780,7 +780,6 @@ export class MediastreamingService {
             totalLike: -1,
             totalFollower: -1,
             startLive: -1,
-
           }
         },
         {
@@ -1492,6 +1491,19 @@ export class MediastreamingService {
               as: "view",
               cond: {
                 $eq: ["$$view.status", true]
+              }
+            }
+          },
+        }
+      },
+      {
+        $set: {
+          comment_active: {
+            $filter: {
+              input: "$comment",
+              as: "comment",
+              cond: {
+                $eq: ["$$view.commentType", "MESSAGGES"]
               }
             }
           },
