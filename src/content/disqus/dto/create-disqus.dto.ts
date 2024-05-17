@@ -113,7 +113,8 @@ export class DisqusResDto {
   disqusLogs: DisquslogsDto[];
   _class: String;
   type: String;
-  urluserBadge: any[]
+  urluserBadge: any[];
+  DetailTransaction: any;
 }
 
 export class Messages {
