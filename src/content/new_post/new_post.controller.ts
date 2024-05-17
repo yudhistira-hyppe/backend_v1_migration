@@ -37,6 +37,8 @@ import { TempPOSTService } from './temp_post.service';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
 import { TransactionsDiscounts, TransactionsDiscountsSchema } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
+import { TransactionsBalancedsService } from 'src/trans/transactionsv2/balanceds/transactionsbalanceds.service';
+import { MonetizationService } from 'src/trans/monetization/monetization.service';
 import { CreateNewPostDTO } from './dto/create-newPost.dto';
 import { TemplatesRepo } from 'src/infra/templates_repo/schemas/templatesrepo.schema';
 
@@ -68,6 +70,8 @@ export class NewPostController {
         private readonly TempPostService: TempPOSTService,
         private readonly transV2Service: TransactionsV2Service,
         private readonly transDiscountService: TransactionsDiscountsService,
+        private readonly transBalancedService: TransactionsBalancedsService,
+        private readonly monetizationService: MonetizationService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -5082,14 +5086,45 @@ export class NewPostController {
                 request_json.idVoucher ? request_json.idVoucher : undefined,
                 request_json.detail,
                 request_json.status);
-            data.transactionType = "BOOST POST";
-            data.transactionUnit = "COIN";
+            // data.transactionType = "BOOST POST";
+            // data.transactionUnit = "COIN";
+            if (request_json.idVoucher && request_json.idVoucher.length > 0) {
+                for (let i = 0; i < request_json.idVoucher.length; i++) {
+                    this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
+                }
+            }
+            var balanceData = await this.transBalancedService.findOneByTransactionId(data.data[0].detail._id.toString());
+            var data_response = {
+                "noinvoice": data.data[0].noinvoice,
+                "postid": data.data[0].detail.postID,
+                "idusersell": data.data[1].idUser,
+                "iduserbuyer": data.data[0].idUser,
+                "NamaPembeli": buyerubasic.fullName,
+                "emailbuyer": emailbuyer.toString(),
+                "amount": data.data[0].coin,
+                "discount": data.data[0].discountCoin,
+                "paymentmethod": "COIN",
+                "status": data.data[0].status,
+                "description": "BOOST",
+                // "idva": transaction_boost.idva,
+                // "nova": transaction_boost.nova,
+                // "expiredtimeva": transaction_boost.expiredtimeva,
+                // "salelike": transaction_boost.saleview,
+                // "saleview": transaction_boost.salelike,
+                // "bank": bank.bankname,
+                // "bankvacharge": BankVaCharge,
+                "detail": data.data[0].detail,
+                "totalamount": data.data[0].totalCoin,
+                "accountbalance": balanceData.saldo,
+                "timestamp": data.data[0].createdAt,
+                "_id": data.data[0]._id
+            }
             this.editPostBoost(request_json.detail[0].postID, request_json.detail);
-            this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
+            // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
                 response_code: 202,
-                data,
+                data_response,
                 messages
             }
         } catch (e) {
@@ -5245,6 +5280,10 @@ export class NewPostController {
 
                     listid.push(resultArray[i].idTransaction);
                 }
+            }
+
+            if (discount_id != undefined && discount_id != null) {
+                await this.monetizationService.updateStock(discount_id, 1, true);
             }
         }
     }
