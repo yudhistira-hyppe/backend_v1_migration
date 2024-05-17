@@ -19739,6 +19739,14 @@ export class TransactionsController {
         var setemail = auth.email;
         var price = null;
         var discount = 0;
+        var dataConten=null;
+        var dt = new Date(Date.now());
+        dt.setHours(dt.getHours() + 7); // timestamp
+        dt = new Date(dt);
+        var strdate = dt.toISOString();
+        var repdate = strdate.replace('T', ' ');
+        var splitdate = repdate.split('.');
+        var timedate = splitdate[0];
         const messages = {
             "info": ["The process was successful"],
         };
@@ -19812,11 +19820,93 @@ export class TransactionsController {
 
         var timestamps_end = await this.utilsService.getDateTimeString();
         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+        if(request_json.typeTransaction=="CONTENT"){
+
+            let obj=null;
+            if (request_json.postID == null || request_json.postID == undefined) {
+                await this.errorHandler.generateBadRequestException("postID required");
+            }
+            try{
+                dataConten= await this.posts2SS.findOne(request_json.postID );
+            }catch(e){
+                dataConten=null;
+            }
+
+            if(dataConten !==null){
+                let jenisKonten=null;
+                let postType=null;
+                let email=null;
+                let ubasic=null;
+                let namapenjual=null;
+                let saleLike=null;
+                let saleView=null;
+                try{
+                    postType=dataConten.postType;
+                }catch(e){
+                    postType=null;
+                }
+                try{
+                    saleLike=dataConten.saleLike;
+                }catch(e){
+                    saleLike=null;
+                }
+                try{
+                    saleView=dataConten.saleView;
+                }catch(e){
+                    saleView=null;
+                }
+                try{
+                    email=dataConten.email;
+                }catch(e){
+                    email=null;
+                }
+                if(postType=="pict"){
+                    jenisKonten="HyppePic"
+                }
+                else  if(postType=="vid"){
+                    jenisKonten="HyppeVid"
+                }
+                else  if(postType=="diary"){
+                    jenisKonten="HyppeDiary"
+                }
+                try {
+                     ubasic = await this.basic2SS.findBymail(email);
+                               
+                } catch (e) {
+                    ubasic=null;
+                }
+
+                if(ubasic !==null){
+                     namapenjual = ubasic.username;
+                }
+                obj={
+
+                    "nomorSertifikat":request_json.postID,
+                    "jenisKonten":jenisKonten,
+                    "creator":namapenjual,
+                    "waktu":timedate,
+                    "like":saleLike,
+                    "view":saleView,
+                    "price":request_json.sell_price,
+                }
+
+            }
+
+
+            return {
+                response_code: 202,
+                data: obj,
+                messages
+            }
+
+        }else{
         return {
             response_code: 202,
             data: setoutput,
             messages
         }
+    }
     }
 
     @Post('api/transactions/coinorderhistory')
