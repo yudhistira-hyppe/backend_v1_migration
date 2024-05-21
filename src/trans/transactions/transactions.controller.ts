@@ -19759,6 +19759,8 @@ export class TransactionsController {
         if(request_json.typeTransaction=="CONTENT"){
 
             let obj=null;
+            let total=0;
+            let discount=0;
             if (request_json.postID == null || request_json.postID == undefined) {
                 await this.errorHandler.generateBadRequestException("postID required");
             }
@@ -19767,7 +19769,14 @@ export class TransactionsController {
             }catch(e){
                 dataConten=null;
             }
+            if (request_json.discount_id) {
+                var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
+                discount = discount_data.nominal_discount;
+                total=Number(request_json.price)- Number(discount);
+            }
 
+
+    
             if(dataConten !==null){
                 let jenisKonten=null;
                 let postType=null;
@@ -19823,7 +19832,9 @@ export class TransactionsController {
                     "waktu":timedate,
                     "like":saleLike,
                     "view":saleView,
+                    "diskon":discount,
                     "price":request_json.price,
+                    "total":total,
                 }
 
             }
