@@ -5380,10 +5380,25 @@ export class NewPostController {
         try {
             let creditData = await this.monetizationService.findOne(request_json.paketID);
             let data = {
-
+                paketID: request_json.paketID,
+                typeData: "CREDIT",
+                qty: 1,
+                credit: creditData.amount,
+                amount: creditData.price,
+                discountCoin: request_json.discount ? request_json.discount : 0,
+                totalAmount: creditData.price - (request_json.discount ? request_json.discount : 0)
+            }
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            return {
+                response_code: 202,
+                data,
+                messages
             }
         } catch (e) {
-
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
         }
     }
 
@@ -5426,37 +5441,38 @@ export class NewPostController {
         }
         try {
             var data;
-            var detail;
-            // Generate detail
-            switch (request_json.transactionProductCode) {
-                case "CR": //Paket kredit
-                    let creditData = await this.monetizationService.findOne(request_json.paketID);
-                    detail = {
-                        paketID: request_json.paketID,
-                        typeData: "CREDIT",
-                        qty: 1,
-                        credit: creditData.amount,
-                    }
-                    break;
-            }
+            // var detail;
+            // // Generate detail
+            // switch (request_json.transactionProductCode) {
+            //     case "CR": //Paket kredit
+            //         let creditData = await this.monetizationService.findOne(request_json.paketID);
+            //         detail = {
+            //             paketID: request_json.paketID,
+            //             typeData: "CREDIT",
+            //             qty: 1,
+            //             credit: creditData.amount,
+            //         }
+            //         break;
+            // }
             data = await this.transV2Service.insertTransaction(
                 request_json.platform,
                 request_json.transactionProductCode,
                 request_json.category ? request_json.category : undefined,
-                request_json.coin,
-                request_json.discountCoin ? request_json.discountCoin : 0,
+                request_json.detail.amount,
+                request_json.detail.discountCoin,
                 0,
                 0,
-                request_json.idUserBuy,
+                ubasic._id.toString(),
                 request_json.idUserSell ? request_json.idUserSell : undefined,
                 request_json.idVoucher ? request_json.idVoucher : undefined,
-                detail,
-                request_json.status);
+                request_json.detail,
+                "SUCCESS");
             if (request_json.idVoucher && request_json.idVoucher.length > 0) {
                 for (let i = 0; i < request_json.idVoucher.length; i++) {
                     this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
                 }
             }
+            var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
                 response_code: 202,
