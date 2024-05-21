@@ -32,10 +32,13 @@ import { LogapisModule } from '../logapis/logapis.module';
 import { Monetizenew2Service } from './monetizenew/monetizenew.service';
 import { transactionCoin3Service } from './monetizenew/transactionCoin.service';
 import { monetizenew2Schema, Monetizenew2 } from './monetizenew/schemas/monetizenew.schema';
+// import { MonetizationModule } from '../monetization/monetization.module';
 import { transactionCoin3Schema, transactionCoin3 } from './monetizenew/schemas/transactionCoin.schema';
 // import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { TransactionsDiscounts, TransactionsDiscountsSchema } from './discount/schema/transactionsdiscount.schema';
 import { TransactionsDiscountsService } from './discount/transactionsdiscount.service';
+// import { BoostintervalModule } from 'src/content/boostinterval/boostinterval.module';
+// import { BoostsessionModule } from 'src/content/boostsession/boostsession.module';
 @Module({
 
     imports: [
@@ -44,6 +47,9 @@ import { TransactionsDiscountsService } from './discount/transactionsdiscount.se
         AdsBalaceCreditModule,
         UserbasicnewModule,
         // NewPostModule,
+        // MonetizationModule,
+        // BoostintervalModule,
+        // BoostsessionModule,
         UtilsModule,
         ConfigModule.forRoot(),
         MongooseModule.forFeature([

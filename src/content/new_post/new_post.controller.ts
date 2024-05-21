@@ -5068,11 +5068,11 @@ export class NewPostController {
         }
     }
 
-    @Post('/transactionsv2/createboostpost')
+    @Post('/transactionsv2/boostpostdetail')
     @UseGuards(JwtAuthGuard)
-    async createBoostPostTransaction(@Req() request: any, @Headers() headers) {
+    async boostPostPaymentDetail(@Req() request: any, @Headers() headers) {
         var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactionsv2/createboostpost';
+        var fullurl = headers.host + '/api/transactionsv2/boostpostdetail';
         var token = headers['x-auth-token'];
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
         var email = auth.email;
@@ -5080,36 +5080,9 @@ export class NewPostController {
         const messages = {
             "info": ["The process was successful"],
         };
-        var ubasic = await this.basic2SS.findOneBymail(email);
-        // var buyerubasic = await this.basic2SS.findOne(request_json.idUserBuy);
-        // var emailbuyer = buyerubasic.email;
-        if (request_json.pin && request_json.pin != "") {
-            if (await this.utilsService.ceckData(ubasic)) {
-                if (ubasic.pin && ubasic.pin != "") {
-                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
-                    if (pinDecrypt != request_json.pin) {
-                        var timestamps_end = await this.utilsService.getDateTimeString();
-                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                        throw new BadRequestException("Unable to proceed: PIN mismatch");
-                    }
-                } else {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
-                }
-            } else {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                throw new BadRequestException("Unable to proceed: User data not found");
-            }
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            throw new BadRequestException("Unable to proceed: Missing param: pin");
-        }
         try {
-            //Generate detail
-            var detail;
+            let priceData = await this.transProductsService.findOneByCode("BP");
+            let price = priceData.price;
             var interval;
             var session;
             if (request_json.type == "automatic") {
@@ -5179,6 +5152,140 @@ export class NewPostController {
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                 throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
             }
+            let data = {
+                posttype: request_json.posttype,
+                startdate: request_json.dateStart + " " + session.start,
+                price: price,
+                discount: request_json.discount ? request_json.discount : 0,
+                total: price - (request_json.discount ? request_json.discount : 0),
+                session: session,
+                interval: interval
+            }
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            return {
+                response_code: 202,
+                data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('/transactionsv2/createboostpost')
+    @UseGuards(JwtAuthGuard)
+    async createBoostPostTransaction(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/createboostpost';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        var ubasic = await this.basic2SS.findOneBymail(email);
+        // var buyerubasic = await this.basic2SS.findOne(request_json.idUserBuy);
+        // var emailbuyer = buyerubasic.email;
+        if (request_json.pin && request_json.pin != "") {
+            if (await this.utilsService.ceckData(ubasic)) {
+                if (ubasic.pin && ubasic.pin != "") {
+                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+                    if (pinDecrypt != request_json.pin) {
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        throw new BadRequestException("Unable to proceed: PIN mismatch");
+                    }
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: User data not found");
+            }
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Unable to proceed: Missing param: pin");
+        }
+        try {
+            //Generate detail
+            var detail;
+            // var interval;
+            // var session;
+            // if (request_json.type == "automatic") {
+            //     //CHECK INTERVAL
+            //     interval = await this.boostIntervalService.findByType("automatic");
+            //     if (!(await this.utilsService.ceckData(interval))) {
+            //         var timestamps_end = await this.utilsService.getDateTimeString();
+            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            //         throw new BadRequestException(
+            //             'Unable to proceed: interval not found',
+            //         );
+            //     }
+
+            //     //CHECK SESSION
+            //     session = await this.boostSessionService.findByType("automatic");
+            //     if (!(await this.utilsService.ceckData(session))) {
+            //         var timestamps_end = await this.utilsService.getDateTimeString();
+            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            //         throw new BadRequestException(
+            //             'Unable to proceed: session not found',
+            //         );
+            //     }
+            // } else if (request_json.type == "manual") {
+            //     //CHECK PARAM INTERVAL, SESSION
+            //     if (request_json.interval == undefined) {
+            //         var timestamps_end = await this.utilsService.getDateTimeString();
+            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            //         throw new BadRequestException(
+            //             'Unable to proceed: interval is required',
+            //         );
+            //     }
+            //     if (request_json.session.toLowerCase() == undefined) {
+            //         var timestamps_end = await this.utilsService.getDateTimeString();
+            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            //         throw new BadRequestException(
+            //             'Unable to proceed: session is required',
+            //         );
+            //     }
+
+            //     //CHECK INTERVAL
+            //     interval = await this.boostIntervalService.findById(request_json.interval);
+            //     if (!(await this.utilsService.ceckData(interval))) {
+            //         var timestamps_end = await this.utilsService.getDateTimeString();
+            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            //         throw new BadRequestException(
+            //             'Unable to proceed: interval not found',
+            //         );
+            //     }
+
+            //     //CHECK SESSION
+            //     session = await this.boostSessionService.findById(request_json.session);
+            //     if (!(await this.utilsService.ceckData(session))) {
+            //         var timestamps_end = await this.utilsService.getDateTimeString();
+            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            //         throw new BadRequestException(
+            //             'Unable to proceed: session not found',
+            //         );
+            //     }
+            // } else {
+            //     var timestamps_end = await this.utilsService.getDateTimeString();
+            //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            //     throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
+            // }
             detail = {
                 "postID": request_json.postId,
                 "typeData": "POST",
@@ -5187,8 +5294,8 @@ export class NewPostController {
                 "discountCoin": request_json.discountCoin ? request_json.discountCoin : 0,
                 "totalAmount": request_json.coin - (request_json.discountCoin ? request_json.discountCoin : 0),
                 "qty": 1,
-                "interval": interval,
-                "session": session,
+                "interval": request_json.interval,
+                "session": request_json.session,
                 "type": request_json.type,
                 "dateStart": request_json.dateStart,
                 "datedateEnd": request_json.dateEnd
@@ -5207,7 +5314,7 @@ export class NewPostController {
                 request_json.idVoucher ? request_json.idVoucher : undefined,
                 detail,
                 "SUCCESS");
-            console.log("data.data[0]:", data.data[0])
+            // console.log("data.data[0]:", data.data[0])
             // data.transactionType = "BOOST POST";
             // data.transactionUnit = "COIN";
             if (request_json.idVoucher && request_json.idVoucher.length > 0) {
