@@ -5348,12 +5348,95 @@ export class NewPostController {
                 "timestamp": data.data[0].createdAt,
                 "_id": data.data[0]._id
             }
-            this.editPostBoost(request_json.postId, request_json.detail);
+            this.editPostBoost(request_json.postId, detail);
             // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
                 response_code: 202,
                 data_response,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('/transactionsv2/insertcointransaction')
+    @UseGuards(JwtAuthGuard)
+    async insertCoinTransaction(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/insertcointransaction';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        var ubasic = await this.basic2SS.findOneBymail(email);
+        if (request_json.pin && request_json.pin != "") {
+            if (await this.utilsService.ceckData(ubasic)) {
+                if (ubasic.pin && ubasic.pin != "") {
+                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+                    if (pinDecrypt != request_json.pin) {
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        throw new BadRequestException("Unable to proceed: PIN mismatch");
+                    }
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: User data not found");
+            }
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Unable to proceed: Missing param: pin");
+        }
+        try {
+            var data;
+            var detail;
+            // Generate detail
+            switch (request_json.transactionProductCode) {
+                case "CR": //Paket kredit
+                    let creditData = await this.monetizationService.findOne(request_json.paketID);
+                    detail = {
+                        paketID: request_json.paketID,
+                        typeData: "CREDIT",
+                        qty: 1,
+                        credit: creditData.amount,
+                    }
+                    break;
+            }
+            data = await this.transV2Service.insertTransaction(
+                request_json.platform,
+                request_json.transactionProductCode,
+                request_json.category ? request_json.category : undefined,
+                request_json.coin,
+                request_json.discountCoin ? request_json.discountCoin : 0,
+                request_json.price,
+                request_json.discountPrice,
+                request_json.idUserBuy,
+                request_json.idUserSell ? request_json.idUserSell : undefined,
+                request_json.idVoucher ? request_json.idVoucher : undefined,
+                request_json.detail,
+                request_json.status);
+            if (request_json.idVoucher && request_json.idVoucher.length > 0) {
+                for (let i = 0; i < request_json.idVoucher.length; i++) {
+                    this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
+                }
+            }
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            return {
+                response_code: 202,
+                data,
                 messages
             }
         } catch (e) {
