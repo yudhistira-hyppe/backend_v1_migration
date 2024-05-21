@@ -19773,6 +19773,8 @@ export class TransactionsController {
                 var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
                 discount = discount_data.nominal_discount;
                 total=Number(request_json.price)- Number(discount);
+            }else{
+                total=Number(request_json.price);
             }
 
 
