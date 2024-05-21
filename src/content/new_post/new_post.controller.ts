@@ -5154,7 +5154,9 @@ export class NewPostController {
             }
             let data = {
                 posttype: request_json.posttype,
-                startdate: request_json.dateStart + " " + session.start,
+                typeBoost: request_json.type,
+                dateStart: request_json.dateStart,
+                dateEnd: request_json.dateEnd,
                 price: price,
                 discount: request_json.discount ? request_json.discount : 0,
                 total: price - (request_json.discount ? request_json.discount : 0),
@@ -5363,6 +5365,28 @@ export class NewPostController {
         }
     }
 
+    @Post('/transactionsv2/creditpurchasedetail')
+    @UseGuards(JwtAuthGuard)
+    async getCreditPurchaseDetail(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/insertcointransaction';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            let creditData = await this.monetizationService.findOne(request_json.paketID);
+            let data = {
+
+            }
+        } catch (e) {
+
+        }
+    }
+
     @Post('/transactionsv2/insertcointransaction')
     @UseGuards(JwtAuthGuard)
     async insertCoinTransaction(@Req() request: any, @Headers() headers) {
@@ -5421,12 +5445,12 @@ export class NewPostController {
                 request_json.category ? request_json.category : undefined,
                 request_json.coin,
                 request_json.discountCoin ? request_json.discountCoin : 0,
-                request_json.price,
-                request_json.discountPrice,
+                0,
+                0,
                 request_json.idUserBuy,
                 request_json.idUserSell ? request_json.idUserSell : undefined,
                 request_json.idVoucher ? request_json.idVoucher : undefined,
-                request_json.detail,
+                detail,
                 request_json.status);
             if (request_json.idVoucher && request_json.idVoucher.length > 0) {
                 for (let i = 0; i < request_json.idVoucher.length; i++) {
