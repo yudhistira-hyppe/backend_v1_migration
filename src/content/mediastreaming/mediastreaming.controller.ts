@@ -187,6 +187,111 @@ export class MediastreamingController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/ceck')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async getStatusStream(@Headers() headers) {
+    const currentDate = await this.utilsService.getDate();
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+    var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
+    if (!(await this.utilsService.ceckData(profile))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed user not found',
+      );
+    }
+
+    if (profile.statusKyc != undefined) {
+      if (profile.statusKyc != "verified") {
+        await this.errorHandler.generateNotAcceptableException(
+          'Unabled to proceed user is not verified',
+        );
+      }
+    }
+
+    let statusAppeal = false;
+    if (profile.streamBanned != undefined) {
+      if (profile.streamBanned) {
+        //Get ID_SETTING_MAX_BANNED
+        const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+        const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
+        let streamWarning = profile.streamWarning;
+        let streamBanding = profile.streamBanding;
+        if (streamWarning.length > 0) {
+          streamWarning.sort(function (a, b) {
+            return Date.parse(b.createAt) - Date.parse(a.createAt);
+          })
+          streamBanding.filter((bd) => {
+            return bd.status == true;
+          });
+          if (streamBanding.length > 0) {
+            statusAppeal = true;
+          }
+          let dataStream = {
+            streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
+            streamBannedDate: profile.streamBannedDate,
+            streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
+            dateStream: streamWarning[0].dateStream,
+            statusAppeal: statusAppeal,
+            user: {
+              _id: profile._id._id.toString(),
+              fullName: profile.fullName,
+              email: profile.email,
+              username: profile.username,
+              avatar: {
+                "mediaBasePath": profile.mediaBasePath,
+                "mediaUri": profile.mediaUri,
+                "mediaType": profile.mediaType,
+                "mediaEndpoint": profile.mediaEndpoint
+              },
+            },
+          }
+          const Response = {
+            response_code: 202,
+            statusStream: false,
+            data: dataStream,
+            messages: {
+              info: [
+                "User is Banned"
+              ]
+            }
+          }
+          return Response;
+        } else {
+          const Response = {
+            response_code: 202,
+            statusStream: false,
+            messages: {
+              info: [
+                "User is Banned"
+              ]
+            }
+          }
+          return Response;
+        }
+      }
+    } else {
+      const Response = {
+        response_code: 202,
+        statusStream: true,
+        messages: {
+          info: [
+            "User is Banned"
+          ]
+        }
+      }
+      return Response;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/update')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
