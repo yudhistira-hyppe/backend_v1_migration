@@ -49,10 +49,20 @@ export class MediastreamingController {
       );
     }
 
-    if (profile.streamBanned) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed user is Banned',
-      );
+    if (profile.statusKyc != undefined) {
+      if (profile.statusKyc != "verified") {
+        await this.errorHandler.generateNotAcceptableException(
+          'Unabled to proceed user is not verified',
+        );
+      }
+    }
+
+    if (profile.streamBanned != undefined) {
+      if (profile.streamBanned) {
+        await this.errorHandler.generateNotAcceptableException(
+          'Unabled to proceed user is Banned',
+        );
+      }
     }
 
     //Get EXPIRATION_TIME_LIVE
@@ -822,7 +832,7 @@ export class MediastreamingController {
       } else if (MediastreamingDto_.type == "REPORT") {
         if (UserReport) {
           await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed, Report User Stream not exist',
+            'Unabled to proceed, Report User Stream already exist',
           );
         } else {
           return await this.errorHandler.generateAcceptResponseCode(

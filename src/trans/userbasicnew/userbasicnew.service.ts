@@ -8191,9 +8191,11 @@ export class UserbasicnewService {
             for (let i = 0; i < getDataUser.length;i++){
                 let dataUser = getDataUser[i];
                 let streamWarning = dataUser.streamWarning;
+                console.log("streamWarning no sort", streamWarning)
                 streamWarning.sort(function (a, b) {
-                    return parseFloat(a.price) - parseFloat(b.price);
+                    return parseFloat(a.createAt) - parseFloat(b.createAt);
                 })
+                console.log("streamWarning sort", streamWarning)
             }
         }
     }
