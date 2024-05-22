@@ -2562,8 +2562,6 @@ export class TransactionsController {
 
             }
         }
-
-
         try {
 
             datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
@@ -3137,7 +3135,7 @@ export class TransactionsController {
 
                 ubasicseller = await this.basic2SS.findBymail(emailseller);
                 iduserseller = ubasicseller._id;
-                namapenjual = ubasicseller.fullName;
+                namapenjual = ubasicseller.username;
 
             } catch (e) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -3193,8 +3191,22 @@ export class TransactionsController {
                     [],
                     arrDt,
                     "SUCCESS");
-                dataT.transactionType = "CONTENT";
-                dataT.transactionUnit = "COIN";
+                // dataT.transactionType = "CONTENT";
+                // dataT.transactionUnit = "COIN";
+
+                var dataTr = {
+                    //"noinvoice": datatr.noinvoice,
+                    "postid": postidTR,
+                    "email":email,
+                    "NamaPenjual": namapenjual,
+                    "waktu":timedate,
+                    "amount": totalAmount,
+                    "paymentmethod": "Hyppe Coins",
+                    "diskon": diskon,
+                    "jenisTransaksi":"Pembelian Konten",
+                    "platform": platform,
+                  
+                };
 
                 try {
 
@@ -3222,7 +3234,7 @@ export class TransactionsController {
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                 return {
                     response_code: 202,
-                    data: dataT,
+                    data: dataTr,
                     messages
                 }
 
@@ -19787,6 +19799,7 @@ export class TransactionsController {
                 let namapenjual=null;
                 let saleLike=null;
                 let saleView=null;
+                let createdAt=null;
                 try{
                     postType=dataConten.postType;
                 }catch(e){
@@ -19796,6 +19809,11 @@ export class TransactionsController {
                     saleLike=dataConten.saleLike;
                 }catch(e){
                     saleLike=null;
+                }
+                try{
+                    createdAt=dataConten.createdAt;
+                }catch(e){
+                    createdAt=null;
                 }
                 try{
                     saleView=dataConten.saleView;
@@ -19831,7 +19849,7 @@ export class TransactionsController {
                     "nomorSertifikat":request_json.postID,
                     "jenisKonten":jenisKonten,
                     "creator":namapenjual,
-                    "waktu":timedate,
+                    "waktu":createdAt,
                     "like":saleLike,
                     "view":saleView,
                     "diskon":discount,

@@ -38,7 +38,7 @@ export class MonetizationService {
         return data;
     }
 
-    async detailOneV2(id:string): Promise<Monetize> {
+    async detailOneV2(id: string): Promise<Monetize> {
         var setid = new mongoose.Types.ObjectId(id);
         var data = await this.monetData.aggregate([
             {
@@ -52,134 +52,134 @@ export class MonetizationService {
                 {
                     from: "newUserBasics",
                     as: "user_data",
-                    let: 
-                    { 
-                        local_id: '$audiens_user' 
+                    let:
+                    {
+                        local_id: '$audiens_user'
                     },
-                    pipeline: 
-                    [
-                        {
-                            "$match":
+                    pipeline:
+                        [
                             {
-                                "$expr":
+                                "$match":
                                 {
-                                    "$in":
-                                    [
-                                        "$_id", "$$local_id"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "$set":
-                            {
-                                "setlistBadge":
-                                {
-                                    "$ifNull":
-                                        [
-                                            {
-                                                "$filter":
-                                                {
-                                                    input: "$userBadge",
-                                                    as: "listbadge",
-                                                    cond:
-                                                    {
-                                                        "$and":
-                                                            [
-                                                                {
-                                                                    "$eq":
-                                                                        [
-                                                                            "$$listbadge.isActive", true
-                                                                        ]
-                                                                },
-                                                                {
-                                                                    "$lte": [
-                                                                        {
-                                                                            "$dateToString": {
-                                                                                "format": "%Y-%m-%d %H:%M:%S",
-                                                                                "date": {
-                                                                                    "$add": [
-                                                                                        new Date(),
-                                                                                        25200000
-                                                                                    ]
-                                                                                }
-                                                                            }
-                                                                        },
-                                                                        "$$listbadge.endDatetime"
-                                                                    ]
-                                                                }
-                                                            ]
-                                                    }
-                                                }
-                                            },
-                                            []
-                                        ]
-                                },
-                            }
-                        },
-                        {
-                            "$project":
-                            {
-                                "username":1,
-                                "fullName":1,
-                                "_id":1,
-                                "avatar": {
-                                    "mediaBasePath": 
+                                    "$expr":
                                     {
-                                        "$ifNull":
-                                        [
-                                            "$mediaBasePath",
-                                            null
-                                        ]
-                                    },
-                                    "mediaUri": 
-                                    {
-                                        "$ifNull":
-                                        [
-                                            "$mediaUri",
-                                            null
-                                        ]
-                                    },
-                                    "mediaType":
-                                    {
-                                        "$ifNull":
-                                        [
-                                            "$mediaType",
-                                            null
-                                        ]
-                                    },
-                                    "mediaEndpoint": 
-                                    {
-                                        "$ifNull":
-                                        [
-                                            "$mediaEndpoint",
-                                            null
-                                        ]
-                                    },
-                                },
-                                "email":1,
-                                "urluserBadge":
-                                {
-                                    "$ifNull":
-                                    [
-                                        {
-                                            "$arrayElemAt":
+                                        "$in":
                                             [
-                                                "$setlistBadge.urluserBadge", 0
+                                                "$_id", "$$local_id"
                                             ]
+                                    }
+                                }
+                            },
+                            {
+                                "$set":
+                                {
+                                    "setlistBadge":
+                                    {
+                                        "$ifNull":
+                                            [
+                                                {
+                                                    "$filter":
+                                                    {
+                                                        input: "$userBadge",
+                                                        as: "listbadge",
+                                                        cond:
+                                                        {
+                                                            "$and":
+                                                                [
+                                                                    {
+                                                                        "$eq":
+                                                                            [
+                                                                                "$$listbadge.isActive", true
+                                                                            ]
+                                                                    },
+                                                                    {
+                                                                        "$lte": [
+                                                                            {
+                                                                                "$dateToString": {
+                                                                                    "format": "%Y-%m-%d %H:%M:%S",
+                                                                                    "date": {
+                                                                                        "$add": [
+                                                                                            new Date(),
+                                                                                            25200000
+                                                                                        ]
+                                                                                    }
+                                                                                }
+                                                                            },
+                                                                            "$$listbadge.endDatetime"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                        }
+                                                    }
+                                                },
+                                                []
+                                            ]
+                                    },
+                                }
+                            },
+                            {
+                                "$project":
+                                {
+                                    "username": 1,
+                                    "fullName": 1,
+                                    "_id": 1,
+                                    "avatar": {
+                                        "mediaBasePath":
+                                        {
+                                            "$ifNull":
+                                                [
+                                                    "$mediaBasePath",
+                                                    null
+                                                ]
                                         },
-                                        null
-                                    ]
+                                        "mediaUri":
+                                        {
+                                            "$ifNull":
+                                                [
+                                                    "$mediaUri",
+                                                    null
+                                                ]
+                                        },
+                                        "mediaType":
+                                        {
+                                            "$ifNull":
+                                                [
+                                                    "$mediaType",
+                                                    null
+                                                ]
+                                        },
+                                        "mediaEndpoint":
+                                        {
+                                            "$ifNull":
+                                                [
+                                                    "$mediaEndpoint",
+                                                    null
+                                                ]
+                                        },
+                                    },
+                                    "email": 1,
+                                    "urluserBadge":
+                                    {
+                                        "$ifNull":
+                                            [
+                                                {
+                                                    "$arrayElemAt":
+                                                        [
+                                                            "$setlistBadge.urluserBadge", 0
+                                                        ]
+                                                },
+                                                null
+                                            ]
+                                    }
                                 }
                             }
-                        }
-                    ]
+                        ]
                 }
             },
             {
                 "$set":
                 {
-                    "audiens_user":"$user_data"
+                    "audiens_user": "$user_data"
                 }
             }
         ]);
@@ -1130,7 +1130,7 @@ export class MonetizationService {
         return result;
     }
 
-    async listDiscount(userid: string, page: number, limit: number, productid: any[]) {
+    async listDiscount(userid: string, page: number, limit: number, productid: any[], transaction_amount: number) {
         var date = (await this.utilsService.getDateTimeString()).split(" ")[0];
         var pipeline = [];
         pipeline.push(
@@ -1318,6 +1318,18 @@ export class MonetizationService {
                     else: true
                 }
             };
+        }
+
+        insertproject['is_blur'] = {
+            "$cond":
+            {
+                if:
+                {
+                    "$gt": [transaction_amount, "$min_use_disc"]
+                },
+                then: false,
+                else: true
+            }
         }
 
         insertsort['productCode'] = 1;

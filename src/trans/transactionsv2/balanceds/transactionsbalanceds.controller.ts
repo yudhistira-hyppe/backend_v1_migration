@@ -23,17 +23,30 @@ export class TransactionsBalancedsController {
     @HttpCode(HttpStatus.ACCEPTED)
     async cekSaldo(@Request() request, @Headers() headers) {
         var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactions/v2/balanceds/self';
+        var fullurl = headers.host + '/api/transactions/v2/balanceds/preview';
         var token = headers['x-auth-token'];
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
         var setemail = auth.email;
+        var getsaldo = null;
         
-        var getdetail = await this.basic2SS.findbyemail(setemail);
-        var totalsaldo = await this.transBalance.findsaldo(getdetail._id.toString());
+        try
+        {
+            var getdetail = await this.basic2SS.findbyemail(setemail);
+            var totalsaldo = await this.transBalance.findsaldo(getdetail._id.toString());
+            getsaldo = totalsaldo[0].totalSaldo;
+        }
+        catch(e)
+        {
+            getsaldo = 0;
+        }
+
+
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logAPISS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
 
         return {
             response_code:202,
-            balance:totalsaldo[0].totalSaldo
+            balance:getsaldo
         }
     }
 }
