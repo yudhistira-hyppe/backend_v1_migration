@@ -1680,6 +1680,12 @@ export class UtilsService {
     return DateTime.substring(0, DateTime.lastIndexOf('.')).split(' ')[0];
   }
 
+  async getStringtoDate(date:string): Promise<Date> {
+    var date_ = new Date(date);
+    var DateTime = new Date(date_.getTime() - (date_.getTimezoneOffset() * 60000));
+    return DateTime;
+  }
+
   async getDateTime(): Promise<Date> {
     var date = new Date();
     var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));

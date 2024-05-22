@@ -19,6 +19,15 @@ export class ErrorHandler {
       },
     });
   }
+  async generateNotAcceptableExceptionWithData(messages: string, data: any): Promise<any> {
+    throw new NotAcceptableException({
+      response_code: 406,
+      data: data,
+      messages: {
+        info: [messages],
+      },
+    });
+  }
   
   async generateCustomNotAcceptableException(messages: any): Promise<any> {
     throw new NotAcceptableException(messages);

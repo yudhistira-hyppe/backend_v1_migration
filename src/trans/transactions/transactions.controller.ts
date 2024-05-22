@@ -3197,8 +3197,33 @@ export class TransactionsController {
                     [],
                     arrDt,
                     "SUCCESS");
-                }catch(e){
-                    throw new BadRequestException("dodol..!");
+                // dataT.transactionType = "CONTENT";
+                // dataT.transactionUnit = "COIN";
+
+                var dataTr = {
+                    //"noinvoice": datatr.noinvoice,
+                    "postid": postidTR,
+                    "email": email,
+                    "NamaPenjual": namapenjual,
+                    "waktu": timedate,
+                    "amount": totalAmount,
+                    "paymentmethod": "Hyppe Coins",
+                    "diskon": diskon,
+                    "jenisTransaksi": "Pembelian Konten",
+                    "platform": platform,
+
+                };
+
+                try {
+
+                    await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                } catch (e) {
+
+                }
+                try {
+                    await this.posts2SS.updateemail(postid, email.toString(), idbuyer, timedate);
+                } catch (e) {
+
                 }
 
                 if(dttr ==true){
@@ -4338,9 +4363,9 @@ export class TransactionsController {
         var valuevaBCA = null;
         var valuevalainya = null;
         var databank = null;
-    
+
         var eventType = "TRANSACTION";
-       
+
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
@@ -4504,7 +4529,7 @@ export class TransactionsController {
 
                         // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
 
-                        
+
 
                         this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", postid, noinvoice);
                         return res.status(HttpStatus.OK).json({
@@ -19781,7 +19806,7 @@ export class TransactionsController {
         var setemail = auth.email;
         var price = null;
         var discount = 0;
-        var dataConten=null;
+        var dataConten = null;
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
@@ -19798,93 +19823,93 @@ export class TransactionsController {
             await this.errorHandler.generateBadRequestException("typeTransaction required");
         }
 
-        if(request_json.typeTransaction=="CONTENT"){
+        if (request_json.typeTransaction == "CONTENT") {
 
-            let obj=null;
-            let total=0;
-            let discount=0;
+            let obj = null;
+            let total = 0;
+            let discount = 0;
             if (request_json.postID == null || request_json.postID == undefined) {
                 await this.errorHandler.generateBadRequestException("postID required");
             }
-            try{
-                dataConten= await this.posts2SS.findOne(request_json.postID );
-            }catch(e){
-                dataConten=null;
+            try {
+                dataConten = await this.posts2SS.findOne(request_json.postID);
+            } catch (e) {
+                dataConten = null;
             }
             if (request_json.discount_id) {
                 var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
                 discount = discount_data.nominal_discount;
-                total=Number(request_json.price)- Number(discount);
-            }else{
-                total=Number(request_json.price);
+                total = Number(request_json.price) - Number(discount);
+            } else {
+                total = Number(request_json.price);
             }
 
 
-    
-            if(dataConten !==null){
-                let jenisKonten=null;
-                let postType=null;
-                let email=null;
-                let ubasic=null;
-                let namapenjual=null;
-                let saleLike=null;
-                let saleView=null;
-                let createdAt=null;
-                try{
-                    postType=dataConten.postType;
-                }catch(e){
-                    postType=null;
-                }
-                try{
-                    saleLike=dataConten.saleLike;
-                }catch(e){
-                    saleLike=null;
-                }
-                try{
-                    createdAt=dataConten.createdAt;
-                }catch(e){
-                    createdAt=null;
-                }
-                try{
-                    saleView=dataConten.saleView;
-                }catch(e){
-                    saleView=null;
-                }
-                try{
-                    email=dataConten.email;
-                }catch(e){
-                    email=null;
-                }
-                if(postType=="pict"){
-                    jenisKonten="HyppePic"
-                }
-                else  if(postType=="vid"){
-                    jenisKonten="HyppeVid"
-                }
-                else  if(postType=="diary"){
-                    jenisKonten="HyppeDiary"
+
+            if (dataConten !== null) {
+                let jenisKonten = null;
+                let postType = null;
+                let email = null;
+                let ubasic = null;
+                let namapenjual = null;
+                let saleLike = null;
+                let saleView = null;
+                let createdAt = null;
+                try {
+                    postType = dataConten.postType;
+                } catch (e) {
+                    postType = null;
                 }
                 try {
-                     ubasic = await this.basic2SS.findBymail(email);
-                               
+                    saleLike = dataConten.saleLike;
                 } catch (e) {
-                    ubasic=null;
+                    saleLike = null;
+                }
+                try {
+                    createdAt = dataConten.createdAt;
+                } catch (e) {
+                    createdAt = null;
+                }
+                try {
+                    saleView = dataConten.saleView;
+                } catch (e) {
+                    saleView = null;
+                }
+                try {
+                    email = dataConten.email;
+                } catch (e) {
+                    email = null;
+                }
+                if (postType == "pict") {
+                    jenisKonten = "HyppePic"
+                }
+                else if (postType == "vid") {
+                    jenisKonten = "HyppeVid"
+                }
+                else if (postType == "diary") {
+                    jenisKonten = "HyppeDiary"
+                }
+                try {
+                    ubasic = await this.basic2SS.findBymail(email);
+
+                } catch (e) {
+                    ubasic = null;
                 }
 
-                if(ubasic !==null){
-                     namapenjual = ubasic.username;
+                if (ubasic !== null) {
+                    namapenjual = ubasic.username;
                 }
-                obj={
+                obj = {
 
-                    "nomorSertifikat":request_json.postID,
-                    "jenisKonten":jenisKonten,
-                    "creator":namapenjual,
-                    "waktu":createdAt,
-                    "like":saleLike,
-                    "view":saleView,
-                    "diskon":discount,
-                    "price":request_json.price,
-                    "total":total,
+                    "nomorSertifikat": request_json.postID,
+                    "jenisKonten": jenisKonten,
+                    "creator": namapenjual,
+                    "waktu": createdAt,
+                    "like": saleLike,
+                    "view": saleView,
+                    "diskon": discount,
+                    "price": request_json.price,
+                    "total": total,
                 }
 
             }
@@ -19897,7 +19922,7 @@ export class TransactionsController {
             }
 
         }
-        else{
+        else {
 
             var transaction_fee_data = null;
             var transaction_fee = null;
@@ -19922,40 +19947,41 @@ export class TransactionsController {
                         break;
                     }
             }
-    
+
             if (request_json.discount_id) {
                 var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
                 discount = discount_data.nominal_discount;
             }
-    
-    
-    
+
+
+
             var total_payment_before = price + transaction_fee;
             var total_payment_after = price + transaction_fee - discount;
-    
+
             var selisih = 0;
             var getbasicdata = await this.basic2SS.findBymail(setemail);
             var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
-            selisih = cekSaldo[0].totalSaldo - total_payment_after;
+            var totalSaldo = 0;
+            if (cekSaldo.length > 0) totalSaldo = cekSaldo[0].totalSaldo;
+            selisih = totalSaldo - total_payment_after;
             var resultKurang = false;
             if (selisih < 0) {
                 resultKurang = true;
             }
 
-            if(total_payment_after < 0)
-            {
-                total_payment_after = 0;   
+            if (total_payment_after < 0) {
+                total_payment_after = 0;
             }
-    
+
             var setoutput = {};
             setoutput['price'] = price;
             setoutput['transaction_fee'] = transaction_fee;
             setoutput['total_before_discount'] = total_payment_before;
             setoutput['total_payment'] = total_payment_after;
-            setoutput['balance'] = cekSaldo[0].totalSaldo;
+            setoutput['balance'] = totalSaldo;
             setoutput['needTopUp'] = resultKurang;
             setoutput['discount'] = discount;
-    
+
             if (request_json.typeTransaction == "CONTENT_OWNERSHIP") {
                 if (request_json.sell_content == true) {
                     setoutput['sell_content'] = true;
@@ -19967,11 +19993,11 @@ export class TransactionsController {
                     setoutput['sell_content'] = false;
                 }
             }
-    
+
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-    
-           
+
+
             return {
                 response_code: 202,
                 data: setoutput,
@@ -19979,8 +20005,8 @@ export class TransactionsController {
             }
         }
 
-       
-    
+
+
     }
 
     @Post('api/transactions/coinorderhistory')

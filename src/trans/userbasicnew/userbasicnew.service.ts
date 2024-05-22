@@ -8184,19 +8184,4 @@ export class UserbasicnewService {
         ]);
         return getDataUser;
     }
-
-    async refreshUserWarning(){
-        let getDataUser = await this.getUserStreamWrning();
-        if (getDataUser.length>0){
-            for (let i = 0; i < getDataUser.length;i++){
-                let dataUser = getDataUser[i];
-                let streamWarning = dataUser.streamWarning;
-                console.log("streamWarning no sort", streamWarning)
-                streamWarning.sort(function (a, b) {
-                    return parseFloat(a.createAt) - parseFloat(b.createAt);
-                })
-                console.log("streamWarning sort", streamWarning)
-            }
-        }
-    }
 }

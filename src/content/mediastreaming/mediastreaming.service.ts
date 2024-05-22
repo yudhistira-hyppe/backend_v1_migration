@@ -9,6 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { MonetizationService } from './monetization/monetization.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
+import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 @Injectable()
 export class MediastreamingService {
   private readonly logger = new Logger(MediastreamingService.name);
@@ -20,7 +21,8 @@ export class MediastreamingService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly monetizationService: MonetizationService,
-    private readonly transactionsV2Service: TransactionsV2Service, 
+    private readonly transactionsV2Service: TransactionsV2Service,
+    private readonly userbasicnewService: UserbasicnewService,
   ) {}
 
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
@@ -2646,5 +2648,39 @@ export class MediastreamingService {
     const res = await this.httpService.post(this.configService.get("URL_CHALLENGE") + "api/send/socket", RequestSoctDto_, config).toPromise();
     const data = res.data;
     return data;
+  }
+
+
+
+  async refreshUserWarning() {
+    let getDataUser = await this.userbasicnewService.getUserStreamWrning();
+    if (getDataUser.length > 0) {
+      for (let i = 0; i < getDataUser.length; i++) {
+        let dataUser = getDataUser[i];
+        let streamWarning = dataUser.streamWarning;
+        // streamWarning.sort(function (a, b) {
+        //   return Date.parse(b.createAt) - Date.parse(a.createAt);
+        // })
+        let currentDate = new Date();
+        let firstReport = streamWarning[0].createAt;
+        let firstReportToDate = new Date(firstReport);
+        let firstReportDateTime = new Date(firstReportToDate.getTime() - (firstReportToDate.getTimezoneOffset() * 60000));
+
+        //GET ID SETTING REFRESH MAX REPORT
+        const ID_SETTING_REFRESH_MAX_REPORT = this.configService.get("ID_SETTING_REFRESH_MAX_REPORT");
+        const GET_ID_SETTING_REFRESH_MAX_REPORT = await this.utilsService.getSetting_Mixed(ID_SETTING_REFRESH_MAX_REPORT);
+
+        if (GET_ID_SETTING_REFRESH_MAX_REPORT != undefined) {
+          const hoursToAdd = Number(GET_ID_SETTING_REFRESH_MAX_REPORT) * 60 * 60 * 1000;
+          firstReportDateTime.setTime(firstReportDateTime.getTime() + hoursToAdd);
+        }
+        if (currentDate.getTime() > firstReportDateTime.getTime()) {
+          let Userbasicnew_ = new Userbasicnew();
+          Userbasicnew_.streamWarning = [];
+          //UPDATE DATA USER STREAM
+          await await this.userbasicnewService.update2(dataUser._id.toString(), Userbasicnew_);
+        }
+      }
+    }
   }
 }

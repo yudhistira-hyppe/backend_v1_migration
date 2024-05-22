@@ -5,7 +5,7 @@ import { UtilsService } from '../../utils/utils.service';
 import { ErrorHandler } from '../../utils/error.handler';
 import { Long } from 'mongodb';
 import mongoose from 'mongoose';
-import { CallbackModeration, MediastreamingDto, MediastreamingRequestDto, RequestSoctDto } from './dto/mediastreaming.dto';
+import { CallbackModeration, MediastreamingDto, MediastreamingRequestDto, RequestAppealStream, RequestSoctDto } from './dto/mediastreaming.dto';
 import { ConfigService } from '@nestjs/config';
 import { MediastreamingalicloudService } from './mediastreamingalicloud.service';
 import { AppGateway } from '../socket/socket.gateway';
@@ -57,13 +57,68 @@ export class MediastreamingController {
       }
     }
 
+    let statusAppeal = false;
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
-        await this.errorHandler.generateNotAcceptableException(
-          'Unabled to proceed user is Banned',
-        );
+        //Get ID_SETTING_MAX_BANNED
+        const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+        const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
+        let streamWarning = profile.streamWarning;
+        let streamBanding = profile.streamBanding;
+        if (streamWarning.length>0){
+          streamWarning.sort(function (a, b) {
+            return Date.parse(b.createAt) - Date.parse(a.createAt);
+          })
+          streamBanding.filter((bd) => {
+            return bd.status == true;
+          });
+          if (streamBanding.length>0){
+            statusAppeal = true;
+          }
+          let dataStream = {
+            streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
+            streamBannedDate: profile.streamBannedDate, 
+            streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
+            dateStream: streamWarning[0].dateStream,
+            statusAppeal: statusAppeal,
+            user: {
+              _id: profile._id._id.toString(),
+              fullName: profile.fullName,
+              email: profile.email,
+              username: profile.username,
+              avatar: {
+                "mediaBasePath": profile.mediaBasePath,
+                "mediaUri": profile.mediaUri,
+                "mediaType": profile.mediaType,
+                "mediaEndpoint": profile.mediaEndpoint
+              },
+            },
+          }
+          const Response = {
+            response_code: 202,
+            statusStream: false,
+            data: dataStream,
+            messages: {
+              info: [
+                "User is Banned"
+              ]
+            }
+          }
+          return Response;
+        }else{
+          const Response = {
+            response_code: 202,
+            statusStream: false,
+            messages: {
+              info: [
+                "User is Banned"
+              ]
+            }
+          }
+          return Response;
+        }
       }
-    }
+    } 
 
     //Get EXPIRATION_TIME_LIVE
     const GET_EXPIRATION_TIME_LIVE = this.configService.get("EXPIRATION_TIME_LIVE");
@@ -120,6 +175,7 @@ export class MediastreamingController {
     dataResponse['textUrl'] = data.textUrl;
     const Response = {
       response_code: 202,
+      statusStream: true,
       data: dataResponse,
       messages: {
         info: [
@@ -167,6 +223,7 @@ export class MediastreamingController {
     }
 
     const ceckId = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
+    let UserBanned = false;
     let UserReport = false;
     let _MediastreamingDto_ = new MediastreamingDto();
     if (await this.utilsService.ceckData(ceckId)){
@@ -687,36 +744,12 @@ export class MediastreamingController {
                     income = getDataStream[0].income;
                   }
 
-                  //SEND STATUS STOP
-                  const dataPause = {
-                    data: {
-                      idStream: MediastreamingDto_._id.toString(),
-                      status: false,
-                      totalViews: getDataStream[0].view_unique.length,
-                      totalShare: getDataStream[0].shareCount,
-                      totalFollower: getDataStream[0].follower.length,
-                      totalComment: getDataStream[0].comment.length,
-                      totalLike: getDataStream[0].like.length,
-                      totalIncome: income,
-                      gift: getDataStream[0].gift,
-                    }
-                  }
-                  const STREAM_MODE = this.configService.get("STREAM_MODE");
-                  if (STREAM_MODE == "1") {
-                    this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
-                  } else {
-                    let RequestSoctDto_ = new RequestSoctDto();
-                    RequestSoctDto_.event = "STATUS_STREAM";
-                    RequestSoctDto_.data = JSON.stringify(dataPause);
-                    this.mediastreamingService.socketRequest(RequestSoctDto_);
-                    this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
-                  }
-
                   //SET DATA WARNING
                   const dataWarning = {
                     idReport: idReport,
                     userId: new mongoose.Types.ObjectId(profile._id.toString()),
                     streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
+                    dateStream: getDataStream[0].startLive,
                     createAt: currentDate,
                     updateAt: currentDate
                   };
@@ -737,8 +770,50 @@ export class MediastreamingController {
 
                   //CECK WARNING LENGTH
                   if (_update_streamWarning.length == Number(GET_ID_ID_SETTING_MAX_BANNED)) {
-                    Userbasicnew_.streamBanned = true;
+                    UserBanned = true;
+                    Userbasicnew_.streamBanned = UserBanned;
                     Userbasicnew_.streamBannedDate = currentDate;
+                  }
+
+                  //SEND STATUS STOP
+                  const dataPause = {
+                    data: {
+                      idStream: MediastreamingDto_._id.toString(),
+                      dateStream: getDataStream[0].startLive,
+                      status: false,
+                      statusBanned: UserBanned,
+                      user: {
+                        _id: getUser._id._id.toString(),
+                        fullName: getUser.fullName,
+                        email: getUser.email,
+                        username: getUser.username,
+                        avatar: {
+                          "mediaBasePath": getUser.mediaBasePath,
+                          "mediaUri": getUser.mediaUri,
+                          "mediaType": getUser.mediaType,
+                          "mediaEndpoint": getUser.mediaEndpoint
+                        },
+                      },
+                      totalPelanggaran: _update_streamWarning.length,
+                      datePelanggaran: currentDate,
+                      totalViews: getDataStream[0].view_unique.length,
+                      totalShare: getDataStream[0].shareCount,
+                      totalFollower: getDataStream[0].follower.length,
+                      totalComment: getDataStream[0].comment.length,
+                      totalLike: getDataStream[0].like.length,
+                      totalIncome: income,
+                      gift: getDataStream[0].gift,
+                    }
+                  }
+                  const STREAM_MODE = this.configService.get("STREAM_MODE");
+                  if (STREAM_MODE == "1") {
+                    this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
+                  } else {
+                    let RequestSoctDto_ = new RequestSoctDto();
+                    RequestSoctDto_.event = "STATUS_STREAM";
+                    RequestSoctDto_.data = JSON.stringify(dataPause);
+                    this.mediastreamingService.socketRequest(RequestSoctDto_);
+                    this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
                   }
                 }
                 //UPDATE DATA USER STREAM
@@ -913,6 +988,54 @@ export class MediastreamingController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('/appeal')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async appealStreaming(@Body() RequestAppealStream_: RequestAppealStream, @Headers() headers) {
+    const currentDate = await this.utilsService.getDateTimeString();
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+    var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
+    if (!(await this.utilsService.ceckData(profile))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed user not found',
+      );
+    }
+
+    try {
+      const dataAppeal = {
+        idAppeal: new mongoose.Types.ObjectId(),
+        idStream: new mongoose.Types.ObjectId(RequestAppealStream_.idStream.toString()),
+        messages: RequestAppealStream_.messages,
+        status: true,
+        approve: false,
+        createAt: currentDate,
+      };
+
+      let Userbasicnew_ = new Userbasicnew();
+      let _update_streamBanding = (profile.streamBanding != undefined) ? profile.streamBanding : [];
+      _update_streamBanding.push(dataAppeal)
+      Userbasicnew_.streamBanding = _update_streamBanding;
+      //UPDATE DATA USER STREAM
+      await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
+      return await this.errorHandler.generateAcceptResponseCode(
+        "Succesfully",
+      );
+    } catch(e){
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed',
+      );
+    }
+  }
+
   @Get('/callback/apsara')
   @HttpCode(HttpStatus.OK)
   async getCallbackApsara(
@@ -1031,7 +1154,7 @@ export class MediastreamingController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/list')
   @HttpCode(HttpStatus.ACCEPTED)
   async listStreamingAgora(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {

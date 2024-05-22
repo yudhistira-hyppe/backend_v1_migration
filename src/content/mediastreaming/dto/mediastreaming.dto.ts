@@ -76,3 +76,12 @@ export class RequestSoctDto {
   event: String;
   data: String;
 }
+export class RequestAppealStream {
+  idAppeal: mongoose.Types.ObjectId;
+  idStream: mongoose.Types.ObjectId;
+  title: String;
+  messages: String;
+  status: boolean;
+  approve: boolean;
+  createAt: String;
+}
