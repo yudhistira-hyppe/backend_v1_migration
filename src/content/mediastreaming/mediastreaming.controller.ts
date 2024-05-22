@@ -60,6 +60,9 @@ export class MediastreamingController {
     let statusAppeal = false;
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
+        //Get ID_SETTING_MAX_BANNED
+        const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+        const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
         let streamWarning = profile.streamWarning;
         let streamBanding = profile.streamBanding;
         if (streamWarning.length>0){
@@ -74,6 +77,8 @@ export class MediastreamingController {
           }
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
+            streamBannedDate: profile.streamBannedDate, 
+            streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
             user: {
@@ -113,7 +118,7 @@ export class MediastreamingController {
           return Response;
         }
       }
-    }
+    } 
 
     //Get EXPIRATION_TIME_LIVE
     const GET_EXPIRATION_TIME_LIVE = this.configService.get("EXPIRATION_TIME_LIVE");
