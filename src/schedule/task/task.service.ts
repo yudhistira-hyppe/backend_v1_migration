@@ -40,7 +40,7 @@ export class TaskService {
     this.logger.debug('----------ADS JOB START----------', new Date());
     this.adsService.ceckAdsActive();
   }
-  
+  // @Cron('5 * * * * *')
   @Cron('0 */1 * * * *')
   ceckUserStream() {
     this.logger.debug('----------STREAM JOB START----------', new Date());
