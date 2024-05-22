@@ -73,7 +73,7 @@ export class MediastreamingController {
             statusAppeal = true;
           }
           let dataStream = {
-            streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
+            streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
             user: {
