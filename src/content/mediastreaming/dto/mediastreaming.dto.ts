@@ -81,6 +81,7 @@ export class RequestAppealStream {
   idStream: mongoose.Types.ObjectId;
   title: String;
   messages: String;
+  notes: String;
   status: boolean;
   approve: boolean;
   createAt: String;

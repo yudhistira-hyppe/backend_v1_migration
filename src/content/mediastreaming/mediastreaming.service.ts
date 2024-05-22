@@ -10,6 +10,7 @@ import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.s
 import { MonetizationService } from './monetization/monetization.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
+import { Status } from '../../paymentgateway/oypg/dto/OyDTO';
 @Injectable()
 export class MediastreamingService {
   private readonly logger = new Logger(MediastreamingService.name);
@@ -2661,9 +2662,7 @@ export class MediastreamingService {
     return data;
   }
 
-
-
-  async refreshUserWarning() {
+  async StreamRefreshUserWarning() {
     let getDataUser = await this.userbasicnewService.getUserStreamWrning();
     if (getDataUser.length > 0) {
       for (let i = 0; i < getDataUser.length; i++) {
@@ -2688,6 +2687,44 @@ export class MediastreamingService {
         if (currentDate.getTime() > firstReportDateTime.getTime()) {
           let Userbasicnew_ = new Userbasicnew();
           Userbasicnew_.streamWarning = [];
+          //UPDATE DATA USER STREAM
+          await await this.userbasicnewService.update2(dataUser._id.toString(), Userbasicnew_);
+        }
+      }
+    }
+  }
+
+  async StreamAppeal() {
+    let getDataUser = await this.userbasicnewService.getUserStreamBanned();
+    if (getDataUser.length > 0) {
+      for (let i = 0; i < getDataUser.length; i++) {
+        let dataUser = getDataUser[i];
+        let streamBanding = dataUser.streamBanding;
+        let streamBandingFilter = streamBanding.filter((bd) => {
+          return bd.status == true;
+        });
+        let objIndex = streamBanding.findIndex(obj => obj.status == true);
+        let currentDate = new Date();
+        let firstBanding = streamBandingFilter[0].createAt;
+        let firstBandingToDate = new Date(firstBanding);
+        let firstBandingDateTime = new Date(firstBandingToDate.getTime() - (firstBandingToDate.getTimezoneOffset() * 60000));
+
+        //GET ID SETTING REFRESH MAX REPORT
+        const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
+        const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
+
+        if (GET_ID_SETTING_APPEAL_AUTO_APPROVE != undefined) {
+          const dayToAdd = Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE);
+          firstBandingDateTime.setTime(firstBandingDateTime.getDate() + dayToAdd);
+        }
+        if (currentDate.getTime() > firstBandingDateTime.getTime()) {
+          streamBanding[objIndex].notes = "AUTO APPROVE BY SYSTEM";
+          streamBanding[objIndex].status = false;
+          streamBanding[objIndex].approve = true;
+          let Userbasicnew_ = new Userbasicnew();
+          Userbasicnew_.streamWarning = []; 
+          Userbasicnew_.streamBanned = false;
+          Userbasicnew_.streamBanding = streamBanding;
           //UPDATE DATA USER STREAM
           await await this.userbasicnewService.update2(dataUser._id.toString(), Userbasicnew_);
         }
