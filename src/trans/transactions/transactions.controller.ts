@@ -19756,74 +19756,11 @@ export class TransactionsController {
             await this.errorHandler.generateBadRequestException("typeTransaction required");
         }
 
-        var transaction_fee_data = null;
-        var transaction_fee = null;
-        switch (request_json.typeTransaction) {
-            case ("TOPUP"):
-                {
-                    transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
-                    transaction_fee = transaction_fee_data.value;
-                    price = request_json.price;
-                    break;
-                }
-            case ("CONTENT_OWNERSHIP"):
-                {
-                    transaction_fee_data = await this.transProdSS.findOneByCode("CO");
-                    transaction_fee = 0;
-                    price = transaction_fee_data.price;
-                    break;
-                }
-            default:
-                {
-                    await this.errorHandler.generateBadRequestException("Transaction type not found");
-                    break;
-                }
-        }
-
-        if (request_json.discount_id) {
-            var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
-            discount = discount_data.nominal_discount;
-        }
-
-        var total_payment_before = price + transaction_fee;
-        var total_payment_after = price + transaction_fee - discount;
-
-        var selisih = 0;
-        var getbasicdata = await this.basic2SS.findBymail(setemail);
-        var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
-        selisih = cekSaldo[0].totalSaldo - total_payment_after;
-        var resultKurang = false;
-        if (selisih < 0) {
-            resultKurang = true;
-        }
-
-        var setoutput = {};
-        setoutput['price'] = price;
-        setoutput['transaction_fee'] = transaction_fee;
-        setoutput['total_before_discount'] = total_payment_before;
-        setoutput['total_payment'] = total_payment_after;
-        setoutput['balance'] = cekSaldo[0].totalSaldo;
-        setoutput['needTopUp'] = resultKurang;
-        setoutput['discount'] = discount;
-
-        if (request_json.typeTransaction == "CONTENT_OWNERSHIP") {
-            if (request_json.sell_content == true) {
-                setoutput['sell_content'] = true;
-                setoutput['sell_like'] = request_json.sell_like;
-                setoutput['sell_viewer'] = request_json.sell_viewer;
-                setoutput['sell_price'] = request_json.sell_price;
-            }
-            else {
-                setoutput['sell_content'] = false;
-            }
-        }
-
-        var timestamps_end = await this.utilsService.getDateTimeString();
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-
         if(request_json.typeTransaction=="CONTENT"){
 
             let obj=null;
+            let total=0;
+            let discount=0;
             if (request_json.postID == null || request_json.postID == undefined) {
                 await this.errorHandler.generateBadRequestException("postID required");
             }
@@ -19832,7 +19769,16 @@ export class TransactionsController {
             }catch(e){
                 dataConten=null;
             }
+            if (request_json.discount_id) {
+                var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
+                discount = discount_data.nominal_discount;
+                total=Number(request_json.price)- Number(discount);
+            }else{
+                total=Number(request_json.price);
+            }
 
+
+    
             if(dataConten !==null){
                 let jenisKonten=null;
                 let postType=null;
@@ -19888,7 +19834,9 @@ export class TransactionsController {
                     "waktu":timedate,
                     "like":saleLike,
                     "view":saleView,
-                    "price":request_json.sell_price,
+                    "diskon":discount,
+                    "price":request_json.price,
+                    "total":total,
                 }
 
             }
@@ -19900,13 +19848,91 @@ export class TransactionsController {
                 messages
             }
 
-        }else{
-        return {
-            response_code: 202,
-            data: setoutput,
-            messages
         }
-    }
+        else{
+
+            var transaction_fee_data = null;
+            var transaction_fee = null;
+            switch (request_json.typeTransaction) {
+                case ("TOPUP"):
+                    {
+                        transaction_fee_data = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
+                        transaction_fee = transaction_fee_data.value;
+                        price = request_json.price;
+                        break;
+                    }
+                case ("CONTENT_OWNERSHIP"):
+                    {
+                        transaction_fee_data = await this.transProdSS.findOneByCode("CO");
+                        transaction_fee = 0;
+                        price = transaction_fee_data.price;
+                        break;
+                    }
+                default:
+                    {
+                        await this.errorHandler.generateBadRequestException("Transaction type not found");
+                        break;
+                    }
+            }
+    
+            if (request_json.discount_id) {
+                var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
+                discount = discount_data.nominal_discount;
+            }
+    
+    
+    
+            var total_payment_before = price + transaction_fee;
+            var total_payment_after = price + transaction_fee - discount;
+    
+            var selisih = 0;
+            var getbasicdata = await this.basic2SS.findBymail(setemail);
+            var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
+            selisih = cekSaldo[0].totalSaldo - total_payment_after;
+            var resultKurang = false;
+            if (selisih < 0) {
+                resultKurang = true;
+            }
+
+            if(total_payment_after < 0)
+            {
+                total_payment_after = 0;   
+            }
+    
+            var setoutput = {};
+            setoutput['price'] = price;
+            setoutput['transaction_fee'] = transaction_fee;
+            setoutput['total_before_discount'] = total_payment_before;
+            setoutput['total_payment'] = total_payment_after;
+            setoutput['balance'] = cekSaldo[0].totalSaldo;
+            setoutput['needTopUp'] = resultKurang;
+            setoutput['discount'] = discount;
+    
+            if (request_json.typeTransaction == "CONTENT_OWNERSHIP") {
+                if (request_json.sell_content == true) {
+                    setoutput['sell_content'] = true;
+                    setoutput['sell_like'] = request_json.sell_like;
+                    setoutput['sell_viewer'] = request_json.sell_viewer;
+                    setoutput['sell_price'] = request_json.sell_price;
+                }
+                else {
+                    setoutput['sell_content'] = false;
+                }
+            }
+    
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+    
+           
+            return {
+                response_code: 202,
+                data: setoutput,
+                messages
+            }
+        }
+
+       
+    
     }
 
     @Post('api/transactions/coinorderhistory')
