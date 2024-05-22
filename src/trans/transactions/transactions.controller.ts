@@ -19893,6 +19893,11 @@ export class TransactionsController {
             if (selisih < 0) {
                 resultKurang = true;
             }
+
+            if(total_payment_after < 0)
+            {
+                total_payment_after = 0;   
+            }
     
             var setoutput = {};
             setoutput['price'] = price;
