@@ -1525,6 +1525,11 @@ export class MediastreamingService {
         $set: {
           view_unique: { "$setUnion": ["$view.userId", []] }
         }
+      },
+      {
+        $set: {
+          gift_unique: { "$setUnion": ["$gift.userId", []] }
+        }
       }
     ]);
     return data;

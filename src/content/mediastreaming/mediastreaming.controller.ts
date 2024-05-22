@@ -49,10 +49,20 @@ export class MediastreamingController {
       );
     }
 
-    if (profile.streamBanned) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed user is Banned',
-      );
+    if (profile.statusKyc != undefined) {
+      if (profile.statusKyc != "verified") {
+        await this.errorHandler.generateNotAcceptableException(
+          'Unabled to proceed user is not verified',
+        );
+      }
+    }
+
+    if (profile.streamBanned != undefined) {
+      if (profile.streamBanned) {
+        await this.errorHandler.generateNotAcceptableException(
+          'Unabled to proceed user is Banned',
+        );
+      }
     }
 
     //Get EXPIRATION_TIME_LIVE
@@ -762,9 +772,10 @@ export class MediastreamingController {
           totalShare: getDataStream[0].shareCount,
           totalFollower: getDataStream[0].follower.length, 
           totalComment: getDataStream[0].comment.length,
+          totalGift: getDataStream[0].gift.length,
+          totalUserGift: getDataStream[0].gift_unique.length,
           totalLike: getDataStream[0].like.length, 
           totalIncome: income,
-          gift: getDataStream[0].gift,
         }
         this.utilsService.sendFcmV2(getUser.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_GIFT', 'RECEIVE_GIFT', null, null, null, await this.utilsService.numberFormatString(income.toString()));
         return await this.errorHandler.generateAcceptResponseCodeWithData(
@@ -821,7 +832,7 @@ export class MediastreamingController {
       } else if (MediastreamingDto_.type == "REPORT") {
         if (UserReport) {
           await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed, Report User Stream not exist',
+            'Unabled to proceed, Report User Stream already exist',
           );
         } else {
           return await this.errorHandler.generateAcceptResponseCode(

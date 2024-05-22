@@ -5154,7 +5154,9 @@ export class NewPostController {
             }
             let data = {
                 posttype: request_json.posttype,
-                startdate: request_json.dateStart + " " + session.start,
+                typeBoost: request_json.type,
+                dateStart: request_json.dateStart,
+                dateEnd: request_json.dateEnd,
                 price: price,
                 discount: request_json.discount ? request_json.discount : 0,
                 total: price - (request_json.discount ? request_json.discount : 0),
@@ -5348,7 +5350,7 @@ export class NewPostController {
                 "timestamp": data.data[0].createdAt,
                 "_id": data.data[0]._id
             }
-            this.editPostBoost(request_json.postId, request_json.detail);
+            this.editPostBoost(request_json.postId, detail);
             // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
@@ -5356,6 +5358,180 @@ export class NewPostController {
                 data_response,
                 messages
             }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('/transactionsv2/creditpurchasedetail')
+    @UseGuards(JwtAuthGuard)
+    async getCreditPurchaseDetail(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/creditpurchasedetail';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            let creditData = await this.monetizationService.findOne(request_json.paketID);
+            let data = {
+                paketID: request_json.paketID,
+                typeData: "CREDIT",
+                qty: 1,
+                credit: creditData.amount,
+                amount: creditData.price,
+                discountCoin: request_json.discount ? request_json.discount : 0,
+                totalAmount: creditData.price - (request_json.discount ? request_json.discount : 0)
+            }
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            return {
+                response_code: 202,
+                data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('/transactionsv2/insertcointransaction')
+    @UseGuards(JwtAuthGuard)
+    async insertCoinTransaction(@Req() request: any, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactionsv2/insertcointransaction';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        var ubasic = await this.basic2SS.findOneBymail(email);
+        if (request_json.pin && request_json.pin != "") {
+            if (await this.utilsService.ceckData(ubasic)) {
+                if (ubasic.pin && ubasic.pin != "") {
+                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+                    if (pinDecrypt != request_json.pin) {
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        throw new BadRequestException("Unable to proceed: PIN mismatch");
+                    }
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: User data not found");
+            }
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            throw new BadRequestException("Unable to proceed: Missing param: pin");
+        }
+        try {
+            var data;
+            // var detail;
+            // // Generate detail
+            // switch (request_json.transactionProductCode) {
+            //     case "CR": //Paket kredit
+            //         let creditData = await this.monetizationService.findOne(request_json.paketID);
+            //         detail = {
+            //             paketID: request_json.paketID,
+            //             typeData: "CREDIT",
+            //             qty: 1,
+            //             credit: creditData.amount,
+            //         }
+            //         break;
+            // }
+
+            var idusersell = null;
+            if(request_json.idUserSell != null && request_json.idUserSell != undefined)
+            {
+                idusersell = request_json.idUserSell;   
+            }
+            else
+            {
+                //masuk kesini apabila ingin membayar ads atau ads credit atau kredit
+                var getdata = await this.settings2Service.findOne(process.env.ID_USER_HYPPE);
+                idusersell = getdata.value.toString();
+            }
+
+            var response = await this.transV2Service.insertTransaction(
+                "BUS",
+                request_json.transactionProductCode,
+                request_json.category ? request_json.category : undefined,
+                request_json.coin,
+                request_json.discountCoin,
+                0,
+                0,
+                ubasic._id.toString(),
+                idusersell,
+                request_json.idVoucher ? request_json.idVoucher : undefined,
+                request_json.detail,
+                "SUCCESS");
+
+            // if(response == false)
+            // {
+            //     var timestamps_end = await this.utilsService.getDateTimeString();
+            //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            //     await this.errorHandler.generateInternalServerErrorException("error while processing data");
+            // }
+            // else
+            // {
+            //     var listtransaksi = [];
+            //     var getdataresulttrans = response.data;
+            //     for(var i = 0; i < getdataresulttrans.length; i++)
+            //     {
+            //     var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+            //         if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
+            //         {
+            //             var upd_last_stock = getgiftdata.last_stock - 1;
+            //             var upd_used_stock = getgiftdata.used_stock + 1;
+            //             var detailtransdata = getdataresulttrans[i]._id;
+            //             var insertlogtransaksi = 
+            //             {
+            //                 "idPackage" : getgiftdata._id,
+            //                 "idTransaction" : detailtransdata,
+            //                 "status" : "SUCCESS",
+            //                 "quantity" : 1,
+            //                 "last_stock": upd_last_stock,
+            //                 "used_stock": upd_used_stock,
+            //                 "idUser" : getdatapembeli._id
+            //             };
+
+            //             await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
+                        
+            //             listtransaksi.push(getdataresulttrans[i].idTransaction);
+
+            //             responseTransGIFT = getdataresulttrans[i];
+            //         }
+            //     }
+
+            //     if (request_json.idVoucher && request_json.idVoucher.length > 0) {
+            //         for (let i = 0; i < request_json.idVoucher.length; i++) {
+            //             this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
+            //         }
+            //     }
+            //     var timestamps_end = await this.utilsService.getDateTimeString();
+            //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+            //     return {
+            //         response_code: 202,
+            //         data,
+            //         messages
+            //     }
+            // }
+
         } catch (e) {
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
