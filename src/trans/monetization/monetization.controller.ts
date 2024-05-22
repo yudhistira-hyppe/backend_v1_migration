@@ -345,6 +345,7 @@ export class MonetizationController {
     var page = null;
     var limit = null;
     var productType = null;
+    var transaction_amount = 0;
 
     var request_json = JSON.parse(JSON.stringify(request.body));
 
@@ -360,9 +361,13 @@ export class MonetizationController {
       productType = request_json.productType;
     }
 
+    if (request_json.totalFee != null && request_json.totalFee != undefined) {
+      transaction_amount = request_json.totalFee;
+    }
+
     var getuserdata = await this.basic2SS.findBymail(email);
 
-    data = await this.monetizationService.listDiscount(getuserdata._id.toString(), page, limit, productType);
+    data = await this.monetizationService.listDiscount(getuserdata._id.toString(), page, limit, productType, transaction_amount);
 
     var timestamps_end = await this.utilService.getDateTimeString();
     this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_json);
