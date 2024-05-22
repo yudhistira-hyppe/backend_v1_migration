@@ -3197,36 +3197,12 @@ export class TransactionsController {
                     [],
                     arrDt,
                     "SUCCESS");
-                // dataT.transactionType = "CONTENT";
-                // dataT.transactionUnit = "COIN";
+               }catch(e){
+                dttr=null
+               }
+               
 
-                var dataTr = {
-                    //"noinvoice": datatr.noinvoice,
-                    "postid": postidTR,
-                    "email": email,
-                    "NamaPenjual": namapenjual,
-                    "waktu": timedate,
-                    "amount": totalAmount,
-                    "paymentmethod": "Hyppe Coins",
-                    "diskon": diskon,
-                    "jenisTransaksi": "Pembelian Konten",
-                    "platform": platform,
-
-                };
-
-                try {
-
-                    await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                } catch (e) {
-
-                }
-                try {
-                    await this.posts2SS.updateemail(postid, email.toString(), idbuyer, timedate);
-                } catch (e) {
-
-                }
-
-                if(dttr ==true){
+                if(dttr !==null && dttr ==true){
 
                     let dttv2=null;
                     try{
@@ -3283,16 +3259,20 @@ export class TransactionsController {
                     } catch (e) {
     
                     }
+
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    return res.status(HttpStatus.OK).json({
+                        response_code: 202,
+                        "data": dataTr,
+                        "message": messages
+                    });
+                }
+                
+                else{
+                    throw new BadRequestException("Cannot insert transaction");
                 }
               
-                
               
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                return res.status(HttpStatus.OK).json({
-                    response_code: 202,
-                    "data": dataTr,
-                    "message": messages
-                });
             
 
 
