@@ -1149,7 +1149,7 @@ export class MediastreamingController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/list')
   @HttpCode(HttpStatus.ACCEPTED)
   async listStreamingAgora(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
