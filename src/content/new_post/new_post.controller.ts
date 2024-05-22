@@ -5440,7 +5440,7 @@ export class NewPostController {
             throw new BadRequestException("Unable to proceed: Missing param: pin");
         }
         try {
-            var data;
+            // var data;
             // var detail;
             // // Generate detail
             // switch (request_json.transactionProductCode) {
@@ -5456,12 +5456,10 @@ export class NewPostController {
             // }
 
             var idusersell = null;
-            if(request_json.idUserSell != null && request_json.idUserSell != undefined)
-            {
-                idusersell = request_json.idUserSell;   
+            if (request_json.idUserSell != null && request_json.idUserSell != undefined) {
+                idusersell = request_json.idUserSell;
             }
-            else
-            {
+            else {
                 //masuk kesini apabila ingin membayar ads atau ads credit atau kredit
                 var getdata = await this.settings2Service.findOne(process.env.ID_USER_HYPPE);
                 idusersell = getdata.value.toString();
@@ -5481,56 +5479,56 @@ export class NewPostController {
                 request_json.detail,
                 "SUCCESS");
 
-            // if(response == false)
-            // {
-            //     var timestamps_end = await this.utilsService.getDateTimeString();
-            //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            //     await this.errorHandler.generateInternalServerErrorException("error while processing data");
-            // }
-            // else
-            // {
-            //     var listtransaksi = [];
-            //     var getdataresulttrans = response.data;
-            //     for(var i = 0; i < getdataresulttrans.length; i++)
-            //     {
-            //     var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-            //         if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
-            //         {
-            //             var upd_last_stock = getgiftdata.last_stock - 1;
-            //             var upd_used_stock = getgiftdata.used_stock + 1;
-            //             var detailtransdata = getdataresulttrans[i]._id;
-            //             var insertlogtransaksi = 
-            //             {
-            //                 "idPackage" : getgiftdata._id,
-            //                 "idTransaction" : detailtransdata,
-            //                 "status" : "SUCCESS",
-            //                 "quantity" : 1,
-            //                 "last_stock": upd_last_stock,
-            //                 "used_stock": upd_used_stock,
-            //                 "idUser" : getdatapembeli._id
-            //             };
+            if (response == false) {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                await this.errorHandler.generateInternalServerErrorException("error while processing data");
+            }
+            else {
+                // var listtransaksi = [];
+                var getdataresulttrans = response.data;
+                var responseTransFiltered = getdataresulttrans.filter((data) => { return data.idUser.toString() == ubasic._id.toString() })
 
-            //             await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
-                        
-            //             listtransaksi.push(getdataresulttrans[i].idTransaction);
+                // for(var i = 0; i < getdataresulttrans.length; i++)
+                // {
+                // var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+                //     if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
+                //     {
+                //         var upd_last_stock = getgiftdata.last_stock - 1;
+                //         var upd_used_stock = getgiftdata.used_stock + 1;
+                //         var detailtransdata = getdataresulttrans[i]._id;
+                //         var insertlogtransaksi = 
+                //         {
+                //             "idPackage" : getgiftdata._id,
+                //             "idTransaction" : detailtransdata,
+                //             "status" : "SUCCESS",
+                //             "quantity" : 1,
+                //             "last_stock": upd_last_stock,
+                //             "used_stock": upd_used_stock,
+                //             "idUser" : getdatapembeli._id
+                //         };
 
-            //             responseTransGIFT = getdataresulttrans[i];
-            //         }
-            //     }
+                //         await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
 
-            //     if (request_json.idVoucher && request_json.idVoucher.length > 0) {
-            //         for (let i = 0; i < request_json.idVoucher.length; i++) {
-            //             this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
-            //         }
-            //     }
-            //     var timestamps_end = await this.utilsService.getDateTimeString();
-            //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            //     return {
-            //         response_code: 202,
-            //         data,
-            //         messages
-            //     }
-            // }
+                //         listtransaksi.push(getdataresulttrans[i].idTransaction);
+
+                //         responseTransGIFT = getdataresulttrans[i];
+                //     }
+                // }
+
+                if (request_json.idVoucher && request_json.idVoucher.length > 0) {
+                    for (let i = 0; i < request_json.idVoucher.length; i++) {
+                        this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
+                    }
+                }
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                return {
+                    response_code: 202,
+                    responseTransFiltered,
+                    messages
+                }
+            }
 
         } catch (e) {
             var timestamps_end = await this.utilsService.getDateTimeString();
