@@ -249,11 +249,15 @@ export class MediastreamingController {
         _MediastreamingDto_.endLive = currentDate;
         await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
         const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
+        //GET ID JENIS REPORT
+        const ID_SETTING_COUNTDOWN = this.configService.get("ID_SETTING_COUNTDOWN");
+        const GET_ID_SETTING_COUNTDOWN = await this.utilsService.getSetting_Mixed(ID_SETTING_COUNTDOWN);
         //SEND STATUS STOP
         const dataPause = {
           data: {
             idStream: MediastreamingDto_._id.toString(),
-            status: false,
+            status: false, 
+            countdown: Number(GET_ID_SETTING_COUNTDOWN), 
             totalViews: getDataStream[0].view_unique.length,
           }
         }
@@ -775,12 +779,17 @@ export class MediastreamingController {
                     Userbasicnew_.streamBannedDate = currentDate;
                   }
 
+                  //GET ID JENIS REPORT
+                  const ID_SETTING_COUNTDOWN = this.configService.get("ID_SETTING_COUNTDOWN");
+                  const GET_ID_SETTING_COUNTDOWN = await this.utilsService.getSetting_Mixed(ID_SETTING_COUNTDOWN);
+
                   //SEND STATUS STOP
                   const dataPause = {
                     data: {
                       idStream: MediastreamingDto_._id.toString(),
                       dateStream: getDataStream[0].startLive,
                       status: false,
+                      countdown: Number(GET_ID_SETTING_COUNTDOWN),
                       statusBanned: UserBanned,
                       user: {
                         _id: getUser._id._id.toString(),

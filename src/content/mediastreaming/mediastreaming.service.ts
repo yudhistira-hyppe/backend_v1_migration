@@ -1819,6 +1819,17 @@ export class MediastreamingService {
         }
       },
       {
+        "$project": {
+          "view": {
+            $sortArray:
+            {
+              input: "$view",
+              sortBy: { "createAt": -1 }
+            }
+          }
+        }
+      },
+      {
         $unwind:
         {
           path: "$view",
