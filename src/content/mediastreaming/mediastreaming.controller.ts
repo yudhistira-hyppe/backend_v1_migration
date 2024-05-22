@@ -61,10 +61,17 @@ export class MediastreamingController {
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
         let streamWarning = profile.streamWarning;
+        let streamBanding = profile.streamBanding;
         if (streamWarning.length>0){
           streamWarning.sort(function (a, b) {
             return Date.parse(b.createAt) - Date.parse(a.createAt);
           })
+          streamBanding.filter((bd) => {
+            return bd.status == true;
+          });
+          if (streamBanding.length>0){
+            statusAppeal = true;
+          }
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(MediastreamingDto_._id.toString()),
             dateStream: streamWarning[0].dateStream,
