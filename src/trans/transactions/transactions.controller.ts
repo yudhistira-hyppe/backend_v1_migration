@@ -2417,7 +2417,7 @@ export class TransactionsController {
         if (request_json["paymentmethod"] !== undefined) {
             paymentmethod = request_json["paymentmethod"];
         }
-         else {
+        else {
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
 
@@ -2426,7 +2426,7 @@ export class TransactionsController {
 
         if (request_json["bankcode"] !== undefined) {
             bankcode = request_json["bankcode"];
-        } 
+        }
         // else {
         //     var timestamps_end = await this.utilsService.getDateTimeString();
         //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
@@ -2600,62 +2600,62 @@ export class TransactionsController {
         var idbank = null;
         var datamethode = null;
         var namamethode = "";
-       
+
 
         if (type === "COIN") {
             try {
                 datamethode = await this.methodepaymentsService.findmethodename(paymentmethod);
                 namamethode = datamethode._doc.methodename;
                 idmethode = datamethode._doc._id;
-    
+
             } catch (e) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                 throw new BadRequestException("Methode payment not found...!");
             }
-    
+
             var databank = null;
             var namabank = "";
             try {
                 databank = await this.banksService.findbankcode(bankcode);
                 namabank = databank._doc.bankname;
                 idbank = databank._doc._id;
-    
+
             } catch (e) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                 throw new BadRequestException("Banks not found...!");
             }
-    
-    
+
+
             try {
                 databankvacharge = await this.settingsService.findOne(idbankvacharge);
                 datasettingexpiredva = await this.settingsService.findOne(idexpiredva);
                 var valuevacharge = databankvacharge._doc.value;
                 var valueexpiredva = datasettingexpiredva._doc.value;
-    
+
             } catch (e) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                 throw new BadRequestException("Setting value not found..!");
             }
-    
+
             var userbuy = iduser;
             var name = ubasic.fullName;
             var emailbuy = ubasic.email;
             var stringId = (await this.generateNumber()).toString();
             var expiredtimeva = null;
             try {
-    
+
                 datawayting = await this.transactionsService.findExpired(userbuyer);
                 statuswait = datawayting.status;
                 let expiredtimeva = datawayting.expiredtimeva;
                 expiredvanew = new Date(expiredtimeva);
                 expiredvanew.setHours(expiredvanew.getHours() - 7);
-    
+
             } catch (e) {
                 datawayting = null;
                 expiredva = null;
@@ -3105,8 +3105,8 @@ export class TransactionsController {
             let saleAmount = 0;
             var dUser = null;
             var idbuyer = null;
-            let postType =null;
-            var dataTr=null;
+            let postType = null;
+            var dataTr = null;
 
             dUser = await this.basic2SS.findBymail(email);
 
@@ -3157,43 +3157,43 @@ export class TransactionsController {
                 throw new BadRequestException("User not found..!");
             }
             try {
-              
+
 
                 ubasicseller = await this.basic2SS.findBymail(emailseller);
                 iduserseller = ubasicseller._id;
                 namapenjual = ubasicseller.username;
-              
+
             } catch (e) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
 
                 throw new BadRequestException("User not found..!");
             }
-               
 
-                var postIds = postid[0].id;
-                var qty = postid[0].qty;
-                var totalAmount = postid[0].totalAmount;
-                amountTotal = Number(totalAmount) - Number(diskon);
-                tsTockDiskon = 1 + Number(used_stockDiskon);
-                minStockDiskon = Number(last_stockDiskon) - 1;
 
-                detailTr = {
-                    "postID": postIds,
-                    "typeData": "POST",
-                    "qty": qty,
-                    "amount": totalAmount,
-                    "discountCoin": diskon,
-                    "totalAmount": amountTotal,
-                    "like": salelike,
-                    "view": saleview
-                };
+            var postIds = postid[0].id;
+            var qty = postid[0].qty;
+            var totalAmount = postid[0].totalAmount;
+            amountTotal = Number(totalAmount) - Number(diskon);
+            tsTockDiskon = 1 + Number(used_stockDiskon);
+            minStockDiskon = Number(last_stockDiskon) - 1;
 
-                arrDt.push(detailTr)
-                var dttr=null;
+            detailTr = {
+                "postID": postIds,
+                "typeData": "POST",
+                "qty": qty,
+                "amount": totalAmount,
+                "discountCoin": diskon,
+                "totalAmount": amountTotal,
+                "like": salelike,
+                "view": saleview
+            };
 
-               try{
-                dttr=  await this.TransactionsV2Service.insertTransaction(
+            arrDt.push(detailTr)
+            var dttr = null;
+
+            try {
+                dttr = await this.TransactionsV2Service.insertTransaction(
                     request_json.platform,
                     request_json.productCode,
                     null,
@@ -3206,87 +3206,87 @@ export class TransactionsController {
                     [],
                     arrDt,
                     "SUCCESS");
-               }catch(e){
-                dttr=null
-               }
-               
+            } catch (e) {
+                dttr = null
+            }
 
-                if(dttr !==null){
 
-                    if(dttr.success ==true){
-                        let dttv2=null;
-                        try{
-                            dttv2= await this.TransactionsV2Service.findByOne(iduser.toString(),postIds);
-                        }catch(e){
-                            dttv2=null;
-                        }
-    
-                        if(dttv2 !==null ){
-    
-                            let noinvoic=null;
-    
-                            try{
-                                noinvoic=dttv2.noInvoice;
-                            }catch(e){
-                                noinvoic=null;
-                            }
-                            dataTr = {
-                                "noinvoice": noinvoic,
-                                "postid": postIds,
-                                "email":email,
-                                "NamaPenjual": namapenjual,
-                                "waktu":timedate,
-                                "amount": totalAmount,
-                                "paymentmethod": "Hyppe Coins",
-                                "diskon": diskon,
-                                "jenisTransaksi":"Pembelian Konten",
-                                "platform": platform,
-                                "total":amountTotal
-                              
-                            };
-                        }
-                        
-        
-                        try {
-        
-                            await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                        } catch (e) {
-        
-                        }
-                        try {
-                            await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
-                        } catch (e) {
-        
-                        }
-        
-                        try {
-                            await this.posts2SS.noneActiveAllDiscusnew(postIds);
-                        } catch (e) {
-        
-                        }
-                        try {
-                            this.posts2SS.noneActiveAllDiscusLognew(postIds);
-                        } catch (e) {
-        
-                        }
-    
-                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                        return res.status(HttpStatus.OK).json({
-                            response_code: 202,
-                            "data": dataTr,
-                            "message": messages
-                        });
+            if (dttr !== null) {
+
+                if (dttr.success == true) {
+                    let dttv2 = null;
+                    try {
+                        dttv2 = await this.TransactionsV2Service.findByOne(iduser.toString(), postIds);
+                    } catch (e) {
+                        dttv2 = null;
                     }
 
-                   
+                    if (dttv2 !== null) {
+
+                        let noinvoic = null;
+
+                        try {
+                            noinvoic = dttv2.noInvoice;
+                        } catch (e) {
+                            noinvoic = null;
+                        }
+                        dataTr = {
+                            "noinvoice": noinvoic,
+                            "postid": postIds,
+                            "email": email,
+                            "NamaPenjual": namapenjual,
+                            "waktu": timedate,
+                            "amount": totalAmount,
+                            "paymentmethod": "Hyppe Coins",
+                            "diskon": diskon,
+                            "jenisTransaksi": "Pembelian Konten",
+                            "platform": platform,
+                            "total": amountTotal
+
+                        };
+                    }
+
+
+                    try {
+
+                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                    } catch (e) {
+
+                    }
+                    try {
+                        await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
+                    } catch (e) {
+
+                    }
+
+                    try {
+                        await this.posts2SS.noneActiveAllDiscusnew(postIds);
+                    } catch (e) {
+
+                    }
+                    try {
+                        this.posts2SS.noneActiveAllDiscusLognew(postIds);
+                    } catch (e) {
+
+                    }
+
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    return res.status(HttpStatus.OK).json({
+                        response_code: 202,
+                        "data": dataTr,
+                        "message": messages
+                    });
                 }
-                
-                else{
-                    throw new BadRequestException("Cannot insert transaction");
-                }
-              
-              
-            
+
+
+            }
+
+            else {
+                throw new BadRequestException("Cannot insert transaction");
+            }
+
+
+
 
 
 
@@ -3496,7 +3496,7 @@ export class TransactionsController {
 
         var datatr = null;
         var noinvoice = null;
-        var data=null;
+        var data = null;
 
         if (request_json["noinvoice"] !== undefined) {
             noinvoice = request_json["noinvoice"];
@@ -3516,35 +3516,35 @@ export class TransactionsController {
 
         }
 
-        if(datatr !==null){
-            let nova=null
-            let iduserbuyer=null;
+        if (datatr !== null) {
+            let nova = null
+            let iduserbuyer = null;
 
-            try{
-                nova= datatr.nova;
-            }catch(e){
-                nova=null;
+            try {
+                nova = datatr.nova;
+            } catch (e) {
+                nova = null;
             }
-            try{
-                iduserbuyer= datatr.iduserbuyer;
-            }catch(e){
-                iduserbuyer=null;
+            try {
+                iduserbuyer = datatr.iduserbuyer;
+            } catch (e) {
+                iduserbuyer = null;
             }
 
             try {
-                data = await this.TransactionsV2Service.getdetailtransaksinew(iduserbuyer.toString(),nova);
-    
+                data = await this.TransactionsV2Service.getdetailtransaksinew(iduserbuyer.toString(), nova);
+
             } catch (e) {
                 data = null;
-    
+
             }
             return { response_code: 202, data, messages };
-        }else{
+        } else {
             throw new BadRequestException("Transaction is not found..!");
 
         }
 
-       
+
 
     }
     // @Post('api/pg/oy/callback/va')
@@ -20181,6 +20181,13 @@ export class TransactionsController {
                 case ("CONTENT_OWNERSHIP"):
                     {
                         transaction_fee_data = await this.transProdSS.findOneByCode("CO");
+                        transaction_fee = 0;
+                        price = transaction_fee_data.price;
+                        break;
+                    }
+                case ("BOOSTPOST"):
+                    {
+                        transaction_fee_data = await this.transProdSS.findOneByCode("BP");
                         transaction_fee = 0;
                         price = transaction_fee_data.price;
                         break;
