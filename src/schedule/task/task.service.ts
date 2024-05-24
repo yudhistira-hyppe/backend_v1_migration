@@ -44,6 +44,7 @@ export class TaskService {
   @Cron('0 */1 * * * *')
   ceckUserStream() {
     this.logger.debug('----------STREAM JOB START----------', new Date());
-    this.mediastreamingService.refreshUserWarning();
+    this.mediastreamingService.StreamRefreshUserWarning();
+    this.mediastreamingService.StreamAppeal();
   }
 }

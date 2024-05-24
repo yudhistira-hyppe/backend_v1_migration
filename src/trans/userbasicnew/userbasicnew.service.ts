@@ -8184,4 +8184,12 @@ export class UserbasicnewService {
         ]);
         return getDataUser;
     }
+
+    async getUserStreamBanned(): Promise<Userbasicnew[]> {
+        let getDataUser = await this.UserbasicnewModel.find({
+            "streamBanned": true,
+            "streamBanding.status": true
+        });
+        return getDataUser;
+    }
 }

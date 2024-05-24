@@ -61,8 +61,8 @@ export class MediastreamingController {
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
         //Get ID_SETTING_MAX_BANNED
-        const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
-        const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
+        const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
+        const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
         let streamWarning = profile.streamWarning;
         let streamBanding = profile.streamBanding;
         if (streamWarning.length>0){
@@ -78,7 +78,7 @@ export class MediastreamingController {
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
             streamBannedDate: profile.streamBannedDate, 
-            streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
+            streamBannedMax: Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE),
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
             user: {
@@ -187,6 +187,110 @@ export class MediastreamingController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/ceck')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async getStatusStream(@Headers() headers) {
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+    var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
+    if (!(await this.utilsService.ceckData(profile))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed user not found',
+      );
+    }
+
+    if (profile.statusKyc != undefined) {
+      if (profile.statusKyc != "verified") {
+        await this.errorHandler.generateNotAcceptableException(
+          'Unabled to proceed user is not verified',
+        );
+      }
+    }
+
+    let statusAppeal = false;
+    if (profile.streamBanned != undefined) {
+      if (profile.streamBanned) {
+        //Get ID_SETTING_MAX_BANNED
+        const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
+        const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
+        let streamWarning = profile.streamWarning;
+        let streamBanding = profile.streamBanding;
+        if (streamWarning.length > 0) {
+          streamWarning.sort(function (a, b) {
+            return Date.parse(b.createAt) - Date.parse(a.createAt);
+          })
+          streamBanding.filter((bd) => {
+            return bd.status == true;
+          });
+          if (streamBanding.length > 0) {
+            statusAppeal = true;
+          }
+          let dataStream = {
+            streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
+            streamBannedDate: profile.streamBannedDate,
+            streamBannedMax: Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE),
+            dateStream: streamWarning[0].dateStream,
+            statusAppeal: statusAppeal,
+            user: {
+              _id: profile._id._id.toString(),
+              fullName: profile.fullName,
+              email: profile.email,
+              username: profile.username,
+              avatar: {
+                "mediaBasePath": profile.mediaBasePath,
+                "mediaUri": profile.mediaUri,
+                "mediaType": profile.mediaType,
+                "mediaEndpoint": profile.mediaEndpoint
+              },
+            },
+          }
+          const Response = {
+            response_code: 202,
+            statusStream: false,
+            data: dataStream,
+            messages: {
+              info: [
+                "User is Banned"
+              ]
+            }
+          }
+          return Response;
+        } else {
+          const Response = {
+            response_code: 202,
+            statusStream: false,
+            messages: {
+              info: [
+                "User is Banned"
+              ]
+            }
+          }
+          return Response;
+        }
+      }
+    } else {
+      const Response = {
+        response_code: 202,
+        statusStream: true,
+        messages: {
+          info: [
+            "User is Banned"
+          ]
+        }
+      }
+      return Response;
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/update')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
@@ -249,11 +353,15 @@ export class MediastreamingController {
         _MediastreamingDto_.endLive = currentDate;
         await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
         const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
+        //GET ID JENIS REPORT
+        const ID_SETTING_COUNTDOWN = this.configService.get("ID_SETTING_COUNTDOWN");
+        const GET_ID_SETTING_COUNTDOWN = await this.utilsService.getSetting_Mixed(ID_SETTING_COUNTDOWN);
         //SEND STATUS STOP
         const dataPause = {
           data: {
             idStream: MediastreamingDto_._id.toString(),
-            status: false,
+            status: false, 
+            countdown: Number(GET_ID_SETTING_COUNTDOWN), 
             totalViews: getDataStream[0].view_unique.length,
           }
         }
@@ -775,12 +883,17 @@ export class MediastreamingController {
                     Userbasicnew_.streamBannedDate = currentDate;
                   }
 
+                  //GET ID JENIS REPORT
+                  const ID_SETTING_COUNTDOWN = this.configService.get("ID_SETTING_COUNTDOWN");
+                  const GET_ID_SETTING_COUNTDOWN = await this.utilsService.getSetting_Mixed(ID_SETTING_COUNTDOWN);
+
                   //SEND STATUS STOP
                   const dataPause = {
                     data: {
                       idStream: MediastreamingDto_._id.toString(),
                       dateStream: getDataStream[0].startLive,
                       status: false,
+                      countdown: Number(GET_ID_SETTING_COUNTDOWN),
                       statusBanned: UserBanned,
                       user: {
                         _id: getUser._id._id.toString(),
@@ -1030,6 +1143,65 @@ export class MediastreamingController {
         "Succesfully",
       );
     } catch(e){
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed',
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/appeal/approve')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async appealStreamingApprove(@Body() RequestAppealStream_: RequestAppealStream, @Headers() headers) {
+    const currentDate = await this.utilsService.getDateTimeString();
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+    //VALIDASI PARAM idAppeal
+    var ceck_idAppeal = await this.utilsService.validateParam("idAppeal", RequestAppealStream_.idAppeal.toString(), "string")
+    if (ceck_idAppeal != "") {
+      await this.errorHandler.generateBadRequestException(
+        ceck_idAppeal,
+      );
+    }
+    
+    var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
+    if (!(await this.utilsService.ceckData(profile))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed user not found',
+      );
+    }
+
+    try {
+      let streamBanding = profile.streamBanding;
+      let objIndex = streamBanding.findIndex(obj => obj.status == true && obj.idAppeal == new mongoose.Types.ObjectId(RequestAppealStream_.idAppeal));
+
+      if (RequestAppealStream_.notes != undefined) {
+        streamBanding[objIndex].notes = RequestAppealStream_.notes;
+      }
+      if (RequestAppealStream_.approve) {
+        streamBanding[objIndex].status = false;
+      } else {
+        streamBanding[objIndex].status = true;
+      }
+      streamBanding[objIndex].approve = RequestAppealStream_.approve;
+      let Userbasicnew_ = new Userbasicnew();
+      Userbasicnew_.streamWarning = [];
+      Userbasicnew_.streamBanned = false;
+      Userbasicnew_.streamBanding = streamBanding;
+      //UPDATE DATA USER STREAM
+      await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
+      return await this.errorHandler.generateAcceptResponseCode(
+        "Succesfully",
+      );
+    } catch (e) {
       await this.errorHandler.generateNotAcceptableException(
         'Unabled to proceed',
       );
