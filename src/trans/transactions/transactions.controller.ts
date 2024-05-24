@@ -3202,70 +3202,74 @@ export class TransactionsController {
                }
                
 
-                if(dttr !==null && dttr ==true){
+                if(dttr !==null){
 
-                    let dttv2=null;
-                    try{
-                        dttv2= await this.TransactionsV2Service.findByOne(iduser.toString(),postIds);
-                    }catch(e){
-                        dttv2=null;
-                    }
-
-                    if(dttv2 !==null ){
-
-                        let noinvoic=null;
-
+                    if(dttr.success ==true){
+                        let dttv2=null;
                         try{
-                            noinvoic=dttv2.noInvoice;
+                            dttv2= await this.TransactionsV2Service.findByOne(iduser.toString(),postIds);
                         }catch(e){
-                            noinvoic=null;
+                            dttv2=null;
                         }
-                        dataTr = {
-                            "noinvoice": noinvoic,
-                            "postid": postIds,
-                            "email":email,
-                            "NamaPenjual": namapenjual,
-                            "waktu":timedate,
-                            "amount": totalAmount,
-                            "paymentmethod": "Hyppe Coins",
-                            "diskon": diskon,
-                            "jenisTransaksi":"Pembelian Konten",
-                            "platform": platform,
-                            "total":amountTotal
-                          
-                        };
-                    }
-                    
     
-                    try {
+                        if(dttv2 !==null ){
     
-                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                    } catch (e) {
+                            let noinvoic=null;
     
-                    }
-                    try {
-                        await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
-                    } catch (e) {
+                            try{
+                                noinvoic=dttv2.noInvoice;
+                            }catch(e){
+                                noinvoic=null;
+                            }
+                            dataTr = {
+                                "noinvoice": noinvoic,
+                                "postid": postIds,
+                                "email":email,
+                                "NamaPenjual": namapenjual,
+                                "waktu":timedate,
+                                "amount": totalAmount,
+                                "paymentmethod": "Hyppe Coins",
+                                "diskon": diskon,
+                                "jenisTransaksi":"Pembelian Konten",
+                                "platform": platform,
+                                "total":amountTotal
+                              
+                            };
+                        }
+                        
+        
+                        try {
+        
+                            await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                        } catch (e) {
+        
+                        }
+                        try {
+                            await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
+                        } catch (e) {
+        
+                        }
+        
+                        try {
+                            await this.posts2SS.noneActiveAllDiscusnew(postIds);
+                        } catch (e) {
+        
+                        }
+                        try {
+                            this.posts2SS.noneActiveAllDiscusLognew(postIds);
+                        } catch (e) {
+        
+                        }
     
-                    }
-    
-                    try {
-                        await this.posts2SS.noneActiveAllDiscusnew(postIds);
-                    } catch (e) {
-    
-                    }
-                    try {
-                        this.posts2SS.noneActiveAllDiscusLognew(postIds);
-                    } catch (e) {
-    
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        return res.status(HttpStatus.OK).json({
+                            response_code: 202,
+                            "data": dataTr,
+                            "message": messages
+                        });
                     }
 
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                    return res.status(HttpStatus.OK).json({
-                        response_code: 202,
-                        "data": dataTr,
-                        "message": messages
-                    });
+                   
                 }
                 
                 else{
