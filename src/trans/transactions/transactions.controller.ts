@@ -3287,6 +3287,65 @@ export class TransactionsController {
 
 
     }
+
+    @Post('api/transactions/detail/coin')
+    @UseGuards(JwtAuthGuard)
+    async profi(@Req() request: Request): Promise<any> {
+        var request_json = JSON.parse(JSON.stringify(request.body));
+
+        var datatr = null;
+        var noinvoice = null;
+        var data=null;
+
+        if (request_json["noinvoice"] !== undefined) {
+            noinvoice = request_json["noinvoice"];
+        } else {
+            throw new BadRequestException("Unabled to proceed");
+        }
+
+        const messages = {
+            "info": ["The process successful"],
+        };
+        var lengdata = null;
+        try {
+            datatr = await this.transactionsService.findOne(noinvoice);
+
+        } catch (e) {
+            datatr = null;
+
+        }
+
+        if(datatr !==null){
+            let nova=null
+            let iduserbuyer=null;
+
+            try{
+                nova= datatr.nova;
+            }catch(e){
+                nova=null;
+            }
+            try{
+                iduserbuyer= datatr.iduserbuyer;
+            }catch(e){
+                iduserbuyer=null;
+            }
+
+            try {
+                data = await this.TransactionsV2Service.getdetailtransaksinew(iduserbuyer.toString(),nova);
+    
+            } catch (e) {
+                data = null;
+    
+            }
+            return { response_code: 202, data, messages };
+        }else{
+            throw new BadRequestException("Transaction is not found..!");
+
+        }
+
+       
+
+    }
     // @Post('api/pg/oy/callback/va')
     // async callbackVa(@Res() res, @Body() payload: VaCallback, @Req() req, @Headers() headers) {
     //     const messages = {
