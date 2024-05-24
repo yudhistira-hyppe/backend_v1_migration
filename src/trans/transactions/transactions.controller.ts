@@ -2364,6 +2364,7 @@ export class TransactionsController {
         var jmlcoin = null;
         var detailTr = null;
         var arrDt = [];
+        var product_id=null;
 
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
@@ -2393,7 +2394,9 @@ export class TransactionsController {
 
         //     throw new BadRequestException("Unabled to proceed");
         // }
-
+        if (request_json["product_id"] !== undefined) {
+            product_id = request_json["product_id"];
+        }
         if (request_json["productCode"] !== undefined) {
             productCode = request_json["productCode"];
         } else {
@@ -2808,6 +2811,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                                     CreateTransactionsDto.diskon = diskon;
                                     CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+                                    CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                     this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
@@ -2838,6 +2842,7 @@ export class TransactionsController {
                                         "timestamp": datatr.timestamp,
                                         "diskon": diskon,
                                         "platform": platform,
+                                        "product_id":product_id,
                                         "_id": datatr._id
                                     };
 
@@ -2891,6 +2896,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                                 CreateTransactionsDto.diskon = diskon;
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+                                CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2975,6 +2981,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                                 CreateTransactionsDto.diskon = diskon;
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+                                CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
                                 try {
 
@@ -3015,6 +3022,7 @@ export class TransactionsController {
                                     "timestamp": datatr.timestamp,
                                     "diskon": diskon,
                                     "platform": platform,
+                                    "product_id":product_id,
                                     "_id": datatr._id
                                 };
                             } catch (e) {
@@ -3065,6 +3073,7 @@ export class TransactionsController {
                             CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                             CreateTransactionsDto.diskon = diskon;
                             CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+                            CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                             var timestamps_end = await this.utilsService.getDateTimeString();
@@ -3092,6 +3101,198 @@ export class TransactionsController {
         }
 
         else if (type === "CONTENT") {
+
+            let saleAmount = 0;
+            var dUser = null;
+            var idbuyer = null;
+            let postType =null;
+            var dataTr=null;
+
+            dUser = await this.basic2SS.findBymail(email);
+
+            if (dUser !== null) {
+                idbuyer = dUser._id;
+            }
+
+            const messages = {
+                "info": ["The process was successful"],
+            };
+            var ubasic = await this.basic2SS.findOneBymail(email);
+            if (request_json.pin && request_json.pin != "") {
+                if (await this.utilsService.ceckData(ubasic)) {
+                    if (ubasic.pin && ubasic.pin != "") {
+                        let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+                        if (pinDecrypt != request_json.pin) {
+                            var timestamps_end = await this.utilsService.getDateTimeString();
+                            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                            throw new BadRequestException("Unable to proceed: PIN mismatch");
+                        }
+                    } else {
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        throw new BadRequestException("Unable to proceed: Please create a PIN first");
+                    }
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                    throw new BadRequestException("Unable to proceed: User data not found");
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                throw new BadRequestException("Unable to proceed: Missing param: pin");
+            }
+
+            try {
+                datapost = await this.posts2SS.findOne(postid[0].id);
+
+                emailseller = datapost._doc.email;
+                saleAmount = datapost.saleAmount;
+                postType = datapost.postType;
+
+            } catch (e) {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                throw new BadRequestException("User not found..!");
+            }
+            try {
+              
+
+                ubasicseller = await this.basic2SS.findBymail(emailseller);
+                iduserseller = ubasicseller._id;
+                namapenjual = ubasicseller.username;
+              
+            } catch (e) {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                throw new BadRequestException("User not found..!");
+            }
+               
+
+                var postIds = postid[0].id;
+                var qty = postid[0].qty;
+                var totalAmount = postid[0].totalAmount;
+                amountTotal = Number(totalAmount) - Number(diskon);
+                tsTockDiskon = 1 + Number(used_stockDiskon);
+                minStockDiskon = Number(last_stockDiskon) - 1;
+
+                detailTr = {
+                    "postID": postIds,
+                    "typeData": "POST",
+                    "qty": qty,
+                    "amount": totalAmount,
+                    "discountCoin": diskon,
+                    "totalAmount": amountTotal,
+                    "like": salelike,
+                    "view": saleview
+                };
+
+                arrDt.push(detailTr)
+                var dttr=null;
+
+               try{
+                dttr=  await this.TransactionsV2Service.insertTransaction(
+                    request_json.platform,
+                    request_json.productCode,
+                    null,
+                    totalAmount,
+                    diskon,
+                    0,
+                    0,
+                    iduser.toString(),
+                    iduserseller.toString(),
+                    [],
+                    arrDt,
+                    "SUCCESS");
+               }catch(e){
+                dttr=null
+               }
+               
+
+                if(dttr !==null){
+
+                    if(dttr.success ==true){
+                        let dttv2=null;
+                        try{
+                            dttv2= await this.TransactionsV2Service.findByOne(iduser.toString(),postIds);
+                        }catch(e){
+                            dttv2=null;
+                        }
+    
+                        if(dttv2 !==null ){
+    
+                            let noinvoic=null;
+    
+                            try{
+                                noinvoic=dttv2.noInvoice;
+                            }catch(e){
+                                noinvoic=null;
+                            }
+                            dataTr = {
+                                "noinvoice": noinvoic,
+                                "postid": postIds,
+                                "email":email,
+                                "NamaPenjual": namapenjual,
+                                "waktu":timedate,
+                                "amount": totalAmount,
+                                "paymentmethod": "Hyppe Coins",
+                                "diskon": diskon,
+                                "jenisTransaksi":"Pembelian Konten",
+                                "platform": platform,
+                                "total":amountTotal
+                              
+                            };
+                        }
+                        
+        
+                        try {
+        
+                            await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                        } catch (e) {
+        
+                        }
+                        try {
+                            await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
+                        } catch (e) {
+        
+                        }
+        
+                        try {
+                            await this.posts2SS.noneActiveAllDiscusnew(postIds);
+                        } catch (e) {
+        
+                        }
+                        try {
+                            this.posts2SS.noneActiveAllDiscusLognew(postIds);
+                        } catch (e) {
+        
+                        }
+    
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        return res.status(HttpStatus.OK).json({
+                            response_code: 202,
+                            "data": dataTr,
+                            "message": messages
+                        });
+                    }
+
+                   
+                }
+                
+                else{
+                    throw new BadRequestException("Cannot insert transaction");
+                }
+              
+              
+            
+
+
+
+
+        }
+        else if (type === "VOUCHER") {
 
             let saleAmount = 0;
             var dUser = null;
