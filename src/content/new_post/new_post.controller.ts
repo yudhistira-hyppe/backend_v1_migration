@@ -5672,15 +5672,19 @@ export class NewPostController {
             for (var i = 0; i < resultArray.length; i++) {
                 var checkexist = listid.includes(resultArray[i].idTransaction);
                 if (checkexist == false && getUserData._id.toString() == resultArray[i].idUser.toString()) {
-                    var insertDatatransDiscount = new TransactionsDiscounts();
-                    insertDatatransDiscount._id = new mongoose.Types.ObjectId();
-                    insertDatatransDiscount.idTransaction = resultArray[i].idTransaction;
-                    insertDatatransDiscount.idUser = resultArray[i].idUser;
-                    insertDatatransDiscount.totalPayment = resultArray[i].totalCoin;
-                    insertDatatransDiscount.transactionDate = resultArray[i].createdAt;
-                    insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
-                    insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
-                    await this.transDiscountService.create(insertDatatransDiscount);
+                    if (discount_id != undefined && discount_id != null) 
+                    {
+                        var insertDatatransDiscount = new TransactionsDiscounts();
+                        insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                        insertDatatransDiscount.idTransaction = resultArray[i]._id;
+                        insertDatatransDiscount.idUser = resultArray[i].idUser;
+                        insertDatatransDiscount.idDiscount = new mongoose.Types.ObjectId(discount_id);
+                        insertDatatransDiscount.totalPayment = resultArray[i].totalCoin;
+                        insertDatatransDiscount.transactionDate = resultArray[i].createdAt;
+                        insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                        insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                        await this.transDiscountService.create(insertDatatransDiscount);
+                    }
 
                     listid.push(resultArray[i].idTransaction);
                     response = resultArray[i];

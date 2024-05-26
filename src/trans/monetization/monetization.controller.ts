@@ -9,6 +9,7 @@ import { TemplatesRepoService } from 'src/infra/templates_repo/templates_repo.se
 import { PostContentService } from 'src/content/posts/postcontent.service';
 import { OssContentPictService } from 'src/content/posts/osscontentpict.service';
 import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
+import { ErrorHandler } from 'src/utils/error.handler';
 const sharp = require('sharp');
 
 @Controller('api/monetization')
@@ -21,6 +22,7 @@ export class MonetizationController {
     private readonly basic2SS: UserbasicnewService,
     private readonly postContentService: PostContentService,
     private readonly ossContentPictService: OssContentPictService,
+    private readonly error: ErrorHandler
   ) { }
 
   @Get(':id')
@@ -368,6 +370,100 @@ export class MonetizationController {
     var getuserdata = await this.basic2SS.findBymail(email);
 
     data = await this.monetizationService.listDiscount(getuserdata._id.toString(), page, limit, productType, transaction_amount);
+
+    var timestamps_end = await this.utilService.getDateTimeString();
+    this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    return {
+      response_code: 202,
+      data: data,
+      message: {
+        "info": ["The process was successful"],
+      }
+    }
+  }
+
+  @Post("usage-user/:id")
+  @UseGuards(JwtAuthGuard)
+  async listusageuser(@Param() id:string, @Req() request: Request, @Headers() headers) {
+    var data = null;
+    var timestamps_start = await this.utilService.getDateTimeString();
+    var url = headers.host + "/api/monetization/"+ id +"/discount";
+    var token = headers['x-auth-token'];
+    var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    var email = auth.email;
+    var page = null;
+    var limit = null;
+    var username = null;
+    var transactionid = null;
+    var startdate = null;
+    var enddate = null;
+    var status = null;
+    var tipeKurs = null;
+
+    var request_json = JSON.parse(JSON.stringify(request.body));
+
+    if(request_json.kurs_type == null || request_json.kurs_type == undefined)
+    {
+      await this.error.generateBadRequestException("kurs_type field must required");
+    }
+    else
+    {
+      tipeKurs = request_json.kurs_type;
+    }
+
+    if(request_json.page == null || request_json.page == undefined)
+    {
+      await this.error.generateBadRequestException("page field must required");
+    }
+    else
+    {
+      page = request_json.page;
+    }
+
+    if(request_json.limit == null || request_json.limit == undefined)
+    {
+      await this.error.generateBadRequestException("limit field must required");
+    }
+    else
+    {
+      limit = request_json.limit;
+    }
+
+    if(request_json.username != null && request_json.username != undefined)
+    {
+      username = request_json.username; 
+    }
+
+    if(request_json.transaction_name != null && request_json.transaction_name != undefined)
+    {
+      transactionid = request_json.transaction_name; 
+    }
+
+    if(request_json.startdate != null && request_json.startdate != undefined && request_json.enddate != null && request_json.enddate != undefined)
+    {
+      startdate = request_json.startdate; 
+      enddate = request_json.enddate; 
+    }
+
+    if(request_json.using_discount != null && request_json.using_discount != undefined)
+    {
+      status = request_json.using_discount; 
+    }
+
+    var data = null;
+    if(tipeKurs == "PUBLIC")
+    {
+      data = await this.monetizationService.discount_usage_general(id, username, transactionid, startdate, enddate, page, limit);
+    }
+    else if(tipeKurs == "SPECIAL")
+    {
+      data = await this.monetizationService.discount_usage_special(id, username, transactionid, startdate, enddate, page, limit);
+    }
+    else
+    {
+      await this.error.generateBadRequestException("kurs_type value not found");
+    }
 
     var timestamps_end = await this.utilService.getDateTimeString();
     this.LogAPISS.create2(url, timestamps_start, timestamps_end, email, null, null, request_json);

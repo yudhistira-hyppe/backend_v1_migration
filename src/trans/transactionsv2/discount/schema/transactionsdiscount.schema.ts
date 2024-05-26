@@ -11,6 +11,8 @@ export class TransactionsDiscounts {
     @Prop()
     idUser: mongoose.Types.ObjectId;
     @Prop()
+    idDiscount: mongoose.Types.ObjectId;
+    @Prop()
     totalPayment: number;
     @Prop()
     transactionDate: string;
