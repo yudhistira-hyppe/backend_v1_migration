@@ -267,7 +267,7 @@ export class MediastreamingController {
         } else {
           const Response = {
             response_code: 202,
-            statusStream: false,
+            statusStream: true,
             messages: {
               info: [
                 "User is Banned"
@@ -279,7 +279,7 @@ export class MediastreamingController {
       }else{
         const Response = {
           response_code: 202,
-          statusStream: false,
+          statusStream: true,
           messages: {
             info: [
               "User is Banned"
