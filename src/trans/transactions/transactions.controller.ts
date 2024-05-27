@@ -2455,8 +2455,8 @@ export class TransactionsController {
 
         var email = email;
 
-        var datatransaction = await this.transactionsService.findAll();
-        var leng = datatransaction.length + 1;
+        var datatransaction = await this.transactionsService.getcount();
+        var leng = datatransaction + 1;
 
         var curdate = new Date(Date.now());
         var beforedate = curdate.toISOString();
@@ -2533,8 +2533,10 @@ export class TransactionsController {
         var dataadminoy = null;
         var valAdmin = null;
         var valAdminOy = null;
+        var arrDiskon=[];
 
         if (idDiscount !== undefined) {
+            arrDiskon=[idDiscount];
             try {
                 dataDiskon = await this.MonetizenewService.findByid(idDiscount);
             } catch (e) {
@@ -3107,7 +3109,9 @@ export class TransactionsController {
             var idbuyer = null;
             let postType = null;
             var dataTr = null;
-
+            var like=0;
+            var view=0;
+            var datainsight=null;
             dUser = await this.basic2SS.findBymail(email);
 
             if (dUser !== null) {
@@ -3117,7 +3121,7 @@ export class TransactionsController {
             const messages = {
                 "info": ["The process was successful"],
             };
-            var ubasic = await this.basic2SS.findOneBymail(email);
+           
             if (request_json.pin && request_json.pin != "") {
                 if (await this.utilsService.ceckData(ubasic)) {
                     if (ubasic.pin && ubasic.pin != "") {
@@ -3149,6 +3153,8 @@ export class TransactionsController {
                 emailseller = datapost._doc.email;
                 saleAmount = datapost.saleAmount;
                 postType = datapost.postType;
+                 like = datapost.likes;
+                 view = datapost.views;
 
             } catch (e) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -3156,6 +3162,11 @@ export class TransactionsController {
 
                 throw new BadRequestException("User not found..!");
             }
+
+            datainsight = await this.insightsService.findemail(email.toString());
+            var idinsight = datainsight._id;
+            var likeinsig = datainsight.likes;
+            var viewinsigh = datainsight.views;
             try {
 
 
@@ -3191,6 +3202,7 @@ export class TransactionsController {
 
             arrDt.push(detailTr)
             var dttr = null;
+           
 
             try {
                 dttr = await this.TransactionsV2Service.insertTransaction(
@@ -3203,7 +3215,7 @@ export class TransactionsController {
                     0,
                     iduser.toString(),
                     iduserseller.toString(),
-                    [],
+                    arrDiskon,
                     arrDt,
                     "SUCCESS");
             } catch (e) {
@@ -3270,6 +3282,23 @@ export class TransactionsController {
 
                     }
 
+                    if (salelike == false) {
+                        this.updateslike2(postIds);
+
+                    } else {
+                        var totallike = like + likeinsig;
+                        await this.insightsService.updatesalelike(idinsight, totallike);
+
+
+                    }
+
+                    if (saleview == false) {
+                        this.updatesview2(postIds)
+                    } else {
+                        var totalview = view + viewinsigh;
+                        await this.insightsService.updatesaleview(idinsight, totalview);
+                    }
+
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                     return res.status(HttpStatus.OK).json({
                         response_code: 202,
@@ -3295,21 +3324,25 @@ export class TransactionsController {
         else if (type === "VOUCHER") {
 
             let saleAmount = 0;
-            var dUser = null;
-            var idbuyer = null;
+            let dUser = null;
+            let idbuyer = null;
             let postType =null;
             var dataTr=null;
+            let datavoucher=null;
+            let namapembeli=null
+            let jmlcoin=0;
 
             dUser = await this.basic2SS.findBymail(email);
 
             if (dUser !== null) {
                 idbuyer = dUser._id;
+                namapembeli=dUser.username;
             }
 
             const messages = {
                 "info": ["The process was successful"],
             };
-            var ubasic = await this.basic2SS.findOneBymail(email);
+          
             if (request_json.pin && request_json.pin != "") {
                 if (await this.utilsService.ceckData(ubasic)) {
                     if (ubasic.pin && ubasic.pin != "") {
@@ -3335,33 +3368,30 @@ export class TransactionsController {
                 throw new BadRequestException("Unable to proceed: Missing param: pin");
             }
 
+            var postidTRvoucer = null;
+            var arraymountvc = [];
+            var arraypostidsvc = [];
+            var arrayDetailvc = [];
             try {
-                datapost = await this.posts2SS.findOne(postid[0].id);
 
-                emailseller = datapost._doc.email;
-                saleAmount = datapost.saleAmount;
-                postType = datapost.postType;
-
-            } catch (e) {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                throw new BadRequestException("User not found..!");
-            }
-            try {
-              
-
-                ubasicseller = await this.basic2SS.findBymail(emailseller);
+                ubasicseller = await this.basic2SS.findOne(useridHyppe);
                 iduserseller = ubasicseller._id;
-                namapenjual = ubasicseller.username;
-              
+                namapenjual = ubasicseller.fullName;
+                emailseller = ubasicseller.email;
+
+
             } catch (e) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
 
                 throw new BadRequestException("User not found..!");
             }
-               
+          
+            try {
+                jmlcoin = postid[0].jmlcoin;
+            } catch (e) {
+                jmlcoin = 0;
+            }
 
                 var postIds = postid[0].id;
                 var qty = postid[0].qty;
@@ -3370,19 +3400,31 @@ export class TransactionsController {
                 tsTockDiskon = 1 + Number(used_stockDiskon);
                 minStockDiskon = Number(last_stockDiskon) - 1;
 
+                //CR = Paket Credit
+        // {
+        //     "paketID":"62a5284c328866627b03c60d",
+        //     "typeData":"CREDIT",
+        //     "qty":1,
+        //     "credit":1000,
+        //     "amount":1000,
+        //     "discountCoin":100,
+        //     "totalAmount":900
+        // }
+
                 detailTr = {
-                    "postID": postIds,
-                    "typeData": "POST",
+                    "paketID": postIds,
+                    "typeData": "CREDIT",
                     "qty": qty,
+                    "credit":jmlcoin,
                     "amount": totalAmount,
                     "discountCoin": diskon,
                     "totalAmount": amountTotal,
-                    "like": salelike,
-                    "view": saleview
                 };
 
                 arrDt.push(detailTr)
                 var dttr=null;
+
+              
 
                try{
                 dttr=  await this.TransactionsV2Service.insertTransaction(
@@ -3395,7 +3437,7 @@ export class TransactionsController {
                     0,
                     iduser.toString(),
                     iduserseller.toString(),
-                    [],
+                    arrDiskon,
                     arrDt,
                     "SUCCESS");
                }catch(e){
@@ -4707,10 +4749,12 @@ export class TransactionsController {
                 var status = datatransaksi.status;
                 var reqbody = JSON.parse(JSON.stringify(payload));
                 var diskon = datatransaksi.diskon;
+                var idDiskon = datatransaksi.idDiskon;
                 var timestamps_start = await this.utilsService.getDateTimeString();
                 var fullurl = req.get("Host") + req.originalUrl;
                 var setiduser = iduserbuy;
                 var respon = datatransaksi.response;
+                var arrDiskon=[idDiskon];
                 var detail = [
                     {
                         "biayPG": valAdminOy,
@@ -4766,7 +4810,7 @@ export class TransactionsController {
                         var idbalance = databalance._id;
                         await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
                         try {
-                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), [], detail, "SUCCESS");
+                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), arrDiskon, detail, "SUCCESS");
                         } catch (e) {
 
                         }
