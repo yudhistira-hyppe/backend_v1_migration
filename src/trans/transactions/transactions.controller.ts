@@ -2811,7 +2811,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                                     CreateTransactionsDto.diskon = diskon;
                                     CreateTransactionsDto.jmlCoin = Number(jmlcoin);
-                                    CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
+                                    CreateTransactionsDto.product_id=product_id;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                     this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
@@ -2896,7 +2896,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                                 CreateTransactionsDto.diskon = diskon;
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
-                                CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
+                                CreateTransactionsDto.product_id=product_id;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2981,7 +2981,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                                 CreateTransactionsDto.diskon = diskon;
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
-                                CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
+                                CreateTransactionsDto.product_id=product_id;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
                                 try {
 
@@ -3073,7 +3073,7 @@ export class TransactionsController {
                             CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
                             CreateTransactionsDto.diskon = diskon;
                             CreateTransactionsDto.jmlCoin = Number(jmlcoin);
-                            CreateTransactionsDto.product_id=mongoose.Types.ObjectId(product_id);
+                            CreateTransactionsDto.product_id=product_id;
                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
                             var timestamps_end = await this.utilsService.getDateTimeString();

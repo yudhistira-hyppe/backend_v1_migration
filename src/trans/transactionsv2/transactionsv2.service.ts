@@ -1017,6 +1017,9 @@ export class TransactionsV2Service {
                     "totalamount": {
                         $arrayElemAt: ['$datatr.totalamount', 0]
                     },
+                    "product_id": {
+                        $arrayElemAt: ['$datatr.product_id', 0]
+                    },
                     
                 }
             },
@@ -1058,6 +1061,7 @@ export class TransactionsV2Service {
                     "description": 1,
                     "bank":1,
                     "totalamount": 1,
+                    "product_id":1,
                                 "methodename":{
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
@@ -1102,6 +1106,7 @@ export class TransactionsV2Service {
                     "description": 1,
                     "bank":1,
                     "totalamount": 1,
+                    "product_id": 1,
                                 "methodename":1,
                                 "bankname":{
                         $arrayElemAt: ['$databank.bankname', 0]

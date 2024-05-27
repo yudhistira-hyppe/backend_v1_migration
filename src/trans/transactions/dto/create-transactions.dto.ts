@@ -35,7 +35,7 @@ export class CreateTransactionsNewDto {
     idDiskon: mongoose.Types.ObjectId;
     diskon: number;
     jmlCoin: number;
-    product_id: mongoose.Types.ObjectId;
+    product_id: string;
 }
 
 export class CreateTransactionsDto {
