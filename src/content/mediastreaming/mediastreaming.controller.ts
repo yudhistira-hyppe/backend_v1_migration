@@ -201,6 +201,7 @@ export class MediastreamingController {
       );
     }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
+    console.log(profile);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
         'Unabled to proceed user not found',
@@ -275,6 +276,17 @@ export class MediastreamingController {
           }
           return Response;
         }
+      }else{
+        const Response = {
+          response_code: 202,
+          statusStream: false,
+          messages: {
+            info: [
+              "User is Banned"
+            ]
+          }
+        }
+        return Response;
       }
     } else {
       const Response = {

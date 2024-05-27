@@ -2453,22 +2453,21 @@ export class MediastreamingService {
     detail.push(dataDetail);
     
     const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", Number(getDataGift.amount), Number(disconCoin), 0, 0, getDataStream.userId.toString(), idUser, voucher, detail,"SUCCESS")
-    if (data) {
-      let coinProfitSharingGF = 0;
-      let totalIncome = 0;
-      const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
-      const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
-      if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
-        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
-          coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
-        }
-        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
-          coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
-        }
+
+    let coinProfitSharingGF = 0;
+    let totalIncome = 0;
+    const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
+    const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
+    if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
+      if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
+        coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
       }
-      totalIncome = amount - coinProfitSharingGF;
-      this.updateIncome(idStream, totalIncome);
+      if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
+        coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+      }
     }
+    totalIncome = amount - coinProfitSharingGF;
+    this.updateIncome(idStream, totalIncome);
   }
 
   async broadcastFCMLive(Userbasicnew_: Userbasicnew, title: String){
