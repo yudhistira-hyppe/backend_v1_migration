@@ -145,6 +145,7 @@ export class TransactionsV2Service {
                 let saldo = 0;
                 let coinProfitSharingCM = 0;
                 let coinProfitSharingGF = 0;
+                let coinProfitSharingPenukaranCoin = 0;
 
                 let priceDiscont = 0;
                 let price = 0;
@@ -181,6 +182,18 @@ export class TransactionsV2Service {
                         }
                         if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
                             coinProfitSharingGF = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+                        }
+                    }
+                }
+                if (transactionProductCode == "CN") {
+                    const ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN = this.configService.get("ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN");
+                    const GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN);
+                    if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN)) {
+                        if (GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.typedata.toString() == "persen") {
+                            coinProfitSharingPenukaranCoin = coinTransaction * (Number(GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.value) / 100);
+                        }
+                        if (GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.typedata.toString() == "number") {
+                            coinProfitSharingPenukaranCoin = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.value);
                         }
                     }
                 }
@@ -407,14 +420,25 @@ export class TransactionsV2Service {
                                                                     if (detail.length > 0) {
                                                                         for (let j = 0; j < detail.length; j++) {
                                                                             let dataDetail = detail[j];
-                                                                            if (dataDetail.transactionFees != undefined) {
-                                                                                kas += Number(dataDetail.transactionFees);
-                                                                            }
-                                                                            if (dataDetail.amount != undefined) {
-                                                                                kas += Number(dataDetail.amount);
-                                                                            }
-                                                                            if (dataDetail.totalDiskon != undefined) {
-                                                                                kas += (-1 * Number(dataDetail.totalDiskon));
+                                                                            // if (dataDetail.transactionFees != undefined) {
+                                                                            //     kas += Number(dataDetail.transactionFees);
+                                                                            // }
+                                                                            if (dataDetail.response != undefined){
+                                                                                if (dataDetail.response.status != undefined) {
+                                                                                    if (dataDetail.response.code != undefined) {
+                                                                                        if (dataDetail.response.code == "000") {
+                                                                                            if (dataDetail.biayPG != undefined) {
+                                                                                                kas += Number(dataDetail.biayPG);
+                                                                                            }
+                                                                                            if (dataDetail.amount != undefined) {
+                                                                                                kas += Number(dataDetail.amount);
+                                                                                            }
+                                                                                            if (dataDetail.totalDiskon != undefined) {
+                                                                                                kas += (-1 * Number(dataDetail.totalDiskon));
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
@@ -425,14 +449,25 @@ export class TransactionsV2Service {
                                                                     if (detail.length > 0) {
                                                                         for (let j = 0; j < detail.length; j++) {
                                                                             let dataDetail = detail[j];
-                                                                            if (dataDetail.transactionFees != undefined) {
-                                                                                kas += (-1 * Number(dataDetail.transactionFees));
-                                                                            }
-                                                                            if (dataDetail.amount != undefined) {
-                                                                                kas += (-1 * Number(dataDetail.amount));
-                                                                            }
-                                                                            if (dataDetail.totalDiskon != undefined) {
-                                                                                kas += Number(dataDetail.totalDiskon);
+                                                                            // if (dataDetail.transactionFees != undefined) {
+                                                                            //     kas += (-1 * Number(dataDetail.transactionFees));
+                                                                            // }
+                                                                            if (dataDetail.response != undefined) {
+                                                                                if (dataDetail.response.status != undefined) {
+                                                                                    if (dataDetail.response.code != undefined) {
+                                                                                        if (dataDetail.response.code == "000") {
+                                                                                            if (dataDetail.biayPG != undefined) {
+                                                                                                kas += Number(dataDetail.biayPG);
+                                                                                            }
+                                                                                            if (dataDetail.amount != undefined) {
+                                                                                                kas += (-1 * Number(dataDetail.amount));
+                                                                                            }
+                                                                                            if (dataDetail.totalDiskon != undefined) {
+                                                                                                kas += Number(dataDetail.totalDiskon);
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
@@ -486,6 +521,26 @@ export class TransactionsV2Service {
                                                             }
                                                         }
                                                     }
+                                                    if (categoryTransactionType.transaction[tr].name == "PendapatanPenukaranCoin") {
+                                                        if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                            if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                                if (categoryTransactionType.category != undefined) {
+                                                                    if (categoryTransactionType.category == category) {
+                                                                        let pendapatanPenukaranCoin_ = coinProfitSharingPenukaranCoin;
+                                                                        pendapatanPenukaranCoin = (Number(currencyCoin) * pendapatanPenukaranCoin_);
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                                if (categoryTransactionType.category != undefined) {
+                                                                    if (categoryTransactionType.category == category) {
+                                                                        let pendapatanPenukaranCoin_ = coinProfitSharingPenukaranCoin;
+                                                                        pendapatanPenukaranCoin = -1 * (Number(currencyCoin) * pendapatanPenukaranCoin_);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                     if (categoryTransactionType.transaction[tr].name == "PenarikanCoin") {
                                                         if (categoryTransactionType.transaction[tr].status != undefined) {
                                                             if (categoryTransactionType.transaction[tr].status == "debit") {
@@ -504,7 +559,6 @@ export class TransactionsV2Service {
                             }
                         }
                     }
-
 
                     if (discountCoin != undefined) {
                         if (discountCoin > 0) {

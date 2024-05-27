@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Ads, AdsDocument } from './schema/ads.schema';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { AdsDto } from './dto/ads.dto';
 import { AdsBalaceCreditDto } from '../adsbalacecredit/dto/adsbalacecredit.dto';
 import { AdsBalaceCreditService } from '../adsbalacecredit/adsbalacecredit.service';
@@ -9117,7 +9117,7 @@ export class AdsService {
                                     // },
                                     avatar:
                                     {
-                                        mediaEndpoint: "$mediaEndpoint" 
+                                        mediaEndpoint: "$mediaEndpoint"
                                     },
                                 }
                             }
@@ -10758,7 +10758,7 @@ export class AdsService {
                                     // },
                                     avatar:
                                     {
-                                        mediaEndpoint: "$mediaEndpoint" 
+                                        mediaEndpoint: "$mediaEndpoint"
                                     }
                                 }
                             }
@@ -12362,7 +12362,7 @@ export class AdsService {
                                     "userName": "$username",
                                     avatar:
                                     {
-                                        mediaEndpoint: "$mediaEndpoint" 
+                                        mediaEndpoint: "$mediaEndpoint"
                                     },
                                 }
                             }
@@ -13192,5 +13192,19 @@ export class AdsService {
                 }
             }
         }
+    }
+
+    async updateActive(id: Types.ObjectId, updatedAt: string, remark: string) {
+        let data = await this.adsModel.updateMany({ "_id": id },
+
+            { $set: { "isActive": false, "updatedAt": updatedAt, "reportedUserHandle.$[].remark": remark, "reportedUserHandle.$[].status": "DELETE", "reportedUserHandle.$[].updatedAt": updatedAt } });
+        return data;
+    }
+
+    async updateActiveEmpty(id: Types.ObjectId, updatedAt: string, reportedUserHandle: any[]) {
+        let data = await this.adsModel.updateMany({ "_id": id },
+
+            { $set: { "isActive": false, "updatedAt": updatedAt, "reportedUserHandle": reportedUserHandle } });
+        return data;
     }
 }
