@@ -66,6 +66,20 @@ export class NewPostService {
     );
   }
 
+  async updateActive(id: string, updatedAt: string, remark: string) {
+    let data = await this.loaddata.updateMany({ "_id": id },
+
+      { $set: { "active": false, "updatedAt": updatedAt, "reportedUserHandle.$[].remark": remark, "reportedUserHandle.$[].status": "DELETE", "reportedUserHandle.$[].updatedAt": updatedAt } });
+    return data;
+  }
+
+  async updateActiveEmpty(id: string, updatedAt: string, reportedUserHandle: any[]) {
+    let data = await this.loaddata.updateMany({ "_id": id },
+
+      { $set: { "active": false, "updatedAt": updatedAt, "reportedUserHandle": reportedUserHandle } });
+    return data;
+  }
+
   async findByPostId(postID: string): Promise<newPosts> {
     return this.loaddata.findOne({ postID: postID }).exec();
   }

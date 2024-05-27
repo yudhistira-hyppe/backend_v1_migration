@@ -30,6 +30,7 @@ import { CreateNewPostDTO } from 'src/content/new_post/dto/create-newPost.dto';
 import { CreateuserbasicnewDto } from '../userbasicnew/dto/Createuserbasicnew-dto';
 import { TempPOSTService } from 'src/content/new_post/temp_post.service';
 import { tempposts } from 'src/content/new_post/schemas/tempPost.schema';
+import { AdsService as AdsV2Service } from '../adsv2/ads/ads.service';
 @Controller('api/reportuser')
 export class ReportuserController {
 
@@ -54,6 +55,7 @@ export class ReportuserController {
         private readonly basic2SS: UserbasicnewService,
         private readonly post2SS: NewPostService,
         private readonly temppost2SS: TempPOSTService,
+        private readonly ads2SS: AdsV2Service
     ) { }
     @UseGuards(JwtAuthGuard)
     @Get('all')
@@ -641,8 +643,7 @@ export class ReportuserController {
                     this.post2SS.update(postID, createPostsDto);
                 }
 
-                if(datatempcontent != null)
-                {
+                if (datatempcontent != null) {
                     createTepostsDto.reportedUser = reportedUserNew;
                     createTepostsDto.reportedStatus = createPostsDto.reportedStatus;
                     this.temppost2SS.updateByPostIdv2(postID, createTepostsDto);
@@ -4395,6 +4396,128 @@ export class ReportuserController {
                 arrayreportedHandle.push(objreporthandle);
 
                 await this.adsService.updateActiveEmpty(adsId, dt.toISOString(), arrayreportedHandle);
+            }
+
+
+        }
+
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+        return { response_code: 202, messages };
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('delete/v2')
+    async reportHandleDeleteV2(@Req() request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = request.get("Host") + request.originalUrl;
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+
+        var postID = null;
+
+        var type = null;
+        var remark = null;
+        var reasonId = null;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+
+        if (request_json["postID"] !== undefined) {
+            postID = request_json["postID"];
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            throw new BadRequestException("Unabled to proceed");
+        }
+        if (request_json["type"] !== undefined) {
+            type = request_json["type"];
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            throw new BadRequestException("Unabled to proceed");
+        }
+
+        reasonId = request_json["reasonId"];
+        remark = request_json["remark"];
+
+
+        const mongoose = require('mongoose');
+        var ObjectId = require('mongodb').ObjectId;
+        const messages = {
+            "info": ["The update successful"],
+        };
+
+        const messagesEror = {
+            "info": ["Todo is not found!"],
+        };
+
+
+
+        var dt = new Date(Date.now());
+        dt.setHours(dt.getHours() + 7); // timestamp
+        dt = new Date(dt);
+        var datacontent = null;
+        var objreporthandle = {};
+        var arrayreportedHandle = [];
+        var reportedUserHandle = [];
+
+        if (type === "content") {
+            try {
+                datacontent = await this.post2SS.findByPostId(postID);
+                reportedUserHandle = datacontent._doc.reportedUserHandle;
+
+            } catch (e) {
+                datacontent = null;
+                reportedUserHandle = [];
+            }
+
+            if (reportedUserHandle.length > 0) {
+                await this.post2SS.updateActive(postID, dt.toISOString(), remark);
+                this.sendReportAppealFCM("NOTIFY_APPEAL", "DELETE", "CONTENT", postID);
+
+            } else {
+
+                objreporthandle = {
+                    "remark": remark,
+                    "createdAt": dt.toISOString(),
+                    "updatedAt": dt.toISOString(),
+                    "status": "DELETE"
+                };
+                arrayreportedHandle.push(objreporthandle);
+
+                await this.post2SS.updateActiveEmpty(postID, dt.toISOString(), arrayreportedHandle);
+                this.sendReportAppealFCM("NOTIFY_APPEAL", "DELETE", "CONTENT", postID);
+            }
+
+        }
+        else if (type === "ads") {
+            try {
+                datacontent = await this.ads2SS.findOne(postID);
+                reportedUserHandle = datacontent._doc.reportedUserHandle;
+
+            } catch (e) {
+                datacontent = null;
+                reportedUserHandle = [];
+            }
+            var adsId = mongoose.Types.ObjectId(postID);
+
+            if (reportedUserHandle.length > 0) {
+                await this.ads2SS.updateActive(adsId, dt.toISOString(), remark);
+
+            } else {
+
+                objreporthandle = {
+                    "remark": remark,
+                    "createdAt": dt.toISOString(),
+                    "updatedAt": dt.toISOString(),
+                    "status": "DELETE"
+                };
+                arrayreportedHandle.push(objreporthandle);
+
+                await this.ads2SS.updateActiveEmpty(adsId, dt.toISOString(), arrayreportedHandle);
             }
 
 
