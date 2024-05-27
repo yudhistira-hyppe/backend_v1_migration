@@ -2440,19 +2440,19 @@ export class MediastreamingService {
     dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
     dataDetail["category"] = "LIVE";
     dataDetail["typeData"] = "gift";
-    dataDetail["amount"] = getDataGift.amount;
+    dataDetail["amount"] = getDataGift.price;
     if (idDiscond != undefined) {
       const getDataDiscond = await this.monetizationService.findOne(idDiscond);
       voucher.push(idDiscond);
       disconCoin = getDataDiscond.amount;
     } 
-    amount = getDataGift.amount;
-    totalAmount = getDataGift.amount - disconCoin;
+    amount = getDataGift.price;
+    totalAmount = getDataGift.price - disconCoin;
     dataDetail["discountCoin"] = disconCoin;
     dataDetail["totalAmount"] = totalAmount
     detail.push(dataDetail);
     
-    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", Number(getDataGift.amount), Number(disconCoin), 0, 0, getDataStream.userId.toString(), idUser, voucher, detail,"SUCCESS")
+    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", Number(getDataGift.price), Number(disconCoin), 0, 0, getDataStream.userId.toString(), idUser, voucher, detail,"SUCCESS")
 
     let coinProfitSharingGF = 0;
     let totalIncome = 0;
