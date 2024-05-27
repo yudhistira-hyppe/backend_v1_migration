@@ -1003,7 +1003,7 @@ export class MediastreamingService {
   }
 
   async findFollower(_id: string, userID: string) {
-    const data = await this.MediastreamingModel.find({
+    const data = await this.MediastreamingModel.findOne({
       _id: new mongoose.Types.ObjectId(_id),
       follower: {
         $elemMatch: { userId: new mongoose.Types.ObjectId(userID), status: true }
@@ -1026,7 +1026,7 @@ export class MediastreamingService {
   }
 
   async findView(_id: string, userID: string){
-    const data = await this.MediastreamingModel.find({
+    const data = await this.MediastreamingModel.findOne({
       _id: new mongoose.Types.ObjectId(_id),
       view: {
         $elemMatch: { userId: new mongoose.Types.ObjectId(userID), status: true }
@@ -1036,7 +1036,7 @@ export class MediastreamingService {
   }
 
   async findReport(_id: string, userID: string) {
-    const data = await this.MediastreamingModel.find({
+    const data = await this.MediastreamingModel.findOne({
       _id: new mongoose.Types.ObjectId(_id),
       report: {
         $elemMatch: { userId: new mongoose.Types.ObjectId(userID) }

@@ -145,6 +145,7 @@ export class TransactionsV2Service {
                 let saldo = 0;
                 let coinProfitSharingCM = 0;
                 let coinProfitSharingGF = 0;
+                let coinProfitSharingPenukaranCoin = 0;
 
                 let priceDiscont = 0;
                 let price = 0;
@@ -181,6 +182,18 @@ export class TransactionsV2Service {
                         }
                         if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
                             coinProfitSharingGF = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+                        }
+                    }
+                }
+                if (transactionProductCode == "CN") {
+                    const ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN = this.configService.get("ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN");
+                    const GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN);
+                    if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN)) {
+                        if (GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.typedata.toString() == "persen") {
+                            coinProfitSharingPenukaranCoin = coinTransaction * (Number(GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.value) / 100);
+                        }
+                        if (GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.typedata.toString() == "number") {
+                            coinProfitSharingPenukaranCoin = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN.value);
                         }
                     }
                 }
@@ -483,6 +496,26 @@ export class TransactionsV2Service {
                                                             }
                                                             if (categoryTransactionType.transaction[tr].status == "credit") {
                                                                 pendapatanBiayaTransaction = -1 * BiayaTransaction;
+                                                            }
+                                                        }
+                                                    }
+                                                    if (categoryTransactionType.transaction[tr].name == "PendapatanPenukaranCoin") {
+                                                        if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                            if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                                if (categoryTransactionType.category != undefined) {
+                                                                    if (categoryTransactionType.category == category) {
+                                                                        let pendapatanPenukaranCoin_ = coinProfitSharingPenukaranCoin;
+                                                                        pendapatanPenukaranCoin = (Number(currencyCoin) * pendapatanPenukaranCoin_);
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                                if (categoryTransactionType.category != undefined) {
+                                                                    if (categoryTransactionType.category == category) {
+                                                                        let pendapatanPenukaranCoin_ = coinProfitSharingPenukaranCoin;
+                                                                        pendapatanPenukaranCoin = -1 * (Number(currencyCoin) * pendapatanPenukaranCoin_);
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
