@@ -5152,6 +5152,8 @@ export class NewPostController {
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                 throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
             }
+            let total = price - (request_json.discount ? request_json.discount : 0);
+            total = (total >= 0) ? total : 0;
             let data = {
                 posttype: request_json.posttype,
                 typeBoost: request_json.type,
@@ -5159,7 +5161,7 @@ export class NewPostController {
                 dateEnd: request_json.dateEnd,
                 price: price,
                 discount: request_json.discount ? request_json.discount : 0,
-                total: price - (request_json.discount ? request_json.discount : 0),
+                total: total,
                 session: session,
                 interval: interval
             }
@@ -5288,20 +5290,22 @@ export class NewPostController {
             //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             //     throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
             // }
-            detail = {
-                "postID": request_json.postId,
-                "typeData": "POST",
-                "discont": "0",
-                "amount": request_json.coin,
-                "discountCoin": request_json.discountCoin ? request_json.discountCoin : 0,
-                "totalAmount": request_json.coin - (request_json.discountCoin ? request_json.discountCoin : 0),
-                "qty": 1,
-                "interval": request_json.interval,
-                "session": request_json.session,
-                "type": request_json.type,
-                "dateStart": request_json.dateStart,
-                "datedateEnd": request_json.dateEnd
-            }
+            detail = [
+                {
+                    "postID": request_json.postId,
+                    "typeData": "POST",
+                    "discont": "0",
+                    "amount": request_json.coin,
+                    "discountCoin": request_json.discountCoin ? request_json.discountCoin : 0,
+                    "totalAmount": request_json.coin - (request_json.discountCoin ? request_json.discountCoin : 0),
+                    "qty": 1,
+                    "interval": request_json.interval,
+                    "session": request_json.session,
+                    "type": request_json.type,
+                    "dateStart": request_json.dateStart,
+                    "datedateEnd": request_json.dateEnd
+                }
+            ]
             var data;
             data = await this.transV2Service.insertTransaction(
                 request_json.platform,
@@ -5672,15 +5676,18 @@ export class NewPostController {
             for (var i = 0; i < resultArray.length; i++) {
                 var checkexist = listid.includes(resultArray[i].idTransaction);
                 if (checkexist == false && getUserData._id.toString() == resultArray[i].idUser.toString()) {
-                    var insertDatatransDiscount = new TransactionsDiscounts();
-                    insertDatatransDiscount._id = new mongoose.Types.ObjectId();
-                    insertDatatransDiscount.idTransaction = resultArray[i].idTransaction;
-                    insertDatatransDiscount.idUser = resultArray[i].idUser;
-                    insertDatatransDiscount.totalPayment = resultArray[i].totalCoin;
-                    insertDatatransDiscount.transactionDate = resultArray[i].createdAt;
-                    insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
-                    insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
-                    await this.transDiscountService.create(insertDatatransDiscount);
+                    if (discount_id != undefined && discount_id != null) {
+                        var insertDatatransDiscount = new TransactionsDiscounts();
+                        insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                        insertDatatransDiscount.idTransaction = resultArray[i]._id;
+                        insertDatatransDiscount.idUser = resultArray[i].idUser;
+                        insertDatatransDiscount.idDiscount = new mongoose.Types.ObjectId(discount_id);
+                        insertDatatransDiscount.totalPayment = resultArray[i].totalCoin;
+                        insertDatatransDiscount.transactionDate = resultArray[i].createdAt;
+                        insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                        insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                        await this.transDiscountService.create(insertDatatransDiscount);
+                    }
 
                     listid.push(resultArray[i].idTransaction);
                     response = resultArray[i];

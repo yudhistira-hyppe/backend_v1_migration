@@ -1369,4 +1369,836 @@ export class MonetizationService {
 
         return data;
     }
+
+    async discount_usage_general(target:string, username:string, transaction_id:string, startdate:string, enddate:string, page:number, limit:number)
+    {
+        var pipeline = [];
+        var facet = {};
+
+        pipeline.push(
+            {
+                "$match":
+                {
+                    "_id": new mongoose.Types.ObjectId(target)
+                }
+            },
+        );
+
+        facet['detail'] = [
+            {
+                "$lookup":
+                {
+                    "from":"transactionsDiscounts",
+                    "as": "trans_data_2",
+                    "let": 
+                    { 
+                        "disc_id": '$_id'
+                    },
+                    "pipeline":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$expr":
+                                {
+                                    "$eq":
+                                    [
+                                        "$$disc_id", "$idDiscount"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "$project":
+                {
+                    "tipe":"$audiens",
+                    "total":
+                    {
+                        "$size":"$trans_data_2"
+                    }
+                }
+            }
+        ];
+
+        var facetAggregate = [];
+        facetAggregate.push(
+            {
+                "$lookup":
+                {
+                    "from":"transactionsDiscounts",
+                    "as": "trans_data",
+                    "let": 
+                    { 
+                        "idDiscount": '$_id'
+                    },
+                    "pipeline":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$expr":
+                                {
+                                    "$eq":
+                                    [
+                                        "$$idDiscount","$idDiscount"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$lookup":
+                            {
+                                from:"transactionsV2",
+                                localField:"idTransaction",
+                                foreignField:"_id",
+                                as:"trans_detail"
+                            }
+                        },
+                        {
+                            "$project":
+                            {
+                                _id:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail._id", 0
+                                    ]
+                                },
+                                idUser:1,
+                                idTransaction:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.idTransaction", 0
+                                    ]
+                                },
+                                coin:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.coin", 0
+                                    ]
+                                },
+                                price:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.price", 0
+                                    ]
+                                },
+                                totalCoin:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.totalCoin", 0
+                                    ]
+                                },
+                                totalPrice:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.totalPrice", 0
+                                    ]
+                                },
+                                createdAt:1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "$set":
+                {
+                    "getuserID":
+                    {
+                        "$arrayElemAt":
+                        [
+                            "$trans_data.idUser", 0
+                        ]
+                    }
+                }
+            },
+            {
+                "$lookup":
+                {
+                    from:"newUserBasics",
+                    localField:"getuserID",
+                    foreignField:"_id",
+                    as:"list_user"
+                }
+            },
+            {
+                "$project":
+                {
+                    "username":
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$list_user.username", 0
+                                ]
+                            },
+                            null
+                        ]
+                    },
+                    "fullName":
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$list_user.fullName", 0
+                                ]
+                            },
+                            null
+                        ]
+                    },
+                    "email":
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$list_user.email", 0
+                                ]
+                            },
+                            null
+                        ]
+                    },
+                    "avatar":
+                    {
+                        "mediaBasePath":
+                        {
+                            "$ifNull":
+                            [
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$list_user.mediaBasePath", 0
+                                    ]
+                                },
+                                null
+                            ]
+                        },
+                        "mediaEndpoint":
+                        {
+                            "$ifNull":
+                            [
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$list_user.mediaEndpoint", 0
+                                    ]
+                                },
+                                null
+                            ]
+                        },
+                        "mediaType":
+                        {
+                            "$ifNull":
+                            [
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$list_user.mediaType", 0
+                                    ]
+                                },
+                                null
+                            ]
+                        },
+                        "mediaUri":
+                        {
+                            "$ifNull":
+                            [
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$list_user.mediaUri", 0
+                                    ]
+                                },
+                                null
+                            ]
+                        },
+                    },
+                    "transaction_date":
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$trans_data.createdAt", 0
+                                ]
+                            },
+                            null //atau bisa juga diganti jadi tanggal now
+                        ]
+                    },
+                    "transaction_ID":
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$trans_data.idTransaction", 0
+                                ]
+                            },
+                            "KOSONG" //atau bisa juga diganti jadi tanggal now
+                        ]
+                    },
+                    "used_discount":
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$trans_data",
+                                    []
+                                ]
+                            },
+                            then:false,
+                            else:true
+                        }
+                    },
+                    total:
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$satuan_diskon", "COIN"
+                                ]
+                            },
+                            then:
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$trans_data.totalCoin", 0
+                                ]
+                            },
+                            else:
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$trans_data.totalPrice", 0
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        );
+        
+        var match = [];
+        if(username != null)
+        {
+            match.push(
+                {
+                    "$or":
+                    [
+                        {
+                            "username":
+                            {
+                                "$regex":username,
+                                "$options":"i"
+                            }
+                        },
+                        {
+                            "email":
+                            {
+                                "$regex":username,
+                                "$options":"i"
+                            }
+                        },
+                    ]
+                }
+            );
+        }
+
+        if(transaction_id != null)
+        {
+            match.push(
+                {
+                    "transaction_ID":
+                    {
+                        "$regex":transaction_id,
+                        "$options":"i"
+                    }
+                }
+            );
+        }
+
+        if(startdate != null && enddate != null)
+        {
+            var before = new Date(startdate).toISOString().split("T")[0];
+            var input = new Date(enddate);
+            input.setDate(input.getDate() + 1);
+            var after = new Date(input).toISOString().split("T")[0];
+            
+            match.push(
+                {
+                    "transaction_date":
+                    {
+                        "$gte": before,
+                        "$lt": after
+                    },
+                }
+            );
+        }
+
+        if(match.length != 0)
+        {
+            facetAggregate.push(
+                {
+                    "$match":
+                    {
+                        "$and":match
+                    }
+                }
+            );    
+        }
+
+        if(page != null && limit != null)
+        {
+            facetAggregate.push(
+                {
+                    "$skip":page * limit
+                },
+                {
+                    "$limit":limit
+                }
+            )
+        }
+
+        facet['list'] = facetAggregate;
+        pipeline.push(
+            {
+                "$facet":facet
+            }
+        );
+
+        // var util = require('util');
+        // util.inspect(pipeline, { showHidden:false, depth:null });
+
+        var data = await this.monetData.aggregate(pipeline);
+        return data;
+    }
+
+    async discount_usage_special(target:string, username:string, transaction_id:string, startdate:string, enddate:string, page:number, limit:number)
+    {
+        var pipeline = [];
+        var facet = {};
+
+        pipeline.push(
+            {
+                "$match":
+                {
+                    "_id": new mongoose.Types.ObjectId(target)
+                }
+            },
+        );
+
+        facet['detail'] = [
+            {
+                "$lookup":
+                {
+                    "from":"transactionsDiscounts",
+                    "as": "trans_data_2",
+                    "let": 
+                    { 
+                        "disc_id": '$_id'
+                    },
+                    "pipeline":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$expr":
+                                {
+                                    "$eq":
+                                    [
+                                        "$$disc_id", "$idDiscount"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "$project":
+                {
+                    "tipe":"$audiens",
+                    "total":
+                    {
+                        "$size":"$trans_data_2"
+                    }
+                }
+            }
+        ];
+
+        var facetAggregate = [];
+        facetAggregate.push(
+            {
+                "$lookup":
+                {
+                    "from":"newUserBasics",
+                    "as": "user_data",
+                    "let": 
+                    { 
+                        local_id: '$audiens_user' 
+                    },
+                    "pipeline": 
+                    [
+                        {
+                            "$match":
+                            {
+                                "$expr":
+                                {
+                                    "$in":
+                                    [
+                                        "$_id", "$$local_id"
+                                    ]
+                                }
+                            }
+                        },
+                    ]
+                }
+            },
+            {
+                "$set":
+                {
+                    "list_user":"$user_data"
+                }
+            },
+            {
+                "$unwind":
+                {
+                    "path":"$list_user",
+                    "preserveNullAndEmptyArrays":true
+                }
+            },
+            {
+                "$lookup":
+                {
+                    "from":"transactionsDiscounts",
+                    "as": "trans_data",
+                    "let": 
+                    { 
+                        "idUser": '$list_user._id',
+                        "idDiscount": '$_id'
+                    },
+                    "pipeline":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "$expr":
+                                        {
+                                            "$eq":
+                                            [
+                                                "$$idUser","$idUser"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "$expr":
+                                        {
+                                            "$eq":
+                                            [
+                                                "$$idDiscount","$idDiscount"
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "$lookup":
+                            {
+                                from:"transactionsV2",
+                                localField:"idTransaction",
+                                foreignField:"_id",
+                                as:"trans_detail"
+                            }
+                        },
+                        {
+                            "$project":
+                            {
+                                _id:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail._id", 0
+                                    ]
+                                },
+                                idTransaction:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.idTransaction", 0
+                                    ]
+                                },
+                                coin:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.coin", 0
+                                    ]
+                                },
+                                price:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.price", 0
+                                    ]
+                                },
+                                totalCoin:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.totalCoin", 0
+                                    ]
+                                },
+                                totalPrice:
+                                {
+                                    "$arrayElemAt":
+                                    [
+                                        "$trans_detail.totalPrice", 0
+                                    ]
+                                },
+                                createdAt:1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "$project":
+                {
+                    "username":"$list_user.username",
+                    "fullName":"$list_user.fullName",
+                    "email":"$list_user.email",
+                    "avatar":
+                    {
+                        "mediaBasePath":
+                        {
+                            "$ifNull":
+                            [
+                                "$list_user.mediaBasePath",
+                                null
+                            ]
+                        },
+                        "mediaEndpoint":
+                        {
+                            "$ifNull":
+                            [
+                                "$list_user.mediaEndpoint",
+                                null
+                            ]
+                        },
+                        "mediaType":
+                        {
+                            "$ifNull":
+                            [
+                                "$list_user.mediaType",
+                                null
+                            ]
+                        },
+                        "mediaUri":
+                        {
+                            "$ifNull":
+                            [
+                                "$list_user.mediaUri",
+                                null
+                            ]
+                        },
+                    },
+                    "transaction_date":
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$trans_data.createdAt", 0
+                                ]
+                            },
+                            "$createdAt" //atau bisa juga diganti jadi tanggal now
+                        ]
+                    },
+                    "transaction_ID":
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$arrayElemAt":
+                                [
+                                    "$trans_data.idTransaction", 0
+                                ]
+                            },
+                            "KOSONG" //atau bisa juga diganti jadi tanggal now
+                        ]
+                    },
+                    "used_discount":
+                    {
+                        "$cond":
+                        {
+                            if:
+                            {
+                                "$eq":
+                                [
+                                    "$trans_data",
+                                    []
+                                ]
+                            },
+                            then:false,
+                            else:true
+                        }
+                    },
+                    total:
+                    {
+                        "$ifNull":
+                        [
+                            {
+                                "$cond":
+                                {
+                                    if:
+                                    {
+                                        "$eq":
+                                        [
+                                            "$satuan_diskon", "COIN"
+                                        ]
+                                    },
+                                    then:
+                                    {
+                                        "$arrayElemAt":
+                                        [
+                                            "$trans_data.totalCoin", 0
+                                        ]
+                                    },
+                                    else:
+                                    {
+                                        "$arrayElemAt":
+                                        [
+                                            "$trans_data.totalPrice", 0
+                                        ]
+                                    }
+                                }
+                            },
+                            0
+                        ]
+                    }
+                }
+            }
+        );
+        
+        var match = [];
+        if(username != null)
+        {
+            match.push(
+                {
+                    "$or":
+                    [
+                        {
+                            "username":
+                            {
+                                "$regex":username,
+                                "$options":"i"
+                            }
+                        },
+                        {
+                            "email":
+                            {
+                                "$regex":username,
+                                "$options":"i"
+                            }
+                        },
+                    ]
+                }
+            );
+        }
+
+        if(transaction_id != null)
+        {
+            match.push(
+                {
+                    "transaction_ID":
+                    {
+                        "$regex":transaction_id,
+                        "$options":"i"
+                    }
+                }
+            );
+        }
+
+        if(startdate != null && enddate != null)
+        {
+            var before = new Date(startdate).toISOString().split("T")[0];
+            var input = new Date(enddate);
+            input.setDate(input.getDate() + 1);
+            var after = new Date(input).toISOString().split("T")[0];
+            
+            match.push(
+                {
+                    "transaction_date":
+                    {
+                        "$gte": before,
+                        "$lt": after
+                    },
+                }
+            );
+        }
+
+        if(match.length != 0)
+        {
+            facetAggregate.push(
+                {
+                    "$match":
+                    {
+                        "$and":match
+                    }
+                }
+            );    
+        }
+
+        if(page != null && limit != null)
+        {
+            facetAggregate.push(
+                {
+                    "$skip":page * limit
+                },
+                {
+                    "$limit":limit
+                }
+            )
+        }
+
+        facet['list'] = facetAggregate;
+        pipeline.push(
+            {
+                "$facet":facet
+            }
+        );
+
+        // var util = require('util');
+        // util.inspect(pipeline, { showHidden:false, depth:null });
+
+        var data = await this.monetData.aggregate(pipeline);
+        return data;
+    }
 }

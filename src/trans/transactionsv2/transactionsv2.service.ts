@@ -928,4 +928,231 @@ export class TransactionsV2Service {
         let data = await this.transactionsModel.aggregate(pipeline);
         return data;
     }
+
+    async getdetailtransaksinew(iduserbuyer: string,nova:string) {
+
+        var pipeline=[];
+
+        pipeline.push(
+            {
+        
+               
+                $match: {
+                    "idUser": new mongoose.Types.ObjectId(iduserbuyer),
+                    "type": "USER",
+                    'detail.payload.va_number': nova
+                }
+            },
+            {
+                $lookup: {
+                    from: "transactionsProducts",
+                    localField: "product",
+                    foreignField: "_id",
+                    as: "dataproduk"
+                }
+            },
+                {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "idUser",
+                    foreignField: "_id",
+                    as: "databasic"
+                }
+            },
+            {
+                $project: {
+                    "type": 1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                    "category": 1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    "status": 1,
+                    "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                                  "emailbuyer": {
+                        $arrayElemAt: ['$databasic.email', 0]
+                    },
+                    "va_number": {
+                        $arrayElemAt: ['$detail.payload.va_number', 0]
+                    },
+                                 "transactionFees": {
+                        $arrayElemAt: ['$detail.transactionFees', 0]
+                    },
+                                 "biayPG": {
+                        $arrayElemAt: ['$detail.biayPG', 0]
+                    },
+                    "code": {
+                        $arrayElemAt: ['$dataproduk.code', 0]
+                    },
+                    "namePaket": {
+                        $arrayElemAt: ['$dataproduk.name', 0]
+                    },
+                    
+                }
+            },
+            {
+                $lookup: {
+                    from: "transactions",
+                    localField: "va_number",
+                    foreignField: "nova",
+                    as: "datatr"
+                }
+            },
+            {
+                $project: {
+                    "type": 1,
+                                "emailbuyer":1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                    "category": 1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    //"status": 1,
+                    "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "va_number": 1,
+                                 "transactionFees": 1,
+                                 "biayPG":1,
+                    "code": 1,
+                    "namePaket": 1,
+                    "amount": {
+                        $arrayElemAt: ['$datatr.amount', 0]
+                    },
+                    "paymentmethod":  {
+                        $arrayElemAt: ['$datatr.paymentmethod', 0]
+                    },
+                    "status":  {
+                        $arrayElemAt: ['$datatr.status', 0]
+                    },
+                    "description": {
+                        $arrayElemAt: ['$datatr.description', 0]
+                    },
+                    "bank":{
+                        $arrayElemAt: ['$datatr.bank', 0]
+                    },
+                    "totalamount": {
+                        $arrayElemAt: ['$datatr.totalamount', 0]
+                    },
+                    "product_id": {
+                        $arrayElemAt: ['$datatr.product_id', 0]
+                    },
+                    
+                }
+            },
+                 {
+                $lookup: {
+                    from: "methodepayments",
+                    localField: "paymentmethod",
+                    foreignField: "_id",
+                    as: "datamethod"
+                }
+            },
+             {
+                $project: {
+                    "type": 1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                                    "emailbuyer":1,
+                    "category": 1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    "status": 1,
+                    "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "va_number": 1,
+                                 "transactionFees": 1,
+                                 "biayPG":1,
+                    "code": 1,
+                    "namePaket": 1,
+                    "amount":1,
+                    "paymentmethod":  1,
+                    "description": 1,
+                    "bank":1,
+                    "totalamount": 1,
+                    "product_id":1,
+                                "methodename":{
+                        $arrayElemAt: ['$datamethod.methodename', 0]
+                    },
+                    
+                }
+            },
+                 {
+                $lookup: {
+                    from: "banks",
+                    localField: "bank",
+                    foreignField: "_id",
+                    as: "databank"
+                }
+            },
+                {
+                $project: {
+                    "type": 1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                    "category": 1,
+                                    "emailbuyer":1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    "status": 1,
+                   // "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "va_number": 1,
+                                 "transactionFees": 1,
+                                 "biayPG":1,
+                    "code": 1,
+                    "namePaket": 1,
+                    "amount":1,
+                    "paymentmethod":  1,
+                    "description": 1,
+                    "bank":1,
+                    "totalamount": 1,
+                    "product_id": 1,
+                                "methodename":1,
+                                "bankname":{
+                        $arrayElemAt: ['$databank.bankname', 0]
+                    },
+                                "bankcode":{
+                        $arrayElemAt: ['$databank.bankcode', 0]
+                    },
+                                "jenisTransaksi":"Pembelian Coins"
+                    
+                }
+            },
+        );
+        let query = await this.transactionsModel.aggregate(pipeline);
+        return query[0];
+    }
 }
