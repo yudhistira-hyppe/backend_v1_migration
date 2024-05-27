@@ -3368,10 +3368,6 @@ export class TransactionsController {
                 throw new BadRequestException("Unable to proceed: Missing param: pin");
             }
 
-            var postidTRvoucer = null;
-            var arraymountvc = [];
-            var arraypostidsvc = [];
-            var arrayDetailvc = [];
             try {
 
                 ubasicseller = await this.basic2SS.findOne(useridHyppe);
@@ -3400,16 +3396,6 @@ export class TransactionsController {
             tsTockDiskon = 1 + Number(used_stockDiskon);
             minStockDiskon = Number(last_stockDiskon) - 1;
 
-            //CR = Paket Credit
-            // {
-            //     "paketID":"62a5284c328866627b03c60d",
-            //     "typeData":"CREDIT",
-            //     "qty":1,
-            //     "credit":1000,
-            //     "amount":1000,
-            //     "discountCoin":100,
-            //     "totalAmount":900
-            // }
 
             detailTr = {
                 "paketID": postIds,
@@ -3425,102 +3411,95 @@ export class TransactionsController {
             var dttr = null;
 
 
+            datavoucher = await this.vouchersService.findOne(postIds);
+            var qtyvoucher = datavoucher.qty;
+            // var tusedvoucher = dataconten.totalUsed;
+            // var codeVoucher = dataconten.codeVoucher;
+            // var pendingUsed = dataconten.pendingUsed;
+            // var totalUsePending = tusedvoucher + pendingUsed;
 
-            try {
-                dttr = await this.TransactionsV2Service.insertTransaction(
-                    request_json.platform,
-                    request_json.productCode,
-                    null,
-                    totalAmount,
-                    diskon,
-                    0,
-                    0,
-                    iduser.toString(),
-                    iduserseller.toString(),
-                    arrDiskon,
-                    arrDt,
-                    "SUCCESS");
-            } catch (e) {
-                dttr = null
-            }
+            if (qty > qtyvoucher) {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+                throw new BadRequestException("Maaf quantity Voucher melebihi quota..");
+
+            } else {
 
 
-            if (dttr !== null) {
+                try {
+                    dttr = await this.TransactionsV2Service.insertTransaction(
+                        request_json.platform,
+                        request_json.productCode,
+                        null,
+                        totalAmount,
+                        diskon,
+                        0,
+                        0,
+                        iduser.toString(),
+                        iduserseller.toString(),
+                        arrDiskon,
+                        arrDt,
+                        "SUCCESS");
+                } catch (e) {
+                    dttr = null
+                }
 
-                if (dttr.success == true) {
-                    let dttv2 = null;
-                    try {
-                        dttv2 = await this.TransactionsV2Service.findByOne(iduser.toString(), postIds);
-                    } catch (e) {
-                        dttv2 = null;
-                    }
 
-                    if (dttv2 !== null) {
+                if (dttr !== null) {
 
-                        let noinvoic = null;
-
+                    if (dttr.success == true) {
+                        let dttv2 = null;
                         try {
-                            noinvoic = dttv2.noInvoice;
+                            dttv2 = await this.TransactionsV2Service.findByOne(iduser.toString(), postIds);
                         } catch (e) {
-                            noinvoic = null;
+                            dttv2 = null;
                         }
-                        dataTr = {
-                            "noinvoice": noinvoic,
-                            "postid": postIds,
-                            "email": email,
-                            "NamaPenjual": namapenjual,
-                            "waktu": timedate,
-                            "amount": totalAmount,
-                            "paymentmethod": "Hyppe Coins",
-                            "diskon": diskon,
-                            "jenisTransaksi": "Pembelian Konten",
-                            "platform": platform,
-                            "total": amountTotal
 
-                        };
+                        if (dttv2 !== null) {
+
+                            let noinvoic = null;
+
+                            try {
+                                noinvoic = dttv2.noInvoice;
+                            } catch (e) {
+                                noinvoic = null;
+                            }
+                            dataTr = {
+                                "transaksiId": noinvoic,
+                                "namaPaketKredit": postIds,
+                                "email": email,
+                                "jumlahKredit": namapenjual,
+                                "jumlahPaket": qty,
+                                "amount": totalAmount,
+                                "paymentmethod": "Hyppe Coins",
+                                "diskon": diskon,
+                                "jenisTransaksi": "Pembelian Konten",
+                                "total": amountTotal
+
+                            };
+                        }
+
+
+
+
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+                        return res.status(HttpStatus.OK).json({
+                            response_code: 202,
+                            "data": dataTr,
+                            "message": messages
+                        });
                     }
 
 
-                    try {
+                }
 
-                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                    } catch (e) {
-
-                    }
-                    try {
-                        await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
-                    } catch (e) {
-
-                    }
-
-                    try {
-                        await this.posts2SS.noneActiveAllDiscusnew(postIds);
-                    } catch (e) {
-
-                    }
-                    try {
-                        this.posts2SS.noneActiveAllDiscusLognew(postIds);
-                    } catch (e) {
-
-                    }
-
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                    return res.status(HttpStatus.OK).json({
-                        response_code: 202,
-                        "data": dataTr,
-                        "message": messages
-                    });
+                else {
+                    throw new BadRequestException("Cannot insert transaction");
                 }
 
 
             }
-
-            else {
-                throw new BadRequestException("Cannot insert transaction");
-            }
-
-
-
 
 
 
