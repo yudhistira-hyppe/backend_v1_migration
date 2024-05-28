@@ -378,7 +378,7 @@ export class MediastreamingController {
             totalViews: getDataStream[0].view_unique.length,
           }
         }
-        this.mediastreamingService.updateDataStream(MediastreamingDto_._id.toString(), false);
+        await this.mediastreamingService.updateDataStream(MediastreamingDto_._id.toString(), false);
         const STREAM_MODE = this.configService.get("STREAM_MODE");
         if (STREAM_MODE == "1") {
           this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
@@ -778,7 +778,7 @@ export class MediastreamingController {
               updateAt: currentDate
             }
             const getUserKick = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
-            this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_.userId.toString(), false, getUserKick[0].email)
+            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_.userId.toString(), false, getUserKick[0].email)
             await this.mediastreamingService.insertKick(MediastreamingDto_._id.toString(), dataKick);
             //SEND KICK USER
             const getUser = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
