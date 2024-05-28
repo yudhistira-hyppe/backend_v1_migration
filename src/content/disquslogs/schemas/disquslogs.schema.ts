@@ -27,7 +27,7 @@ export class Disquslogs {
  @Prop()
    postID: String
    @Prop()
-   streamID: String
+   streamID: mongoose.Types.ObjectId;
  @Prop()
  createdAt: String
  @Prop()

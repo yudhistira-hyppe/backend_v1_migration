@@ -2452,7 +2452,7 @@ export class MediastreamingService {
     dataDetail["totalAmount"] = totalAmount
     detail.push(dataDetail);
     
-    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", Number(getDataGift.price), Number(disconCoin), 0, 0, getDataStream.userId.toString(), idUser, voucher, detail,"SUCCESS")
+    const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", Number(getDataGift.price), Number(disconCoin), 0, 0, idUser, getDataStream.userId.toString(), voucher, detail,"SUCCESS")
 
     let coinProfitSharingGF = 0;
     let totalIncome = 0;

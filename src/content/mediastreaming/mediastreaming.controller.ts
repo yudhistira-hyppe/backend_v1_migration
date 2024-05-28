@@ -885,11 +885,11 @@ export class MediastreamingController {
                   Userbasicnew_.streamWarning = _update_streamWarning;
 
                   //GET ID SETTING MAX BANNED
-                  const ID_ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
-                  const GET_ID_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_ID_SETTING_MAX_BANNED);
+                  const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+                  const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
 
                   //CECK WARNING LENGTH
-                  if (_update_streamWarning.length == Number(GET_ID_ID_SETTING_MAX_BANNED)) {
+                  if (_update_streamWarning.length == Number(GET_ID_SETTING_MAX_BANNED)) {
                     UserBanned = true;
                     Userbasicnew_.streamBanned = UserBanned;
                     Userbasicnew_.streamBannedDate = currentDate;
@@ -930,6 +930,7 @@ export class MediastreamingController {
                       gift: getDataStream[0].gift,
                     }
                   }
+                  
                   const STREAM_MODE = this.configService.get("STREAM_MODE");
                   if (STREAM_MODE == "1") {
                     this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
