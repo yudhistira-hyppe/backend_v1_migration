@@ -102,6 +102,17 @@ export class DisquslogsService {
         $set: { "medias.$.status": status }
       });
   }
+  async updateDataStreamSpecificUser(
+    streamID: string,
+    status: boolean,
+    email: string,
+  ): Promise<any> {
+    return await this.DisquslogsModel.updateMany(
+      { "streamID": new mongoose.Types.ObjectId(streamID), "receiver": email },
+      {
+        $set: { "medias.$.status": status }
+      });
+  }
 
   async updateMany(id: string) {
     return await this.DisquslogsModel.updateMany({ "parentID": id }, { "$set": { "active": false } });

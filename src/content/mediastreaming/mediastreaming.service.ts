@@ -43,8 +43,7 @@ export class MediastreamingService {
       [
         {
           $set: {
-            idStream: arrayId,
-            dataUser: new mongoose.Types.ObjectId(userId)
+            idStream: arrayId
           },
 
         },
@@ -54,7 +53,7 @@ export class MediastreamingService {
               {
                 $expr: { $in: ['$_id', '$idStream'] }
               },
-              { "kick.userId": { $ne: '$dataUser' } }
+              { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
             ]
           },
         },
@@ -2716,7 +2715,7 @@ export class MediastreamingService {
           const dayToAdd = Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE);
           firstBandingDateTime.setTime(firstBandingDateTime.getDate() + dayToAdd);
         }
-        if (currentDate.getTime() > firstBandingDateTime.getTime()) {
+        if (currentDate.getTime() >= firstBandingDateTime.getTime()) {
           streamBanding[objIndex].notes = "AUTO APPROVE BY SYSTEM";
           streamBanding[objIndex].status = false;
           streamBanding[objIndex].approve = true;
@@ -2729,5 +2728,18 @@ export class MediastreamingService {
         }
       }
     }
+  }
+
+  async updateDataStream(
+    streamID: string,
+    status: boolean,): Promise<any> {
+    return await this.transactionsV2Service.updateDataStream(streamID, status);
+  }
+
+  async updateDataStreamSpecificUser(
+    streamID: string,
+    status: boolean,
+    email: string,): Promise<any> {
+    return await this.transactionsV2Service.updateDataStreamSpecificUser(streamID, status, email);
   }
 }

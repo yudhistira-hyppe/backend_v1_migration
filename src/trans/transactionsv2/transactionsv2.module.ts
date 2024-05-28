@@ -37,11 +37,13 @@ import { transactionCoin3Schema, transactionCoin3 } from './monetizenew/schemas/
 // import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { TransactionsDiscounts, TransactionsDiscountsSchema } from './discount/schema/transactionsdiscount.schema';
 import { TransactionsDiscountsService } from './discount/transactionsdiscount.service';
+import { DisquslogsModule } from 'src/content/disquslogs/disquslogs.module';
 // import { BoostintervalModule } from 'src/content/boostinterval/boostinterval.module';
 // import { BoostsessionModule } from 'src/content/boostsession/boostsession.module';
 @Module({
 
     imports: [
+        DisquslogsModule,
         LogapisModule,
         AdsPriceCreditsModule,
         AdsBalaceCreditModule,

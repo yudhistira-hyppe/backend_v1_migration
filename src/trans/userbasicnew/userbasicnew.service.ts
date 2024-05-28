@@ -7922,7 +7922,14 @@ export class UserbasicnewService {
                         "mediaEndpoint": "$mediaEndpoint"
                     },
                     urlLink: 1,
-                    judulLink: 1
+                    judulLink: 1,
+                    GiftActivation: {
+                        $cond: {
+                            if: { $exists: [false] },
+                            then: false,
+                            else: '$lastName'
+                        }
+                    }
                 }
             },
         ];
