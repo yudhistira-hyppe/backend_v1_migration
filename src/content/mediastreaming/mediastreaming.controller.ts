@@ -13,6 +13,7 @@ import { MediastreamingrequestService } from './mediastreamingrequest.service';
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
+import { Disqus } from '../disqus/schemas/disqus.schema';
 
 @Controller("api/live") 
 export class MediastreamingController {
@@ -930,7 +931,7 @@ export class MediastreamingController {
                       gift: getDataStream[0].gift,
                     }
                   }
-                  
+
                   const STREAM_MODE = this.configService.get("STREAM_MODE");
                   if (STREAM_MODE == "1") {
                     this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
@@ -990,7 +991,7 @@ export class MediastreamingController {
         const GET_ID_SETTING_JENIS_REPORT = await this.utilsService.getSetting_Mixed(ID_SETTING_JENIS_REPORT);
         const dataSetting :any= GET_ID_SETTING_JENIS_REPORT;
 
-        //SET Seeting REPORT
+        //SET Setting REPORT
         const getUserViewLanguage = await this.utilsService.getUserlanguages(profile.email.toString());
         let remarkSetting = [];
         if (getUserViewLanguage=="id"){

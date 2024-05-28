@@ -90,6 +90,19 @@ export class DisquslogsService {
     return data;
   }
 
+
+
+  async updateDataStream(
+    streamID: string,
+    status: boolean,
+  ): Promise<any> {
+    return await this.DisquslogsModel.updateMany(
+      { "streamID": new mongoose.Types.ObjectId(streamID) },
+      {
+        $set: { "medias.$.status": status }
+      });
+  }
+
   async updateMany(id: string) {
     return await this.DisquslogsModel.updateMany({ "parentID": id }, { "$set": { "active": false } });
   }
