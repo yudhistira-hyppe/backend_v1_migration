@@ -3002,7 +3002,7 @@ export class TransactionsController {
                                 } catch (e) {
 
                                 }
-                                this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postidTR, no);
+                                this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", postidTR, no);
 
                                 var data = {
                                     "noinvoice": datatr.noinvoice,
@@ -3350,9 +3350,7 @@ export class TransactionsController {
                 "info": ["The process was successful"],
             };
 
-         
-
-
+        
             if (request_json.pin && request_json.pin != "") {
                 if (await this.utilsService.ceckData(ubasic)) {
                     if (ubasic.pin && ubasic.pin != "") {
