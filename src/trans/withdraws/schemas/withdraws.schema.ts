@@ -45,6 +45,8 @@ export class Withdraws {
     responseData: any[];
     @Prop()
     statusCode: string;
+    @Prop()
+    tracking: any[]
 
 
 }
