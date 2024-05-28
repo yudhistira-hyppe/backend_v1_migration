@@ -1190,7 +1190,8 @@ export class TransactionsV2Service {
         streamID: string,
         status: boolean,
         email: string,
+        view: number,
     ): Promise<any> {
-        return await this.disquslogsService.updateDataStreamSpecificUser(streamID, status, email);
+        return await this.disquslogsService.updateDataStreamSpecificUser(streamID, status, email, view);
     }
 }

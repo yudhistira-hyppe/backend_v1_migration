@@ -104,6 +104,7 @@ export class DisquslogsService {
     streamID: string,
     status: boolean,
     email: string,
+    view: number,
   ): Promise<any> {
     return await this.DisquslogsModel.updateMany(
       { 
@@ -113,7 +114,10 @@ export class DisquslogsService {
         ]
       },
       {
-        $set: { "medias.$[].status": status }
+        $set: { 
+          "medias.$[].status": status,
+          "medias.$[].view": view
+        }
       });
   }
 

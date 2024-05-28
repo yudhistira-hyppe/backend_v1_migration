@@ -2520,8 +2520,8 @@ export class DisqusController {
         if (dataStream.status != undefined) {
           media_["status"] = dataStream.status;
         }
-        if (dataStream.status != undefined) {
-          media_["status"] = dataStream.status;
+        if (dataStream.view != undefined) {
+          media_["view"] = dataStream.view.length;
         }
         if (dataStream.expireTime != undefined) {
           media_["expireTime"] = dataStream.expireTime;

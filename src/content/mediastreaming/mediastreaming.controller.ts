@@ -770,21 +770,25 @@ export class MediastreamingController {
           if (await this.utilsService.ceckData(ceckView)) {
             //UPDATE VIEW
             await this.mediastreamingService.updateView(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString(), true, false, currentDate);
+            //GET UNIC VIEW
+            const dataStreamUnic = await this.mediastreamingService.getViewCountUnic(MediastreamingDto_._id.toString());
             //UPDATE KICK
             const dataKick = {
               userId: new mongoose.Types.ObjectId(MediastreamingDto_.userId.toString()),
               status: true,
+              view: dataStreamUnic.length,
               createAt: currentDate,
               updateAt: currentDate
             }
             const getUserKick = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
-            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_.userId.toString(), false, getUserKick[0].email)
+            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_.userId.toString(), false, getUserKick[0].email, dataStreamUnic.length)
             await this.mediastreamingService.insertKick(MediastreamingDto_._id.toString(), dataKick);
             //SEND KICK USER
             const getUser = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
             getUser[0]["idStream"] = MediastreamingDto_._id.toString();
             const singleSend = {
-              data: getUser[0]
+              data: getUser[0],
+              totalViews: dataStreamUnic.length,
             }
             const STREAM_MODE = this.configService.get("STREAM_MODE");
             if (STREAM_MODE == "1") {
@@ -796,15 +800,17 @@ export class MediastreamingController {
               this.mediastreamingService.socketRequest(RequestSoctDto_);
             }
             //SEND VIEW COUNT
-            const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+            //const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+            
             let viewCount = 0;
-            if (dataStream.length > 0) {
-              viewCount = dataStream[0].view.length;
+            if (dataStreamUnic.length > 0) {
+              viewCount = dataStreamUnic.length;
             }
             const dataStreamSend = {
               data: {
                 idStream: MediastreamingDto_._id.toString(),
-                viewCount: viewCount
+                viewCount: viewCount,
+                totalViews: dataStreamUnic.length,
               }
             }
             if (STREAM_MODE == "1") {

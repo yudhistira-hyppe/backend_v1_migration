@@ -1537,6 +1537,29 @@ export class MediastreamingService {
     return data;
   }
 
+  async getViewCountUnic(_id: string){
+    const data = await this.MediastreamingModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id)
+        }
+      },
+      {
+        "$project": {
+          "userId": 1,
+          "view": { "$setUnion": ["$view.userId", []] }
+        }
+      },
+      {
+        $unwind:
+        {
+          path: "$view"
+        }
+      },
+    ]);
+    return data;
+  }
+
   async getDataViewUnic(_id: string, page: number, limit: number) {
     let page_ = (page > 0) ? (page * limit) : page;
     let limit_ = (page > 0) ? ((page + 1) * limit) : limit;
@@ -2739,7 +2762,8 @@ export class MediastreamingService {
   async updateDataStreamSpecificUser(
     streamID: string,
     status: boolean,
-    email: string,): Promise<any> {
-    return await this.transactionsV2Service.updateDataStreamSpecificUser(streamID, status, email);
+    email: string,
+    view: number,): Promise<any> {
+    return await this.transactionsV2Service.updateDataStreamSpecificUser(streamID, status, email, view);
   }
 }
