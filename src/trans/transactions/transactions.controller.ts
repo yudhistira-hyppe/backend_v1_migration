@@ -2373,6 +2373,9 @@ export class TransactionsController {
         var repdate = strdate.replace('T', ' ');
         var splitdate = repdate.split('.');
         var timedate = splitdate[0];
+        var datapaket=null;
+        var namaproduk=null;
+
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
@@ -2395,7 +2398,8 @@ export class TransactionsController {
         //     throw new BadRequestException("Unabled to proceed");
         // }
         if (request_json["product_id"] !== undefined) {
-            product_id = request_json["product_id"];
+            product_id = request_json["product_id"];   
+
         }
         if (request_json["productCode"] !== undefined) {
             productCode = request_json["productCode"];
@@ -3101,7 +3105,6 @@ export class TransactionsController {
 
             }
         }
-
         else if (type === "CONTENT") {
 
             let saleAmount = 0;
@@ -3226,6 +3229,12 @@ export class TransactionsController {
             if (dttr !== null) {
 
                 if (dttr.success == true) {
+                    try {
+
+                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                    } catch (e) {
+
+                    }
                     let dttv2 = null;
                     try {
                         dttv2 = await this.TransactionsV2Service.findByOne(iduser.toString(), postIds);
@@ -3323,10 +3332,8 @@ export class TransactionsController {
         }
         else if (type === "VOUCHER") {
 
-            let saleAmount = 0;
             let dUser = null;
             let idbuyer = null;
-            let postType = null;
             var dataTr = null;
             let datavoucher = null;
             let namapembeli = null
@@ -3342,6 +3349,9 @@ export class TransactionsController {
             const messages = {
                 "info": ["The process was successful"],
             };
+
+         
+
 
             if (request_json.pin && request_json.pin != "") {
                 if (await this.utilsService.ceckData(ubasic)) {
@@ -3410,22 +3420,29 @@ export class TransactionsController {
             arrDt.push(detailTr)
             var dttr = null;
 
+            try {
 
-            datavoucher = await this.vouchersService.findOne(postIds);
-            var qtyvoucher = datavoucher.qty;
-            // var tusedvoucher = dataconten.totalUsed;
-            // var codeVoucher = dataconten.codeVoucher;
-            // var pendingUsed = dataconten.pendingUsed;
-            // var totalUsePending = tusedvoucher + pendingUsed;
+                dataconten = await this.MonetizenewService.findByid(postIds);
+                priceAmount = dataconten.price;
+                postType = dataconten.postType;
+                last_stock = dataconten.last_stock;
+                used_stock = dataconten.used_stock;
+                namaproduk=dataconten.name;
+                tsTock = Number(qty) + Number(used_stock);
+                minStock = Number(last_stock) - Number(qty);
+            } catch (e) {
+                dataconten = null;
+                priceAmount = 0;
+                postType = "";
+                last_stock = 0;
+                used_stock = 0;
+                namaproduk=null;
+                tsTock = 0;
+                minStock =0;
+            }
 
-            if (qty > qtyvoucher) {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                throw new BadRequestException("Maaf quantity Voucher melebihi quota..");
-
-            } else {
-
+           
+            if (last_stock > 0) {
 
                 try {
                     dttr = await this.TransactionsV2Service.insertTransaction(
@@ -3449,9 +3466,23 @@ export class TransactionsController {
                 if (dttr !== null) {
 
                     if (dttr.success == true) {
+
+                        try {
+
+                            await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+                        } catch (e) {
+
+                        }
+
+                        try {
+
+                            await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                        } catch (e) {
+
+                        }
                         let dttv2 = null;
                         try {
-                            dttv2 = await this.TransactionsV2Service.findByOne(iduser.toString(), postIds);
+                            dttv2 = await this.TransactionsV2Service.findByOneCredit(iduser.toString(), postIds);
                         } catch (e) {
                             dttv2 = null;
                         }
@@ -3467,14 +3498,13 @@ export class TransactionsController {
                             }
                             dataTr = {
                                 "transaksiId": noinvoic,
-                                "namaPaketKredit": postIds,
+                                "namaPaketKredit": namaproduk,
                                 "email": email,
-                                "jumlahKredit": namapenjual,
+                                "jumlahKredit": jmlcoin,
                                 "jumlahPaket": qty,
                                 "amount": totalAmount,
                                 "paymentmethod": "Hyppe Coins",
                                 "diskon": diskon,
-                                "jenisTransaksi": "Pembelian Konten",
                                 "total": amountTotal
 
                             };
@@ -3499,6 +3529,9 @@ export class TransactionsController {
                 }
 
 
+            }else{
+                throw new BadRequestException("Maaf quantity Voucher melebihi quota..");
+
             }
 
 
@@ -3518,24 +3551,34 @@ export class TransactionsController {
         var datatr = null;
         var noinvoice = null;
         var data = null;
+        var idtransaksi=null;
 
         if (request_json["noinvoice"] !== undefined) {
             noinvoice = request_json["noinvoice"];
-        } else {
-            throw new BadRequestException("Unabled to proceed");
+            try {
+                datatr = await this.transactionsService.findOne(noinvoice);
+    
+            } catch (e) {
+                datatr = null;
+    
+            }
         }
+        if (request_json["idtransaksi"] !== undefined) {
+            idtransaksi = request_json["idtransaksi"];
+            try {
+                datatr = await this.transactionsService.findOneByid(idtransaksi);
+    
+            } catch (e) {
+                datatr = null;
+    
+            }
+        } 
 
         const messages = {
             "info": ["The process successful"],
         };
         var lengdata = null;
-        try {
-            datatr = await this.transactionsService.findOne(noinvoice);
-
-        } catch (e) {
-            datatr = null;
-
-        }
+     
 
         if (datatr !== null) {
             let nova = null
@@ -4798,7 +4841,7 @@ export class TransactionsController {
 
 
 
-                        this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", postid, noinvoice);
+                        this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", idtransaction.toString(), noinvoice);
                         return res.status(HttpStatus.OK).json({
                             response_code: 202,
                             "message": messages

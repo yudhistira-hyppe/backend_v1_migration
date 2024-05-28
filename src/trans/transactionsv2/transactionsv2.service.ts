@@ -48,6 +48,12 @@ export class TransactionsV2Service {
                     'detail.postID':postid }).exec();
     }
 
+    async findByOneCredit(iduser: string,paketID:string): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({  "type": "USER",
+        "idUser": new mongoose.Types.ObjectId(iduser),'detail.typeData':"CREDIT",
+                    'detail.paketID':paketID }).exec();
+    }
+
     async insertTransaction(
         platform: string,
         transactionProductCode: string,
