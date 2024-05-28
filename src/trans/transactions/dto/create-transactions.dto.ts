@@ -136,6 +136,7 @@ export class CreateWithdraws {
     responOy: {};
     responseData: any[];
     statusCode: string;
+    tracking: any[];
 }
 export class OyDisburseCallbacks {
 
