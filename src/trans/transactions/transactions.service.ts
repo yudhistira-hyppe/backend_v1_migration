@@ -126,6 +126,10 @@ export class TransactionsService {
         return this.transactionsModel.findOne({ noinvoice: noinvoice }).exec();
     }
 
+    async findOneByid(id: string): Promise<Transactions> {
+        return this.transactionsModel.findOne({ _id: new mongoose.Types.ObjectId(id) }).exec();
+    }
+
     async findCodePromoUsedPending(voucherPromoId: string): Promise<Transactions[]> {
         return this.transactionsModel.find({ status: "WAITING_PAYMENT", datavoucherpromo: { $elemMatch: { _id: new mongoose.Types.ObjectId(voucherPromoId) } } }).exec();
     }
