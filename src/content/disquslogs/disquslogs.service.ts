@@ -90,8 +90,6 @@ export class DisquslogsService {
     return data;
   }
 
-
-
   async updateDataStream(
     streamID: string,
     status: boolean,
@@ -99,7 +97,7 @@ export class DisquslogsService {
     return await this.DisquslogsModel.updateMany(
       { "streamID": new mongoose.Types.ObjectId(streamID) },
       {
-        $set: { "medias.$.status": status }
+        $set: { "medias.$[].status": status }
       });
   }
   async updateDataStreamSpecificUser(
@@ -108,9 +106,14 @@ export class DisquslogsService {
     email: string,
   ): Promise<any> {
     return await this.DisquslogsModel.updateMany(
-      { "streamID": new mongoose.Types.ObjectId(streamID), "receiver": email },
+      { 
+        $or: [
+          { $and: [{ "streamID": new mongoose.Types.ObjectId(streamID) }, { "sender": email }] }, 
+          { $and: [{ "receiver": email }, { "streamID": new mongoose.Types.ObjectId(streamID) }] }
+        ]
+      },
       {
-        $set: { "medias.$.status": status }
+        $set: { "medias.$[].status": status }
       });
   }
 
