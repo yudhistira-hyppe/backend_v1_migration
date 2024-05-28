@@ -41,10 +41,10 @@ export class TaskService {
   //   this.adsService.ceckAdsActive();
   // }
   // // @Cron('5 * * * * *')
-  // @Cron('0 */1 * * * *')
-  // ceckUserStream() {
-  //   this.logger.debug('----------STREAM JOB START----------', new Date());
-  //   this.mediastreamingService.StreamRefreshUserWarning();
-  //   this.mediastreamingService.StreamAppeal();
-  // }
+  @Cron('0 */1 * * * *')
+  ceckUserStream() {
+    this.logger.debug('----------STREAM JOB START----------', new Date());
+    this.mediastreamingService.StreamRefreshUserWarning();
+    this.mediastreamingService.StreamAppeal();
+  }
 }
