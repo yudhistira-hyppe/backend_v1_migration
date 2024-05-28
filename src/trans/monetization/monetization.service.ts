@@ -1029,14 +1029,18 @@ export class MonetizationService {
                     }
                 );
         }
-        pipeline.push(
-            {
-                $skip: skip
-            },
-            {
-                $limit: limit
-            }
-        )
+
+        if(skip != null && limit != null)
+        {
+            pipeline.push(
+                {
+                    $skip: skip
+                },
+                {
+                    $limit: limit
+                }
+            )
+        }
 
         // var util = require('util');
         // console.log(util.inspect(pipeline, { depth: null, showHidden: false }));

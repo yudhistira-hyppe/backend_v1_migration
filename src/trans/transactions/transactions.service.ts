@@ -44,7 +44,28 @@ export class TransactionsService {
     async findAll(): Promise<Transactions[]> {
         return this.transactionsModel.find().exec();
     }
+    async getcount() {
 
+        var total=0;
+        var query = await this.transactionsModel.aggregate([
+          {
+            $group: {
+              _id: null,
+              totalpost: {
+                $sum: 1
+              }
+            }
+          }
+        ]);
+
+        try{
+            total=query[0].totalpost;
+        }catch(e){
+            total=0;
+        }
+
+        return total;
+      }
     async findid(id: string): Promise<Transactions> {
         return this.transactionsModel.findOne({ _id: id }).exec();
     }
