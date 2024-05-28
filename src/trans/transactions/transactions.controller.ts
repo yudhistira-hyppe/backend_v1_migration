@@ -20303,33 +20303,35 @@ export class TransactionsController {
         };
 
         var request_json = JSON.parse(JSON.stringify(request.body));
-        var getbasicdata = await this.basic2SS.findBymail(setemail);
-        var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
-        var totalSaldo = 0;
-        if (cekSaldo.length > 0) totalSaldo = cekSaldo[0].totalSaldo;
-        var diff = totalSaldo - request_json.amount;
-        if (diff < 0) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-            await this.errorHandler.generateBadRequestException("Amount exceeds available balance");
-        }
+        // var getbasicdata = await this.basic2SS.findBymail(setemail);
+        // var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
+        // var totalSaldo = 0;
+        // if (cekSaldo.length > 0) totalSaldo = cekSaldo[0].totalSaldo;
+        // var diff = totalSaldo - request_json.amount;
+        // if (diff < 0) {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //     await this.errorHandler.generateBadRequestException("Amount exceeds available balance");
+        // }
         var amount = request_json.coinAmount * 100;
         var convertFeePercent = await this.settingsService.findOne(process.env.ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN);
         var convertFee = amount * Number(convertFeePercent.value) / 100;
         var bankCharge = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
         var totalAmount = amount - (convertFee + Number(bankCharge.value));
-        var minAmount = await this.settingsService.findOneByJenis("SaldoMinimumPenarikan");
-        if (amount < Number(minAmount.value)) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-            await this.errorHandler.generateBadRequestException("Amount does not meet minimum amount");
-        }
+        // var minAmount = await this.settingsService.findOneByJenis("SaldoMinimumPenarikan");
+        // if (amount < Number(minAmount.value)) {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //     await this.errorHandler.generateBadRequestException("Amount does not meet minimum amount");
+        // }
         var data = {
             amount: amount,
             convertFee: convertFee,
             bankCharge: Number(bankCharge.value),
             totalAmount: totalAmount
         }
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
         return {
             response_code: 202,
             data,
