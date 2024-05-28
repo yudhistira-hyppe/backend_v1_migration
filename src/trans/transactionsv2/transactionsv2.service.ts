@@ -18,6 +18,7 @@ import { TransactionsCoaService } from './coa/transactionscoa.service';
 import { TransactionsCoaTable } from './coa/schema/transactionscoatable.schema';
 import { TransactionsCoaTableService } from './coa/transactionscoatable.service';
 import { AdsBalaceCreditService } from '../adsv2/adsbalacecredit/adsbalacecredit.service';
+import { DisquslogsService } from '../../content/disquslogs/disquslogs.service';
 
 @Injectable()
 export class TransactionsV2Service {
@@ -35,7 +36,8 @@ export class TransactionsV2Service {
         private readonly transactionsCoinSettingsService: TransactionsCoinSettingsService, 
         private readonly adsPriceCreditsService: AdsPriceCreditsService, 
         private readonly transactionsCoaService: TransactionsCoaService, 
-        private readonly transactionsCoaTableService: TransactionsCoaTableService,
+        private readonly transactionsCoaTableService: TransactionsCoaTableService, 
+        private readonly disquslogsService: DisquslogsService,
     ) { }
 
     async updateTransaction() {
@@ -1181,5 +1183,20 @@ export class TransactionsV2Service {
         );
         let query = await this.transactionsModel.aggregate(pipeline);
         return query[0];
+    }
+
+    async updateDataStream(
+        streamID: string,
+        status: boolean,
+    ): Promise<any> {
+        return await this.disquslogsService.updateDataStream(streamID, status);
+    }
+
+    async updateDataStreamSpecificUser(
+        streamID: string,
+        status: boolean,
+        email: string,
+    ): Promise<any> {
+        return await this.disquslogsService.updateDataStreamSpecificUser(streamID, status, email);
     }
 }

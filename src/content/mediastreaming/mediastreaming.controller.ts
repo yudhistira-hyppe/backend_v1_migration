@@ -13,6 +13,7 @@ import { MediastreamingrequestService } from './mediastreamingrequest.service';
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
+import { Disqus } from '../disqus/schemas/disqus.schema';
 
 @Controller("api/live") 
 export class MediastreamingController {
@@ -377,6 +378,7 @@ export class MediastreamingController {
             totalViews: getDataStream[0].view_unique.length,
           }
         }
+        await this.mediastreamingService.updateDataStream(MediastreamingDto_._id.toString(), false);
         const STREAM_MODE = this.configService.get("STREAM_MODE");
         if (STREAM_MODE == "1") {
           this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
@@ -775,6 +777,8 @@ export class MediastreamingController {
               createAt: currentDate,
               updateAt: currentDate
             }
+            const getUserKick = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
+            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_.userId.toString(), false, getUserKick[0].email)
             await this.mediastreamingService.insertKick(MediastreamingDto_._id.toString(), dataKick);
             //SEND KICK USER
             const getUser = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
@@ -885,11 +889,11 @@ export class MediastreamingController {
                   Userbasicnew_.streamWarning = _update_streamWarning;
 
                   //GET ID SETTING MAX BANNED
-                  const ID_ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
-                  const GET_ID_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_ID_SETTING_MAX_BANNED);
+                  const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+                  const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
 
                   //CECK WARNING LENGTH
-                  if (_update_streamWarning.length == Number(GET_ID_ID_SETTING_MAX_BANNED)) {
+                  if (_update_streamWarning.length == Number(GET_ID_SETTING_MAX_BANNED)) {
                     UserBanned = true;
                     Userbasicnew_.streamBanned = UserBanned;
                     Userbasicnew_.streamBannedDate = currentDate;
@@ -930,6 +934,7 @@ export class MediastreamingController {
                       gift: getDataStream[0].gift,
                     }
                   }
+
                   const STREAM_MODE = this.configService.get("STREAM_MODE");
                   if (STREAM_MODE == "1") {
                     this.appGateway.eventStream("STATUS_STREAM", JSON.stringify(dataPause));
@@ -989,7 +994,7 @@ export class MediastreamingController {
         const GET_ID_SETTING_JENIS_REPORT = await this.utilsService.getSetting_Mixed(ID_SETTING_JENIS_REPORT);
         const dataSetting :any= GET_ID_SETTING_JENIS_REPORT;
 
-        //SET Seeting REPORT
+        //SET Setting REPORT
         const getUserViewLanguage = await this.utilsService.getUserlanguages(profile.email.toString());
         let remarkSetting = [];
         if (getUserViewLanguage=="id"){

@@ -819,6 +819,16 @@ export class DisqusController {
                             }
                           }
                         }
+                        // else{
+                        //   if (o.disqusLogs[x].streamID != undefined){
+                        //     let ceckStatus = await this.mediastreamingService.findById(o.disqusLogs[x].streamID.toString());
+                        //     if (ceckStatus.status != undefined) {
+                        //       o.disqusLogs[x].medias[0].statusLive = ceckStatus.status;
+                        //     } else {
+                        //       o.disqusLogs[x].medias[0].statusLive = false;
+                        //     }
+                        //   }
+                        // }
                       }
                     }
                   }
@@ -2483,7 +2493,7 @@ export class DisqusController {
       }
     }
     if (dto.streamID != undefined) {
-      dl.streamID = dto.streamID;
+      dl.streamID = new mongoose.Types.ObjectId(dto.streamID.toString());
 
       const dataStream = await this.mediastreamingService.findById(dto.streamID.toString());
       const getUser = await this.UserbasicnewService.getUser(dataStream.userId.toString());

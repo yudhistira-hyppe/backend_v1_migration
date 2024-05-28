@@ -20326,6 +20326,62 @@ export class TransactionsController {
 
     }
 
+    @Post('api/transactions/withdrawtransactiondetail')
+    @UseGuards(JwtAuthGuard)
+    async withdrawDetail(@Req() request: Request, @Headers() headers): Promise<any> {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/withdrawtransactiondetail';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        var dt = new Date(Date.now());
+        dt.setHours(dt.getHours() + 7); // timestamp
+        dt = new Date(dt);
+        // var strdate = dt.toISOString();
+        // var repdate = strdate.replace('T', ' ');
+        // var splitdate = repdate.split('.');
+        // var timedate = splitdate[0];
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        // var getbasicdata = await this.basic2SS.findBymail(setemail);
+        // var cekSaldo = await this.transBalanceSS.findsaldo(getbasicdata._id.toString());
+        // var totalSaldo = 0;
+        // if (cekSaldo.length > 0) totalSaldo = cekSaldo[0].totalSaldo;
+        // var diff = totalSaldo - request_json.amount;
+        // if (diff < 0) {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //     await this.errorHandler.generateBadRequestException("Amount exceeds available balance");
+        // }
+        var amount = request_json.coinAmount * 100;
+        var convertFeePercent = await this.settingsService.findOne(process.env.ID_SETTING_PROFIT_SHARING_PENUKARAN_COIN);
+        var convertFee = amount * Number(convertFeePercent.value) / 100;
+        var bankCharge = await this.settingsService.findOne(process.env.ID_SETTING_COST_BUY_COIN);
+        var totalAmount = amount - (convertFee + Number(bankCharge.value));
+        // var minAmount = await this.settingsService.findOneByJenis("SaldoMinimumPenarikan");
+        // if (amount < Number(minAmount.value)) {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //     await this.errorHandler.generateBadRequestException("Amount does not meet minimum amount");
+        // }
+        var data = {
+            amount: amount,
+            convertFee: convertFee,
+            bankCharge: Number(bankCharge.value),
+            totalAmount: totalAmount
+        }
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        return {
+            response_code: 202,
+            data,
+            messages
+        }
+    }
+
     @Post('api/transactions/coinorderhistory')
     @UseGuards(JwtAuthGuard)
     async coinorderhistory(@Req() request: Request, @Headers() headers): Promise<any> {
