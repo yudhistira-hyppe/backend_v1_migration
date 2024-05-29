@@ -33,6 +33,7 @@ export class MediastreamingDto {
   limit: number;
   feedback: number;
   feedbackText: String;
+  pauseDate: String;
   pause: boolean;
   idGift: String;
   viewCountActive: number;

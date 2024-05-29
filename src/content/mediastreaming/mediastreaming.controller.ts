@@ -395,8 +395,10 @@ export class MediastreamingController {
         const pause = (ceckId.pause != undefined) ? ceckId.pause:false;
         if (pause){
           _MediastreamingDto_.pause = false;
+          _MediastreamingDto_.pauseDate = currentDate;
         } else {
           _MediastreamingDto_.pause = true;
+          _MediastreamingDto_.pauseDate = currentDate;
         }
         await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
         //SEND STATUS PAUSE
@@ -1033,6 +1035,8 @@ export class MediastreamingController {
         MediastreamingDto_Res.share = ceckId.share;
         MediastreamingDto_Res.follower = ceckId.follower;
         MediastreamingDto_Res.urlStream = ceckId.urlStream;
+        MediastreamingDto_Res.pause = ceckId.pause;
+        MediastreamingDto_Res.pauseDate = ceckId.pauseDate;
         MediastreamingDto_Res.urlIngest = ceckId.urlIngest;
         MediastreamingDto_Res.createAt = ceckId.createAt;
         MediastreamingDto_Res.viewCountActive = dataStreamView[0].view.length;
@@ -1044,8 +1048,11 @@ export class MediastreamingController {
         );
       } else if (MediastreamingDto_.type == "REPORT") {
         if (UserReport) {
-          await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed, Report User Stream already exist',
+          const dataResponse = {
+            reportStatus: true,
+          }
+          return await this.errorHandler.generateAcceptResponseCodeWithData(
+            "Update stream succesfully", dataResponse
           );
         } else {
           return await this.errorHandler.generateAcceptResponseCode(

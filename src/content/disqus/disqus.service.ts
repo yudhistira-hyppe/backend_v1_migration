@@ -1794,6 +1794,13 @@ export class DisqusService {
                                     disqusLogs: [{
                                         "_id": "$_id",
                                         "sequenceNumber": "$sequenceNumber",
+                                        "gift":
+                                        {
+                                            "$arrayElemAt":
+                                            [
+                                                "$giftData.giftThumbUrl", 0
+                                            ]
+                                        },
                                         "createdAt": "$createdAt",
                                         "txtMessages": "$txtMessages",
                                         "senderInfo": {

@@ -2089,6 +2089,14 @@ export class DisqusController {
     line["createdAt"] = disqusLog.createdAt;
     line["updatedAt"] = disqusLog.updatedAt;
     line["txtMessages"] = disqusLog.txtMessages;
+    if(disqusLog.giftData.length != 0)
+    {
+      line["gift"] = disqusLog.giftData[0].giftThumbUrl;
+    }
+    else
+    {
+      line["gift"] = null;
+    }
     retLineVal.push(line);
     //retVal["disqusLogs"] = retLineVal;
     retVal.disqusLogs = retLineVal;
@@ -2403,6 +2411,8 @@ export class DisqusController {
 
   private async buildDisqusv2(dto: ContentDto, buildInteractive: boolean) {
     let cts = await this.disquscontactsService.findByEmailAndMate(dto.email.toString(), dto.receiverParty.toString());
+    var profile = await this.utilsService.generateProfile2(String(dto.email), 'PROFILE');
+    var profile_mate = await this.utilsService.generateProfile2(String(dto.mate), 'PROFILE');
     let dis = new Disqus();
     if (cts != undefined && cts.length > 0) {
       let ct = cts[0];
@@ -2523,11 +2533,35 @@ export class DisqusController {
         if (dataStream.userId != undefined) {
           media_["user"] = getUser[0];
         }
-        if (dataStream.status != undefined) {
-          media_["status"] = dataStream.status;
-        }
-        if (dataStream.view != undefined) {
-          media_["view"] = dataStream.view.length;
+        if (dataStream.kick!=undefined){
+          if (dataStream.kick.length > 0) {
+            const arrayKick = dataStream.kick;
+            const idSend = profile.iduser.toString();
+            const idReceiver = profile_mate.iduser.toString();
+
+            const foundSend = arrayKick.some(el => el.userId === idSend);
+            const foundReceiver = arrayKick.some(el => el.userId === idReceiver);
+            if (foundSend || foundReceiver) {
+              if (dataStream.status != undefined) {
+                media_["status"] = dataStream.status;
+              }
+              if (foundSend){
+                const filterSend = arrayKick.filter(el => el.userId === idSend);
+                media_["view"] = filterSend[0].view;
+              }
+              if (foundReceiver) {
+                const filterReceiver = arrayKick.filter(el => el.userId === idReceiver);
+                media_["view"] = filterReceiver[0].view;
+              }
+            } else {
+              if (dataStream.status != undefined) {
+                media_["status"] = dataStream.status;
+              }
+              if (dataStream.view != undefined) {
+                media_["view"] = dataStream.view.length;
+              }
+            }
+          }
         }
         if (dataStream.expireTime != undefined) {
           media_["expireTime"] = dataStream.expireTime;
@@ -2595,7 +2629,6 @@ export class DisqusController {
     retVal.updatedAt = dis.updatedAt;
     retVal.lastestMessage = dis.lastestMessage;
 
-    var profile = await this.utilsService.generateProfile2(String(dis.email), 'PROFILE');
     if (profile.username != undefined) {
       retVal.username = profile.username;
     }
@@ -2611,8 +2644,6 @@ export class DisqusController {
       retVal.urluserBadge = [];
     }
 
-
-    var profile_mate = await this.utilsService.generateProfile2(String(dis.mate), 'PROFILE');
     var mateInfo = {};
     if (profile_mate.username != undefined) {
       mateInfo['username'] = profile_mate.username;
