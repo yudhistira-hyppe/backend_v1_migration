@@ -2511,6 +2511,8 @@ export class TransactionsController {
         var datawayting = null;
         var statuswait = null;
         var postType = null;
+        var arrDiskon=[];
+        var detailtrv2=null;
         const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
@@ -2538,6 +2540,8 @@ export class TransactionsController {
         var valAdmin = null;
         var valAdminOy = null;
         var arrDiskon = [];
+        var datav2=null;
+        var invoicev2=null;
 
         if (idDiscount !== undefined) {
             arrDiskon = [idDiscount];
@@ -2675,8 +2679,7 @@ export class TransactionsController {
             }
             else {
 
-
-
+            
                 try {
                     datapost = await this.MonetizenewService.findOne(postid[0].id);
 
@@ -2731,7 +2734,17 @@ export class TransactionsController {
                     } catch (e) {
                         jmlcoin = 0;
                     }
-
+                     arrDiskon = [idDiscount];
+                     detailtrv2= [
+                        {
+                            "biayPG": valAdminOy,
+                            "transactionFees": valAdmin,
+                            "amount": amount,
+                            "totalDiskon": diskon,
+                            "totalAmount": amountTotal,
+                            // "payload": payload,
+                            // "response": respon
+                        }]
 
                     if (datatrpending !== null) {
 
@@ -2820,12 +2833,54 @@ export class TransactionsController {
                                     CreateTransactionsDto.product_id = product_id;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
-                                    this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
+                                    try {
+
+                                        await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+                                    } catch (e) {
+    
+                                    }
+    
+                                    try {
+    
+                                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                                    } catch (e) {
+    
+                                    }
+                                    let id=null;
+                                    try{
+                                        id = datatr._id.toString();
+                                    }catch(e){
+                                        id=null;
+                                    }
+
+                                    try {
+                                        await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
+                                    } catch (e) {
+            
+                                    }
+
+                                    try {
+                                        datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
+                        
+                                    } catch (e) {
+                                        datav2 = null;
+                        
+                                    }
+
+                                    if(datav2 !==null){
+                                        invoicev2=datav2.noInvoice;
+                                    }
+
+                                    try{
+                                        this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", id, no);
+                                    }catch(e){
+    
+                                    }
                                     await this.transactionsService.updatestatuscancel(idtransaction);
 
 
                                     var data = {
-                                        "noinvoice": datatr.noinvoice,
+                                        "noinvoice": invoicev2,
                                         "postid": postidTR,
                                         "idusersell": datatr.idusersell,
                                         "NamaPenjual": namapenjual,
@@ -2871,11 +2926,10 @@ export class TransactionsController {
                                     "data": data,
                                     "message": messages
                                 });
-                                // setTimeout(res, 3000);
+                            
                             }
                             else {
-                                // throw new BadRequestException("Request is Rejected (API Key is not Valid)");
-
+                              
                                 CreateTransactionsDto.iduserbuyer = iduser;
                                 CreateTransactionsDto.idusersell = useridHyppe;
                                 CreateTransactionsDto.timestamp = dt.toISOString();
@@ -2888,7 +2942,6 @@ export class TransactionsController {
                                 CreateTransactionsDto.nova = nova;
                                 CreateTransactionsDto.accountbalance = null;
                                 CreateTransactionsDto.paymentmethod = idmethode;
-                                // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
                                 CreateTransactionsDto.ppn = null;
                                 CreateTransactionsDto.totalamount = amountTotal;
                                 CreateTransactionsDto.description = statusmessage;
@@ -2955,8 +3008,7 @@ export class TransactionsController {
                         }
 
                         if (statuscodeva == "000") {
-
-
+                          
                             try {
 
                                 let cekstatusva = await this.oyPgService.staticVaInfo(idva);
@@ -2973,7 +3025,6 @@ export class TransactionsController {
                                 CreateTransactionsDto.nova = nova;
                                 CreateTransactionsDto.accountbalance = null;
                                 CreateTransactionsDto.paymentmethod = idmethode;
-                                // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
                                 CreateTransactionsDto.ppn = null;
                                 CreateTransactionsDto.totalamount = amountTotal;
                                 CreateTransactionsDto.description = "buy " + type + " pending";
@@ -3002,10 +3053,41 @@ export class TransactionsController {
                                 } catch (e) {
 
                                 }
-                                this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", postidTR, no);
+
+                                let id=null;
+                                try{
+                                    id = datatr._id.toString();
+                                }catch(e){
+                                    id=null;
+                                }
+
+                                try {
+                                    await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
+                                } catch (e) {
+        
+                                }
+
+                                try {
+                                    datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
+                    
+                                } catch (e) {
+                                    datav2 = null;
+                    
+                                }
+
+                                if(datav2 !==null){
+                                    invoicev2=datav2.noInvoice;
+                                }
+
+                                try{
+                                    this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", id, no);
+                                }catch(e){
+
+                                }
+                              
 
                                 var data = {
-                                    "noinvoice": datatr.noinvoice,
+                                    "noinvoice": invoicev2,
                                     "postid": postidTR,
                                     "idusersell": datatr.idusersell,
                                     "NamaPenjual": namapenjual,
@@ -3049,10 +3131,8 @@ export class TransactionsController {
                                 "data": data,
                                 "message": messages
                             });
-                            // setTimeout(res, 3000);
                         }
                         else {
-                            //throw new BadRequestException("Request is Rejected (API Key is not Valid)");
                             CreateTransactionsDto.iduserbuyer = iduser;
                             CreateTransactionsDto.idusersell = useridHyppe;
                             CreateTransactionsDto.timestamp = dt.toISOString();
@@ -3065,7 +3145,6 @@ export class TransactionsController {
                             CreateTransactionsDto.nova = nova;
                             CreateTransactionsDto.accountbalance = null;
                             CreateTransactionsDto.paymentmethod = idmethode;
-                            // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
                             CreateTransactionsDto.ppn = null;
                             CreateTransactionsDto.totalamount = amountTotal;
                             CreateTransactionsDto.description = statusmessage;
@@ -3225,7 +3304,12 @@ export class TransactionsController {
                 dttr = null
             }
 
+            try {
 
+                await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+            } catch (e) {
+
+            }
             if (dttr !== null) {
 
                 if (dttr.success == true) {
@@ -3268,12 +3352,6 @@ export class TransactionsController {
                     }
 
 
-                    try {
-
-                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                    } catch (e) {
-
-                    }
                     try {
                         await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
                     } catch (e) {
@@ -3459,7 +3537,12 @@ export class TransactionsController {
                 } catch (e) {
                     dttr = null
                 }
+                try {
 
+                    await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                } catch (e) {
+
+                }
 
                 if (dttr !== null) {
 
@@ -4774,17 +4857,17 @@ export class TransactionsController {
                 var fullurl = req.get("Host") + req.originalUrl;
                 var setiduser = iduserbuy;
                 var respon = datatransaksi.response;
-                var arrDiskon = [idDiskon];
-                var detail = [
-                    {
-                        "biayPG": valAdminOy,
-                        "transactionFees": valAdmin,
-                        "amount": amount,
-                        "totalDiskon": diskon,
-                        "totalAmount": tamount,
-                        "payload": payload,
-                        "response": respon
-                    }]
+                // var arrDiskon = [idDiskon];
+                // var detail = [
+                //     {
+                //         "biayPG": valAdminOy,
+                //         "transactionFees": valAdmin,
+                //         "amount": amount,
+                //         "totalDiskon": diskon,
+                //         "totalAmount": tamount,
+                //         "payload": payload,
+                //         "response": respon
+                //     }]
 
                 if (type === "COIN") {
 
@@ -4829,11 +4912,11 @@ export class TransactionsController {
 
                         var idbalance = databalance._id;
                         await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
-                        try {
-                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), arrDiskon, detail, "SUCCESS");
-                        } catch (e) {
+                        // try {
+                        //     await this.TransactionsV2Service.updateDataStream(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), arrDiskon, detail, "SUCCESS");
+                        // } catch (e) {
 
-                        }
+                        // }
 
                         // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
 

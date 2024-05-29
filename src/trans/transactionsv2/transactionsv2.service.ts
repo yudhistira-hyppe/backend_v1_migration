@@ -56,6 +56,12 @@ export class TransactionsV2Service {
                     'detail.paketID':paketID }).exec();
     }
 
+    async findByOneNova(iduser: string,nova:string): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({  "type": "USER",
+        "idUser": new mongoose.Types.ObjectId(iduser),
+        'detail.payload.va_number': nova }).exec();
+    }
+
     async insertTransaction(
         platform: string,
         transactionProductCode: string,
