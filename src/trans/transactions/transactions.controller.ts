@@ -21391,7 +21391,13 @@ export class TransactionsController {
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
-
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "In Progress", infodisbursemen, statuscode, {
+                        "title": "Penukaran Coins Sedang Berlangsung",
+                        "status": "IN PROGRESS",
+                        "action": "APPROVAL",
+                        "timestamp": dtb,
+                        "description": `Penukaran coin sedang diproses`
+                    });
                     updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "IN PROGRESS", detail: detailTrans });
                     let data = {
                         "idUser": withdrawData.idUser,
