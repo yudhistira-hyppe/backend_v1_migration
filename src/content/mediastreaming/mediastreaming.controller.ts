@@ -1044,8 +1044,11 @@ export class MediastreamingController {
         );
       } else if (MediastreamingDto_.type == "REPORT") {
         if (UserReport) {
-          await this.errorHandler.generateNotAcceptableException(
-            'Unabled to proceed, Report User Stream already exist',
+          const dataResponse = {
+            reportStatus: true,
+          }
+          return await this.errorHandler.generateAcceptResponseCodeWithData(
+            "Update stream succesfully", dataResponse
           );
         } else {
           return await this.errorHandler.generateAcceptResponseCode(
