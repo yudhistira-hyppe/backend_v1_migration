@@ -48332,6 +48332,15 @@ export class NewPostService {
         }
       },
       {
+        "$lookup":
+        {
+          from: "friend_list",
+          localField: "email",
+          foreignField: "email",
+          as: "friendList"
+        }
+      },
+      {
         "$lookup": {
           from: "mediamusic",
           as: "music",
