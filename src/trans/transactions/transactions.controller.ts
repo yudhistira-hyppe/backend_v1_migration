@@ -51,7 +51,7 @@ import { MonetizenewService } from 'src/trans/transactions/monetizenew/monetizen
 import { ConfigService } from '@nestjs/config';
 import { TransactionsBalancedsService } from '../transactionsv2/balanceds/transactionsbalanceds.service';
 import { TransactionsProductsService } from '../transactionsv2/products/transactionsproducts.service';
-
+import { transactionsV2 } from 'src/trans/transactionsv2/schema/transactionsv2.schema';
 
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 
@@ -4774,6 +4774,8 @@ export class TransactionsController {
         var valAdminOy = null;
         var datauserhyppe = null;
         var useridHyppe = null;
+        var dataV2=null;
+        var idTransactionv2=null;
 
         try {
 
@@ -4871,6 +4873,7 @@ export class TransactionsController {
 
                 if (type === "COIN") {
 
+
                     if (status == "WAITING_PAYMENT") {
 
                         var ubasic = await this.basic2SS.findOne(iduserbuy);
@@ -4902,7 +4905,24 @@ export class TransactionsController {
                         bodyen = new_bodyen_get;
 
                         var eventType = "TRANSACTION";
+                        try {
+                            dataV2 = await this.TransactionsV2Service.findByOneNova(iduserbuy.toString(), nova);
 
+                        } catch (e) {
+                            dataV2 = null;
+
+                        }
+
+                        if(dataV2 !==null){
+                            idTransactionv2=dataV2.idTransaction
+                            let Trv2 =new transactionsV2();
+                            Trv2.status="SUCCESS";
+                            try {
+                                await this.TransactionsV2Service.updateByIdTransaction(idTransactionv2.toString(),Trv2);
+                            } catch (e) {
+    
+                            }
+                        }
 
                         var createbalance = await this.accontbalanceBuyCoin(postid, idusersell, amount, idtransaction, jmlCoin);
                         var createbalanceadmin = await this.accontbalanceAdminCoin("Admin", useridHyppe, valAdmin, iduserbuy.toString(), idtransaction);
@@ -4911,12 +4931,13 @@ export class TransactionsController {
                         let databalance = await this.accountbalancesService.findOneCoin(idusersell, idtransaction);
 
                         var idbalance = databalance._id;
+                        try{
                         await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
-                        // try {
-                        //     await this.TransactionsV2Service.updateDataStream(platform, productCode, "BUY", jmlCoin, 0, amount, diskon, iduserbuy.toString(), idusersell.toString(), arrDiskon, detail, "SUCCESS");
-                        // } catch (e) {
+                        }catch(e){
 
-                        // }
+                        }
+
+                     
 
                         // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
 
