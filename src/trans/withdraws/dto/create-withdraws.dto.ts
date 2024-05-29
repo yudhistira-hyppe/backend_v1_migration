@@ -23,7 +23,7 @@ export class CreateWithdrawsDto {
 export class OyDisburseCallbackWithdraw {
 
     status: StatusWithdraw;
-    tx_status_description: string;
+    tx_status_description?: string;
     amount: number;
     recipient_name: string;
     recipient_bank: string;

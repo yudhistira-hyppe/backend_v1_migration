@@ -55,6 +55,16 @@ export class WithdrawsService {
             { $set: { "status": "Success", "description": "Withdraw success", verified: true, payload: payload, statusCode: statusCode } });
         return data;
     }
+    async updateonewithtracking(partnerTrxid: string, status: string, payload: OyDisburseCallbackWithdraw, statusCode: string, tracking: any): Promise<Object> {
+        let data = await this.withdrawsModel.updateOne({ "partnerTrxid": partnerTrxid },
+            { $set: { "status": status, verified: true, payload: payload, statusCode: statusCode }, $push: { tracking: tracking } });
+        return data;
+    }
+    async updaterejectedwithtracking(partnerTrxid: string, tracking: any): Promise<Object> {
+        let data = await this.withdrawsModel.updateOne({ "partnerTrxid": partnerTrxid },
+            { $set: { "status": "Rejected" }, $push: { tracking: tracking } });
+        return data;
+    }
     async updateone101(partnerTrxid: string, status: string, payload: OyDisburseCallbackWithdraw): Promise<Object> {
         let data = await this.withdrawsModel.updateOne({ "partnerTrxid": partnerTrxid },
             { $set: { "status": status, "description": status, verified: true, payload: payload } });
@@ -539,7 +549,7 @@ export class WithdrawsService {
             {
                 $addFields: {
                     type: 'Withdraws',
-        
+
                 },
             },
             {
@@ -549,7 +559,7 @@ export class WithdrawsService {
                     foreignField: "_id",
                     as: "userbasics_data"
                 }
-            }, 
+            },
             {
                 $project: {
                     iduser: "$idUser",
@@ -567,9 +577,9 @@ export class WithdrawsService {
                             0
                         ]
                     },
-        
+
                 }
-            }, 
+            },
             {
                 $project: {
                     iduser: "$iduser",
@@ -593,7 +603,7 @@ export class WithdrawsService {
                                         $eq: ["$status", "Success"]
                                     },
                                 ],
-        
+
                             },
                             then: "Success",
                             else: "Failed"

@@ -491,9 +491,9 @@ export class TransactionsController {
 
                                 this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
 
-                                try{
-                                await this.transactionsService.updatestatuscancel(idtransaction);
-                                }catch(e){
+                                try {
+                                    await this.transactionsService.updatestatuscancel(idtransaction);
+                                } catch (e) {
 
                                 }
 
@@ -2516,8 +2516,8 @@ export class TransactionsController {
         var datawayting = null;
         var statuswait = null;
         var postType = null;
-        var arrDiskon=[];
-        var detailtrv2=null;
+        var arrDiskon = [];
+        var detailtrv2 = null;
         const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
@@ -2545,8 +2545,8 @@ export class TransactionsController {
         var valAdmin = null;
         var valAdminOy = null;
         var arrDiskon = [];
-        var datav2=null;
-        var invoicev2=null;
+        var datav2 = null;
+        var invoicev2 = null;
 
         if (idDiscount !== undefined) {
             arrDiskon = [idDiscount];
@@ -2684,7 +2684,7 @@ export class TransactionsController {
             }
             else {
 
-            
+
                 try {
                     datapost = await this.MonetizenewService.findOne(postid[0].id);
 
@@ -2739,7 +2739,7 @@ export class TransactionsController {
                     } catch (e) {
                         jmlcoin = 0;
                     }
-                    
+
                     if (datatrpending !== null) {
 
                         let cekstatusva = await this.oyPgService.staticVaInfo(datatrpending.idva);
@@ -2792,17 +2792,17 @@ export class TransactionsController {
 
                             }
                             arrDiskon = [idDiscount];
-                            detailtrv2= [
-                               {
-                                   "biayPG": valAdminOy,
-                                   "transactionFees": valAdmin,
-                                   "amount": amount,
-                                   "totalDiskon": diskon,
-                                   "totalAmount": amountTotal,
-                                    "payload": {"va_number": nova},
-                                   // "response": respon
-                               }]
-       
+                            detailtrv2 = [
+                                {
+                                    "biayPG": valAdminOy,
+                                    "transactionFees": valAdmin,
+                                    "amount": amount,
+                                    "totalDiskon": diskon,
+                                    "totalAmount": amountTotal,
+                                    "payload": { "va_number": nova },
+                                    // "response": respon
+                                }]
+
 
                             if (statuscodeva == "000") {
 
@@ -2843,44 +2843,44 @@ export class TransactionsController {
 
                                         await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
                                     } catch (e) {
-    
+
                                     }
-    
+
                                     try {
-    
+
                                         await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
                                     } catch (e) {
-    
+
                                     }
-                                    let id=null;
-                                    try{
+                                    let id = null;
+                                    try {
                                         id = datatr._id.toString();
-                                    }catch(e){
-                                        id=null;
+                                    } catch (e) {
+                                        id = null;
                                     }
 
                                     try {
                                         await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
                                     } catch (e) {
-            
+
                                     }
 
                                     try {
                                         datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
-                        
+
                                     } catch (e) {
                                         datav2 = null;
-                        
+
                                     }
 
-                                    if(datav2 !==null){
-                                        invoicev2=datav2.noInvoice;
+                                    if (datav2 !== null) {
+                                        invoicev2 = datav2.noInvoice;
                                     }
 
-                                    try{
+                                    try {
                                         this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", id, no);
-                                    }catch(e){
-    
+                                    } catch (e) {
+
                                     }
                                     await this.transactionsService.updatestatuscancel(idtransaction);
 
@@ -2932,10 +2932,10 @@ export class TransactionsController {
                                     "data": data,
                                     "message": messages
                                 });
-                            
+
                             }
                             else {
-                              
+
                                 CreateTransactionsDto.iduserbuyer = iduser;
                                 CreateTransactionsDto.idusersell = useridHyppe;
                                 CreateTransactionsDto.timestamp = dt.toISOString();
@@ -3013,19 +3013,19 @@ export class TransactionsController {
 
                         }
                         arrDiskon = [idDiscount];
-                        detailtrv2= [
-                           {
-                               "biayPG": valAdminOy,
-                               "transactionFees": valAdmin,
-                               "amount": amount,
-                               "totalDiskon": diskon,
-                               "totalAmount": amountTotal,
-                                "payload": {"va_number": nova},
-                               // "response": respon
-                           }]
-   
+                        detailtrv2 = [
+                            {
+                                "biayPG": valAdminOy,
+                                "transactionFees": valAdmin,
+                                "amount": amount,
+                                "totalDiskon": diskon,
+                                "totalAmount": amountTotal,
+                                "payload": { "va_number": nova },
+                                // "response": respon
+                            }]
+
                         if (statuscodeva == "000") {
-                          
+
                             try {
 
                                 let cekstatusva = await this.oyPgService.staticVaInfo(idva);
@@ -3071,37 +3071,37 @@ export class TransactionsController {
 
                                 }
 
-                                let id=null;
-                                try{
+                                let id = null;
+                                try {
                                     id = datatr._id.toString();
-                                }catch(e){
-                                    id=null;
+                                } catch (e) {
+                                    id = null;
                                 }
 
                                 try {
                                     await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
                                 } catch (e) {
-        
+
                                 }
 
                                 try {
                                     datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
-                    
+
                                 } catch (e) {
                                     datav2 = null;
-                    
+
                                 }
 
-                                if(datav2 !==null){
-                                    invoicev2=datav2.noInvoice;
+                                if (datav2 !== null) {
+                                    invoicev2 = datav2.noInvoice;
                                 }
 
-                                try{
+                                try {
                                     this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", id, no);
-                                }catch(e){
+                                } catch (e) {
 
                                 }
-                              
+
 
                                 var data = {
                                     "noinvoice": invoicev2,
@@ -3650,8 +3650,8 @@ export class TransactionsController {
         var noinvoice = null;
         var data = null;
         var idtransaksi = null;
-        var expired=null;
-        var status=null;
+        var expired = null;
+        var status = null;
 
         if (request_json["noinvoice"] !== undefined) {
             noinvoice = request_json["noinvoice"];
@@ -3683,11 +3683,11 @@ export class TransactionsController {
         if (datatr !== null) {
             let nova = null
             let iduserbuyer = null;
-            let expired=null;
-            let status=null;
-           let expiredvanew=null;
-           var datenow = new Date(Date.now());
-           
+            let expired = null;
+            let status = null;
+            let expiredvanew = null;
+            var datenow = new Date(Date.now());
+
             try {
                 nova = datatr.nova;
             } catch (e) {
@@ -3712,18 +3712,18 @@ export class TransactionsController {
             expiredvanew = new Date(expired);
             expiredvanew.setHours(expiredvanew.getHours() - 7);
 
-            if(status == "WAITING_PAYMENT"){
-                if(datenow > expiredvanew){
-                    try{
+            if (status == "WAITING_PAYMENT") {
+                if (datenow > expiredvanew) {
+                    try {
                         await this.transactionsService.updatecancel(idtransaksi);
-                        }catch(e){
-        
-                        }
+                    } catch (e) {
+
+                    }
                 }
 
             }
 
-    
+
             try {
                 data = await this.TransactionsV2Service.getdetailtransaksinew(iduserbuyer.toString(), nova);
 
@@ -4822,8 +4822,8 @@ export class TransactionsController {
         var valAdminOy = null;
         var datauserhyppe = null;
         var useridHyppe = null;
-        var dataV2=null;
-        var idTransactionv2=null;
+        var dataV2 = null;
+        var idTransactionv2 = null;
 
         try {
 
@@ -4961,14 +4961,14 @@ export class TransactionsController {
 
                         }
 
-                        if(dataV2 !==null){
-                            idTransactionv2=dataV2.idTransaction
-                            let Trv2 =new transactionsV2();
-                            Trv2.status="SUCCESS";
+                        if (dataV2 !== null) {
+                            idTransactionv2 = dataV2.idTransaction
+                            let Trv2 = new transactionsV2();
+                            Trv2.status = "SUCCESS";
                             try {
-                                await this.TransactionsV2Service.updateByIdTransaction(idTransactionv2.toString(),Trv2);
+                                await this.TransactionsV2Service.updateByIdTransaction(idTransactionv2.toString(), Trv2);
                             } catch (e) {
-    
+
                             }
                         }
 
@@ -4979,13 +4979,13 @@ export class TransactionsController {
                         let databalance = await this.accountbalancesService.findOneCoin(idusersell, idtransaction);
 
                         var idbalance = databalance._id;
-                        try{
-                        await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
-                        }catch(e){
+                        try {
+                            await this.transactionsService.updateoneCoin(idtransaction, idbalance, payload);
+                        } catch (e) {
 
                         }
 
-                     
+
 
                         // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
 
@@ -20760,8 +20760,8 @@ export class TransactionsController {
         var iduseradmin = "62144381602c354635ed786a";
         var datainquiry = null;
         var data = null;
-        var dtnow = new Date(Date.now());
         var convertFee = amounreq * convertFeePercent / 100;
+        var dtnow = new Date(Date.now());
         dtnow.setHours(dtnow.getHours() + 7); // timestamp
         dtnow = new Date(dtnow);
         // var valueinquiry = null;
@@ -20900,6 +20900,7 @@ export class TransactionsController {
                 datawithdraw.tracking = [{
                     title: "Pengajuan Penukaran Coin",
                     status: "PENDING",
+                    action: "SUBMITTED",
                     timestamp: dtnow.toISOString(),
                     description: "Penukaran Coins akan diproses dalam 3-5 hari kerja sejak disetujui oleh tim kami"
                 }]
@@ -21263,6 +21264,264 @@ export class TransactionsController {
 
         //     throw new BadRequestException("Account Bank is not found...!");
         // }
+    }
+
+    @Post('api/transactions/approvewithdrawcoin')
+    @UseGuards(JwtAuthGuard)
+    async approveWithdrawCoin(@Req() request: Request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/approvewithdrawcoin';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        const idbankverificationcharge = "62bd4104f37a00001a004367";
+        const idBankDisbursmentCharge = "62bd4126f37a00001a004368";
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var user_data = await this.basic2SS.findBymail(setemail);
+        if (!user_data) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("User data not found");
+        }
+        if (request_json.approve == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: approve (boolean)");
+        }
+        if (request_json.idTransaction == undefined || request_json.idTransaction == "") {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: idTransaction (string)");
+        }
+
+        var approve = request_json.approve;
+        if (approve) {
+            let datasettingbankvercharge = await this.settingsService.findOne(idbankverificationcharge);
+            let valuebankcharge = Number(datasettingbankvercharge.value);
+            let datasettingdisbvercharge = await this.settingsService.findOne(idBankDisbursmentCharge);
+            let valuedisbcharge = Number(datasettingdisbvercharge.value);
+            let updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "APPROVED" });
+            let dataTrans = await this.TransactionsV2Service.findOneByIdTransAndType(request_json.idTransaction, "USER");
+            let detailTrans = dataTrans.detail[0];
+            console.log("detailTrans:", detailTrans);
+            let withdrawId = detailTrans.withdrawId;
+            console.log("withdrawId:", withdrawId.toString());
+            let withdrawData = await this.withdrawsService.findOne(withdrawId.toString());
+            console.log("withdrawData:", withdrawData);
+            let userBankAccData = await this.userbankaccountsService.findOne(withdrawData.idAccountBank.toString());
+            console.log("userBankAccData:", userBankAccData);
+            let bankData = await this.banksService.findOne(userBankAccData.idBank.toString());
+            let userBasicData = await this.basic2SS.findOne(userBankAccData.userId.toString());
+            let disbursementData = new OyDisbursements();
+            disbursementData.recipient_account = userBankAccData.noRek;
+            disbursementData.recipient_bank = bankData.bankcode;
+            disbursementData.note = withdrawData.description;
+            disbursementData.partner_trx_id = withdrawData.partnerTrxid;
+            disbursementData.email = userBasicData.email.toString();
+            disbursementData.amount = withdrawData.totalamount;
+            detailTrans.payload = disbursementData;
+            let datadisbursemen = await this.oyPgService.disbursement(disbursementData);
+            var statusdisb = datadisbursemen.status.code;
+            var statusmessagedis = datadisbursemen.status.message;
+            var timeoy = datadisbursemen.timestamp;
+            var splittimeoy = timeoy.split(" ");
+
+            var substrtahun = splittimeoy[0].substring(10, 6);
+
+            var substrbulan = splittimeoy[0].substring(5, 3);
+
+            var substrtanggal = splittimeoy[0].substring(0, 2);
+
+            var strdate = substrtahun + "-" + substrbulan + "-" + substrtanggal + " " + splittimeoy[1];
+            if (statusdisb === "101") {
+
+                var partnerTrxid = datadisbursemen.partner_trx_id;
+
+                let reqinfo = new OyDisbursementStatus2();
+                reqinfo.partner_trx_id = partnerTrxid;
+                let infodisbursemen = await this.oyPgService.disbursementStatus(reqinfo);
+                var statuscode = infodisbursemen.status.code;
+                var statusmessage = infodisbursemen.status.message;
+                detailTrans.response = infodisbursemen;
+
+                if (statuscode === "000") {
+                    let dtburs = new Date(strdate);
+                    dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                    dtburs = new Date(dtburs);
+                    let dtb = dtburs.toISOString();
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Success", infodisbursemen, statuscode, {
+                        "title": "Penukaran Coins Berhasil",
+                        "status": "SUCCESS",
+                        "action": "APPROVAL",
+                        "timestamp": dtb,
+                        "description": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`
+                    });
+                    updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
+                    let data = {
+                        "idUser": withdrawData.idUser,
+                        "amount": withdrawData.amount,
+                        "status": "SUCCESS",
+                        "bankVerificationCharge": valuebankcharge,
+                        "bankDisbursmentCharge": valuedisbcharge,
+                        "timestamp": dtb,
+                        "verified": withdrawData.verified,
+                        "description": withdrawData.description,
+                        "partnerTrxid": withdrawData.partnerTrxid,
+                        "statusOtp": withdrawData.statusOtp,
+                        "totalamount": withdrawData.totalamount,
+                        "_id": withdrawData._id,
+                        "responOy": datadisbursemen
+                    };
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    return {
+                        response_code: 202,
+                        data: data,
+                        messages
+                    }
+                } else if (statuscode === "101" || statuscode === "102") {
+                    let dtburs = new Date(strdate);
+                    dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                    dtburs = new Date(dtburs);
+                    let dtb = dtburs.toISOString();
+
+                    updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "IN PROGRESS", detail: detailTrans });
+                    let data = {
+                        "idUser": withdrawData.idUser,
+                        "amount": withdrawData.amount,
+                        "status": "IN PROGRESS",
+                        "bankVerificationCharge": valuebankcharge,
+                        "bankDisbursmentCharge": valuedisbcharge,
+                        "timestamp": dtb,
+                        "verified": withdrawData.verified,
+                        "description": withdrawData.description,
+                        "partnerTrxid": withdrawData.partnerTrxid,
+                        "statusOtp": withdrawData.statusOtp,
+                        "totalamount": withdrawData.totalamount,
+                        "_id": withdrawData._id,
+                        "responOy": datadisbursemen
+                    };
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    return {
+                        response_code: 202,
+                        data: data,
+                        messages
+                    }
+                } else if (statuscode === "301") {
+                    let dtburs = new Date(strdate);
+                    dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                    dtburs = new Date(dtburs);
+                    let dtb = dtburs.toISOString();
+
+                    updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "PENDING", detail: detailTrans });
+                    let data = {
+                        "idUser": withdrawData.idUser,
+                        "amount": withdrawData.amount,
+                        "status": "PENDING",
+                        "bankVerificationCharge": valuebankcharge,
+                        "bankDisbursmentCharge": valuedisbcharge,
+                        "timestamp": dtb,
+                        "verified": withdrawData.verified,
+                        "description": withdrawData.description,
+                        "partnerTrxid": withdrawData.partnerTrxid,
+                        "statusOtp": withdrawData.statusOtp,
+                        "totalamount": withdrawData.totalamount,
+                        "_id": withdrawData._id,
+                        "responOy": datadisbursemen
+                    };
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    return {
+                        response_code: 202,
+                        data: data,
+                        messages
+                    }
+                } else {
+                    let dtburs = new Date();
+                    dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                    dtburs = new Date(dtburs);
+                    let dtb = dtburs.toISOString();
+
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Failed", infodisbursemen, statuscode, {
+                        "title": "Penukaran Coins Gagal",
+                        "status": "FAILED",
+                        "action": "APPROVAL",
+                        "timestamp": dtb,
+                        "description": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`
+                    });
+                    updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
+                    let data = {
+                        "idUser": withdrawData.idUser,
+                        "amount": withdrawData.amount,
+                        "status": "FAILED",
+                        "bankVerificationCharge": valuebankcharge,
+                        "bankDisbursmentCharge": valuedisbcharge,
+                        "timestamp": dtb,
+                        "verified": withdrawData.verified,
+                        "description": withdrawData.description,
+                        "partnerTrxid": withdrawData.partnerTrxid,
+                        "statusOtp": withdrawData.statusOtp,
+                        "totalamount": withdrawData.totalamount,
+                        "_id": withdrawData._id,
+                        "responOy": datadisbursemen
+                    };
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    return {
+                        response_code: 202,
+                        data: data,
+                        messages
+                    }
+                }
+
+            } else {
+                throw new BadRequestException(`Disbursement request rejected: ${datadisbursemen.status.message}`);
+            }
+        } else {
+            let updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "REJECTED" });
+            let dataTrans = await this.TransactionsV2Service.findOneByIdTransAndType(request_json.idTransaction, "USER");
+            let detailTrans = dataTrans.detail[0];
+            let withdrawId = detailTrans.withdrawId;
+            let withdrawData = await this.withdrawsService.findOne(withdrawId.toString());
+            let dtnow = new Date(Date.now());
+            dtnow.setHours(dtnow.getHours() + 7); // timestamp
+            dtnow = new Date(dtnow);
+            let updateWithdraw = await this.withdrawsService.updaterejectedwithtracking(withdrawData.partnerTrxid, {
+                "title": "Penukaran Coins Ditolak",
+                "status": "REJECTED",
+                "action": "APPROVAL",
+                "timestamp": dtnow.toISOString(),
+                "description": `Penukaran coins ditolak dengan alasan ${request_json.remark}`
+            })
+            let data = {
+                "idUser": withdrawData.idUser,
+                "amount": withdrawData.amount,
+                "status": "REJECTED",
+                "timestamp": dtnow.toISOString(),
+                "verified": withdrawData.verified,
+                "description": withdrawData.description,
+                "partnerTrxid": withdrawData.partnerTrxid,
+                "statusOtp": withdrawData.statusOtp,
+                "totalamount": withdrawData.totalamount,
+                "_id": withdrawData._id,
+                "remark": request_json.remark
+            }
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: data,
+                messages
+            }
+        }
     }
 
     @Post('api/transactions/coinorderhistory')
