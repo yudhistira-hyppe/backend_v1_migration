@@ -2537,8 +2537,13 @@ export class DisqusController {
               if (dataStream.status != undefined) {
                 media_["status"] = dataStream.status;
               }
-              if (dataStream.view != undefined) {
-                media_["view"] = dataStream.view.length;
+              if (foundSend){
+                const filterSend = arrayKick.filter(el => el.userId === idSend);
+                media_["view"] = filterSend[0].view;
+              }
+              if (foundReceiver) {
+                const filterReceiver = arrayKick.filter(el => el.userId === idReceiver);
+                media_["view"] = filterReceiver[0].view;
               }
             } else {
               if (dataStream.status != undefined) {
