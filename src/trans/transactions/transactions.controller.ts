@@ -2373,8 +2373,8 @@ export class TransactionsController {
         var repdate = strdate.replace('T', ' ');
         var splitdate = repdate.split('.');
         var timedate = splitdate[0];
-        var datapaket=null;
-        var namaproduk=null;
+        var datapaket = null;
+        var namaproduk = null;
 
 
         var request_json = JSON.parse(JSON.stringify(request.body));
@@ -2398,7 +2398,7 @@ export class TransactionsController {
         //     throw new BadRequestException("Unabled to proceed");
         // }
         if (request_json["product_id"] !== undefined) {
-            product_id = request_json["product_id"];   
+            product_id = request_json["product_id"];
 
         }
         if (request_json["productCode"] !== undefined) {
@@ -3428,7 +3428,7 @@ export class TransactionsController {
                 "info": ["The process was successful"],
             };
 
-        
+
             if (request_json.pin && request_json.pin != "") {
                 if (await this.utilsService.ceckData(ubasic)) {
                     if (ubasic.pin && ubasic.pin != "") {
@@ -3503,7 +3503,7 @@ export class TransactionsController {
                 postType = dataconten.postType;
                 last_stock = dataconten.last_stock;
                 used_stock = dataconten.used_stock;
-                namaproduk=dataconten.name;
+                namaproduk = dataconten.name;
                 tsTock = Number(qty) + Number(used_stock);
                 minStock = Number(last_stock) - Number(qty);
             } catch (e) {
@@ -3512,12 +3512,12 @@ export class TransactionsController {
                 postType = "";
                 last_stock = 0;
                 used_stock = 0;
-                namaproduk=null;
+                namaproduk = null;
                 tsTock = 0;
-                minStock =0;
+                minStock = 0;
             }
 
-           
+
             if (last_stock > 0) {
 
                 try {
@@ -3610,7 +3610,7 @@ export class TransactionsController {
                 }
 
 
-            }else{
+            } else {
                 throw new BadRequestException("Maaf quantity Voucher melebihi quota..");
 
             }
@@ -3632,34 +3632,34 @@ export class TransactionsController {
         var datatr = null;
         var noinvoice = null;
         var data = null;
-        var idtransaksi=null;
+        var idtransaksi = null;
 
         if (request_json["noinvoice"] !== undefined) {
             noinvoice = request_json["noinvoice"];
             try {
                 datatr = await this.transactionsService.findOne(noinvoice);
-    
+
             } catch (e) {
                 datatr = null;
-    
+
             }
         }
         if (request_json["idtransaksi"] !== undefined) {
             idtransaksi = request_json["idtransaksi"];
             try {
                 datatr = await this.transactionsService.findOneByid(idtransaksi);
-    
+
             } catch (e) {
                 datatr = null;
-    
+
             }
-        } 
+        }
 
         const messages = {
             "info": ["The process successful"],
         };
         var lengdata = null;
-     
+
 
         if (datatr !== null) {
             let nova = null
@@ -20683,7 +20683,6 @@ export class TransactionsController {
         namaakun = account_name.toLowerCase();
         // totalamount = amount - valuedisbcharge - valuebankcharge;
         if (statuscode == "000") {
-            await this.userbankaccountsService.updateone(idbankaccount, "success inquiry");
             // await this.accontbalanceWithdraw({ oid: iduserstring }, valuebankcharge, "inquiry");
 
             datarek = await this.userbankaccountsService.findnorekWithdrawuser(recipient_account, idbank, iduser);
@@ -20694,6 +20693,7 @@ export class TransactionsController {
             statusInquiry = datarek._doc.statusInquiry;
             nama = namarek.toLowerCase();
             if (nama == namaakun) {
+                await this.userbankaccountsService.updateone(idbankaccount, "success inquiry");
                 // data = {
                 //     "name": account_name,
                 //     "bankName": bankname,
@@ -20721,7 +20721,7 @@ export class TransactionsController {
                 datawithdraw.bankVerificationCharge = mongoose.Types.ObjectId(idbankverificationcharge);
                 datawithdraw.bankDisbursmentCharge = mongoose.Types.ObjectId(idBankDisbursmentCharge);
                 datawithdraw.description = OyDisbursements.note;
-                datawithdraw.idUser = Object(iduserstring);
+                datawithdraw.idUser = mongoose.Types.ObjectId(iduserstring);
                 datawithdraw.status = "PENDING";
                 datawithdraw.timestamp = dtnow.toISOString();
                 datawithdraw.verified = false;
@@ -20736,7 +20736,7 @@ export class TransactionsController {
                     description: "Penukaran Coins akan diproses dalam 3-5 hari kerja sejak disetujui oleh tim kami"
                 }]
 
-                await this.withdrawsService.create(datawithdraw);
+                let createdata = await this.withdrawsService.create(datawithdraw);
                 data = await this.TransactionsV2Service.insertTransaction(
                     "APP",
                     "CN",
@@ -20753,7 +20753,8 @@ export class TransactionsController {
                             biayPG: valuedisbcharge,
                             transactionFees: convertFee,
                             amount: amounreq,
-                            totalAmount: amounreq - (convertFee + valuebankcharge + valuedisbcharge)
+                            totalAmount: totalamount,
+                            withdrawId: createdata._id
                         }
                     ],
                     "PENDING"
@@ -20762,11 +20763,11 @@ export class TransactionsController {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
-                return {
+                return res.status(HttpStatus.OK).json({
                     response_code: 202,
-                    data,
-                    messages
-                }
+                    "data": data,
+                    "message": messages
+                });
             } else {
                 await this.userbankaccountsService.updateonefalse(idbankaccount, "failed inquiry");
                 // await this.accontbalanceWithdraw({ oid: iduserstring }, valuebankcharge, "inquiry");

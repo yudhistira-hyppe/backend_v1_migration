@@ -152,7 +152,7 @@ export class MediastreamingController {
     _MediastreamingDto_.tokenAgora = generateToken.token;
 
     const data = await this.mediastreamingService.createStreaming(_MediastreamingDto_);
-    this.mediastreamingService.broadcastFCMLive(profile, MediastreamingDto_.title);
+    this.mediastreamingService.broadcastFCMLive(profile, MediastreamingDto_.title.toString(), generateId.toString());
 
     const dataResponse = {};
     dataResponse['_id'] = data._id;
@@ -770,21 +770,25 @@ export class MediastreamingController {
           if (await this.utilsService.ceckData(ceckView)) {
             //UPDATE VIEW
             await this.mediastreamingService.updateView(MediastreamingDto_._id.toString(), MediastreamingDto_.userId.toString(), true, false, currentDate);
+            //GET UNIC VIEW
+            const dataStreamUnic = await this.mediastreamingService.getViewCountUnic(MediastreamingDto_._id.toString());
             //UPDATE KICK
             const dataKick = {
               userId: new mongoose.Types.ObjectId(MediastreamingDto_.userId.toString()),
               status: true,
+              view: dataStreamUnic.length,
               createAt: currentDate,
               updateAt: currentDate
             }
             const getUserKick = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
-            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_.userId.toString(), false, getUserKick[0].email)
+            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_._id.toString(), false, getUserKick[0].email, dataStreamUnic.length)
             await this.mediastreamingService.insertKick(MediastreamingDto_._id.toString(), dataKick);
             //SEND KICK USER
             const getUser = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
             getUser[0]["idStream"] = MediastreamingDto_._id.toString();
             const singleSend = {
-              data: getUser[0]
+              data: getUser[0],
+              totalViews: dataStreamUnic.length,
             }
             const STREAM_MODE = this.configService.get("STREAM_MODE");
             if (STREAM_MODE == "1") {
@@ -796,15 +800,17 @@ export class MediastreamingController {
               this.mediastreamingService.socketRequest(RequestSoctDto_);
             }
             //SEND VIEW COUNT
-            const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+            //const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+            
             let viewCount = 0;
-            if (dataStream.length > 0) {
-              viewCount = dataStream[0].view.length;
+            if (dataStreamUnic.length > 0) {
+              viewCount = dataStreamUnic.length;
             }
             const dataStreamSend = {
               data: {
                 idStream: MediastreamingDto_._id.toString(),
-                viewCount: viewCount
+                viewCount: viewCount,
+                totalViews: dataStreamUnic.length,
               }
             }
             if (STREAM_MODE == "1") {
@@ -841,6 +847,7 @@ export class MediastreamingController {
             await this.mediastreamingService.insertReport(MediastreamingDto_._id.toString(), dataReport);
             const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
             const getUser = await this.userbasicnewService.findOne(ceckId.userId.toString());
+            this.utilsService.sendFcmV2(profile.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_REPORT_VIEWER', 'LIVE_REPORT', null, null, null, MediastreamingDto_.messages.toString());
 
             //SET DATA USER STREAM
             let Userbasicnew_ = new Userbasicnew();
@@ -894,6 +901,7 @@ export class MediastreamingController {
 
                   //CECK WARNING LENGTH
                   if (_update_streamWarning.length == Number(GET_ID_SETTING_MAX_BANNED)) {
+                    this.utilsService.sendFcmV2(profile.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_BENNED', 'LIVE_BENNED', null, null, null, null);
                     UserBanned = true;
                     Userbasicnew_.streamBanned = UserBanned;
                     Userbasicnew_.streamBannedDate = currentDate;
@@ -1155,6 +1163,7 @@ export class MediastreamingController {
       _update_streamBanding.push(dataAppeal)
       Userbasicnew_.streamBanding = _update_streamBanding;
       //UPDATE DATA USER STREAM
+      this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_SUBMIT', 'LIVE_APPEAL_SUBMIT', null, null, null, null);
       await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
       return await this.errorHandler.generateAcceptResponseCode(
         "Succesfully",
@@ -1210,8 +1219,13 @@ export class MediastreamingController {
       }
       streamBanding[objIndex].approve = RequestAppealStream_.approve;
       let Userbasicnew_ = new Userbasicnew();
-      Userbasicnew_.streamWarning = [];
-      Userbasicnew_.streamBanned = false;
+      if (RequestAppealStream_.approve) {
+        Userbasicnew_.streamWarning = [];
+        Userbasicnew_.streamBanned = false;
+        this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_SUCCESS', 'LIVE_APPEAL_SUCCESS', null, null, null, null);
+      }else{
+        this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_REJECT', 'LIVE_APPEAL_REJECT', null, null, null, null);
+      }
       Userbasicnew_.streamBanding = streamBanding;
       //UPDATE DATA USER STREAM
       await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);

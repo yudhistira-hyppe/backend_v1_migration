@@ -31,12 +31,12 @@ export class TransactionsV2Service {
         private readonly userbasicnewService: UserbasicnewService,
         private readonly transactionsProductsService: TransactionsProductsService,
         private readonly transactionsCategorysService: TransactionsCategorysService,
-        private readonly transactionsBalancedsService: TransactionsBalancedsService, 
-        private readonly adsBalaceCreditService: AdsBalaceCreditService, 
-        private readonly transactionsCoinSettingsService: TransactionsCoinSettingsService, 
-        private readonly adsPriceCreditsService: AdsPriceCreditsService, 
-        private readonly transactionsCoaService: TransactionsCoaService, 
-        private readonly transactionsCoaTableService: TransactionsCoaTableService, 
+        private readonly transactionsBalancedsService: TransactionsBalancedsService,
+        private readonly adsBalaceCreditService: AdsBalaceCreditService,
+        private readonly transactionsCoinSettingsService: TransactionsCoinSettingsService,
+        private readonly adsPriceCreditsService: AdsPriceCreditsService,
+        private readonly transactionsCoaService: TransactionsCoaService,
+        private readonly transactionsCoaTableService: TransactionsCoaTableService,
         private readonly disquslogsService: DisquslogsService,
     ) { }
 
@@ -44,16 +44,27 @@ export class TransactionsV2Service {
 
     }
 
-    async findByOne(iduser: string,postid:string): Promise<transactionsV2> {
-        return this.transactionsModel.findOne({  "type": "USER",
-        "idUser": new mongoose.Types.ObjectId(iduser),
-                    'detail.postID':postid }).exec();
+    async updateByIdTransaction(idTrans: string, data: any) {
+        return this.transactionsModel.updateMany(
+            { idTransaction: idTrans },
+            data
+        ).exec();
     }
 
-    async findByOneCredit(iduser: string,paketID:string): Promise<transactionsV2> {
-        return this.transactionsModel.findOne({  "type": "USER",
-        "idUser": new mongoose.Types.ObjectId(iduser),'detail.typeData':"CREDIT",
-                    'detail.paketID':paketID }).exec();
+    async findByOne(iduser: string, postid: string): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({
+            "type": "USER",
+            "idUser": new mongoose.Types.ObjectId(iduser),
+            'detail.postID': postid
+        }).exec();
+    }
+
+    async findByOneCredit(iduser: string, paketID: string): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({
+            "type": "USER",
+            "idUser": new mongoose.Types.ObjectId(iduser), 'detail.typeData': "CREDIT",
+            'detail.paketID': paketID
+        }).exec();
     }
 
     async findByOneNova(iduser: string,nova:string): Promise<transactionsV2> {
@@ -437,7 +448,7 @@ export class TransactionsV2Service {
                                                                             // if (dataDetail.transactionFees != undefined) {
                                                                             //     kas += Number(dataDetail.transactionFees);
                                                                             // }
-                                                                            if (dataDetail.response != undefined){
+                                                                            if (dataDetail.response != undefined) {
                                                                                 if (dataDetail.response.status != undefined) {
                                                                                     if (dataDetail.response.code != undefined) {
                                                                                         if (dataDetail.response.code == "000") {
@@ -832,8 +843,8 @@ export class TransactionsV2Service {
                 }
             }
             return {
-                "success":true,
-                "data":outputdatatransaction
+                "success": true,
+                "data": outputdatatransaction
             };
         } catch (e) {
             console.log(e);
@@ -964,14 +975,14 @@ export class TransactionsV2Service {
         return data;
     }
 
-    async getdetailtransaksinew(iduserbuyer: string,nova:string) {
+    async getdetailtransaksinew(iduserbuyer: string, nova: string) {
 
-        var pipeline=[];
+        var pipeline = [];
 
         pipeline.push(
             {
-        
-               
+
+
                 $match: {
                     "idUser": new mongoose.Types.ObjectId(iduserbuyer),
                     "type": "USER",
@@ -986,7 +997,7 @@ export class TransactionsV2Service {
                     as: "dataproduk"
                 }
             },
-                {
+            {
                 $lookup: {
                     from: "newUserBasics",
                     localField: "idUser",
@@ -1013,16 +1024,16 @@ export class TransactionsV2Service {
                     "detail": 1,
                     "createdAt": 1,
                     "updatedAt": 1,
-                                  "emailbuyer": {
+                    "emailbuyer": {
                         $arrayElemAt: ['$databasic.email', 0]
                     },
                     "va_number": {
                         $arrayElemAt: ['$detail.payload.va_number', 0]
                     },
-                                 "transactionFees": {
+                    "transactionFees": {
                         $arrayElemAt: ['$detail.transactionFees', 0]
                     },
-                                 "biayPG": {
+                    "biayPG": {
                         $arrayElemAt: ['$detail.biayPG', 0]
                     },
                     "code": {
@@ -1031,7 +1042,7 @@ export class TransactionsV2Service {
                     "namePaket": {
                         $arrayElemAt: ['$dataproduk.name', 0]
                     },
-                    
+
                 }
             },
             {
@@ -1045,7 +1056,7 @@ export class TransactionsV2Service {
             {
                 $project: {
                     "type": 1,
-                                "emailbuyer":1,
+                    "emailbuyer": 1,
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "category": 1,
@@ -1063,23 +1074,23 @@ export class TransactionsV2Service {
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
-                                 "transactionFees": 1,
-                                 "biayPG":1,
+                    "transactionFees": 1,
+                    "biayPG": 1,
                     "code": 1,
                     "namePaket": 1,
                     "amount": {
                         $arrayElemAt: ['$datatr.amount', 0]
                     },
-                    "paymentmethod":  {
+                    "paymentmethod": {
                         $arrayElemAt: ['$datatr.paymentmethod', 0]
                     },
-                    "status":  {
+                    "status": {
                         $arrayElemAt: ['$datatr.status', 0]
                     },
                     "description": {
                         $arrayElemAt: ['$datatr.description', 0]
                     },
-                    "bank":{
+                    "bank": {
                         $arrayElemAt: ['$datatr.bank', 0]
                     },
                     "totalamount": {
@@ -1088,10 +1099,10 @@ export class TransactionsV2Service {
                     "product_id": {
                         $arrayElemAt: ['$datatr.product_id', 0]
                     },
-                    
+
                 }
             },
-                 {
+            {
                 $lookup: {
                     from: "methodepayments",
                     localField: "paymentmethod",
@@ -1099,12 +1110,12 @@ export class TransactionsV2Service {
                     as: "datamethod"
                 }
             },
-             {
+            {
                 $project: {
                     "type": 1,
                     "idTransaction": 1,
                     "noInvoice": 1,
-                                    "emailbuyer":1,
+                    "emailbuyer": 1,
                     "category": 1,
                     "product": 1,
                     "voucherDiskon": 1,
@@ -1120,23 +1131,23 @@ export class TransactionsV2Service {
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
-                                 "transactionFees": 1,
-                                 "biayPG":1,
+                    "transactionFees": 1,
+                    "biayPG": 1,
                     "code": 1,
                     "namePaket": 1,
-                    "amount":1,
-                    "paymentmethod":  1,
+                    "amount": 1,
+                    "paymentmethod": 1,
                     "description": 1,
-                    "bank":1,
+                    "bank": 1,
                     "totalamount": 1,
-                    "product_id":1,
-                                "methodename":{
+                    "product_id": 1,
+                    "methodename": {
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
-                    
+
                 }
             },
-                 {
+            {
                 $lookup: {
                     from: "banks",
                     localField: "bank",
@@ -1144,13 +1155,13 @@ export class TransactionsV2Service {
                     as: "databank"
                 }
             },
-                {
+            {
                 $project: {
                     "type": 1,
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "category": 1,
-                                    "emailbuyer":1,
+                    "emailbuyer": 1,
                     "product": 1,
                     "voucherDiskon": 1,
                     "idUser": 1,
@@ -1161,29 +1172,29 @@ export class TransactionsV2Service {
                     "price": 1,
                     "totalPrice": 1,
                     "status": 1,
-                   // "detail": 1,
+                    // "detail": 1,
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
-                                 "transactionFees": 1,
-                                 "biayPG":1,
+                    "transactionFees": 1,
+                    "biayPG": 1,
                     "code": 1,
                     "namePaket": 1,
-                    "amount":1,
-                    "paymentmethod":  1,
+                    "amount": 1,
+                    "paymentmethod": 1,
                     "description": 1,
-                    "bank":1,
+                    "bank": 1,
                     "totalamount": 1,
                     "product_id": 1,
-                                "methodename":1,
-                                "bankname":{
+                    "methodename": 1,
+                    "bankname": {
                         $arrayElemAt: ['$databank.bankname', 0]
                     },
-                                "bankcode":{
+                    "bankcode": {
                         $arrayElemAt: ['$databank.bankcode', 0]
                     },
-                                "jenisTransaksi":"Pembelian Coins"
-                    
+                    "jenisTransaksi": "Pembelian Coins"
+
                 }
             },
         );
@@ -1202,7 +1213,8 @@ export class TransactionsV2Service {
         streamID: string,
         status: boolean,
         email: string,
+        view: number,
     ): Promise<any> {
-        return await this.disquslogsService.updateDataStreamSpecificUser(streamID, status, email);
+        return await this.disquslogsService.updateDataStreamSpecificUser(streamID, status, email, view);
     }
 }
