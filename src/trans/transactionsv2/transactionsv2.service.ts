@@ -59,6 +59,13 @@ export class TransactionsV2Service {
         }).exec();
     }
 
+    async findOneByIdTransAndType(idTrans: string, type: string): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({
+            idTransaction: idTrans,
+            type: type
+        }).exec()
+    }
+
     async findByOneCredit(iduser: string, paketID: string): Promise<transactionsV2> {
         return this.transactionsModel.findOne({
             "type": "USER",
