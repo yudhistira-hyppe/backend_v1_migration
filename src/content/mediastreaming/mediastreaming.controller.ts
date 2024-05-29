@@ -781,7 +781,7 @@ export class MediastreamingController {
               updateAt: currentDate
             }
             const getUserKick = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
-            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_.userId.toString(), false, getUserKick[0].email, dataStreamUnic.length)
+            await this.mediastreamingService.updateDataStreamSpecificUser(MediastreamingDto_._id.toString(), false, getUserKick[0].email, dataStreamUnic.length)
             await this.mediastreamingService.insertKick(MediastreamingDto_._id.toString(), dataKick);
             //SEND KICK USER
             const getUser = await this.userbasicnewService.getUser(MediastreamingDto_.userId.toString());
