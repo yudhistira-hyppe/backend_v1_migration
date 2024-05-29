@@ -2089,6 +2089,14 @@ export class DisqusController {
     line["createdAt"] = disqusLog.createdAt;
     line["updatedAt"] = disqusLog.updatedAt;
     line["txtMessages"] = disqusLog.txtMessages;
+    if(disqusLog.giftData.length != 0)
+    {
+      line["gift"] = disqusLog.giftData[0].giftThumbUrl;
+    }
+    else
+    {
+      line["gift"] = null;
+    }
     retLineVal.push(line);
     //retVal["disqusLogs"] = retLineVal;
     retVal.disqusLogs = retLineVal;
