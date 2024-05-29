@@ -48332,15 +48332,6 @@ export class NewPostService {
         }
       },
       {
-        "$lookup":
-        {
-          from: "friend_list",
-          localField: "email",
-          foreignField: "email",
-          as: "friendList"
-        }
-      },
-      {
         "$lookup": {
           from: "mediamusic",
           as: "music",
@@ -49175,8 +49166,8 @@ export class NewPostService {
       },
     );
 
-    var util = require('util');
-    console.log(util.inspect(pipeline, { depth: null, showHidden: false }));
+    // var util = require('util');
+    // console.log(util.inspect(pipeline, { depth: null, showHidden: false }));
 
     var data = await this.loaddata.aggregate(pipeline);
     return data;
