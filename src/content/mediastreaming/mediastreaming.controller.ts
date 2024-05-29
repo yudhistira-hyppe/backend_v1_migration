@@ -342,7 +342,6 @@ export class MediastreamingController {
     const ceckId = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
     let UserBanned = false;
     let UserReport = false;
-    let PauseStatus = false;
     let _MediastreamingDto_ = new MediastreamingDto();
     if (await this.utilsService.ceckData(ceckId)){
       //CECK TYPE START
@@ -396,10 +395,10 @@ export class MediastreamingController {
         const pause = (ceckId.pause != undefined) ? ceckId.pause:false;
         if (pause){
           _MediastreamingDto_.pause = false;
-          PauseStatus = false;
+          _MediastreamingDto_.pauseDate = currentDate;
         } else {
           _MediastreamingDto_.pause = true;
-          PauseStatus = true;
+          _MediastreamingDto_.pauseDate = currentDate;
         }
         await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
         //SEND STATUS PAUSE
@@ -1036,6 +1035,8 @@ export class MediastreamingController {
         MediastreamingDto_Res.share = ceckId.share;
         MediastreamingDto_Res.follower = ceckId.follower;
         MediastreamingDto_Res.urlStream = ceckId.urlStream;
+        MediastreamingDto_Res.pause = ceckId.pause;
+        MediastreamingDto_Res.pauseDate = ceckId.pauseDate;
         MediastreamingDto_Res.urlIngest = ceckId.urlIngest;
         MediastreamingDto_Res.createAt = ceckId.createAt;
         MediastreamingDto_Res.viewCountActive = dataStreamView[0].view.length;
@@ -1058,14 +1059,6 @@ export class MediastreamingController {
             "Update stream succesfully",
           );
         }
-      } else if (MediastreamingDto_.type == "PAUSE") {
-        const dataResponse = {
-          pause: PauseStatus,
-          datePause: currentDate
-        }
-        return await this.errorHandler.generateAcceptResponseCodeWithData(
-          "Update stream succesfully", dataResponse
-        );
       } else {
         return await this.errorHandler.generateAcceptResponseCode(
           "Update stream succesfully",

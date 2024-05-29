@@ -51,6 +51,8 @@ export class Mediastreaming{
     @Prop()
     pause: boolean;
     @Prop()
+    pauseDate: String;
+    @Prop()
     kick: any[];
     @Prop()
     commentDisabled: boolean;
@@ -63,6 +65,6 @@ export class Mediastreaming{
     @Prop()
     dateBanned: String;
     @Prop()
-    income:number;
+    income: number; 
 }
 export const MediastreamingSchema = SchemaFactory.createForClass(Mediastreaming);
