@@ -47,8 +47,7 @@ export class TransactionsV2Service {
     async updateByIdTransaction(idTrans: string, data: any) {
         return this.transactionsModel.updateMany(
             { idTransaction: idTrans },
-            data,
-            { new: true }
+            data
         ).exec();
     }
 
