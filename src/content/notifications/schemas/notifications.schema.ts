@@ -58,6 +58,10 @@ export class Notifications {
   statusDevices: any[]
   @Prop()
   sendNotifChallenge: string
+  @Prop()
+  streamId: mongoose.Types.ObjectId;
+  @Prop()
+  postType: String
 }
 
 export const NotificationsSchema = SchemaFactory.createForClass(Notifications);

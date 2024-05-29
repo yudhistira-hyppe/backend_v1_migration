@@ -556,15 +556,17 @@ export class UtilsService {
       }
 
       //SET BODY SAVE
-      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST")) {
+      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (event == "NOTIFY_LIVE")) {
         if (event == "BOOST_SUCCES" || event == "ADS VIEW" || event == "ADS CLICK") {
           if (idtransaction != null) {
             data_send['postID'] = idtransaction
           }
           data_send['postType'] = eventType
         } else {
-          data_send['postID'] = postID
-          data_send['postType'] = postType
+          if (postID != null && postID != undefined) {
+            data_send['postID'] = postID
+            data_send['postType'] = postType
+          }
         }
 
         if (event == "ADS VIEW" || event == "ADS CLICK") {
@@ -574,15 +576,22 @@ export class UtilsService {
           if (event == "LIVE_GIFT") {
             body_save_id = body_save_id_get.toString().replace("${nominal}", await this.numberFormatString(customText))
             body_save_en = body_save_en_get.toString().replace("${nominal}", await this.numberFormatString(customText))
-          }
-          if (event == "LIVE") {
+          } else if (typeTemplate == "LIVE_START") {
+            data_send['postID'] = postID
+            data_send['postType'] = postType
             if (customText != null) {
-              body_save_id = body_save_id_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", jangan ketinggalan. Yuk nonton sekarang!", ":" + customText)
-              body_save_en = body_save_en_get.toString().replace("${user_name}", "@" + get_username_senderParty).replace(", don't miss out. Let's watch now!", ":" + customText)
+              body_save_id = body_save_id_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
+              body_save_en = body_save_en_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
             } else {
-              body_save_id = body_save_id_get.toString()
-              body_save_en = body_save_en_get.toString()
+              body_save_id = body_save_id_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", get_username_senderParty);
+              body_save_en = body_save_en_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", get_username_senderParty);
             }
+          } else if (typeTemplate == "LIVE_REPORT_VIEWER") {
+            body_save_id = body_save_id_get.toString().replace("${pelanggaran}", await this.numberFormatString(customText))
+            body_save_en = body_save_en_get.toString().replace("${pelanggaran}", await this.numberFormatString(customText))
+          } else {
+            body_save_id = body_save_id_get.toString()
+            body_save_en = body_save_en_get.toString()
           }
         } else if (eventType == "REACTION") {
           if (typeTemplate == "POST_TAG") {
@@ -724,7 +733,11 @@ export class UtilsService {
       createNotificationsDto.contentEventID = null;
       createNotificationsDto.senderOrReceiverInfo = senderOrReceiverInfo;
       if (postID != undefined) {
-        createNotificationsDto.postID = postID.toString();
+        if (eventType == "NOTIFY_LIVE") {
+          createNotificationsDto.streamId = new mongoose.Types.ObjectId(postID);
+        } else {
+          createNotificationsDto.postID = postID.toString();
+        }
       }
       if (postType != undefined) {
         createNotificationsDto.postType = postType.toString();
