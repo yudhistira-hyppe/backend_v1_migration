@@ -2380,7 +2380,8 @@ export class TransactionsController {
         var timedate = splitdate[0];
         var datapaket = null;
         var namaproduk = null;
-
+        const mongoose = require('mongoose');
+        var ObjectId = require('mongodb').ObjectId;
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json["postid"] !== undefined) {
@@ -2415,7 +2416,7 @@ export class TransactionsController {
             throw new BadRequestException("Unabled to proceed");
         }
         if (request_json["idDiscount"] !== undefined) {
-            idDiscount = request_json["idDiscount"];
+            idDiscount =mongoose.Types.ObjectId(idDiscount);
         }
 
         //var splitPostid = postid.split(',');
@@ -2458,8 +2459,7 @@ export class TransactionsController {
         var reptoken = token.replace("Bearer ", "");
         var x = await this.parseJwt(reptoken);
         var datatrpending = null;
-        const mongoose = require('mongoose');
-        var ObjectId = require('mongodb').ObjectId;
+      
 
 
         var email = email;
@@ -2833,7 +2833,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.response = datareqva;
                                     CreateTransactionsDto.productCode = productCode;
                                     CreateTransactionsDto.platform = platform;
-                                    CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                                    CreateTransactionsDto.idDiskon = idDiscount;
                                     CreateTransactionsDto.diskon = diskon;
                                     CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                     CreateTransactionsDto.product_id = product_id;
@@ -2958,7 +2958,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.response = datareqva;
                                 CreateTransactionsDto.productCode = productCode;
                                 CreateTransactionsDto.platform = platform;
-                                CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                                CreateTransactionsDto.idDiskon = idDiscount;
                                 CreateTransactionsDto.diskon = diskon;
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                 CreateTransactionsDto.product_id = product_id;
@@ -3052,7 +3052,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.response = datareqva;
                                 CreateTransactionsDto.productCode = productCode;
                                 CreateTransactionsDto.platform = platform;
-                                CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                                CreateTransactionsDto.idDiskon = idDiscount;
                                 CreateTransactionsDto.diskon = diskon;
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                 CreateTransactionsDto.product_id = product_id;
@@ -3172,7 +3172,7 @@ export class TransactionsController {
                             CreateTransactionsDto.response = datareqva;
                             CreateTransactionsDto.productCode = productCode;
                             CreateTransactionsDto.platform = platform;
-                            CreateTransactionsDto.idDiskon = mongoose.Types.ObjectId(idDiscount);
+                            CreateTransactionsDto.idDiskon =idDiscount;
                             CreateTransactionsDto.diskon = diskon;
                             CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                             CreateTransactionsDto.product_id = product_id;
@@ -20274,6 +20274,7 @@ export class TransactionsController {
         var repdate = strdate.replace('T', ' ');
         var splitdate = repdate.split('.');
         var timedate = splitdate[0];
+        var qty=null;
         const messages = {
             "info": ["The process was successful"],
         };
@@ -20281,6 +20282,9 @@ export class TransactionsController {
         var request_json = JSON.parse(JSON.stringify(request.body));
         if (request_json.typeTransaction == null || request_json.typeTransaction == undefined) {
             await this.errorHandler.generateBadRequestException("typeTransaction required");
+        }
+        if (request_json.qty !== undefined) {
+           qty=request_json.qty;
         }
 
         if (request_json.typeTransaction == "CONTENT") {
@@ -20382,16 +20386,16 @@ export class TransactionsController {
             }
 
         }
-        if (request_json.typeTransaction == "VOUCHER") {
+        else if (request_json.typeTransaction == "CREDIT") {
 
             let obj = null;
             let total = 0;
             let discount = 0;
-            if (request_json.packet_id == null || request_json.postID == undefined) {
-                await this.errorHandler.generateBadRequestException("postID required");
+            if (request_json.packet_id == null || request_json.packet_id == undefined) {
+                await this.errorHandler.generateBadRequestException("packet_id required");
             }
             try {
-                dataConten = await this.MonetizenewService.findOne(request_json.postID);
+                dataConten = await this.MonetizenewService.findOne(request_json.packet_id);
             } catch (e) {
                 dataConten = null;
             }
@@ -20406,66 +20410,24 @@ export class TransactionsController {
 
 
             if (dataConten !== null) {
-                let jenisKonten = null;
-                let postType = null;
-                let email = null;
-                let ubasic = null;
-                let namapenjual = null;
-                let saleLike = null;
-                let saleView = null;
-                let createdAt = null;
+              
+                let jmlcoin = 0;
+                let name=null;
                 try {
-                    postType = dataConten.postType;
+                    jmlcoin = dataConten.amount;
                 } catch (e) {
-                    postType = null;
+                    jmlcoin = 0;
                 }
                 try {
-                    saleLike = dataConten.saleLike;
+                    name = dataConten.name;
                 } catch (e) {
-                    saleLike = null;
-                }
-                try {
-                    createdAt = dataConten.createdAt;
-                } catch (e) {
-                    createdAt = null;
-                }
-                try {
-                    saleView = dataConten.saleView;
-                } catch (e) {
-                    saleView = null;
-                }
-                try {
-                    email = dataConten.email;
-                } catch (e) {
-                    email = null;
-                }
-                if (postType == "pict") {
-                    jenisKonten = "HyppePic"
-                }
-                else if (postType == "vid") {
-                    jenisKonten = "HyppeVid"
-                }
-                else if (postType == "diary") {
-                    jenisKonten = "HyppeDiary"
-                }
-                try {
-                    ubasic = await this.basic2SS.findBymail(email);
-
-                } catch (e) {
-                    ubasic = null;
-                }
-
-                if (ubasic !== null) {
-                    namapenjual = ubasic.username;
+                    name = null;
                 }
                 obj = {
-
-                    "nomorSertifikat": request_json.postID,
-                    "jenisKonten": jenisKonten,
-                    "creator": namapenjual,
-                    "waktu": createdAt,
-                    "like": saleLike,
-                    "view": saleView,
+                    "idPackage":request_json.packet_id,
+                    "packetName":name,
+                    "jmlCredit":jmlcoin,
+                    "qty": qty,
                     "diskon": discount,
                     "price": request_json.price,
                     "total": total,
