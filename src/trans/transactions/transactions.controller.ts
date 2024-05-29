@@ -2734,18 +2734,7 @@ export class TransactionsController {
                     } catch (e) {
                         jmlcoin = 0;
                     }
-                     arrDiskon = [idDiscount];
-                     detailtrv2= [
-                        {
-                            "biayPG": valAdminOy,
-                            "transactionFees": valAdmin,
-                            "amount": amount,
-                            "totalDiskon": diskon,
-                            "totalAmount": amountTotal,
-                            // "payload": payload,
-                            // "response": respon
-                        }]
-
+                    
                     if (datatrpending !== null) {
 
                         let cekstatusva = await this.oyPgService.staticVaInfo(datatrpending.idva);
@@ -2797,6 +2786,18 @@ export class TransactionsController {
                                 throw new BadRequestException("Not process..!");
 
                             }
+                            arrDiskon = [idDiscount];
+                            detailtrv2= [
+                               {
+                                   "biayPG": valAdminOy,
+                                   "transactionFees": valAdmin,
+                                   "amount": amount,
+                                   "totalDiskon": diskon,
+                                   "totalAmount": amountTotal,
+                                    "payload": {"va_number": nova},
+                                   // "response": respon
+                               }]
+       
 
                             if (statuscodeva == "000") {
 
@@ -3006,7 +3007,18 @@ export class TransactionsController {
                             throw new BadRequestException("Not process..!");
 
                         }
-
+                        arrDiskon = [idDiscount];
+                        detailtrv2= [
+                           {
+                               "biayPG": valAdminOy,
+                               "transactionFees": valAdmin,
+                               "amount": amount,
+                               "totalDiskon": diskon,
+                               "totalAmount": amountTotal,
+                                "payload": {"va_number": nova},
+                               // "response": respon
+                           }]
+   
                         if (statuscodeva == "000") {
                           
                             try {

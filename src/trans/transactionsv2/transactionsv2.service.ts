@@ -1042,7 +1042,7 @@ export class TransactionsV2Service {
                     "namePaket": {
                         $arrayElemAt: ['$dataproduk.name', 0]
                     },
-
+                    
                 }
             },
             {
@@ -1099,7 +1099,10 @@ export class TransactionsV2Service {
                     "product_id": {
                         $arrayElemAt: ['$datatr.product_id', 0]
                     },
-
+                                 "expiredtimeva": {
+                        $arrayElemAt: ['$datatr.expiredtimeva', 0]
+                    },
+                    
                 }
             },
             {
@@ -1141,10 +1144,11 @@ export class TransactionsV2Service {
                     "bank": 1,
                     "totalamount": 1,
                     "product_id": 1,
+                                "expiredtimeva":1,
                     "methodename": {
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
-
+                    
                 }
             },
             {
@@ -1176,6 +1180,7 @@ export class TransactionsV2Service {
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
+                                "expiredtimeva":1,
                     "transactionFees": 1,
                     "biayPG": 1,
                     "code": 1,
@@ -1193,8 +1198,22 @@ export class TransactionsV2Service {
                     "bankcode": {
                         $arrayElemAt: ['$databank.bankcode', 0]
                     },
+                    "urlEbanking":  {
+                        $arrayElemAt: ['$databank.urlEbanking', 0]
+                    },
+                    "bankIcon": {
+                        $arrayElemAt: ['$databank.bankIcon', 0]
+                    },
+                    "atm":  {
+                        $arrayElemAt: ['$databank.atm', 0]
+                    },
+                    "internetBanking":  {
+                        $arrayElemAt: ['$databank.internetBanking', 0]
+                    },
+                    "mobileBanking": {
+                        $arrayElemAt: ['$databank.mobileBanking', 0]
+                    },
                     "jenisTransaksi": "Pembelian Coins"
-
                 }
             },
         );
