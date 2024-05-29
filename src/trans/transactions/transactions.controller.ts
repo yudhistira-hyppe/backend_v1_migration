@@ -20600,7 +20600,6 @@ export class TransactionsController {
         namaakun = account_name.toLowerCase();
         // totalamount = amount - valuedisbcharge - valuebankcharge;
         if (statuscode == "000") {
-            await this.userbankaccountsService.updateone(idbankaccount, "success inquiry");
             // await this.accontbalanceWithdraw({ oid: iduserstring }, valuebankcharge, "inquiry");
 
             datarek = await this.userbankaccountsService.findnorekWithdrawuser(recipient_account, idbank, iduser);
@@ -20611,6 +20610,7 @@ export class TransactionsController {
             statusInquiry = datarek._doc.statusInquiry;
             nama = namarek.toLowerCase();
             if (nama == namaakun) {
+                await this.userbankaccountsService.updateone(idbankaccount, "success inquiry");
                 // data = {
                 //     "name": account_name,
                 //     "bankName": bankname,
@@ -20680,11 +20680,11 @@ export class TransactionsController {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
-                return {
+                return res.status(HttpStatus.OK).json({
                     response_code: 202,
-                    data,
-                    messages
-                }
+                    "data": data,
+                    "message": messages
+                });
             } else {
                 await this.userbankaccountsService.updateonefalse(idbankaccount, "failed inquiry");
                 // await this.accontbalanceWithdraw({ oid: iduserstring }, valuebankcharge, "inquiry");
