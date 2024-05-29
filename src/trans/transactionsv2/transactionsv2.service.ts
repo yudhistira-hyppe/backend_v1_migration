@@ -1180,7 +1180,7 @@ export class TransactionsV2Service {
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
-                                "expiredtimeva":1,
+                    "expiredtimeva":1,
                     "transactionFees": 1,
                     "biayPG": 1,
                     "code": 1,

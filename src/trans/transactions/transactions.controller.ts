@@ -490,7 +490,12 @@ export class TransactionsController {
                                 let datatr = await this.transactionsService.create(CreateTransactionsDto);
 
                                 this.notifbuy(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postIds, no);
+
+                                try{
                                 await this.transactionsService.updatestatuscancel(idtransaction);
+                                }catch(e){
+
+                                }
 
 
                                 var data = {
@@ -3645,6 +3650,8 @@ export class TransactionsController {
         var noinvoice = null;
         var data = null;
         var idtransaksi = null;
+        var expired=null;
+        var status=null;
 
         if (request_json["noinvoice"] !== undefined) {
             noinvoice = request_json["noinvoice"];
@@ -3676,11 +3683,25 @@ export class TransactionsController {
         if (datatr !== null) {
             let nova = null
             let iduserbuyer = null;
-
+            let expired=null;
+            let status=null;
+           let expiredvanew=null;
+           var datenow = new Date(Date.now());
+           
             try {
                 nova = datatr.nova;
             } catch (e) {
                 nova = null;
+            }
+            try {
+                status = datatr.status;
+            } catch (e) {
+                status = null;
+            }
+            try {
+                expired = datatr.expiredtimeva;
+            } catch (e) {
+                expired = null;
             }
             try {
                 iduserbuyer = datatr.iduserbuyer;
@@ -3688,6 +3709,21 @@ export class TransactionsController {
                 iduserbuyer = null;
             }
 
+            expiredvanew = new Date(expired);
+            expiredvanew.setHours(expiredvanew.getHours() - 7);
+
+            if(status == "WAITING_PAYMENT"){
+                if(datenow > expiredvanew){
+                    try{
+                        await this.transactionsService.updatecancel(idtransaksi);
+                        }catch(e){
+        
+                        }
+                }
+
+            }
+
+    
             try {
                 data = await this.TransactionsV2Service.getdetailtransaksinew(iduserbuyer.toString(), nova);
 
@@ -20257,6 +20293,105 @@ export class TransactionsController {
             }
             try {
                 dataConten = await this.posts2SS.findOne(request_json.postID);
+            } catch (e) {
+                dataConten = null;
+            }
+            if (request_json.discount_id) {
+                var discount_data = await this.MonetizenewService.findOne(request_json.discount_id);
+                discount = discount_data.nominal_discount;
+                total = Number(request_json.price) - Number(discount);
+            } else {
+                total = Number(request_json.price);
+            }
+
+
+
+            if (dataConten !== null) {
+                let jenisKonten = null;
+                let postType = null;
+                let email = null;
+                let ubasic = null;
+                let namapenjual = null;
+                let saleLike = null;
+                let saleView = null;
+                let createdAt = null;
+                try {
+                    postType = dataConten.postType;
+                } catch (e) {
+                    postType = null;
+                }
+                try {
+                    saleLike = dataConten.saleLike;
+                } catch (e) {
+                    saleLike = null;
+                }
+                try {
+                    createdAt = dataConten.createdAt;
+                } catch (e) {
+                    createdAt = null;
+                }
+                try {
+                    saleView = dataConten.saleView;
+                } catch (e) {
+                    saleView = null;
+                }
+                try {
+                    email = dataConten.email;
+                } catch (e) {
+                    email = null;
+                }
+                if (postType == "pict") {
+                    jenisKonten = "HyppePic"
+                }
+                else if (postType == "vid") {
+                    jenisKonten = "HyppeVid"
+                }
+                else if (postType == "diary") {
+                    jenisKonten = "HyppeDiary"
+                }
+                try {
+                    ubasic = await this.basic2SS.findBymail(email);
+
+                } catch (e) {
+                    ubasic = null;
+                }
+
+                if (ubasic !== null) {
+                    namapenjual = ubasic.username;
+                }
+                obj = {
+
+                    "nomorSertifikat": request_json.postID,
+                    "jenisKonten": jenisKonten,
+                    "creator": namapenjual,
+                    "waktu": createdAt,
+                    "like": saleLike,
+                    "view": saleView,
+                    "diskon": discount,
+                    "price": request_json.price,
+                    "total": total,
+                }
+
+            }
+
+
+            return {
+                response_code: 202,
+                data: obj,
+                messages
+            }
+
+        }
+        if (request_json.typeTransaction == "VOUCHER") {
+
+            let obj = null;
+            let total = 0;
+            let discount = 0;
+            if (request_json.packet_id == null || request_json.postID == undefined) {
+                await this.errorHandler.generateBadRequestException("postID required");
+            }
+            try {
+                dataConten = await this.MonetizenewService.findOne(request_json.postID);
             } catch (e) {
                 dataConten = null;
             }

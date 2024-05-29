@@ -221,6 +221,12 @@ export class TransactionsService {
         return data;
     }
 
+    async updatecancel(id: string): Promise<Object> {
+        let data = await this.transactionsModel.updateOne({ "_id": new mongoose.Types.ObjectId(id) },
+            { $set: { "status": "Cancel", "description": "VA expired time" } });
+        return data;
+    }
+
     async findhistoryBuy(iduser: ObjectId, status: string, startdate: string, enddate: string, skip: number, limit: number) {
 
         var pipeline = [];
