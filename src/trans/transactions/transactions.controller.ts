@@ -20638,7 +20638,7 @@ export class TransactionsController {
                 datawithdraw.bankVerificationCharge = mongoose.Types.ObjectId(idbankverificationcharge);
                 datawithdraw.bankDisbursmentCharge = mongoose.Types.ObjectId(idBankDisbursmentCharge);
                 datawithdraw.description = OyDisbursements.note;
-                datawithdraw.idUser = Object(iduserstring);
+                datawithdraw.idUser = mongoose.Types.ObjectId(iduserstring);
                 datawithdraw.status = "PENDING";
                 datawithdraw.timestamp = dtnow.toISOString();
                 datawithdraw.verified = false;
@@ -20653,7 +20653,7 @@ export class TransactionsController {
                     description: "Penukaran Coins akan diproses dalam 3-5 hari kerja sejak disetujui oleh tim kami"
                 }]
 
-                await this.withdrawsService.create(datawithdraw);
+                let createdata = await this.withdrawsService.create(datawithdraw);
                 data = await this.TransactionsV2Service.insertTransaction(
                     "APP",
                     "CN",
@@ -20670,7 +20670,8 @@ export class TransactionsController {
                             biayPG: valuedisbcharge,
                             transactionFees: convertFee,
                             amount: amounreq,
-                            totalAmount: totalamount
+                            totalAmount: totalamount,
+                            withdrawId: createdata._id
                         }
                     ],
                     "PENDING"
