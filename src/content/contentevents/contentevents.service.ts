@@ -61,6 +61,16 @@ export class ContenteventsService {
     query.where('email', email);
     return query.exec();
   }
+
+  async update(id: string, Contentevents_: Contentevents): Promise<Contentevents> {
+    let data = await this.ContenteventsModel.findByIdAndUpdate(id, Contentevents_, { new: true });
+    if (!data) {
+        throw new Error('Data is not found!');
+    }
+
+
+    return data;
+}
   async findLiked(postID: string, startdate: string, enddate: string) {
 
     var pipeline = [];
@@ -9034,4 +9044,106 @@ export class ContenteventsService {
     }
 
   }
+
+  async countContenevent(limit:number,page:number) {
+    var pipeline=[];
+    pipeline.push(
+      {
+        $match: 
+        {
+            $or: 
+            [
+                // {
+                //     uniqEvent: []
+                // },
+                {
+                    uniqEvent: {$ne:null}
+                }
+            ]
+        }
+    },
+   { $skip: page * limit },
+   {$limit:limit},
+  
+    );
+    var query=await this.ContenteventsModel.aggregate(pipeline);
+    return query;
+   }
+ 
+   async countConteneventViewprofile(limit:number,page:number) {
+     var pipeline=[];
+     pipeline.push(
+       {
+         $match: 
+         {
+           "eventType": "POST",
+             //"postID": "80d86734-a5b6-649c-3dd4-d4a56e1a25c2",
+            // "active": true,
+             //"event": "DONE",
+             
+         }
+     },
+    { $skip: page * limit },
+    {$limit:limit},
+   
+     );
+     var query=await this.ContenteventsModel.aggregate(pipeline);
+     return query;
+    }
+   async countConten() {
+     var pipeline=[];
+     pipeline.push(
+      {
+        $match: 
+        {
+            $or: 
+            [
+                // {
+                //     uniqEvent: []
+                // },
+                {
+                    uniqEvent: {$ne:null}
+                }
+            ]
+        }
+    },
+  
+    {
+     $group: {
+       _id: null,
+       totalpost: {
+         $sum: 1
+       }
+     }
+   }
+     );
+     var query=await this.ContenteventsModel.aggregate(pipeline);
+     return query;
+    }
+    async countContenViewProfile() {
+     var pipeline=[];
+     pipeline.push(
+       {
+         $match: 
+         {
+           "eventType": "POST",
+             //"postID": "80d86734-a5b6-649c-3dd4-d4a56e1a25c2",
+            // "active": true,
+             //"event": "DONE",
+             
+         }
+     },
+  
+    {
+     $group: {
+       _id: null,
+       totalpost: {
+         $sum: 1
+       }
+     }
+   }
+     );
+     var query=await this.ContenteventsModel.aggregate(pipeline);
+     return query;
+    }
 }
