@@ -40,10 +40,6 @@ export class TransactionsV2Service {
         private readonly disquslogsService: DisquslogsService,
     ) { }
 
-    async updateTransaction() {
-
-    }
-
     async updateByIdTransaction(idTrans: string, data: any) {
         return this.transactionsModel.updateMany(
             { idTransaction: idTrans },
@@ -78,6 +74,82 @@ export class TransactionsV2Service {
         return this.transactionsModel.findOne({  "type": "USER",
         "idUser": new mongoose.Types.ObjectId(iduser),
         'detail.payload.va_number': nova }).exec();
+    }
+
+    async updateTransaction(idTrans: string, status: string, data: any) {
+        const getDataTransaction = await this.transactionsModel.findOne({ idTransaction: idTrans, type: "USER" }).exec();
+        const getDataCategoryTransaction = await this.transactionsCategorysService.findOne(getDataTransaction.category.toString());
+        let debet = 0; 
+        let kredit = 0;
+        if (getDataCategoryTransaction.user != undefined) {
+            if (getDataCategoryTransaction.user == "USER") {
+                if (getDataCategoryTransaction.type != undefined) {
+                    if (getDataCategoryTransaction.type.length > 0) {
+                        for (let uh = 0; uh < getDataCategoryTransaction.type.length; uh++) {
+                            let categoryTransactionType = getDataCategoryTransaction.type[uh];
+                            if (categoryTransactionType.transaction != undefined) {
+                                if (categoryTransactionType.transaction.length > 0) {
+                                    for (let tr = 0; tr < categoryTransactionType.transaction.length; tr++) {
+                                        if (categoryTransactionType.transaction[tr].name != undefined) {
+                                            if (categoryTransactionType.transaction[tr].name == "BalacedCoin") {
+                                                if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                    if (categoryTransactionType.transaction[tr].category == "BUY") {
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            debet = 0;
+                                                            kredit = getDataTransaction.coin;
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            debet = 0;
+                                                            kredit = getDataTransaction.coin;
+                                                        }
+                                                    }
+                                                    if (categoryTransactionType.transaction[tr].category == "WD") {
+                                                        if (categoryTransactionType.transaction[tr].status == "credit") {
+                                                            debet = getDataTransaction.coin;
+                                                            kredit = 0;
+                                                        }
+                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                            debet = getDataTransaction.coin;
+                                                            kredit = 0;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                    
+            }
+        }
+
+        //UPDATE BALANCED
+        // if (status == "SUCCESS") {
+        //     //Insert Balanceds
+        //     let Balanceds_ = new TransactionsBalanceds();
+        //     Balanceds_._id = new mongoose.Types.ObjectId();
+        //     Balanceds_.idTransaction = transactionsV2_id;
+        //     Balanceds_.idUser = idUser;
+        //     Balanceds_.debit = debet;
+        //     Balanceds_.credit = kredit;
+        //     Balanceds_.saldo = saldo - kredit + debet;
+        //     Balanceds_.noInvoice = generateInvoice;
+        //     Balanceds_.createdAt = currentDate;
+        //     Balanceds_.updatedAt = currentDate;
+        //     Balanceds_.userType = categoryTransaction.user;
+        //     Balanceds_.coa = [];
+        //     Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
+        //     await this.transactionsBalancedsService.create(Balanceds_);
+        // }
+        const transactionsV2_ = new transactionsV2();
+        transactionsV2_.status = status;
+        return this.transactionsModel.updateMany(
+            { idTransaction: idTrans },
+            data
+        ).exec();
     }
 
     async insertTransaction(
@@ -452,26 +524,32 @@ export class TransactionsV2Service {
                                                                     if (detail.length > 0) {
                                                                         for (let j = 0; j < detail.length; j++) {
                                                                             let dataDetail = detail[j];
-                                                                            // if (dataDetail.transactionFees != undefined) {
-                                                                            //     kas += Number(dataDetail.transactionFees);
-                                                                            // }
-                                                                            if (dataDetail.response != undefined) {
-                                                                                if (dataDetail.response.status != undefined) {
-                                                                                    if (dataDetail.response.code != undefined) {
-                                                                                        if (dataDetail.response.code == "000") {
-                                                                                            if (dataDetail.biayPG != undefined) {
-                                                                                                kas += Number(dataDetail.biayPG);
-                                                                                            }
-                                                                                            if (dataDetail.amount != undefined) {
-                                                                                                kas += Number(dataDetail.amount);
-                                                                                            }
-                                                                                            if (dataDetail.totalDiskon != undefined) {
-                                                                                                kas += (-1 * Number(dataDetail.totalDiskon));
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
+                                                                            if (dataDetail.biayPG != undefined) {
+                                                                                kas += Number(dataDetail.biayPG);
                                                                             }
+                                                                            if (dataDetail.amount != undefined) {
+                                                                                kas += Number(dataDetail.amount);
+                                                                            }
+                                                                            if (dataDetail.totalDiskon != undefined) {
+                                                                                kas += (-1 * Number(dataDetail.totalDiskon));
+                                                                            }
+                                                                            // if (dataDetail.response != undefined) {
+                                                                            //     if (dataDetail.response.status != undefined) {
+                                                                            //         if (dataDetail.response.code != undefined) {
+                                                                            //             if (dataDetail.response.code == "000") {
+                                                                            //                 if (dataDetail.biayPG != undefined) {
+                                                                            //                     kas += Number(dataDetail.biayPG);
+                                                                            //                 }
+                                                                            //                 if (dataDetail.amount != undefined) {
+                                                                            //                     kas += Number(dataDetail.amount);
+                                                                            //                 }
+                                                                            //                 if (dataDetail.totalDiskon != undefined) {
+                                                                            //                     kas += (-1 * Number(dataDetail.totalDiskon));
+                                                                            //                 }
+                                                                            //             }
+                                                                            //         }
+                                                                            //     }
+                                                                            // }
                                                                         }
                                                                     }
                                                                 }
