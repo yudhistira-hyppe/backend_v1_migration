@@ -131,8 +131,8 @@ export class TransactionsV2Service {
         //     //Insert Balanceds
         //     let Balanceds_ = new TransactionsBalanceds();
         //     Balanceds_._id = new mongoose.Types.ObjectId();
-        //     Balanceds_.idTransaction = transactionsV2_id;
-        //     Balanceds_.idUser = idUser;
+        //     Balanceds_.idTransaction = getDataTransaction.idTransaction;
+        //     Balanceds_.idUser = getDataTransaction.idUser;
         //     Balanceds_.debit = debet;
         //     Balanceds_.credit = kredit;
         //     Balanceds_.saldo = saldo - kredit + debet;
