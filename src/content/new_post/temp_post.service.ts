@@ -1253,7 +1253,31 @@ export class TempPOSTService {
                     isSafe: 1,
                     isOwned: 1,
                     certified: 1,
-                    saleAmount: 1,
+                    // saleAmount: 1,
+                    saleAmount: 
+                    {
+                        "$cond":
+                        {
+                            "if":
+                            {
+                                "$lt":
+                                [
+                                    "$createdAt", '2024-05-27'
+                                ]
+                            },
+                            "then":
+                            {
+                                "$toInt":
+                                {
+                                    "$divide":
+                                    [
+                                        "$saleAmount", 100
+                                    ]
+                                }
+                            },
+                            "else":"$saleAmount"
+                        }
+                    },
                     saleLike: 1,
                     saleView: 1,
                     isShared: 1,
@@ -1571,8 +1595,8 @@ export class TempPOSTService {
             }
         );
 
-        // var util = require('util');
-        // console.log(util.inspect(pipeline, { showHidden:false, depth:null }));
+        var util = require('util');
+        console.log(util.inspect(pipeline, { showHidden:false, depth:null }));
 
         var data = await this.loaddata.aggregate(pipeline);
         return data;
