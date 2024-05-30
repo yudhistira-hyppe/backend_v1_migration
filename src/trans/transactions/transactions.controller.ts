@@ -20929,7 +20929,7 @@ export class TransactionsController {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
-                throw new BadRequestException("Bank account does not match inquiry data");
+                throw new BadRequestException(`Bank account does not match inquiry data; registered name: ${namaakun}, retrieved name: ${nama}`);
             }
 
         }
