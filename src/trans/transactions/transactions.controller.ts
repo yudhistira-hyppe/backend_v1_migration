@@ -20881,8 +20881,9 @@ export class TransactionsController {
                     [],
                     [
                         {
-                            biayPG: valuedisbcharge,
+                            biayPG: valuebankcharge,
                             transactionFees: convertFee,
+                            biayAdmin: valuedisbcharge,
                             amount: amounreq,
                             totalAmount: totalamount,
                             withdrawId: createdata._id
@@ -20928,7 +20929,7 @@ export class TransactionsController {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
 
-                throw new BadRequestException("Bank account does not match inquiry data");
+                throw new BadRequestException(`Bank account does not match inquiry data; registered name: ${namaakun}, retrieved name: ${nama}`);
             }
 
         }
@@ -21314,7 +21315,12 @@ export class TransactionsController {
                 detailTrans.response = infodisbursemen;
 
                 if (statuscode === "000") {
-                    let dtburs = new Date(strdate);
+                    let splittimedbs = infodisbursemen.timestamp.split(" ");
+                    let substry = splittimedbs[0].substring(10, 6);
+                    let substrm = splittimedbs[0].substring(5, 3);
+                    let substrd = splittimedbs[0].substring(0, 2);
+                    let strts = substry + "-" + substrm + "-" + substrd + " " + splittimedbs[1];
+                    let dtburs = new Date(strts);
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
@@ -21349,7 +21355,12 @@ export class TransactionsController {
                         messages
                     }
                 } else if (statuscode === "101" || statuscode === "102") {
-                    let dtburs = new Date(strdate);
+                    let splittimedbs = infodisbursemen.timestamp.split(" ");
+                    let substry = splittimedbs[0].substring(10, 6);
+                    let substrm = splittimedbs[0].substring(5, 3);
+                    let substrd = splittimedbs[0].substring(0, 2);
+                    let strts = substry + "-" + substrm + "-" + substrd + " " + splittimedbs[1];
+                    let dtburs = new Date(strts);
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
@@ -21384,7 +21395,12 @@ export class TransactionsController {
                         messages
                     }
                 } else if (statuscode === "301") {
-                    let dtburs = new Date(strdate);
+                    let splittimedbs = infodisbursemen.timestamp.split(" ");
+                    let substry = splittimedbs[0].substring(10, 6);
+                    let substrm = splittimedbs[0].substring(5, 3);
+                    let substrd = splittimedbs[0].substring(0, 2);
+                    let strts = substry + "-" + substrm + "-" + substrd + " " + splittimedbs[1];
+                    let dtburs = new Date(strts);
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
@@ -21413,7 +21429,7 @@ export class TransactionsController {
                         messages
                     }
                 } else {
-                    let dtburs = new Date();
+                    let dtburs = new Date(Date.now());
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
