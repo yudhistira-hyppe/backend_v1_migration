@@ -976,6 +976,14 @@ export class UserbasicnewService {
                                     isIdVerified: 1,
                                     isEmailVerified: 1,
                                     idProofStatus: 1,
+                                    isPinExist:
+                                    {
+                                        "$ifNull":
+                                        [
+                                            "$pin",
+                                            false
+                                        ]
+                                    },
                                     insight:
                                     {
                                         shares:
@@ -1425,6 +1433,27 @@ export class UserbasicnewService {
                             [
                                 "$detail.isEmailVerified", 0
                             ]
+                    },
+                    isPinExist:
+                    {
+                        "$cond":
+                        {
+                            "if":
+                            {
+                                "$eq":
+                                [
+                                    {
+                                        "$arrayElemAt":
+                                        [
+                                            "$detail.isPinExist", 0
+                                        ]
+                                    },
+                                    false
+                                ]
+                            },
+                            "then":false,
+                            "else":true
+                        }
                     },
                     roles:
                     {
