@@ -20850,7 +20850,7 @@ export class TransactionsController {
                 datawithdraw.amount = amounreq;
                 datawithdraw.bankVerificationCharge = mongoose.Types.ObjectId(idbankverificationcharge);
                 datawithdraw.bankDisbursmentCharge = mongoose.Types.ObjectId(idBankDisbursmentCharge);
-                datawithdraw.description = OyDisbursements.note;
+                datawithdraw.description = "Withdraw Coins from HYPPE";
                 datawithdraw.idUser = mongoose.Types.ObjectId(iduserstring);
                 datawithdraw.status = "PENDING";
                 datawithdraw.timestamp = dtnow.toISOString();
