@@ -1461,6 +1461,16 @@ export class MediastreamingService {
     return data;
   }
 
+  async findKick(_id: string, userID: string) {
+    const data = await this.MediastreamingModel.findOne({
+      _id: new mongoose.Types.ObjectId(_id),
+      kick: {
+        $elemMatch: { userId: new mongoose.Types.ObjectId(userID) }
+      }
+    });
+    return data;
+  }
+
   async findReport(_id: string, userID: string) {
     const data = await this.MediastreamingModel.findOne({
       _id: new mongoose.Types.ObjectId(_id),

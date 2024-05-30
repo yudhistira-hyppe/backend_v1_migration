@@ -542,7 +542,7 @@ export class UtilsService {
           } else if (Templates_.subject_id.toString() == "Hi, ${user_name}") {
             title_send = "Hi, @" + get_username_senderParty;
           } else {
-            title_send = Templates_.subject.toString();
+            title_send = Templates_.subject_id.toString();
           }
         } else {
           if (Templates_.subject.toString() == "${user_name}") {
@@ -579,7 +579,7 @@ export class UtilsService {
           } else if (typeTemplate == "LIVE_START") {
             data_send['postID'] = postID
             data_send['postType'] = postType
-            if (customText != null) {
+            if (customText != "") {
               body_save_id = body_save_id_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
               body_save_en = body_save_en_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
             } else {
