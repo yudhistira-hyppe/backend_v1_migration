@@ -573,7 +573,7 @@ export class UtilsService {
           body_save_id = body_save_id_get.toString().replace("${rewards}", customText)
           body_save_en = body_save_en_get.toString().replace("${rewards}", customText)
         } else if (eventType == "NOTIFY_LIVE") {
-          if (event == "LIVE_GIFT") {
+          if (typeTemplate == "RECEIVE_GIFT") {
             body_save_id = body_save_id_get.toString().replace("${nominal}", await this.numberFormatString(customText))
             body_save_en = body_save_en_get.toString().replace("${nominal}", await this.numberFormatString(customText))
           } else if (typeTemplate == "LIVE_START") {
@@ -581,13 +581,13 @@ export class UtilsService {
             data_send['postType'] = postType
             console.log("customText", customText);
             if (customText != "") {
+              body_save_id = body_save_id_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", customText);
+              body_save_en = body_save_en_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", customText);
+            } else {
               body_save_id = body_save_id_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
               body_save_en = body_save_en_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
-            } else {
-              body_save_id = body_save_id_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", get_username_senderParty);
-              body_save_en = body_save_en_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", get_username_senderParty);
             }
-          } else if (typeTemplate == "LIVE_REPORT_VIEWER") {
+          } else if (typeTemplate == "LIVE_REPORT") {
             body_save_id = body_save_id_get.toString().replace("${pelanggaran}", await this.numberFormatString(customText))
             body_save_en = body_save_en_get.toString().replace("${pelanggaran}", await this.numberFormatString(customText))
           } else {
