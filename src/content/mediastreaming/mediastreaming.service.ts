@@ -2934,7 +2934,7 @@ export class MediastreamingService {
     const emailUser = Userbasicnew_.email;
     if (dataFollower.length>0){
       for (let k=0; k < Userbasicnew_.follower.length;k++){
-        await this.utilsService.sendFcmV2(Userbasicnew_.follower[k].toString(), emailUser.toString(), 'NOTIFY_LIVE', 'LIVE_START', 'LIVE_START', streamId, "streaming", null, title.toString());
+        await this.utilsService.sendFcmV2(Userbasicnew_.follower[k].toString(), emailUser.toString(), 'NOTIFY_LIVE', 'LIVE', 'LIVE_START', streamId, "streaming", null, title.toString());
       }
     }
   }
