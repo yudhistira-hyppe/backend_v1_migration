@@ -997,7 +997,7 @@ export class MediastreamingController {
           totalViews: getDataStream[0].view_unique.length,
           totalShare: getDataStream[0].shareCount,
           totalFollower: getDataStream[0].follower.length, 
-          totalComment: getDataStream[0].comment.length,
+          totalComment: getDataStream[0].comment_active.length,
           totalGift: getDataStream[0].gift.length,
           totalUserGift: getDataStream[0].gift_unique.length,
           totalLike: getDataStream[0].like.length, 
