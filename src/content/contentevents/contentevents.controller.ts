@@ -10332,7 +10332,6 @@ export class ContenteventsController {
         checkexisttemppost = true;
       }
     }
-
     if (eventType == "FOLLOWING") {
       if (email_receiverParty != email_user) {
         var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
