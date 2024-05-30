@@ -330,11 +330,14 @@ export class MediastreamingService {
           $match: {
             $and: [
               {
-                $expr: { $in: ['$_id', '$idStream'] }
+                $expr: {
+                  $in: ['$_id', '$idStream']
+                }
               },
               { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
             ]
           },
+
         },
         {
           "$lookup": {
@@ -353,6 +356,7 @@ export class MediastreamingService {
                       {
                         $eq: ["$email", "$$email"]
                       },
+
                     },
                     {
                       $expr:
@@ -394,6 +398,7 @@ export class MediastreamingService {
                 }
               }
             },
+
           }
         },
         {
@@ -504,12 +509,89 @@ export class MediastreamingService {
         },
         {
           $set: {
+            isFollower:
+            {
+              $cond:
+              {
+                if: {
+                  $eq: ["$follower", []]
+                },
+                then: 0,
+                else:
+                {
+                  $cond:
+                  {
+                    if: {
+                      $in: [email, "$follower"]
+                    },
+                    then: 1,
+                    else: 0
+                  }
+                },
+
+              }
+            },
+          }
+        },
+        {
+          $set: {
+            isIdVerified:
+            {
+              $cond:
+              {
+                if: {
+                  $eq: ["$isIdVerified", []]
+                },
+                then: 0,
+                else:
+                {
+                  $cond:
+                  {
+                    if: {
+                      $eq: ["$isIdVerifiedm", true]
+                    },
+                    then: 1,
+                    else: 0
+                  }
+                },
+
+              }
+            },
+          }
+        },
+        {
+          $set: {
             totalFriend:
             {
               $size: "$friend"
             }
           }
         },
+        {
+          $set: {
+            totalShare:
+            {
+              $size: "$share"
+            }
+          }
+        },
+        {
+          $set: {
+            gift:
+            {
+              $ifNull: ['$gift', []]
+            }
+          }
+        },
+        {
+          $set: {
+            totalGift:
+            {
+              $size: "$gift"
+            }
+          }
+        },
+
         {
           $set: {
             totalFollowing:
@@ -519,25 +601,109 @@ export class MediastreamingService {
           }
         },
         {
+          "$lookup": {
+            from: "friend_list",
+            as: "friend",
+            let: {
+              localID: {
+                $arrayElemAt: ["$userStream.email", 0]
+              },
+
+            },
+            pipeline: [
+              {
+                $match:
+                {
+                  $or: [
+                    {
+                      $and: [
+                        {
+                          $expr: {
+                            $eq: ['$email', '$$localID']
+                          }
+                        },
+                        {
+                          "friendlist": {
+                            $elemMatch: {
+                              email: email
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      $and: [
+                        {
+                          $expr: {
+                            $eq: ['$email', email]
+                          }
+                        },
+                        {
+                          friendlist: {
+                            $elemMatch: {
+                              email: "$$localID"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                $project: {
+                  friend:
+                  {
+                    $cond: {
+                      if: {
+                        $gt: [{
+                          $size: '$friendlist'
+                        }, 0]
+                      },
+                      then: 3,
+                      else: 0
+                    }
+                  },
+
+                }
+              },
+
+            ]
+          },
+
+        },
+        {
           $sort: {
-            totalFriend: -1,
-            totalFollowing: -1,
-            interest: -1,
-            totalView: -1,
-            totalLike: -1,
-            totalFollower: -1,
-            startLive: -1,
+            startLive: - 1,
+            friend: - 1,
+            isFollower: - 1,
+            isIdVerified: - 1,
+            //totalFriend: - 1,
+            //totalFollowing: - 1,
+            //interest: - 1,
+            totalLike: - 1,
+            totalView: - 1,
+            totalShare: - 1,
+            totalGift: - 1,
+            //totalFollower: - 1,
+            //startLive: - 1,
 
           }
         },
-        {
-          $skip: skip_
-        },
-        {
-          $limit: limit_
-        },
+        //{
+        //    $skip: 0
+        //},
+        //{
+        //    $limit: 100
+        //},
         {
           $project: {
+            friend: 1,
+            gift: 1,
+            isIdVerified: 1,
+            isFollower: 1,
+            totalShare: 1,
+            totalGift: 1,
             _id: 1,
             title: 1,
             userId: 1,
@@ -584,9 +750,11 @@ export class MediastreamingService {
               "mediaEndpoint": {
                 $arrayElemAt: ["$userStream.mediaEndpoint", 0]
               },
+
             }
           }
         },
+
       ]
     );
     return DataList;

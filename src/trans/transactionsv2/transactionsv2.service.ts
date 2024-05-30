@@ -77,10 +77,17 @@ export class TransactionsV2Service {
     }
 
     async updateTransaction(idTrans: string, status: string, data: any) {
+        //Get Current Date
+        const currentDate = await this.utilsService.getDateTimeString();
+
+        //Get Data Transaction
         const getDataTransaction = await this.transactionsModel.findOne({ idTransaction: idTrans, type: "USER" }).exec();
+
+        //Get Data Category Transaction
         const getDataCategoryTransaction = await this.transactionsCategorysService.findOne(getDataTransaction.category.toString());
         let debet = 0; 
         let kredit = 0;
+        let saldo = 0;
         if (getDataCategoryTransaction.user != undefined) {
             if (getDataCategoryTransaction.user == "USER") {
                 if (getDataCategoryTransaction.type != undefined) {
@@ -126,24 +133,32 @@ export class TransactionsV2Service {
             }
         }
 
-        //UPDATE BALANCED
-        // if (status == "SUCCESS") {
-        //     //Insert Balanceds
-        //     let Balanceds_ = new TransactionsBalanceds();
-        //     Balanceds_._id = new mongoose.Types.ObjectId();
-        //     Balanceds_.idTransaction = getDataTransaction.idTransaction;
-        //     Balanceds_.idUser = getDataTransaction.idUser;
-        //     Balanceds_.debit = debet;
-        //     Balanceds_.credit = kredit;
-        //     Balanceds_.saldo = saldo - kredit + debet;
-        //     Balanceds_.noInvoice = generateInvoice;
-        //     Balanceds_.createdAt = currentDate;
-        //     Balanceds_.updatedAt = currentDate;
-        //     Balanceds_.userType = categoryTransaction.user;
-        //     Balanceds_.coa = [];
-        //     Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
-        //     await this.transactionsBalancedsService.create(Balanceds_);
-        // }
+        //Get Saldo
+        let balancedUser = await this.transactionsBalancedsService.findsaldo(getDataTransaction.idUser.toString());
+        if (await this.utilsService.ceckData(balancedUser)) {
+            if (balancedUser.length > 0) {
+                saldo = balancedUser[0].totalSaldo;
+            }
+        }
+
+        //Update Balanced
+        if (status == "SUCCESS") {
+            //Insert Balanceds
+            let Balanceds_ = new TransactionsBalanceds();
+            Balanceds_._id = new mongoose.Types.ObjectId();
+            Balanceds_.idTransaction = getDataTransaction._id;
+            Balanceds_.idUser = getDataTransaction.idUser;
+            Balanceds_.debit = debet;
+            Balanceds_.credit = kredit;
+            Balanceds_.saldo = saldo - kredit + debet;
+            Balanceds_.noInvoice = getDataTransaction.noInvoice;
+            Balanceds_.createdAt = currentDate;
+            Balanceds_.updatedAt = currentDate;
+            Balanceds_.userType = getDataTransaction.type;
+            Balanceds_.coa = [];
+            Balanceds_.remark = "Insert Balanced " + getDataTransaction.type;
+            await this.transactionsBalancedsService.create(Balanceds_);
+        }
         const transactionsV2_ = new transactionsV2();
         transactionsV2_.status = status;
         return this.transactionsModel.updateMany(
