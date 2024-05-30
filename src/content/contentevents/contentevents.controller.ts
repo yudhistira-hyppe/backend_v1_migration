@@ -10354,7 +10354,7 @@ export class ContenteventsController {
           CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
           CreateContenteventsDto1.receiverParty = email_user
           let uniq = null;
-          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,_id_1);
+          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,null);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10372,7 +10372,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.senderParty = email_receiverParty
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,_id_2);
+          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,null);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_sender)) {
@@ -10706,7 +10706,7 @@ export class ContenteventsController {
           CreateContenteventsDto1.postID = request.body.postID
 
           let uniq = null;
-          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
+          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,null);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10725,7 +10725,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.postID = request.body.postID
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,_id_2);
+          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,null);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -10814,7 +10814,7 @@ export class ContenteventsController {
             CreateContenteventsDto1.postID = request.body.postID
 
             let uniq = null;
-            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
+            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
             CreateContenteventsDto1.uniqEvent = uniq;
 
             var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10833,7 +10833,7 @@ export class ContenteventsController {
             CreateContenteventsDto2.postID = request.body.postID
 
             let uniq2 = null;
-            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
+            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
             CreateContenteventsDto2.uniqEvent = uniq2;
 
 
@@ -10901,7 +10901,7 @@ export class ContenteventsController {
         CreateContenteventsDto1.postID = request.body.postID
 
         let uniq = null;
-        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
+        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,null);
         CreateContenteventsDto1.uniqEvent = uniq;
 
         var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10920,7 +10920,7 @@ export class ContenteventsController {
         CreateContenteventsDto2.postID = request.body.postID
 
         let uniq2 = null;
-        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
+        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,null);
         CreateContenteventsDto2.uniqEvent = uniq2;
 
         if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -11773,7 +11773,7 @@ export class ContenteventsController {
           CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
           CreateContenteventsDto1.receiverParty = email_user
           let uniq = null;
-          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,_id_1);
+          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,null);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -11791,7 +11791,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.senderParty = email_receiverParty
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,_id_2);
+          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,null);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_sender)) {
@@ -12125,7 +12125,7 @@ export class ContenteventsController {
           CreateContenteventsDto1.postID = request.body.postID
 
           let uniq = null;
-          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
+          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,null);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -12144,7 +12144,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.postID = request.body.postID
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,_id_2);
+          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,null);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -12233,7 +12233,7 @@ export class ContenteventsController {
             CreateContenteventsDto1.postID = request.body.postID
 
             let uniq = null;
-            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
+            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
             CreateContenteventsDto1.uniqEvent = uniq;
 
             var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -12252,7 +12252,7 @@ export class ContenteventsController {
             CreateContenteventsDto2.postID = request.body.postID
 
             let uniq2 = null;
-            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
+            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
             CreateContenteventsDto2.uniqEvent = uniq2;
 
 
@@ -12320,7 +12320,7 @@ export class ContenteventsController {
         CreateContenteventsDto1.postID = request.body.postID
 
         let uniq = null;
-        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
+        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,null);
         CreateContenteventsDto1.uniqEvent = uniq;
 
         var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -12339,7 +12339,7 @@ export class ContenteventsController {
         CreateContenteventsDto2.postID = request.body.postID
 
         let uniq2 = null;
-        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
+        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,null);
         CreateContenteventsDto2.uniqEvent = uniq2;
 
         if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -13140,386 +13140,16 @@ export class ContenteventsController {
     await this.contenteventsService.scoreunfollowrequest(iduser, idevent, namatabel, event, listchallenge)
   }
 
-  // async addUniqEvent(email_receiverParty: string, eventType: string, active: string, event: string, email_user: string, postID: string,id:string) {
-  //   var uniqEvent = null;
-  //   var arrData = [];
-
-  //   if(eventType=="REACTION"){
-  //     uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID + "," + id;
-  //   }else{
-  //   uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID;
-  //   }
-  //   arrData.push(uniqEvent);
-  //   return arrData;
-  // }
   async addUniqEvent(email_receiverParty: string, eventType: string, active: string, event: string, email_user: string, postID: string,id:string) {
     var uniqEvent = null;
     var arrData = [];
+
+    if(eventType=="REACTION"){
       uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID + "," + id;
-    
+    }else{
+    uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID;
+    }
     arrData.push(uniqEvent);
     return arrData;
-  }
-
-  @Post('api/updateevent')
-  // @UseGuards(JwtAuthGuard)
-  async profi3(@Req() request: Request): Promise<any> {
-    var request_json = JSON.parse(JSON.stringify(request.body));
-
-    var data = null;
-    var id = null;
-
-
-
-    const messages = {
-      "info": ["The process successful"],
-    };
-    var lengdata = null;
-    try {
-      this.addUniqEventApi(100)
-
-    } catch (e) {
-
-
-    }
-
-    return { response_code: 202, messages };
-
-  }
-
-  @Post('api/updateevent/viewprofile')
-  // @UseGuards(JwtAuthGuard)
-  async profi321(@Req() request: Request): Promise<any> {
-    var request_json = JSON.parse(JSON.stringify(request.body));
-
-    var data = null;
-    var id = null;
-
-
-
-    const messages = {
-      "info": ["The process successful"],
-    };
-    var lengdata = null;
-    try {
-      this.addUniqEventViewProfile(100)
-
-    } catch (e) {
-
-
-    }
-
-    return { response_code: 202, messages };
-
-  }
-
-  async addUniqEventApi(limit: number) {
-    var uniqEvent = null;
-    var dataevent = null;
-    var arrData = [];
-    var mongo = require('mongoose');
-    var totalall = null;
-    var gettotaluser = null;
-    try {
-      gettotaluser = await this.contenteventsService.countConten();
-    } catch (e) {
-      gettotaluser = null;
-    }
-
-    if (gettotaluser !== null) {
-      if (gettotaluser.length > 0) {
-        try {
-          totalall = gettotaluser[0].totalpost / limit;
-        } catch (e) {
-          gettotaluser = null;
-          totalall = 0;
-        }
-        var totalpage = 0;
-        var tpage2 = (totalall).toFixed(0);
-        var tpage = (totalall % limit);
-        if (tpage > 0 && tpage < 5) {
-          totalpage = parseInt(tpage2) + 1;
-
-        } else {
-          totalpage = parseInt(tpage2);
-        }
-        console.log(totalpage);
-
-        for (let j = 0; j < totalpage; j++) {
-          let y = j;
-          try {
-            dataevent = await this.contenteventsService.countContenevent(limit, 0);
-          } catch (e) {
-            dataevent = null;
-          }
-
-          if (dataevent !== null) {
-            if (dataevent.length > 0) {
-
-              for (let i = 0; i < dataevent.length; i++) {
-                let id = null;
-                let email = null;
-                let eventType = null;
-                let active = null;
-                let event = null;
-                let receiverParty = null;
-                let senderParty = null;
-                let postID = null;
-                let resend=null;
-                try {
-                  id = dataevent[i]._id.toString();
-                } catch (e) {
-                  id = null;
-                }
-                try {
-                  email = dataevent[i].email;
-                } catch (e) {
-                  email = null;
-                }
-                try {
-                  eventType = dataevent[i].eventType;
-                } catch (e) {
-                  eventType = null;
-                }
-
-                try {
-                  active = dataevent[i].active;
-                } catch (e) {
-                  active = null;
-                }
-                try {
-                  event = dataevent[i].event;
-                } catch (e) {
-                  event = null;
-                }
-                try {
-                  receiverParty = dataevent[i].receiverParty;
-                } catch (e) {
-                  receiverParty = null;
-                }
-                try {
-                  senderParty = dataevent[i].senderParty;
-                } catch (e) {
-                  senderParty = null;
-                }
-                try {
-                  postID = dataevent[i].postID;
-                } catch (e) {
-                  postID = null;
-                }
-
-                if (postID == undefined) {
-                  postID = null;
-                }
-                if (receiverParty == undefined) {
-                  receiverParty = null;
-                }
-                if (senderParty == undefined) {
-                  senderParty = null;
-                }
-                if (eventType == "LIKE" || eventType=="FOLLOWING") {
-                  active = true
-                }
-                if(receiverParty ==null && senderParty ==null){
-                  resend=null;
-                }
-                else if(receiverParty !==null && senderParty ==null){
-                  resend=receiverParty;
-                }
-                else if(receiverParty ==null && senderParty !==null){
-                  resend=senderParty;
-                }else{
-                  resend=receiverParty;
-                }
-
-                // if (eventType == "VIEW_PROFILE") {
-                //   uniqEvent = [email + "," + eventType + "," + active + "," + event + "," + resend + "," + id];
-                // }else{
-                //   uniqEvent = [email + "," + eventType + "," + active + "," + event + "," + resend + "," + postID];
-                // }
-               
-                  uniqEvent = [email + "," + eventType + "," + active + "," + event + "," + resend + "," + postID+","+id];
-                
-               
-                //uniqEvent = null;
-                var CreateContenteventsDto_ = new CreateContenteventsDto()
-                try {
-                  CreateContenteventsDto_.uniqEvent = uniqEvent;
-
-                  await this.contenteventsService.update(id, CreateContenteventsDto_);
-                } catch (e) {
-
-                }
-
-                if (i == (dataevent.length - 1)) {
-
-                  console.log("        ----------------------- page data " + j + " SUCCSES UPDATE-----------------------");
-                  break;
-                }
-              }
-
-
-            }
-
-          }
-
-
-        }
-      }
-    }
-
-
-
-  }
-
-  async addUniqEventViewProfile(limit: number) {
-    var uniqEvent = null;
-    var dataevent = null;
-    var arrData = [];
-    var mongo = require('mongoose');
-    var totalall = null;
-    var gettotaluser = null;
-    try {
-      gettotaluser = await this.contenteventsService.countContenViewProfile();
-    } catch (e) {
-      gettotaluser = null;
-    }
-
-    if (gettotaluser !== null) {
-      if (gettotaluser.length > 0) {
-        try {
-          totalall = gettotaluser[0].totalpost / limit;
-        } catch (e) {
-          gettotaluser = null;
-          totalall = 0;
-        }
-        var totalpage = 0;
-        var tpage2 = (totalall).toFixed(0);
-        var tpage = (totalall % limit);
-        if (tpage > 0 && tpage < 5) {
-          totalpage = parseInt(tpage2) + 1;
-
-        } else {
-          totalpage = parseInt(tpage2);
-        }
-        console.log(totalpage);
-
-        for (let j = 0; j < 76; j++) {
-          let y = j;
-          try {
-            dataevent = await this.contenteventsService.countConteneventViewprofile(limit, j);
-          } catch (e) {
-            dataevent = null;
-          }
-
-          if (dataevent !== null) {
-            if (dataevent.length > 0) {
-
-              for (let i = 0; i < dataevent.length; i++) {
-                let id = null;
-                let email = null;
-                let eventType = null;
-                let active = null;
-                let event = null;
-                let receiverParty = null;
-                let senderParty = null;
-                let postID = null;
-                let resend=null;
-                try {
-                  id = dataevent[i]._id.toString();
-                } catch (e) {
-                  id = null;
-                }
-                try {
-                  email = dataevent[i].email;
-                } catch (e) {
-                  email = null;
-                }
-                try {
-                  eventType = dataevent[i].eventType;
-                } catch (e) {
-                  eventType = null;
-                }
-
-                try {
-                  active = dataevent[i].active;
-                } catch (e) {
-                  active = null;
-                }
-                try {
-                  event = dataevent[i].event;
-                } catch (e) {
-                  event = null;
-                }
-                try {
-                  receiverParty = dataevent[i].receiverParty;
-                } catch (e) {
-                  receiverParty = null;
-                }
-                try {
-                  senderParty = dataevent[i].senderParty;
-                } catch (e) {
-                  senderParty = null;
-                }
-                try {
-                  postID = dataevent[i].postID;
-                } catch (e) {
-                  postID = null;
-                }
-
-                if (postID == undefined) {
-                  postID = null;
-                }
-                if (receiverParty == undefined) {
-                  receiverParty = null;
-                }
-                if (senderParty == undefined) {
-                  senderParty = null;
-                }
-                if (eventType == "LIKE") {
-                  active = true
-                }
-                if(receiverParty ==null && senderParty ==null){
-                  resend=null;
-                }
-                else if(receiverParty !==null && senderParty ==null){
-                  resend=receiverParty;
-                }
-                else if(receiverParty ==null && senderParty !==null){
-                  resend=senderParty;
-                }else{
-                  resend=receiverParty;
-                }
-                // uniqEvent = [email + "," + eventType + "," + active + "," + event + "," + resend + "," + postID + "," + id];
-                uniqEvent = [email + "," + eventType + "," + active + "," + event + "," + resend + "," + postID ];
-                //uniqEvent = null;
-                var CreateContenteventsDto_ = new CreateContenteventsDto()
-                try {
-                  CreateContenteventsDto_.uniqEvent = uniqEvent;
-
-                  await this.contenteventsService.update(id, CreateContenteventsDto_);
-                } catch (e) {
-
-                }
-
-                if (i == (dataevent.length - 1)) {
-
-                  console.log("        ----------------------- page data " + j + " SUCCSES UPDATE-----------------------");
-                  break;
-                }
-              }
-
-
-            }
-
-          }
-
-
-        }
-      }
-    }
-
-
-
   }
 }
