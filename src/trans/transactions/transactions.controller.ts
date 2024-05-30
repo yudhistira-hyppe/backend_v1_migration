@@ -3425,7 +3425,7 @@ export class TransactionsController {
 
 
         }
-        else if (type === "VOUCHER") {
+        else if (type === "CREDIT") {
 
             let dUser = null;
             let idbuyer = null;
