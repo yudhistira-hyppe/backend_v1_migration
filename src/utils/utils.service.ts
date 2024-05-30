@@ -2559,12 +2559,12 @@ export class UtilsService {
           ProfileDTO_.GiftActivation = false;
         }
       }
-    }
-    if (get_userbasic.urlLink != undefined) {
-      ProfileDTO_.urlLink = get_userbasic.urlLink;
-    }
-    if (get_userbasic.judulLink != undefined) {
-      ProfileDTO_.judulLink = get_userbasic.judulLink;
+      if (get_userbasic.urlLink != undefined) {
+        ProfileDTO_.urlLink = get_userbasic.urlLink;
+      }
+      if (get_userbasic.judulLink != undefined) {
+        ProfileDTO_.judulLink = get_userbasic.judulLink;
+      }
     }
     return ProfileDTO_;
   }
