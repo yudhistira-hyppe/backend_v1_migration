@@ -588,8 +588,8 @@ export class UtilsService {
               body_save_en = body_save_en_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
             }
           } else if (typeTemplate == "LIVE_REPORT") {
-            body_save_id = body_save_id_get.toString().replace("${pelanggaran}", await this.numberFormatString(customText))
-            body_save_en = body_save_en_get.toString().replace("${pelanggaran}", await this.numberFormatString(customText))
+            body_save_id = body_save_id_get.toString().replace("${pelanggaran}", customText)
+            body_save_en = body_save_en_get.toString().replace("${pelanggaran}", customText)
           } else {
             body_save_id = body_save_id_get.toString()
             body_save_en = body_save_en_get.toString()
