@@ -1482,8 +1482,9 @@ export class NewPostContentService {
     this.insightService.create(data_insight);
 
     //Create Contentevents
+    var id=await this.utilService.generateId();
     var Contentevents_ = new Contentevents();
-    Contentevents_._id = await this.utilService.generateId();
+    Contentevents_._id = id;
     Contentevents_.contentEventID = Contentevents_._id;
     Contentevents_.eventType = 'POST';
     Contentevents_.createdAt = currentDate;
@@ -1497,7 +1498,7 @@ export class NewPostContentService {
     Contentevents_._class = 'io.melody.hyppe.content.domain.ContentEvent';
 
     let uniq=null;
-    uniq=await this.addUniqEvent(data_userbasics.email.toString(),"POST","true","ACCEPT",null,body.postID);
+    uniq=await this.addUniqEvent(data_userbasics.email.toString(),"POST","true","ACCEPT",null,body.postID,id);
     Contentevents_.uniqEvent=uniq;
 
 
@@ -2310,10 +2311,10 @@ export class NewPostContentService {
     return pd;
   }
 
-  async addUniqEvent(email_receiverParty:string,eventType:string,active:string,event:string,email_user:string,postID:string){
+  async addUniqEvent(email_receiverParty:string,eventType:string,active:string,event:string,email_user:string,postID:string,id:string){
     var uniqEvent=null;
     var arrData=[];
-    uniqEvent=email_receiverParty+","+eventType+","+active+","+event+","+email_user+","+postID;
+    uniqEvent=email_receiverParty+","+eventType+","+active+","+event+","+email_user+","+postID+","+id;
     arrData.push(uniqEvent);
     return arrData;
   }
