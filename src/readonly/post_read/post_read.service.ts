@@ -26299,7 +26299,7 @@ export class PostsReadService {
                     {
                         "$lt":
                         [
-                            "$createdAt", '2024-05-27'
+                            "$updatedAt", '2024-05-27'
                         ]
                     },
                     "then":
