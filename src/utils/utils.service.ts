@@ -579,6 +579,7 @@ export class UtilsService {
           } else if (typeTemplate == "LIVE_START") {
             data_send['postID'] = postID
             data_send['postType'] = postType
+            console.log("customText", customText);
             if (customText != "") {
               body_save_id = body_save_id_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
               body_save_en = body_save_en_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
