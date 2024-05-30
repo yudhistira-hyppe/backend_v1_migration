@@ -10354,7 +10354,7 @@ export class ContenteventsController {
           CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
           CreateContenteventsDto1.receiverParty = email_user
           let uniq = null;
-          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,null);
+          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,_id_1);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10372,7 +10372,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.senderParty = email_receiverParty
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,null);
+          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,_id_2);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_sender)) {
@@ -10706,7 +10706,7 @@ export class ContenteventsController {
           CreateContenteventsDto1.postID = request.body.postID
 
           let uniq = null;
-          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,null);
+          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10725,7 +10725,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.postID = request.body.postID
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,null);
+          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,_id_2);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -10814,7 +10814,7 @@ export class ContenteventsController {
             CreateContenteventsDto1.postID = request.body.postID
 
             let uniq = null;
-            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
+            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
             CreateContenteventsDto1.uniqEvent = uniq;
 
             var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10833,7 +10833,7 @@ export class ContenteventsController {
             CreateContenteventsDto2.postID = request.body.postID
 
             let uniq2 = null;
-            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
+            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
             CreateContenteventsDto2.uniqEvent = uniq2;
 
 
@@ -10901,7 +10901,7 @@ export class ContenteventsController {
         CreateContenteventsDto1.postID = request.body.postID
 
         let uniq = null;
-        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,null);
+        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
         CreateContenteventsDto1.uniqEvent = uniq;
 
         var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -10920,7 +10920,7 @@ export class ContenteventsController {
         CreateContenteventsDto2.postID = request.body.postID
 
         let uniq2 = null;
-        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,null);
+        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
         CreateContenteventsDto2.uniqEvent = uniq2;
 
         if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -11773,7 +11773,7 @@ export class ContenteventsController {
           CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
           CreateContenteventsDto1.receiverParty = email_user
           let uniq = null;
-          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,null);
+          uniq = await this.addUniqEvent(email_receiverParty, "FOLLOWER", "true", "ACCEPT", email_user, null,_id_1);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -11791,7 +11791,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.senderParty = email_receiverParty
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,null);
+          uniq2 = await this.addUniqEvent(email_user, "FOLLOWING", "true", "ACCEPT", email_receiverParty, null,_id_2);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_sender)) {
@@ -12125,7 +12125,7 @@ export class ContenteventsController {
           CreateContenteventsDto1.postID = request.body.postID
 
           let uniq = null;
-          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,null);
+          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
           CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -12144,7 +12144,7 @@ export class ContenteventsController {
           CreateContenteventsDto2.postID = request.body.postID
 
           let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,null);
+          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,_id_2);
           CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -12233,7 +12233,7 @@ export class ContenteventsController {
             CreateContenteventsDto1.postID = request.body.postID
 
             let uniq = null;
-            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
+            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
             CreateContenteventsDto1.uniqEvent = uniq;
 
             var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -12252,7 +12252,7 @@ export class ContenteventsController {
             CreateContenteventsDto2.postID = request.body.postID
 
             let uniq2 = null;
-            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
+            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
             CreateContenteventsDto2.uniqEvent = uniq2;
 
 
@@ -12320,7 +12320,7 @@ export class ContenteventsController {
         CreateContenteventsDto1.postID = request.body.postID
 
         let uniq = null;
-        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,null);
+        uniq = await this.addUniqEvent(email_user, "LIKE", "true", "DONE", email_receiverParty, request.body.postID,_id_1);
         CreateContenteventsDto1.uniqEvent = uniq;
 
         var CreateContenteventsDto2 = new CreateContenteventsDto();
@@ -12339,7 +12339,7 @@ export class ContenteventsController {
         CreateContenteventsDto2.postID = request.body.postID
 
         let uniq2 = null;
-        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,null);
+        uniq2 = await this.addUniqEvent(email_receiverParty, "LIKE", "true", "ACCEPT", email_user, request.body.postID,_id_2);
         CreateContenteventsDto2.uniqEvent = uniq2;
 
         if (await this.utilsService.ceckData(Insight_receiver)) {
@@ -13140,15 +13140,23 @@ export class ContenteventsController {
     await this.contenteventsService.scoreunfollowrequest(iduser, idevent, namatabel, event, listchallenge)
   }
 
+  // async addUniqEvent(email_receiverParty: string, eventType: string, active: string, event: string, email_user: string, postID: string,id:string) {
+  //   var uniqEvent = null;
+  //   var arrData = [];
+
+  //   if(eventType=="REACTION"){
+  //     uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID + "," + id;
+  //   }else{
+  //   uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID;
+  //   }
+  //   arrData.push(uniqEvent);
+  //   return arrData;
+  // }
   async addUniqEvent(email_receiverParty: string, eventType: string, active: string, event: string, email_user: string, postID: string,id:string) {
     var uniqEvent = null;
     var arrData = [];
-
-    if(eventType=="REACTION"){
       uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID + "," + id;
-    }else{
-    uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID;
-    }
+    
     arrData.push(uniqEvent);
     return arrData;
   }

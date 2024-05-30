@@ -8462,7 +8462,7 @@ export class AuthService {
       CreateContenteventsDto_._class = "io.melody.hyppe.content.domain.ContentEvent";
 
       let uniq=null;
-      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,_id_CreateContentevents);
+      uniq=await this.addUniqEvent(emailView,"VIEW_PROFILE","true","ACCEPT",emailViewed,null,_id_CreateContentevents);
       CreateContenteventsDto_.uniqEvent=uniq;
 
       //Insert ContentEvent
@@ -15520,10 +15520,10 @@ export class AuthService {
     }
   }
 
-  async addUniqEvent(email_receiverParty:string,eventType:string,active:string,event:string,email_user:string,postID:string){
+  async addUniqEvent(email_receiverParty:string,eventType:string,active:string,event:string,email_user:string,postID:string,id:string){
     var uniqEvent=null;
     var arrData=[];
-    uniqEvent=email_receiverParty+","+eventType+","+active+","+event+","+email_user+","+postID;
+    uniqEvent=email_receiverParty+","+eventType+","+active+","+event+","+email_user+","+postID+","+id;
     arrData.push(uniqEvent);
     return arrData;
   }
