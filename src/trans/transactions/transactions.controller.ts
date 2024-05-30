@@ -2416,7 +2416,7 @@ export class TransactionsController {
             throw new BadRequestException("Unabled to proceed");
         }
         if (request_json["idDiscount"] !== undefined) {
-            idDiscount =mongoose.Types.ObjectId(idDiscount);
+            idDiscount = mongoose.Types.ObjectId(idDiscount);
         }
 
         //var splitPostid = postid.split(',');
@@ -2459,7 +2459,7 @@ export class TransactionsController {
         var reptoken = token.replace("Bearer ", "");
         var x = await this.parseJwt(reptoken);
         var datatrpending = null;
-      
+
 
 
         var email = email;
@@ -3172,7 +3172,7 @@ export class TransactionsController {
                             CreateTransactionsDto.response = datareqva;
                             CreateTransactionsDto.productCode = productCode;
                             CreateTransactionsDto.platform = platform;
-                            CreateTransactionsDto.idDiskon =idDiscount;
+                            CreateTransactionsDto.idDiskon = idDiscount;
                             CreateTransactionsDto.diskon = diskon;
                             CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                             CreateTransactionsDto.product_id = product_id;
@@ -20274,7 +20274,7 @@ export class TransactionsController {
         var repdate = strdate.replace('T', ' ');
         var splitdate = repdate.split('.');
         var timedate = splitdate[0];
-        var qty=null;
+        var qty = null;
         const messages = {
             "info": ["The process was successful"],
         };
@@ -20284,7 +20284,7 @@ export class TransactionsController {
             await this.errorHandler.generateBadRequestException("typeTransaction required");
         }
         if (request_json.qty !== undefined) {
-           qty=request_json.qty;
+            qty = request_json.qty;
         }
 
         if (request_json.typeTransaction == "CONTENT") {
@@ -20410,9 +20410,9 @@ export class TransactionsController {
 
 
             if (dataConten !== null) {
-              
+
                 let jmlcoin = 0;
-                let name=null;
+                let name = null;
                 try {
                     jmlcoin = dataConten.amount;
                 } catch (e) {
@@ -20424,9 +20424,9 @@ export class TransactionsController {
                     name = null;
                 }
                 obj = {
-                    "idPackage":request_json.packet_id,
-                    "packetName":name,
-                    "jmlCredit":jmlcoin,
+                    "idPackage": request_json.packet_id,
+                    "packetName": name,
+                    "jmlCredit": jmlcoin,
                     "qty": qty,
                     "diskon": discount,
                     "price": request_json.price,
@@ -21339,7 +21339,7 @@ export class TransactionsController {
                         "statusOtp": withdrawData.statusOtp,
                         "totalamount": withdrawData.totalamount,
                         "_id": withdrawData._id,
-                        "responOy": datadisbursemen
+                        "responOy": infodisbursemen
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
@@ -21374,7 +21374,7 @@ export class TransactionsController {
                         "statusOtp": withdrawData.statusOtp,
                         "totalamount": withdrawData.totalamount,
                         "_id": withdrawData._id,
-                        "responOy": datadisbursemen
+                        "responOy": infodisbursemen
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
@@ -21403,7 +21403,7 @@ export class TransactionsController {
                         "statusOtp": withdrawData.statusOtp,
                         "totalamount": withdrawData.totalamount,
                         "_id": withdrawData._id,
-                        "responOy": datadisbursemen
+                        "responOy": infodisbursemen
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
@@ -21439,7 +21439,7 @@ export class TransactionsController {
                         "statusOtp": withdrawData.statusOtp,
                         "totalamount": withdrawData.totalamount,
                         "_id": withdrawData._id,
-                        "responOy": datadisbursemen
+                        "responOy": infodisbursemen
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
