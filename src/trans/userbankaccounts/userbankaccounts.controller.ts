@@ -305,13 +305,6 @@ export class UserbankaccountsController {
             }
         }
 
-        if (language === "id") {
-            messageRespon = "Nama yang Anda masukkan salah, pastikan nama yang Anda masukkan sesuai dengan ID yang terdaftar di Hyppe, nama yang sudah terdaftar adalah " + namamediaprof.toUpperCase();;
-        }
-        else if (language === "en") {
-            messageRespon = "The name you entered is wrong, make sure the name you enter matches the ID registered on Hyppe, the registered name is " + namamediaprof.toUpperCase();;
-        }
-
         var lownama = nama.toLowerCase();
         var idakun = null;
         var databank = null;
@@ -332,9 +325,35 @@ export class UserbankaccountsController {
             datarekkembar = null;
         }
 
-        if (datarekkembar === null) {
+        let errorList = [
+            {
+                "ID":"Nama yang Anda masukkan salah, pastikan nama yang Anda masukkan sesuai dengan ID yang terdaftar di Hyppe, nama yang sudah terdaftar adalah " + namamediaprof.toUpperCase(),
+                "EN":"The name you entered is wrong, make sure the name you enter matches the ID registered on Hyppe, the registered name is " + namamediaprof.toUpperCase(),
+            },
+            {
+                "ID":"Jumlah digit nomor rekening yang anda masukkan tidak sesuai, pastikan anda mengisi jumlah digit sebanyak " + databank.jmlDigit.toString() + " digit.",
+                "EN":"Total number bank account digit is not match, make sure to fill your number bank account field for " + databank.jmlDigit.toString() + " digits.",
+            },
+            {
+                "ID":"Nama yang Anda masukkan salah, pastikan nama yang Anda masukkan sesuai dengan ID yang terdaftar di Hyppe, nama yang sudah terdaftar adalah " + namamediaprof.toUpperCase() + " dan jumlah digit nomor rekening yang anda masukkan tidak sesuai, pastikan anda mengisi jumlah digit sebanyak " + databank.jmlDigit.toString() + " digit.",
+                "EN":"The name you entered is wrong, make sure the name you enter matches the ID registered on Hyppe, the registered name is " + namamediaprof.toUpperCase() + " and total number bank account digit is not match, make sure to fill your number bank account field for " + databank.jmlDigit.toString() + " digits.",
+            },
+        ];
 
-            if (lownama === namamediaprof) {
+        if (datarekkembar === null) {
+            var resultceknama = false;
+            var resultcekdigit = false;
+            if (lownama === namamediaprof) 
+            {
+                resultceknama = true;
+            }
+
+            if((databank.jmlDigit == null || databank.jmlDigit == undefined) || (databank.jmlDigit != null && databank.jmlDigit != undefined && noRek.length == databank.jmlDigit))
+            {
+                resultcekdigit = true;
+            }
+
+            if (resultcekdigit == true && resultceknama == true) {
                 try {
                     var mongo = require('mongoose');
                     CreateUserbankaccountsDto.userId = new mongo.Types.ObjectId(iduser.toString());
@@ -359,6 +378,19 @@ export class UserbankaccountsController {
                     });
                 }
             } else {
+                if(resultceknama == false && resultcekdigit == true)
+                {
+                    messageRespon = (language === "id" ? errorList[0].ID : errorList[0].EN);
+                }
+                else if(resultceknama == true && resultcekdigit == false)
+                {
+                    messageRespon = (language === "id" ? errorList[1].ID : errorList[1].EN);    
+                }
+                else
+                {
+                    messageRespon = (language === "id" ? errorList[2].ID : errorList[2].EN);    
+                }
+
                 return res.status(HttpStatus.OK).json({
                     response_code: 202,
                     "message": messageRespon
