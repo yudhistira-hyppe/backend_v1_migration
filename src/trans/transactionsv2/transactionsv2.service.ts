@@ -1012,6 +1012,7 @@ export class TransactionsV2Service {
                     as: "databasic"
                 }
             },
+                
             {
                 $project: {
                     "type": 1,
@@ -1120,6 +1121,14 @@ export class TransactionsV2Service {
                     as: "datamethod"
                 }
             },
+                   {
+                $lookup: {
+                    from: "monetize",
+                    localField: "product_id",
+                    foreignField: "package_id",
+                    as: "monetdata"
+                }
+            },
             {
                 $project: {
                     "type": 1,
@@ -1155,7 +1164,9 @@ export class TransactionsV2Service {
                     "methodename": {
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
-                    
+                     "productName": {
+                        $arrayElemAt: ['$monetdata.name', 0]
+                    },
                 }
             },
             {
@@ -1166,6 +1177,22 @@ export class TransactionsV2Service {
                     as: "databank"
                 }
             },
+                 {
+                        $set: {
+                            "timenow": 
+                            {
+                                "$dateToString": {
+                                    "format": "%Y-%m-%d %H:%M:%S",
+                                    "date": {
+                                        $add: [
+                                            new Date(),
+                                            25200000
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
             {
                 $project: {
                     "type": 1,
@@ -1187,7 +1214,7 @@ export class TransactionsV2Service {
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
-                    "expiredtimeva":1,
+                                "expiredtimeva":1,
                     "transactionFees": 1,
                     "biayPG": 1,
                     "code": 1,
@@ -1199,6 +1226,8 @@ export class TransactionsV2Service {
                     "totalamount": 1,
                     "product_id": 1,
                     "methodename": 1,
+                                "productName":1,
+                                 "timenow": 1,
                     "bankname": {
                         $arrayElemAt: ['$databank.bankname', 0]
                     },
@@ -1223,6 +1252,7 @@ export class TransactionsV2Service {
                     "jenisTransaksi": "Pembelian Coins"
                 }
             },
+            
         );
         let query = await this.transactionsModel.aggregate(pipeline);
         return query[0];

@@ -2416,7 +2416,7 @@ export class TransactionsController {
             throw new BadRequestException("Unabled to proceed");
         }
         if (request_json["idDiscount"] !== undefined) {
-            idDiscount = mongoose.Types.ObjectId(idDiscount);
+            idDiscount = mongoose.Types.ObjectId(request_json["idDiscount"]);
         }
 
         //var splitPostid = postid.split(',');
