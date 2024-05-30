@@ -64,5 +64,11 @@ export class TransactionsCoa {
     createdAt: string;
     @Prop()
     updatedAt: string;
+    @Prop()
+    product: mongoose.Types.ObjectId;
+    @Prop()
+    category: mongoose.Types.ObjectId;
+    @Prop()
+    status: string;
 }
 export const TransactionsCoaSchema = SchemaFactory.createForClass(TransactionsCoa);

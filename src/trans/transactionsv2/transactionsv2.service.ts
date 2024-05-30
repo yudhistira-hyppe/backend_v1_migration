@@ -645,6 +645,9 @@ export class TransactionsV2Service {
                     TransactionsCoa_.idCoinSettings = currencyCoinId;
                     TransactionsCoa_.createdAt = currentDate;
                     TransactionsCoa_.updatedAt = currentDate;
+                    TransactionsCoa_.product = getProduct._id;
+                    TransactionsCoa_.category = categoryTransaction._id;
+                    TransactionsCoa_.status = status;
                     await this.transactionsCoaService.create(TransactionsCoa_);
 
                     //Insert Coa Table
@@ -672,6 +675,9 @@ export class TransactionsV2Service {
                     TransactionsCoaTable_.updatedAt = currentDate;
                     TransactionsCoaTable_.idTransaction = idTransaction;
                     TransactionsCoaTable_.idCoinSettings = currencyCoinId;
+                    TransactionsCoaTable_.product = getProduct._id;
+                    TransactionsCoaTable_.category = categoryTransaction._id;
+                    TransactionsCoaTable_.status = status;
                     await this.transactionsCoaTableService.create(TransactionsCoaTable_);
                 }
 
@@ -847,6 +853,24 @@ export class TransactionsV2Service {
                     Balanceds_.coa = [];
                     Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
                     await this.transactionsBalancedsService.create(Balanceds_);
+                } else{
+                    if (category == "WD") {
+                        //Insert Balanceds
+                        let Balanceds_ = new TransactionsBalanceds();
+                        Balanceds_._id = new mongoose.Types.ObjectId();
+                        Balanceds_.idTransaction = transactionsV2_id;
+                        Balanceds_.idUser = idUser;
+                        Balanceds_.debit = debet;
+                        Balanceds_.credit = kredit;
+                        Balanceds_.saldo = saldo - kredit + debet;
+                        Balanceds_.noInvoice = generateInvoice;
+                        Balanceds_.createdAt = currentDate;
+                        Balanceds_.updatedAt = currentDate;
+                        Balanceds_.userType = categoryTransaction.user;
+                        Balanceds_.coa = [];
+                        Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
+                        await this.transactionsBalancedsService.create(Balanceds_);
+                    }
                 }
             }
             return {

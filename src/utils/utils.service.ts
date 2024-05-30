@@ -2356,8 +2356,12 @@ export class UtilsService {
         ProfileDTO_.iduser = get_userbasic._id;
         ProfileDTO_.profileID = get_userbasic.profileID;
         ProfileDTO_.emailLogin = get_userbasic.emailLogin;
-        ProfileDTO_.urlLink = get_userbasic.urlLink;
-        ProfileDTO_.judulLink = get_userbasic.judulLink;
+        if (get_userbasic.urlLink != undefined) {
+          ProfileDTO_.urlLink = get_userbasic.urlLink;
+        }
+        if (get_userbasic.judulLink != undefined) {
+          ProfileDTO_.judulLink = get_userbasic.judulLink;
+        }
         //ProfileDTO_.token =
         //ProfileDTO_.refreshToken =
         //ProfileDTO_.userProfile =
@@ -2556,8 +2560,12 @@ export class UtilsService {
         }
       }
     }
-    ProfileDTO_.urlLink = get_userbasic.urlLink;
-        ProfileDTO_.judulLink = get_userbasic.judulLink;
+    if (get_userbasic.urlLink != undefined) {
+      ProfileDTO_.urlLink = get_userbasic.urlLink;
+    }
+    if (get_userbasic.judulLink != undefined) {
+      ProfileDTO_.judulLink = get_userbasic.judulLink;
+    }
     return ProfileDTO_;
   }
 

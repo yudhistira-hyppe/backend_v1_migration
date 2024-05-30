@@ -50,5 +50,11 @@ export class TransactionsCoaTable {
     createdAt: string;
     @Prop()
     updatedAt: string;
+    @Prop()
+    product: mongoose.Types.ObjectId;
+    @Prop()
+    category: mongoose.Types.ObjectId;
+    @Prop()
+    status: string;
 }
 export const TransactionsCoaTableSchema = SchemaFactory.createForClass(TransactionsCoaTable);
