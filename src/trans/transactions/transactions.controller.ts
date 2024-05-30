@@ -2710,7 +2710,7 @@ export class TransactionsController {
                 if (last_stock > 0) {
                     try {
 
-                        datatrpending = await this.transactionsService.findpostidpending(postid[0].id);
+                        datatrpending = await this.transactionsService.findPendingByUser(iduser.toString());
 
                     } catch (e) {
                         datatrpending = null;

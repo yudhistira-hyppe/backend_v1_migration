@@ -79,6 +79,8 @@ export class TransactionsService {
         return this.transactionsModel.findOne({ postid: postid, status: "Success" }).exec();
     }
 
+    
+
     async findpostidanduser(postid: string, iduserbuyer: ObjectId): Promise<Transactions> {
         return this.transactionsModel.findOne({ postid: postid, iduserbuyer: iduserbuyer, status: "Success" }).exec();
     }
