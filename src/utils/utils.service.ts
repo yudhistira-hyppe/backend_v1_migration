@@ -2288,9 +2288,11 @@ export class UtilsService {
     var CreateInsightsDto_ = new CreateInsightsDto();
     if (await this.ceckData(get_insight)) {
       if (get_insight.shares != undefined) { CreateInsightsDto_.shares = get_insight.shares; }
-      if (get_insight.followers != undefined) { CreateInsightsDto_.followers = get_insight.followers; }
+      // if (get_insight.followers != undefined) { CreateInsightsDto_.followers = get_insight.followers; }
+      CreateInsightsDto_.followers = get_userbasic.follower.length;
       if (get_insight.comments != undefined) { CreateInsightsDto_.comments = get_insight.comments; }
-      if (get_insight.followings != undefined) { CreateInsightsDto_.followings = get_insight.followings; }
+      // if (get_insight.followings != undefined) { CreateInsightsDto_.followings = get_insight.followings; }
+      CreateInsightsDto_.followings = get_userbasic.following.length;
       if (get_insight.reactions != undefined) { CreateInsightsDto_.reactions = get_insight.reactions; }
       if (get_insight.posts != undefined) { CreateInsightsDto_.posts = get_insight.posts; }
       if (get_insight.views != undefined) { CreateInsightsDto_.views = get_insight.views; }
