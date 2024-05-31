@@ -738,7 +738,8 @@ export class PostContentService {
 
     //Create Contentevents
     var Contentevents_ = new Contentevents();
-    Contentevents_._id = await this.utilService.generateId();
+    let _id_1= await this.utilService.generateId();
+    Contentevents_._id = _id_1;
     Contentevents_.contentEventID = Contentevents_._id;
     Contentevents_.eventType = 'POST';
     Contentevents_.createdAt = currentDate;
@@ -750,6 +751,10 @@ export class PostContentService {
     Contentevents_.sequenceNumber = 0;
     Contentevents_.postID = body.postID;
     Contentevents_._class = 'io.melody.hyppe.content.domain.ContentEvent';
+
+    let uniq = null;
+    uniq = await this.addUniqEvent(data_userbasics.email.toString(), "POST", "true", "ACCEPT", data_userbasics.email.toString(), body.postID,_id_1);
+    Contentevents_.uniqEvent = uniq;
     this.contentEventService.create(Contentevents_);
     return Posts_;
   }
@@ -8655,7 +8660,16 @@ export class PostContentService {
     console.log(Mediadiaries_.length);
     this.runMigrationDiary(Mediadiaries_);
   }
+  async addUniqEvent(email_receiverParty: string, eventType: string, active: string, event: string, email_user: string, postID: string,id:string) {
+    var uniqEvent = null;
+    var arrData = [];
 
+   
+    uniqEvent = email_receiverParty + "," + eventType + "," + active + "," + event + "," + email_user + "," + postID + "," + id;
+  
+    arrData.push(uniqEvent);
+    return arrData;
+  }
   // async cronJobSeaweedProfileStart() {
   //   var mediaprofilepicts_ = await this.getDataMediaProfileSeaweed();
   //   console.log(mediaprofilepicts_.length);
