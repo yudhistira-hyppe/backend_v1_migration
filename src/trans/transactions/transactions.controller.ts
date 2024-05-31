@@ -4873,51 +4873,40 @@ export class TransactionsController {
         } catch (e) {
             valuevalainya = 0;
         }
+
+        datatransaksi = await this.transactionsService.findva(nova);
+
+        idbank = datatransaksi.bank.toString();
+        try {
+            databank = await this.banksService.findOne(idbank);
+            bankcode = databank._doc.bankcode;
+
+        } catch (e) {
+            throw new BadRequestException("Banks not found...!");
+        }
+        type = datatransaksi.type;
+        platform = datatransaksi.platform;
+        productCode = datatransaksi.productCode;
+        jmlCoin = datatransaksi.jmlCoin;
+
+        var idtransaction = datatransaksi._id;
+        var noinvoice = datatransaksi.noinvoice;
+        var postid = datatransaksi.postid;
+        var idusersell = datatransaksi.idusersell;
+        var iduserbuy = datatransaksi.iduserbuyer;
+        var amount = datatransaksi.amount;
+        var tamount = datatransaksi.totalamount;
+        var status = datatransaksi.status;
+        var reqbody = JSON.parse(JSON.stringify(payload));
+        var diskon = datatransaksi.diskon;
+        var idDiskon = datatransaksi.idDiskon;
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = req.get("Host") + req.originalUrl;
+        var setiduser = iduserbuy;
+        var respon = datatransaksi.response;
         if (statussucces == true) {
 
             try {
-
-                datatransaksi = await this.transactionsService.findva(nova);
-
-                idbank = datatransaksi.bank.toString();
-                try {
-                    databank = await this.banksService.findOne(idbank);
-                    bankcode = databank._doc.bankcode;
-
-                } catch (e) {
-                    throw new BadRequestException("Banks not found...!");
-                }
-                type = datatransaksi.type;
-                platform = datatransaksi.platform;
-                productCode = datatransaksi.productCode;
-                jmlCoin = datatransaksi.jmlCoin;
-
-                var idtransaction = datatransaksi._id;
-                var noinvoice = datatransaksi.noinvoice;
-                var postid = datatransaksi.postid;
-                var idusersell = datatransaksi.idusersell;
-                var iduserbuy = datatransaksi.iduserbuyer;
-                var amount = datatransaksi.amount;
-                var tamount = datatransaksi.totalamount;
-                var status = datatransaksi.status;
-                var reqbody = JSON.parse(JSON.stringify(payload));
-                var diskon = datatransaksi.diskon;
-                var idDiskon = datatransaksi.idDiskon;
-                var timestamps_start = await this.utilsService.getDateTimeString();
-                var fullurl = req.get("Host") + req.originalUrl;
-                var setiduser = iduserbuy;
-                var respon = datatransaksi.response;
-                // var arrDiskon = [idDiskon];
-                // var detail = [
-                //     {
-                //         "biayPG": valAdminOy,
-                //         "transactionFees": valAdmin,
-                //         "amount": amount,
-                //         "totalDiskon": diskon,
-                //         "totalAmount": tamount,
-                //         "payload": payload,
-                //         "response": respon
-                //     }]
 
                 if (type === "COIN") {
 
@@ -4963,10 +4952,10 @@ export class TransactionsController {
 
                         if (dataV2 !== null) {
                             idTransactionv2 = dataV2.idTransaction
-                            let Trv2 = new transactionsV2();
-                            Trv2.status = "SUCCESS";
+                            // let Trv2 = new transactionsV2();
+                            // Trv2.status = "SUCCESS";
                             try {
-                                await this.TransactionsV2Service.updateByIdTransaction(idTransactionv2.toString(), Trv2);
+                                await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "SUCCESS",payload);
                             } catch (e) {
 
                             }
@@ -5011,6 +5000,24 @@ export class TransactionsController {
 
             } catch (e) {
                 throw new BadRequestException("Unabled to proceed" + e);
+            }
+        }else{
+            try {
+                dataV2 = await this.TransactionsV2Service.findByOneNova(iduserbuy.toString(), nova);
+
+            } catch (e) {
+                dataV2 = null;
+
+            }
+
+            if (dataV2 !== null) {
+                idTransactionv2 = dataV2.idTransaction
+               
+                try {
+                    await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "FAILED",payload);
+                } catch (e) {
+
+                }
             }
         }
     }
