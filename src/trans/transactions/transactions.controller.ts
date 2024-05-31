@@ -4955,7 +4955,7 @@ export class TransactionsController {
                             // let Trv2 = new transactionsV2();
                             // Trv2.status = "SUCCESS";
                             try {
-                                await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "SUCCESS",payload);
+                                await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "SUCCESS", payload);
                             } catch (e) {
 
                             }
@@ -4997,7 +4997,7 @@ export class TransactionsController {
             } catch (e) {
                 throw new BadRequestException("Unabled to proceed" + e);
             }
-        }else{
+        } else {
             try {
                 dataV2 = await this.TransactionsV2Service.findByOneNova(iduserbuy.toString(), nova);
 
@@ -5008,9 +5008,9 @@ export class TransactionsController {
 
             if (dataV2 !== null) {
                 idTransactionv2 = dataV2.idTransaction
-               
+
                 try {
-                    await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "FAILED",payload);
+                    await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "FAILED", payload);
                 } catch (e) {
 
                 }
@@ -20902,7 +20902,7 @@ export class TransactionsController {
                     ],
                     "PENDING"
                 )
-                let usertrxdata = data.find(x => x.type == "USER");
+                let usertrxdata = data.data.find(x => x.type == "USER");
 
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
