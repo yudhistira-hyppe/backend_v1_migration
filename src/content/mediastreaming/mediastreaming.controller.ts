@@ -914,7 +914,7 @@ export class MediastreamingController {
 
                   //CECK WARNING LENGTH
                   if (_update_streamWarning.length == Number(GET_ID_SETTING_MAX_BANNED)) {
-                    this.utilsService.sendFcmV2(profile.email.toString(), getUser.email.toString(), 'NOTIFY_LIVE', 'LIVE_BENNED', 'LIVE_BENNED', null, null, null, null);
+                    this.utilsService.sendFcmV2(getUser.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_BENNED', 'LIVE_BENNED', null, null, null, null);
                     UserBanned = true;
                     Userbasicnew_.streamBanned = UserBanned;
                     Userbasicnew_.streamBannedDate = currentDate;
