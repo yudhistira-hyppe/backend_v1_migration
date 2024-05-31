@@ -1042,7 +1042,7 @@ export class MediastreamingController {
           MediastreamingDto_Res.startLive = ceckId.startLive;
           MediastreamingDto_Res.status = ceckId.status;
           MediastreamingDto_Res.view = ceckId.view;
-          MediastreamingDto_Res.comment = ceckId.comment;
+          MediastreamingDto_Res.commentAll = ceckId.comment;
           MediastreamingDto_Res.like = ceckId.like;
           MediastreamingDto_Res.share = ceckId.share;
           MediastreamingDto_Res.follower = ceckId.follower;
@@ -1053,6 +1053,7 @@ export class MediastreamingController {
           MediastreamingDto_Res.createAt = ceckId.createAt;
           MediastreamingDto_Res.viewCountActive = dataStreamView[0].view.length;
           MediastreamingDto_Res.comment = dataStreamPinned;
+          MediastreamingDto_Res.commentDisabled = ceckId.commentDisabled;
           MediastreamingDto_Res.tokenAgora = ceckId.tokenAgora;
           MediastreamingDto_Res.reportRemark = remarkSetting[0].value;
           return await this.errorHandler.generateAcceptResponseCodeWithData(

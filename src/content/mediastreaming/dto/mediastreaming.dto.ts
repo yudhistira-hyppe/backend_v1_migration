@@ -16,6 +16,7 @@ export class MediastreamingDto {
   endLive: String;
   status: boolean;
   view: any[];
+  commentAll: any[];
   comment: any[];
   like: any[];
   share: any[];

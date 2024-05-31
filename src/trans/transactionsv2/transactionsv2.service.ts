@@ -88,9 +88,13 @@ export class TransactionsV2Service {
 
         //Get Data Category Transaction
         const getDataCategoryTransaction = await this.transactionsCategorysService.findOne(getDataTransaction.category.toString());
+
+        let idUser = null;
         let debet = 0; 
         let kredit = 0;
         let saldo = 0;
+        let cost_verification = 0;
+        
         if (getDataCategoryTransaction.user != undefined) {
             if (getDataCategoryTransaction.user == "USER") {
                 if (getDataCategoryTransaction.type != undefined) {
@@ -114,13 +118,24 @@ export class TransactionsV2Service {
                                                         }
                                                     }
                                                     if (categoryTransactionType.transaction[tr].category == "WD") {
+                                                        //Set Status WD 
                                                         STATUS_WD = true;
+
+                                                        //Currency coin 
+                                                        const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
+
+                                                        //GET ID JENIS REPORT
+                                                        const ID_SETTING_COST_BANK_VERIFICATION = this.configService.get("ID_SETTING_COST_BANK_VERIFICATION");
+                                                        const GET_ID_SETTING_COST_BANK_VERIFICATION = await this.utilsService.getSetting_Mixed(ID_SETTING_COST_BANK_VERIFICATION);
+
+                                                        let cost_bank_verivication = Number(GET_ID_SETTING_COST_BANK_VERIFICATION);
+                                                        cost_verification = Math.round(cost_bank_verivication / Number(currencyCoin));
                                                         if (categoryTransactionType.transaction[tr].status == "credit") {
-                                                            debet = getDataTransaction.coin;
+                                                            debet = getDataTransaction.coin + cost_verification;
                                                             kredit = 0;
                                                         }
                                                         if (categoryTransactionType.transaction[tr].status == "debit") {
-                                                            debet = getDataTransaction.coin;
+                                                            debet = getDataTransaction.coin - cost_verification;
                                                             kredit = 0;
                                                         }
                                                     }
@@ -133,7 +148,6 @@ export class TransactionsV2Service {
                         }
                     }
                 }
-                    
             }
         }
 
@@ -165,6 +179,45 @@ export class TransactionsV2Service {
             }
         } else{
             if (STATUS_WD) {
+                //Get Transaction Category
+                const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(getDataTransaction.product.toString(), "REFUND");
+                
+                //Get User Hyppe
+                const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
+                const GET_ID_USER_HYPPE = await this.utilsService.getSetting_Mixed(ID_USER_HYPPE);
+                const getDataUserHyppe = await this.userbasicnewService.findOne(GET_ID_USER_HYPPE.toString());
+                
+                for (let cat = 1; cat <= getCategoryTransaction.length; cat++) {
+                    let categoryTransaction = getCategoryTransaction[cat - 1];
+
+                    if (categoryTransaction.user == "HYPPE") {
+                        idUser = getDataUserHyppe._id;
+
+                        //For Coa
+                        let kas = 0;
+                        let biayaPaymentGateway = 0;
+                        let biayaDiscount = 0;
+                        let biayaFreeCreator = 0;
+
+                        let hutangSaldoCoin = 0;
+                        let hutangSaldoCredit = 0;
+
+                        let pendapatanBiayaTransaction = 0;
+                        let pendapatanPenukaranCoin = 0;
+                        let pendapatanContentOwnership = 0;
+                        let pendapatanContentMarketPlace = 0;
+                        let pendapatanBoostPost = 0;
+                        let pendapatanLiveGift = 0;
+                        let pendapatanContentGift = 0;
+                        let pendapatanAdvertisement = 0;
+                        let pendapatanDiTarik = 0;
+
+                        let modalDiSetor = 0;
+                        let allProductPendapatan = 0;
+
+                    }
+                }
+                
                 //Get Saldo
                 let balancedUser = await this.transactionsBalancedsService.findsaldo(getDataTransaction.idUser.toString());
                 if (await this.utilsService.ceckData(balancedUser)) {
@@ -172,6 +225,7 @@ export class TransactionsV2Service {
                         saldo = balancedUser[0].totalSaldo;
                     }
                 }
+
                 //Insert Balanceds
                 let Balanceds_ = new TransactionsBalanceds();
                 Balanceds_._id = new mongoose.Types.ObjectId();
