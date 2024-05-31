@@ -4974,11 +4974,7 @@ export class TransactionsController {
 
                         }
 
-
-
-                        // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);
-
-
+                        // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);E
 
                         this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", idtransaction.toString(), noinvoice);
                         return res.status(HttpStatus.OK).json({
