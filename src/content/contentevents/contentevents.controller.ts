@@ -3593,7 +3593,7 @@ export class ContenteventsController {
       );
     }
 
-    this.synchInteractivev2(request, headers);
+    this.synchInteractivev3(request, headers);
 
     return {
       response_code: 202,
@@ -12259,8 +12259,8 @@ export class ContenteventsController {
       //else {
        // if (ceck_data_DONE.active && ceck_data_DONE.active) {
           try {
-            await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, false);
-            await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, false);
+            await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, true);
+            await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, true);
             await this.insightsService.updateUnlikeByID(insightID2);
             await this.postDisqusSS.updateUnLike(email_receiverParty, email_user, request.body.postID);
 
