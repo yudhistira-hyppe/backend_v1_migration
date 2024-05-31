@@ -191,7 +191,9 @@ export class TransactionsV2Service {
         }
 
         let dataDetail = getDataTransaction.detail;
-        dataDetail.push(data)
+        if (data != null) {
+            dataDetail.push(data)
+        }
 
         const transactionsV2_ = new transactionsV2();
         transactionsV2_.status = status;
