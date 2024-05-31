@@ -15,6 +15,14 @@ export class TransactionsCoaService {
         return _TransactionsCategorys_;
     }
 
+    async updateData(_TransactionsCoa_: TransactionsCoa, TransactionsCoa_: TransactionsCoa) {
+        let data = await this.transactionsCoaModel.findOneAndUpdate(
+            _TransactionsCoa_,
+            TransactionsCoa_,
+            { new: true });
+        return data;
+    }
+
     async update(_id: string, TransactionsCoa_: TransactionsCoa) {
         let data = await this.transactionsCoaModel.findByIdAndUpdate(
             _id,

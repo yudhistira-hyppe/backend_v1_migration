@@ -84,10 +84,11 @@ export class TransactionsV2Service {
         const currentDate = await this.utilsService.getDateTimeString();
 
         //Get Data Transaction
-        const getDataTransaction = await this.transactionsModel.findOne({ idTransaction: idTrans, type: "USER" }).exec();
+        const getDataTransactionUser = await this.transactionsModel.findOne({ idTransaction: idTrans, type: "USER" }).exec();
+        const getDataTransactionHyppe = await this.transactionsModel.findOne({ idTransaction: idTrans, type: "HYPPE" }).exec();
 
         //Get Data Category Transaction
-        const getDataCategoryTransaction = await this.transactionsCategorysService.findOne(getDataTransaction.category.toString());
+        const getDataCategoryTransaction = await this.transactionsCategorysService.findOne(getDataTransactionUser.category.toString());
 
         let idUser = null;
         let debet = 0; 
@@ -110,11 +111,11 @@ export class TransactionsV2Service {
                                                     if (categoryTransactionType.transaction[tr].category == "BUY") {
                                                         if (categoryTransactionType.transaction[tr].status == "credit") {
                                                             debet = 0;
-                                                            kredit = getDataTransaction.coin;
+                                                            kredit = getDataTransactionUser.coin;
                                                         }
                                                         if (categoryTransactionType.transaction[tr].status == "debit") {
                                                             debet = 0;
-                                                            kredit = getDataTransaction.coin;
+                                                            kredit = getDataTransactionUser.coin;
                                                         }
                                                     }
                                                     if (categoryTransactionType.transaction[tr].category == "WD") {
@@ -131,11 +132,11 @@ export class TransactionsV2Service {
                                                         let cost_bank_verivication = Number(GET_ID_SETTING_COST_BANK_VERIFICATION);
                                                         cost_verification = Math.round(cost_bank_verivication / Number(currencyCoin));
                                                         if (categoryTransactionType.transaction[tr].status == "credit") {
-                                                            debet = getDataTransaction.coin + cost_verification;
+                                                            debet = getDataTransactionUser.coin + cost_verification;
                                                             kredit = 0;
                                                         }
                                                         if (categoryTransactionType.transaction[tr].status == "debit") {
-                                                            debet = getDataTransaction.coin - cost_verification;
+                                                            debet = getDataTransactionUser.coin - cost_verification;
                                                             kredit = 0;
                                                         }
                                                     }
@@ -155,7 +156,7 @@ export class TransactionsV2Service {
         if (status == "SUCCESS") {
             if (!STATUS_WD) {
                 //Get Saldo
-                let balancedUser = await this.transactionsBalancedsService.findsaldo(getDataTransaction.idUser.toString());
+                let balancedUser = await this.transactionsBalancedsService.findsaldo(getDataTransactionUser.idUser.toString());
                 if (await this.utilsService.ceckData(balancedUser)) {
                     if (balancedUser.length > 0) {
                         saldo = balancedUser[0].totalSaldo;
@@ -164,27 +165,37 @@ export class TransactionsV2Service {
                 //Insert Balanceds
                 let Balanceds_ = new TransactionsBalanceds();
                 Balanceds_._id = new mongoose.Types.ObjectId();
-                Balanceds_.idTransaction = getDataTransaction._id;
-                Balanceds_.idUser = getDataTransaction.idUser;
+                Balanceds_.idTransaction = getDataTransactionUser._id;
+                Balanceds_.idUser = getDataTransactionUser.idUser;
                 Balanceds_.debit = debet;
                 Balanceds_.credit = kredit;
                 Balanceds_.saldo = saldo - kredit + debet;
-                Balanceds_.noInvoice = getDataTransaction.noInvoice;
+                Balanceds_.noInvoice = getDataTransactionUser.noInvoice;
                 Balanceds_.createdAt = currentDate;
                 Balanceds_.updatedAt = currentDate;
-                Balanceds_.userType = getDataTransaction.type;
+                Balanceds_.userType = getDataTransactionUser.type;
                 Balanceds_.coa = [];
-                Balanceds_.remark = "Insert Balanced " + getDataTransaction.type;
+                Balanceds_.remark = "Insert Balanced " + getDataTransactionUser.type;
                 await this.transactionsBalancedsService.create(Balanceds_);
 
                 //Update Coa Table
-                
-                let TransactionsCoa_ = new TransactionsCoa();
+                let TransactionsCoa_Filter= new TransactionsCoa();
+                TransactionsCoa_Filter.idTransaction = idTrans;
+                let TransactionsCoa_Update = new TransactionsCoa();
+                TransactionsCoa_Update.status = status;
+                await this.transactionsCoaService.updateData(TransactionsCoa_Filter, TransactionsCoa_Update);
+
+                //Update Coa Table
+                let TransactionsCoaTable_Filter = new TransactionsCoaTable();
+                TransactionsCoaTable_Filter.idTransaction = idTrans;
+                let TransactionsCoaTable_Update = new TransactionsCoaTable();
+                TransactionsCoaTable_Update.status = status;
+                await this.transactionsCoaTableService.updateData(TransactionsCoaTable_Filter, TransactionsCoaTable_Update);
             }
         } else{
             if (STATUS_WD) {
                 //Get Transaction Category
-                const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(getDataTransaction.product.toString(), "REFUND");
+                const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(getDataTransactionUser.product.toString(), "REFUND");
                 
                 //Get User Hyppe
                 const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
@@ -226,32 +237,32 @@ export class TransactionsV2Service {
                 }
                 
                 //Get Saldo
-                let balancedUser = await this.transactionsBalancedsService.findsaldo(getDataTransaction.idUser.toString());
-                if (await this.utilsService.ceckData(balancedUser)) {
-                    if (balancedUser.length > 0) {
-                        saldo = balancedUser[0].totalSaldo;
-                    }
-                }
+                // let balancedUser = await this.transactionsBalancedsService.findsaldo(getDataTransaction.idUser.toString());
+                // if (await this.utilsService.ceckData(balancedUser)) {
+                //     if (balancedUser.length > 0) {
+                //         saldo = balancedUser[0].totalSaldo;
+                //     }
+                // }
 
-                //Insert Balanceds
-                let Balanceds_ = new TransactionsBalanceds();
-                Balanceds_._id = new mongoose.Types.ObjectId();
-                Balanceds_.idTransaction = getDataTransaction._id;
-                Balanceds_.idUser = getDataTransaction.idUser;
-                Balanceds_.debit = debet;
-                Balanceds_.credit = kredit;
-                Balanceds_.saldo = saldo - kredit + debet;
-                Balanceds_.noInvoice = getDataTransaction.noInvoice;
-                Balanceds_.createdAt = currentDate;
-                Balanceds_.updatedAt = currentDate;
-                Balanceds_.userType = getDataTransaction.type;
-                Balanceds_.coa = [];
-                Balanceds_.remark = "Insert Balanced " + getDataTransaction.type;
-                await this.transactionsBalancedsService.create(Balanceds_);
+                // //Insert Balanceds
+                // let Balanceds_ = new TransactionsBalanceds();
+                // Balanceds_._id = new mongoose.Types.ObjectId();
+                // Balanceds_.idTransaction = getDataTransaction._id;
+                // Balanceds_.idUser = getDataTransaction.idUser;
+                // Balanceds_.debit = debet;
+                // Balanceds_.credit = kredit;
+                // Balanceds_.saldo = saldo - kredit + debet;
+                // Balanceds_.noInvoice = getDataTransaction.noInvoice;
+                // Balanceds_.createdAt = currentDate;
+                // Balanceds_.updatedAt = currentDate;
+                // Balanceds_.userType = getDataTransaction.type;
+                // Balanceds_.coa = [];
+                // Balanceds_.remark = "Insert Balanced " + getDataTransaction.type;
+                // await this.transactionsBalancedsService.create(Balanceds_);
             }
         }
 
-        let dataDetail = getDataTransaction.detail;
+        let dataDetail = getDataTransactionUser.detail;
         if (data != null) {
             dataDetail.push(data)
         }
