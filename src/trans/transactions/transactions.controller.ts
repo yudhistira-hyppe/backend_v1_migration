@@ -20906,7 +20906,7 @@ export class TransactionsController {
 
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
-
+                this.utilsService.sendFcmV2(email, setemail, "WITHDRAW_COIN", "WITHDRAW_COIN", "WITHDRAW_COIN", null, null, null, null, totalamount.toString(), namarek, valuedisbcharge.toString());
                 return res.status(HttpStatus.OK).json({
                     response_code: 202,
                     "data": usertrxdata,
@@ -20946,6 +20946,8 @@ export class TransactionsController {
         };
         const idbankverificationcharge = "62bd4104f37a00001a004367";
         const idBankDisbursmentCharge = "62bd4126f37a00001a004368";
+        let datasettingdisbvercharge = await this.settingsService.findOne(idBankDisbursmentCharge);
+        let valuedisbcharge = Number(datasettingdisbvercharge.value);
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         var user_data = await this.basic2SS.findBymail(setemail);
@@ -20972,18 +20974,16 @@ export class TransactionsController {
         if (approve) {
             let datasettingbankvercharge = await this.settingsService.findOne(idbankverificationcharge);
             let valuebankcharge = Number(datasettingbankvercharge.value);
-            let datasettingdisbvercharge = await this.settingsService.findOne(idBankDisbursmentCharge);
-            let valuedisbcharge = Number(datasettingdisbvercharge.value);
             let updateTrans = null;
             let dataTrans = await this.TransactionsV2Service.findOneByIdTransAndType(request_json.idTransaction, "USER");
             let detailTrans = dataTrans.detail[0];
-            console.log("detailTrans:", detailTrans);
+            // console.log("detailTrans:", detailTrans);
             let withdrawId = detailTrans.withdrawId;
-            console.log("withdrawId:", withdrawId.toString());
+            // console.log("withdrawId:", withdrawId.toString());
             let withdrawData = await this.withdrawsService.findOne(withdrawId.toString());
-            console.log("withdrawData:", withdrawData);
+            // console.log("withdrawData:", withdrawData);
             let userBankAccData = await this.userbankaccountsService.findOne(withdrawData.idAccountBank.toString());
-            console.log("userBankAccData:", userBankAccData);
+            // console.log("userBankAccData:", userBankAccData);
             let bankData = await this.banksService.findOne(userBankAccData.idBank.toString());
             let userBasicData = await this.basic2SS.findOne(userBankAccData.userId.toString());
             let disbursementData = new OyDisbursements();
@@ -21054,6 +21054,7 @@ export class TransactionsController {
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "SUCCESS_WITHDRAW_COIN", "SUCCESS_WITHDRAW_COIN", "SUCCESS_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
                     return {
                         response_code: 202,
                         data: data,
@@ -21165,6 +21166,7 @@ export class TransactionsController {
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
                     return {
                         response_code: 202,
                         data: data,
@@ -21173,14 +21175,18 @@ export class TransactionsController {
                 }
 
             } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
                 throw new BadRequestException(`Disbursement request rejected: ${datadisbursemen.status.message}`);
             }
         } else {
-            let updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "REJECTED" });
+            let updateTrans = null;
             let dataTrans = await this.TransactionsV2Service.findOneByIdTransAndType(request_json.idTransaction, "USER");
             let detailTrans = dataTrans.detail[0];
             let withdrawId = detailTrans.withdrawId;
             let withdrawData = await this.withdrawsService.findOne(withdrawId.toString());
+            let userBankAccData = await this.userbankaccountsService.findOne(withdrawData.idAccountBank.toString());
+            let userBasicData = await this.basic2SS.findOne(userBankAccData.userId.toString());
             let dtnow = new Date(Date.now());
             dtnow.setHours(dtnow.getHours() + 7); // timestamp
             dtnow = new Date(dtnow);
@@ -21207,6 +21213,7 @@ export class TransactionsController {
             }
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
             return {
                 response_code: 202,
                 data: data,
