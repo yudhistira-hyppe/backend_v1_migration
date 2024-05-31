@@ -11753,9 +11753,11 @@ export class ContenteventsController {
 
     if (eventType == "FOLLOWING") {
       if (email_receiverParty != email_user) {
-        var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
-        var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
-        if (!(await this.utilsService.ceckData(ceck_data_FOLLOWER)) && !(await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
+        // var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
+        // var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
+        // if (!(await this.utilsService.ceckData(ceck_data_FOLLOWER)) && !(await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
+
+        try{
           var _id_1 = (await this.utilsService.generateId());
           var _id_2 = (await this.utilsService.generateId());
           var CreateContenteventsDto1 = new CreateContenteventsDto();
@@ -11903,9 +11905,10 @@ export class ContenteventsController {
               error,
             );
           }
-        }
-        else {
-          if (!ceck_data_FOLLOWER.active && !ceck_data_FOLLOWING.active) {
+        }catch(e){
+        // }
+        // else {
+          //if (!ceck_data_FOLLOWER.active && !ceck_data_FOLLOWING.active) {
             await this.contenteventsService.updateFollowing(email_user, "FOLLOWING", email_receiverParty);
             await this.contenteventsService.updateFollower(email_receiverParty, "FOLLOWER", email_user);
             await this.insightsService.updateFollowerByID(insightID2);
@@ -11926,10 +11929,10 @@ export class ContenteventsController {
               //this.userChallengeFollow(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW");
               this.scorefollowrequest(iduser.toString(), idevent1.toString(), "contentevents", "FOLLOW", listchallenge)
             }
-
-
           }
-        }
+
+         // }
+        //}
 
         await this.checkFriendbasedString2(userbasic1, userbasic2, "create");
       }
@@ -11940,10 +11943,11 @@ export class ContenteventsController {
         var idevent1 = null;
         var idevent2 = null;
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW Email Not Same >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
-        var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
-        var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
-        if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW ceck_data_DONE && ceck_data_ACCEPT = TRUE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
+        // var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
+        // var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
+        // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+        //   console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW ceck_data_DONE && ceck_data_ACCEPT = TRUE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
+         try{
           var _id_1 = (await this.utilsService.generateId());
           var _id_2 = (await this.utilsService.generateId());
           var CreateContenteventsDto1 = new CreateContenteventsDto();
@@ -12037,6 +12041,9 @@ export class ContenteventsController {
               error,
             );
           }
+       // }
+        }catch(e){
+
         }
 
 
@@ -12049,9 +12056,10 @@ export class ContenteventsController {
         }
 
         if (datacek !== null) {
-          let ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEWCHALLENGE", "DONE", email_receiverParty, "", request.body.postID);
-          let ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEWCHALLENGE", "ACCEPT", "", email_user, request.body.postID);
-          if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+          // let ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEWCHALLENGE", "DONE", email_receiverParty, "", request.body.postID);
+          // let ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEWCHALLENGE", "ACCEPT", "", email_user, request.body.postID);
+          // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+            try{
             var _id_1 = (await this.utilsService.generateId());
             var _id_2 = (await this.utilsService.generateId());
             var CreateContenteventsDto1 = new CreateContenteventsDto();
@@ -12122,8 +12130,11 @@ export class ContenteventsController {
                 error,
               );
             }
+          }catch(e){
 
           }
+
+          //}
         }
 
 
@@ -12136,9 +12147,11 @@ export class ContenteventsController {
       }
     }
     else if (eventType == "LIKE") {
-      var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "LIKE", "DONE", email_receiverParty, "", request.body.postID);
-      var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "LIKE", "ACCEPT", "", email_user, request.body.postID);
-      if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+      // var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "LIKE", "DONE", email_receiverParty, "", request.body.postID);
+      // var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "LIKE", "ACCEPT", "", email_user, request.body.postID);
+      // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+
+      try{
         var _id_1 = (await this.utilsService.generateId());
         var _id_2 = (await this.utilsService.generateId());
         var CreateContenteventsDto1 = new CreateContenteventsDto();
@@ -12223,18 +12236,7 @@ export class ContenteventsController {
           if (!isguest) {
             this.sendInteractiveFCM2(email_receiverParty, "LIKE", request.body.postID, email_user);
           }
-          // const databasic = await this.userbasicsService.findOne(
-          //   email_receiverParty
-          // );
-          // var iduser = null;
-          // if (databasic !== null) {
-          //   iduser = databasic._id;
-          //   this.userChallengeLike(iduser.toString(), idevent1.toString(), "contentevents", "LIKE", request.body.postID);
-          // }
-          //this.userChallengeLike2(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
-          //this.userChallengeLike3(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
+         
 
           this.scorelikerequest(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
 
@@ -12252,8 +12254,10 @@ export class ContenteventsController {
             error,
           );
         }
-      } else {
-        if (ceck_data_DONE.active && ceck_data_DONE.active) {
+      }catch(e){
+      //} 
+      //else {
+       // if (ceck_data_DONE.active && ceck_data_DONE.active) {
           try {
             await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, false);
             await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, false);
@@ -12266,18 +12270,6 @@ export class ContenteventsController {
 
             let idevent1 = ceck_data_DONE._id;
             let event1 = ceck_data_DONE.eventType.toString();
-            //  await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, "UNLIKE", userbasic1._id);
-            // const databasic = await this.userbasicsService.findOne(
-            //   email_receiverParty
-            // );
-            // var iduser = null;
-            // if (databasic !== null) {
-            //   iduser = databasic._id;
-            //   this.userChallengeUnLike(iduser.toString(), idevent1.toString(), "contentevents", "UNLIKE", request.body.postID);
-            // }
-            // this.userChallengeUnLike2(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty);
-
-            // this.userChallengeUnLike3(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty);
 
             this.scoreunlikerequest(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
           } catch (error) {
@@ -12291,47 +12283,42 @@ export class ContenteventsController {
               error,
             );
           }
-        } else {
-          try {
-            await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, true);
-            await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, true);
-            await this.insightsService.updateLikeByID(insightID2);
-            await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
+        // }
+        // else {
+        //   try {
+        //     await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, true);
+        //     await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, true);
+        //     await this.insightsService.updateLikeByID(insightID2);
+        //     await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
 
-            if (checkexisttemppost == true) {
-              await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
-            }
+        //     if (checkexisttemppost == true) {
+        //       await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
+        //     }
 
-            let idevent1 = ceck_data_DONE._id;
-            let event1 = ceck_data_DONE.eventType.toString();
-            // await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, event1, userbasic1._id);
-            // this.userChallengeLike2(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
+        //     let idevent1 = ceck_data_DONE._id;
+        //     let event1 = ceck_data_DONE.eventType.toString();
 
-            // this.userChallengeLike3(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
-            // this.scorelikerequest(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
-            this.scorelikerequest(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
+        //     this.scorelikerequest(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
 
 
-          } catch (error) {
-            var fullurl = request.get("Host") + request.originalUrl;
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            var reqbody = JSON.parse(JSON.stringify(request.body));
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+        //   } catch (error) {
+        //     var fullurl = request.get("Host") + request.originalUrl;
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     var reqbody = JSON.parse(JSON.stringify(request.body));
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
 
-            await this.errorHandler.generateNotAcceptableException(
-              'Unabled to proceed, ' +
-              error,
-            );
-          }
-        }
+        //     await this.errorHandler.generateNotAcceptableException(
+        //       'Unabled to proceed, ' +
+        //       error,
+        //     );
+        //   }
+        // }
       }
     }
     else if (eventType == "UNLIKE") {
-      var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "LIKE", "DONE", email_receiverParty, "", request.body.postID);
-      var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "LIKE", "ACCEPT", "", email_user, request.body.postID);
-      if ((await this.utilsService.ceckData(ceck_data_DONE)) && (await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+       var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "LIKE", "DONE", email_receiverParty, "", request.body.postID);
+      // var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "LIKE", "ACCEPT", "", email_user, request.body.postID);
+      // if ((await this.utilsService.ceckData(ceck_data_DONE)) && (await this.utilsService.ceckData(ceck_data_ACCEPT))) {
         try {
           await this.insightsService.updateUnlikeByID(insightID2);
           await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, false);
@@ -12343,19 +12330,7 @@ export class ContenteventsController {
           }
 
           let idevent1 = ceck_data_DONE._id;
-          // await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, "UNLIKE", userbasic1._id);
-
-          // const databasic = await this.userbasicsService.findOne(
-          //   email_receiverParty
-          // );
-          // var iduser = null;
-          // if (databasic !== null) {
-          //   iduser = databasic._id;
-          //   this.userChallengeUnLike(iduser.toString(), idevent1.toString(), "contentevents", "UNLIKE", request.body.postID);
-          // }
-          //this.userChallengeUnLike2(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty);
-
-          //this.userChallengeUnLike3(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty);
+        
 
           this.scoreunlikerequest(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
         } catch (error) {
@@ -12369,94 +12344,71 @@ export class ContenteventsController {
             error,
           );
         }
-      } else {
+      // } 
+      // else {
 
-        if (ceck_data_DONE.active != undefined && !ceck_data_ACCEPT.active != undefined) {
-          if (ceck_data_DONE.active && ceck_data_ACCEPT.active) {
-            try {
-              await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, false);
-              await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, false);
-              await this.insightsService.updateUnlikeByID(insightID2);
-              await this.postDisqusSS.updateUnLike(email_receiverParty, email_user, request.body.postID);
+       // if (ceck_data_DONE.active != undefined && !ceck_data_ACCEPT.active != undefined) {
+          // if (ceck_data_DONE.active && ceck_data_ACCEPT.active) {
+          //   try {
+          //     await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, false);
+          //     await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, false);
+          //     await this.insightsService.updateUnlikeByID(insightID2);
+          //     await this.postDisqusSS.updateUnLike(email_receiverParty, email_user, request.body.postID);
 
-              if (checkexisttemppost == true) {
-                await this.tempostSS.updateUnLike(email_receiverParty, email_user, request.body.postID);
-              }
+          //     if (checkexisttemppost == true) {
+          //       await this.tempostSS.updateUnLike(email_receiverParty, email_user, request.body.postID);
+          //     }
 
-              let idevent1 = ceck_data_DONE._id;
-              // await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, "UNLIKE", userbasic1._id);
-              // const databasic = await this.userbasicsService.findOne(
-              //   email_receiverParty
-              // );
-              // var iduser = null;
-              // if (databasic !== null) {
-              //   iduser = databasic._id;
-              //   this.userChallengeUnLike(iduser.toString(), idevent1.toString(), "contentevents", "UNLIKE", request.body.postID);
-              // }
+          //     let idevent1 = ceck_data_DONE._id;
+              
 
-              //this.userChallengeUnLike2(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty);
+          //     this.scoreunlikerequest(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
+          //   } catch (error) {
+          //     var fullurl = request.get("Host") + request.originalUrl;
+          //     var timestamps_end = await this.utilsService.getDateTimeString();
+          //     var reqbody = JSON.parse(JSON.stringify(request.body));
+          //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
 
-              // this.userChallengeUnLike3(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty);
+          //     await this.errorHandler.generateNotAcceptableException(
+          //       'Unabled to proceed, ' +
+          //       error,
+          //     );
+          //   }
+          // } else {
+          //   try {
+          //     await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, true);
+          //     await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, true);
+          //     await this.insightsService.updateLikeByID(insightID2);
+          //     await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
 
-              this.scoreunlikerequest(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
-            } catch (error) {
-              var fullurl = request.get("Host") + request.originalUrl;
-              var timestamps_end = await this.utilsService.getDateTimeString();
-              var reqbody = JSON.parse(JSON.stringify(request.body));
-              this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+          //     if (checkexisttemppost == true) {
+          //       await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
+          //     }
 
-              await this.errorHandler.generateNotAcceptableException(
-                'Unabled to proceed, ' +
-                error,
-              );
-            }
-          } else {
-            try {
-              await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, true);
-              await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, true);
-              await this.insightsService.updateLikeByID(insightID2);
-              await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
+          //     let idevent1 = ceck_data_DONE._id;
+             
 
-              if (checkexisttemppost == true) {
-                await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
-              }
+          //     this.scorelikerequest(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
+          //   } catch (error) {
+          //     var fullurl = request.get("Host") + request.originalUrl;
+          //     var timestamps_end = await this.utilsService.getDateTimeString();
+          //     var reqbody = JSON.parse(JSON.stringify(request.body));
+          //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
 
-              let idevent1 = ceck_data_DONE._id;
-              // await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, "LIKE", userbasic1._id);
-              // const databasic = await this.userbasicsService.findOne(
-              //   email_receiverParty
-              // );
-              // var iduser = null;
-              // if (databasic !== null) {
-              //   iduser = databasic._id;
-              //   this.userChallengeLike2( idevent1.toString(), "contentevents", "LIKE", request.body.postID);
-              // }
-
-              //this.userChallengeLike2(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
-              //this.userChallengeLike3(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
-              this.scorelikerequest(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
-            } catch (error) {
-              var fullurl = request.get("Host") + request.originalUrl;
-              var timestamps_end = await this.utilsService.getDateTimeString();
-              var reqbody = JSON.parse(JSON.stringify(request.body));
-              this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
-
-              await this.errorHandler.generateNotAcceptableException(
-                'Unabled to proceed, ' +
-                error,
-              );
-            }
-          }
-        }
-      }
+          //     await this.errorHandler.generateNotAcceptableException(
+          //       'Unabled to proceed, ' +
+          //       error,
+          //     );
+          //   }
+          // }
+       // }
+     // }
     }
     else if (eventType == "UNFOLLOW") {
       if (email_receiverParty != email_user) {
-        var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
-        var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
-        if ((await this.utilsService.ceckData(ceck_data_FOLLOWER)) && (await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
+        // var ceck_data_FOLLOWER = await this.contenteventsService.ceckData(email_receiverParty, "FOLLOWER", "ACCEPT", email_user, "", "");
+         var ceck_data_FOLLOWING = await this.contenteventsService.ceckData(email_user, "FOLLOWING", "ACCEPT", "", email_receiverParty, "");
+        // if ((await this.utilsService.ceckData(ceck_data_FOLLOWER)) && (await this.utilsService.ceckData(ceck_data_FOLLOWING))) {
           try {
             await this.contenteventsService.updateUnFollowing(email_user, "FOLLOWING", email_receiverParty);
             await this.contenteventsService.updateUnFollower(email_receiverParty, "FOLLOWER", email_user);
@@ -12500,13 +12452,14 @@ export class ContenteventsController {
               error,
             );
           }
-        }
+       // }
       }
     } 
     else if (eventType == "REACTION") {
       // var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "REACTION", "DONE", email_receiverParty, "", request.body.postID);
       // var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "REACTION", "ACCEPT", "", email_user, request.body.postID);
       // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+      
       var _id_1 = (await this.utilsService.generateId());
       var _id_2 = (await this.utilsService.generateId());
       var CreateContenteventsDto1 = new CreateContenteventsDto();
