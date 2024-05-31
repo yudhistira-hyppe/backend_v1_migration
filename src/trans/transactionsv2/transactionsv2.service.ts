@@ -94,7 +94,7 @@ export class TransactionsV2Service {
         let kredit = 0;
         let saldo = 0;
         let cost_verification = 0;
-        
+
         if (getDataCategoryTransaction.user != undefined) {
             if (getDataCategoryTransaction.user == "USER") {
                 if (getDataCategoryTransaction.type != undefined) {
@@ -176,6 +176,10 @@ export class TransactionsV2Service {
                 Balanceds_.coa = [];
                 Balanceds_.remark = "Insert Balanced " + getDataTransaction.type;
                 await this.transactionsBalancedsService.create(Balanceds_);
+
+                //Update Coa Table
+                
+                let TransactionsCoa_ = new TransactionsCoa();
             }
         } else{
             if (STATUS_WD) {
@@ -186,10 +190,13 @@ export class TransactionsV2Service {
                 const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
                 const GET_ID_USER_HYPPE = await this.utilsService.getSetting_Mixed(ID_USER_HYPPE);
                 const getDataUserHyppe = await this.userbasicnewService.findOne(GET_ID_USER_HYPPE.toString());
+
+                //Get User Hyppe
+                const ID_SETTING_COST_BANK_VERIFICATION_OY = this.configService.get("ID_SETTING_COST_BANK_VERIFICATION_OY");
+                const GET_ID_SETTING_COST_BANK_VERIFICATION_OY = await this.utilsService.getSetting_Mixed(ID_SETTING_COST_BANK_VERIFICATION_OY);
                 
                 for (let cat = 1; cat <= getCategoryTransaction.length; cat++) {
                     let categoryTransaction = getCategoryTransaction[cat - 1];
-
                     if (categoryTransaction.user == "HYPPE") {
                         idUser = getDataUserHyppe._id;
 

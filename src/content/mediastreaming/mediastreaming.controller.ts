@@ -762,6 +762,10 @@ export class MediastreamingController {
               comment: MediastreamingDto_.commentDisabled
             }
           }
+
+          if (MediastreamingDto_.commentDisabled) {
+            await this.mediastreamingService.updateManyCommentPinned(MediastreamingDto_._id.toString(), false, currentDate);
+          }
           _MediastreamingDto_.commentDisabled = MediastreamingDto_.commentDisabled;
           await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
           const STREAM_MODE = this.configService.get("STREAM_MODE");
