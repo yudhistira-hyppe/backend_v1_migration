@@ -20871,11 +20871,13 @@ export class TransactionsController {
                 datawithdraw.totalamount = totalamount;
                 datawithdraw.idAccountBank = idbankaccount;
                 datawithdraw.tracking = [{
-                    title: "Pengajuan Penukaran Coin",
+                    title_id: "Pengajuan Penukaran Coin",
+                    title_en: "Coin Withdrawal Request Submitted",
                     status: "PENDING",
                     action: "SUBMITTED",
                     timestamp: dtnow.toISOString(),
-                    description: "Penukaran Coins akan diproses dalam 3-5 hari kerja sejak disetujui oleh tim kami"
+                    description_id: "Penukaran Coins akan diproses dalam 3-5 hari kerja sejak disetujui oleh tim kami",
+                    description_en: "Coin withdrawal will be processed within 3-5 work days after our team's approval"
                 }]
 
                 let createdata = await this.withdrawsService.create(datawithdraw);
@@ -20906,7 +20908,7 @@ export class TransactionsController {
 
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
-
+                this.utilsService.sendFcmV2(email, setemail, "WITHDRAW_COIN", "WITHDRAW_COIN", "WITHDRAW_COIN", null, null, null, null, totalamount.toString(), namarek, valuedisbcharge.toString());
                 return res.status(HttpStatus.OK).json({
                     response_code: 202,
                     "data": usertrxdata,
@@ -20946,6 +20948,8 @@ export class TransactionsController {
         };
         const idbankverificationcharge = "62bd4104f37a00001a004367";
         const idBankDisbursmentCharge = "62bd4126f37a00001a004368";
+        let datasettingdisbvercharge = await this.settingsService.findOne(idBankDisbursmentCharge);
+        let valuedisbcharge = Number(datasettingdisbvercharge.value);
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         var user_data = await this.basic2SS.findBymail(setemail);
@@ -20972,18 +20976,16 @@ export class TransactionsController {
         if (approve) {
             let datasettingbankvercharge = await this.settingsService.findOne(idbankverificationcharge);
             let valuebankcharge = Number(datasettingbankvercharge.value);
-            let datasettingdisbvercharge = await this.settingsService.findOne(idBankDisbursmentCharge);
-            let valuedisbcharge = Number(datasettingdisbvercharge.value);
             let updateTrans = null;
             let dataTrans = await this.TransactionsV2Service.findOneByIdTransAndType(request_json.idTransaction, "USER");
             let detailTrans = dataTrans.detail[0];
-            console.log("detailTrans:", detailTrans);
+            // console.log("detailTrans:", detailTrans);
             let withdrawId = detailTrans.withdrawId;
-            console.log("withdrawId:", withdrawId.toString());
+            // console.log("withdrawId:", withdrawId.toString());
             let withdrawData = await this.withdrawsService.findOne(withdrawId.toString());
-            console.log("withdrawData:", withdrawData);
+            // console.log("withdrawData:", withdrawData);
             let userBankAccData = await this.userbankaccountsService.findOne(withdrawData.idAccountBank.toString());
-            console.log("userBankAccData:", userBankAccData);
+            // console.log("userBankAccData:", userBankAccData);
             let bankData = await this.banksService.findOne(userBankAccData.idBank.toString());
             let userBasicData = await this.basic2SS.findOne(userBankAccData.userId.toString());
             let disbursementData = new OyDisbursements();
@@ -21029,11 +21031,13 @@ export class TransactionsController {
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
                     let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Success", infodisbursemen, statuscode, {
-                        "title": "Penukaran Coins Berhasil",
+                        "title_id": "Penukaran Coins Berhasil",
+                        "title_en": "Coin Withdrawal Successful",
                         "status": "SUCCESS",
                         "action": "APPROVAL",
                         "timestamp": dtb,
-                        "description": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`
+                        "description_id": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`,
+                        "description_en": `Rp${disbursementData.amount} has been successfully transferred to the destination account`
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
                     updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", infodisbursemen);
@@ -21054,6 +21058,7 @@ export class TransactionsController {
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "SUCCESS_WITHDRAW_COIN", "SUCCESS_WITHDRAW_COIN", "SUCCESS_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
                     return {
                         response_code: 202,
                         data: data,
@@ -21140,11 +21145,13 @@ export class TransactionsController {
                     let dtb = dtburs.toISOString();
 
                     let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Failed", infodisbursemen, statuscode, {
-                        "title": "Penukaran Coins Gagal",
+                        "title_id": "Penukaran Coins Gagal",
+                        "title_en": "Coin Withdrawal Failed",
                         "status": "FAILED",
                         "action": "APPROVAL",
                         "timestamp": dtb,
-                        "description": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`
+                        "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`,
+                        "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.tx_status_description}`
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
                     updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", infodisbursemen);
@@ -21165,6 +21172,7 @@ export class TransactionsController {
                     };
                     var timestamps_end = await this.utilsService.getDateTimeString();
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
                     return {
                         response_code: 202,
                         data: data,
@@ -21173,23 +21181,29 @@ export class TransactionsController {
                 }
 
             } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
                 throw new BadRequestException(`Disbursement request rejected: ${datadisbursemen.status.message}`);
             }
         } else {
-            let updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "REJECTED" });
+            let updateTrans = null;
             let dataTrans = await this.TransactionsV2Service.findOneByIdTransAndType(request_json.idTransaction, "USER");
             let detailTrans = dataTrans.detail[0];
             let withdrawId = detailTrans.withdrawId;
             let withdrawData = await this.withdrawsService.findOne(withdrawId.toString());
+            let userBankAccData = await this.userbankaccountsService.findOne(withdrawData.idAccountBank.toString());
+            let userBasicData = await this.basic2SS.findOne(userBankAccData.userId.toString());
             let dtnow = new Date(Date.now());
             dtnow.setHours(dtnow.getHours() + 7); // timestamp
             dtnow = new Date(dtnow);
             let updateWithdraw = await this.withdrawsService.updaterejectedwithtracking(withdrawData.partnerTrxid, {
-                "title": "Penukaran Coins Ditolak",
+                "title_id": "Penukaran Coins Ditolak",
+                "title_en": "Coin Withdrawal Request Rejected",
                 "status": "REJECTED",
                 "action": "APPROVAL",
                 "timestamp": dtnow.toISOString(),
-                "description": `Penukaran coins ditolak dengan alasan ${request_json.remark}`
+                "description_id": `Penukaran coins ditolak dengan alasan ${request_json.remark}`,
+                "description_en": `Coin withdrawal request rejected with the following reason: ${request_json.remark}`
             });
             updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", {});
             let data = {
@@ -21207,6 +21221,7 @@ export class TransactionsController {
             }
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
             return {
                 response_code: 202,
                 data: data,
@@ -21226,6 +21241,7 @@ export class TransactionsController {
         const messages = {
             "info": ["The process was successful"],
         };
+        var success = false;
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         var user_data = await this.basic2SS.findBymail(setemail);
@@ -21247,9 +21263,66 @@ export class TransactionsController {
 
             throw new BadRequestException("Missing field: limit (number)");
         }
+        if (request_json.success) success = true;
 
         try {
-            var data = await this.transactionsService.getUserCoinOrderHistory(user_data._id, request_json.page * request_json.limit, request_json.limit, request_json.startdate, request_json.enddate);
+            var data = await this.transactionsService.getUserCoinOrderHistory(user_data._id, request_json.page * request_json.limit, request_json.limit, request_json.startdate, request_json.enddate, success);
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('api/transactions/cointransactionhistory')
+    @UseGuards(JwtAuthGuard)
+    async cointransactionhistory(@Req() request: Request, @Headers() headers): Promise<any> {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/cointransactionhistory';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var user_data = await this.basic2SS.findBymail(setemail);
+        if (!user_data) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("User data not found");
+        }
+        if (request_json.email == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: email (string)");
+        }
+        if (request_json.page == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: page (number)");
+        }
+        // if (request_json.limit == undefined) {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+        //     throw new BadRequestException("Missing field: limit (number)");
+        // }
+
+        try {
+            var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
             return {

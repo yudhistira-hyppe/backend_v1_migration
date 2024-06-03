@@ -979,10 +979,10 @@ export class UserbasicnewService {
                                     isPinExist:
                                     {
                                         "$ifNull":
-                                        [
-                                            "$pin",
-                                            false
-                                        ]
+                                            [
+                                                "$pin",
+                                                false
+                                            ]
                                     },
                                     insight:
                                     {
@@ -1441,18 +1441,18 @@ export class UserbasicnewService {
                             "if":
                             {
                                 "$eq":
-                                [
-                                    {
-                                        "$arrayElemAt":
-                                        [
-                                            "$detail.isPinExist", 0
-                                        ]
-                                    },
-                                    false
-                                ]
+                                    [
+                                        {
+                                            "$arrayElemAt":
+                                                [
+                                                    "$detail.isPinExist", 0
+                                                ]
+                                        },
+                                        false
+                                    ]
                             },
-                            "then":false,
-                            "else":true
+                            "then": false,
+                            "else": true
                         }
                     },
                     roles:
@@ -8199,7 +8199,7 @@ export class UserbasicnewService {
         return result;
     }
 
-    async getUserStreamWrning(): Promise<Userbasicnew[]>{
+    async getUserStreamWrning(): Promise<Userbasicnew[]> {
         let getDataUser = await this.UserbasicnewModel.aggregate([
             {
                 "$match": {
@@ -8222,5 +8222,659 @@ export class UserbasicnewService {
             "streamBanding.status": true
         });
         return getDataUser;
+    }
+
+    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string) {
+        let matchAnd = [];
+        matchAnd.push({
+            $expr: {
+                $eq: ['$idUser', '$$localID']
+            }
+        });
+        if (status && status.length > 0) matchAnd.push({
+            status: {
+                $in: status
+            }
+        });
+        if (type && type.length > 0) {
+            let category = [];
+            if (type.includes("Pembelian Coin")) category.push(new Types.ObjectId("660f9095c306d245ed2c207f"));
+            if (type.includes("Penukaran Coin")) category.push(new Types.ObjectId("6627309656375e3a6b223091"));
+            if (category.length > 0) matchAnd.push({
+                category: {
+                    $in: category
+                }
+            });
+        }
+        // else matchAnd.push({
+        //     category: {
+        //         $in: [new Types.ObjectId("660f9095c306d245ed2c207f"), new Types.ObjectId("6627309656375e3a6b223091")]
+        //     }
+        // });
+        if (startdate && startdate !== undefined) {
+            matchAnd.push({
+                "createdAt": {
+                    $gte: startdate + " 00:00:00"
+                }
+            })
+        }
+        if (enddate && enddate !== undefined) {
+            matchAnd.push({
+                "createdAt": {
+                    $lte: enddate + " 23:59:59"
+                }
+            })
+        }
+        let pipeline = []
+        pipeline.push(
+            {
+                $match:
+                {
+                    "email": email
+                }
+            },
+            {
+                $project: {
+                    "_id": 1,
+                    "userName": '$username',
+                    "fullName": 1,
+                    "email": 1
+                }
+            },
+            {
+                "$lookup": {
+                    from: "transactionsV2",
+                    as: "trans",
+                    let: {
+                        localID: "$_id"
+                    },
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $and: matchAnd
+                                // [
+                                //     {
+                                //         $expr: {
+                                //             $eq: ['$idUser', '$$localID']
+                                //         }
+                                //     },
+                                //     //{
+                                //     //    category: {
+                                //     //        $in: [ObjectId("660f9095c306d245ed2c207f"), ObjectId("6627309656375e3a6b223091")]
+                                //     //    }
+                                //     //},
+                                // ]
+                            }
+                        },
+                        {
+                            $set: {
+                                vaNumber: {
+                                    $arrayElemAt: ['$detail.payload.va_number', 0]
+                                }
+                            }
+                        },
+                        {
+                            $set: {
+                                type:
+                                {
+                                    $cond: {
+                                        if: {
+                                            $eq: ['$category', new Types.ObjectId("660f9095c306d245ed2c207f")]
+                                        },
+                                        then: "Pembelian Coin",
+                                        else: 'Penukaran Coin'
+                                    }
+                                },
+
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                from: "transactionsCategorys",
+                                as: "coa",
+                                let: {
+                                    localID: "$product",
+                                    cat: '$category'
+                                },
+                                pipeline: [
+                                    {
+                                        $match:
+                                        {
+                                            $and:
+                                                [
+                                                    {
+                                                        $expr: {
+                                                            $eq: ['$_id', '$$cat']
+                                                        }
+                                                    },
+
+                                                ]
+                                        }
+                                    },
+                                    {
+                                        $set: {
+                                            kecoa: {
+                                                $arrayElemAt: ['$type', {
+                                                    $indexOfArray: ['$type.idProduct', '$$localID']
+                                                }]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        $project: {
+                                            index: {
+                                                $indexOfArray: ['$type.idProduct', '$$localID']
+                                            },
+                                            coa: {
+                                                $arrayElemAt: ['$type.name', {
+                                                    $indexOfArray: ['$type.idProduct', '$$localID']
+                                                }]
+                                            },
+                                            coaDetailName: {
+                                                $arrayElemAt: ['$kecoa.transaction.name', 0]
+                                            },
+                                            coaDetailStatus: {
+                                                $arrayElemAt: ['$kecoa.transaction.status', 0]
+                                            },
+                                            kecoa: 1,
+                                        }
+                                    }
+                                ],
+
+                            },
+
+                        },
+                        {
+                            "$lookup": {
+                                from: "transactions",
+                                as: "transOld",
+                                let: {
+                                    localID: "$vaNumber"
+                                },
+                                pipeline: [
+                                    {
+                                        $match:
+                                        {
+                                            $and:
+                                                [
+                                                    {
+                                                        $expr: {
+                                                            $eq: ['$nova', '$$localID']
+                                                        }
+                                                    },
+
+                                                ]
+                                        }
+                                    },
+                                    {
+                                        "$lookup": {
+                                            from: "monetize",
+                                            as: "monetized",
+                                            let: {
+                                                localID: "$product_id"
+                                            },
+                                            pipeline: [
+                                                {
+                                                    $match:
+                                                    {
+                                                        $and:
+                                                            [
+                                                                {
+                                                                    $expr: {
+                                                                        $eq: ['$package_id', '$$localID']
+                                                                    }
+                                                                },
+
+                                                            ]
+                                                    }
+                                                },
+                                                {
+                                                    $project: {
+                                                        packageName: '$name'
+                                                    }
+                                                }
+                                            ],
+
+                                        },
+
+                                    },
+                                    {
+                                        $set: {
+                                            packageName: {
+                                                $arrayElemAt: ['$monetized.packageName', 0]
+                                            }
+                                        }
+                                    },
+
+                                ],
+
+                            },
+
+                        },
+                        {
+                            $lookup: {
+                                from: "withdraws",
+                                as: "withdrawData",
+                                let: {
+                                    localID: {
+                                        $arrayElemAt: ["$detail.withdrawId", 0]
+                                    }
+                                },
+                                pipeline: [
+                                    {
+                                        $match:
+                                        {
+                                            $and:
+                                                [
+                                                    {
+                                                        $expr: {
+                                                            $eq: ['$_id', '$$localID']
+                                                        }
+                                                    },
+                                                ]
+                                        }
+                                    },
+                                    {
+                                        $project: {
+                                            tracking: { $reverseArray: "$tracking" }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$transOld",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$coa",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$withdrawData",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                    ],
+
+                },
+
+            },
+            {
+                $unwind: {
+                    path: "$trans"
+                }
+            },
+            {
+                $sort: {
+                    createdAt: - 1
+                }
+            },
+            {
+                $project: {
+                    email: 1,
+                    idUser: 1,
+                    userName: 1,
+                    idTrans: "$trans.idTransaction",
+                    type: "$trans.type",
+                    noInvoice: "$trans.noInvoice",
+                    coin: "$trans.coin",
+                    coinDiscount: { $ifNull: ["$trans.coinDiscount", 0] },
+                    totalCoin: "$trans.totalCoin",
+                    createdAt: "$trans.createdAt",
+                    updatedAt: "$trans.updatedAt",
+                    status: "$trans.status",
+                    package: "$trans.transOld.packageName",
+                    coa: "$trans.coa.coa",
+                    coaDetailName: "$trans.coa.coaDetailName",
+                    coaDetailStatus: "$trans.coa.coaDetailStatus",
+                    detail: "$trans.detail",
+                    tracking: "$trans.withdrawData.tracking"
+                }
+            }
+        )
+        switch (activitytype) {
+            case "Coins Ditambahkan":
+                pipeline.push({
+                    $match: {
+                        coaDetailStatus: "debit"
+                    }
+                });
+                break;
+            case "Coin Digunakan":
+                pipeline.push({
+                    $match: {
+                        coa: { $ne: "WD" },
+                        coaDetailStatus: "credit"
+                    }
+                });
+                break;
+            case "Coins Ditukar":
+                pipeline.push({
+                    $match: {
+                        coa: "WD",
+                        coaDetailStatus: "credit"
+                    }
+                });
+                break;
+            case "Coins Dikembalikan":
+                pipeline.push({
+                    $match: {
+                        coa: "REFUND",
+                        coaDetailStatus: "debit"
+                    }
+                });
+                break;
+            default:
+                pipeline.push({
+                    $match: {
+                        coaDetailStatus: { $ne: null }
+                    }
+                });
+        }
+        pipeline.push(
+            {
+                $skip: skip
+            },
+            {
+                $limit: 5
+            }
+        )
+        let result = await this.UserbasicnewModel.aggregate(pipeline)
+        return result;
+    }
+
+    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number) {
+        var pipeline = [];
+
+        pipeline.push(
+            {
+                $match:
+                {
+                    "email": email
+                }
+            },
+            {
+                $project:
+                {
+                    "_id": 1,
+                    "userName": '$username',
+                    "fullName": 1,
+                    "email": 1,
+                }
+            }
+        );
+
+        var match = [];
+        match.push(
+            {
+                $expr:
+                {
+                    $eq: ['$idUser', '$$localID']
+                }
+            }
+        );
+
+        if (startdate != null && enddate != null) {
+            var dateend = null;
+            try {
+                var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
+
+                dateend = currentdate.toISOString();
+            } catch (e) {
+                dateend = "";
+            }
+            match.push(
+                {
+                    "$expr":
+                    {
+                        "$gte":
+                            [
+                                "$createdAt", startdate
+                            ]
+                    }
+                },
+                {
+                    "$expr":
+                    {
+                        "$lt":
+                            [
+                                "$createdAt", dateend
+                            ]
+                    }
+                },
+            );
+        }
+
+        if (tipetransaksi != null && tipetransaksi != undefined) {
+            var listtipe = [];
+            for (var i = 0; i < tipetransaksi.length; i++) {
+                listtipe.push(new mongoose.Types.ObjectId(tipetransaksi[i]));
+            }
+
+            match.push(
+                {
+                    "$expr":
+                    {
+                        "$in":
+                            [
+                                "$category", listtipe
+                            ]
+                    }
+                }
+            );
+        }
+        else {
+            match.push(
+                {
+                    "$expr":
+                    {
+                        "$in":
+                            [
+                                "$category",
+                                [
+                                    new mongoose.Types.ObjectId("660f9095c306d245ed2c207f"),
+                                    new mongoose.Types.ObjectId("6627309656375e3a6b223091")
+                                ]
+                            ]
+                    }
+                }
+            )
+        }
+
+        var lookup = [];
+        lookup.push(
+            {
+                "$match":
+                {
+                    "$and": match
+                }
+            },
+            {
+                $set: {
+                    vaNumber: {
+                        $arrayElemAt: ['$detail.payload.va_number', 0]
+                    }
+                }
+            },
+            {
+                $set: {
+                    type:
+                    {
+                        $cond: {
+                            if: {
+                                $eq: ['$category', new mongoose.Types.ObjectId("660f9095c306d245ed2c207f")]
+                            },
+                            then: "Pembelian Coin",
+                            else: 'Penukaran Coin'
+                        }
+                    },
+
+                }
+            },
+            {
+                "$lookup": {
+                    from: "transactions",
+                    as: "transOld",
+                    let: {
+                        localID: "$vaNumber"
+                    },
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $and:
+                                    [
+                                        {
+                                            $expr: {
+                                                $eq: ['$nova', '$$localID']
+                                            }
+                                        },
+
+                                    ]
+                            }
+                        },
+                        {
+                            "$lookup": {
+                                from: "monetize",
+                                as: "monetized",
+                                let: {
+                                    localID: "$product_id"
+                                },
+                                pipeline: [
+                                    {
+                                        $match:
+                                        {
+                                            $and:
+                                                [
+                                                    {
+                                                        $expr: {
+                                                            $eq: ['$package_id', '$$localID']
+                                                        }
+                                                    },
+
+                                                ]
+                                        }
+                                    },
+                                    {
+                                        $project: {
+                                            packageName: '$name'
+                                        }
+                                    }
+                                ],
+
+                            },
+
+                        },
+                        {
+                            $set: {
+                                packageName: {
+                                    $arrayElemAt: ['$monetized.packageName', 0]
+                                }
+                            }
+                        },
+                    ],
+
+                },
+
+            },
+            {
+                $unwind: {
+                    path: "$transOld",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+        );
+
+        if (namaproduk != null && namaproduk != undefined) {
+            lookup.push(
+                {
+                    "$match":
+                    {
+                        "packageName":
+                        {
+                            "$regex": namaproduk,
+                            "$options": "i"
+                        }
+                    }
+                }
+            );
+        }
+
+        pipeline.push(
+            {
+                "$lookup":
+                {
+                    from: "transactionsV2",
+                    as: "trans",
+                    let:
+                    {
+                        localID: "$_id"
+                    },
+                    pipeline: lookup
+                }
+            },
+            {
+                $unwind: {
+                    path: "$trans"
+                }
+            },
+            {
+                $sort: {
+                    createdAt: - 1
+                }
+            },
+        );
+
+        if (showtrueonly == true) {
+            pipeline.push(
+                {
+                    "$match":
+                    {
+                        "trans.status": 'SUCCESS'
+                    }
+                }
+            )
+        }
+
+        pipeline.push(
+            {
+                $skip: (skip * 5)
+            },
+            {
+                $limit: 5
+            },
+            {
+                $project:
+                {
+                    email: 1,
+                    idUser: 1,
+                    userName: 1,
+                    idTrans: "$trans.idTransaction",
+                    type: "$trans.type",
+                    noInvoice: "$trans.noInvoice",
+                    price: "$trans.price",
+                    totalPrice: "$trans.totalPrice",
+                    createdAt: "$trans.createdAt",
+                    updatedAt: "$trans.updatedAt",
+                    status: "$trans.status",
+                    package: "$trans.transOld.packageName",
+
+                }
+            }
+        );
+
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { depth:null, showHidden:false  }));
+
+        var data = await this.UserbasicnewModel.aggregate(pipeline);
+
+        return data;
     }
 }

@@ -448,8 +448,8 @@ export class UtilsService {
   //   }
   // }
 
-  async sendFcmV2(receiverParty: string, senderParty: string, eventType: string, event: string, typeTemplate: string, postID?: string, postType?: string, idtransaction?: string, customText?: any) {
-    try{
+  async sendFcmV2(receiverParty: string, senderParty: string, eventType: string, event: string, typeTemplate: string, postID?: string, postType?: string, idtransaction?: string, customText?: any, amount?: string, account_name?: string, trx_fee?: string) {
+    try {
 
       //GET DATE
       var currentDate = await this.getDateTimeString()
@@ -556,7 +556,7 @@ export class UtilsService {
       }
 
       //SET BODY SAVE
-      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (eventType == "NOTIFY_LIVE")) {
+      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (eventType == "NOTIFY_LIVE" || eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN")) {
         if (event == "BOOST_SUCCES" || event == "ADS VIEW" || event == "ADS CLICK") {
           if (idtransaction != null) {
             data_send['postID'] = idtransaction
@@ -566,6 +566,17 @@ export class UtilsService {
           if (postID != null && postID != undefined) {
             data_send['postID'] = postID
             data_send['postType'] = postType
+          }
+        }
+
+        if (eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN") {
+          body_save_id = body_save_id_get.toString().replace("${amount}", await this.numberFormatString(amount))
+          body_save_en = body_save_en_get.toString().replace("${amount}", await this.numberFormatString(amount))
+          body_save_id = body_save_id_get.toString().replace("${account_name}", account_name)
+          body_save_en = body_save_en_get.toString().replace("${account_name}", account_name)
+          if (eventType == "SUCCESS_WITHDRAW_COIN") {
+            body_save_id = body_save_id_get.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
+            body_save_en = body_save_en_get.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
           }
         }
 
@@ -754,12 +765,12 @@ export class UtilsService {
       } else {
         await this.notificationsService.create(createNotificationsDto);
       }
-    }catch(e){
+    } catch (e) {
 
     }
   }
 
-  async numberFormatString(nominal: string){
+  async numberFormatString(nominal: string) {
     return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, ".")
   }
 
@@ -1694,7 +1705,7 @@ export class UtilsService {
     return DateTime.substring(0, DateTime.lastIndexOf('.')).split(' ')[0];
   }
 
-  async getStringtoDate(date:string): Promise<Date> {
+  async getStringtoDate(date: string): Promise<Date> {
     var date_ = new Date(date);
     var DateTime = new Date(date_.getTime() - (date_.getTimezoneOffset() * 60000));
     return DateTime;

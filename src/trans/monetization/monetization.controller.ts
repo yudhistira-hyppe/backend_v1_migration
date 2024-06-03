@@ -478,6 +478,41 @@ export class MonetizationController {
     }
   }
 
+  @Post('dashboard')
+  @UseGuards(JwtAuthGuard)
+  async dashboard(@Req() request: Request, @Headers() headers) {
+    var data = null;
+    var timestamps_start = await this.utilService.getDateTimeString();
+    var url = headers.host + "/api/monetization/dashboard";
+    var token = headers['x-auth-token'];
+    var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    var email = auth.email;
+
+    var request_json = JSON.parse(JSON.stringify(request.body));
+    if(request_json.startdate == null || request_json.startdate == undefined || request_json.enddate == null || request_json.enddate == undefined)
+    {
+      await this.error.generateBadRequestException("startdate field or enddate field is required");
+    }
+
+    if(request_json.type == null || request_json.type == undefined)
+    {
+      await this.error.generateBadRequestException("type field is required");
+    }
+
+    if(request_json.type == "DISCOUNT")
+    {
+      data = await this.monetizationService.dashboard(request_json.startdate, request_json.enddate);
+    }
+
+    return {
+      response_code: 202,
+      data: data,
+      message: {
+        "info": ["The process was successful"],
+      }
+    }
+  }
+
   async sendNotifAudiens(data: any) {
 
     var templatedata = await this.repoSS.findOne("65e932f8c87900009e001bc2");
