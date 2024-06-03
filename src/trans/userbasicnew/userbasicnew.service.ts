@@ -8223,7 +8223,7 @@ export class UserbasicnewService {
         return getDataUser;
     }
 
-    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string) {
+    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string) {
         let matchAnd = [];
         matchAnd.push({
             $expr: {
@@ -8243,11 +8243,11 @@ export class UserbasicnewService {
                 $in: category
             }
         });
-        else matchAnd.push({
-            category: {
-                $in: [new Types.ObjectId("660f9095c306d245ed2c207f"), new Types.ObjectId("6627309656375e3a6b223091")]
-            }
-        });
+        // else matchAnd.push({
+        //     category: {
+        //         $in: [new Types.ObjectId("660f9095c306d245ed2c207f"), new Types.ObjectId("6627309656375e3a6b223091")]
+        //     }
+        // });
         if (startdate && startdate !== undefined) {
             matchAnd.push({
                 "createdAt": {
@@ -8345,25 +8345,36 @@ export class UserbasicnewService {
                                                                 $eq: ['$_id', '$$cat']
                                                             }
                                                         },
-                                                        //{
-                                                        //    $expr: {
-                                                        //        $eq: [{$arrayElemAt:['$type.idProduct',0]}, '$$localID']
-                                                        //    }
-                                                        //},
-                                                        //{
-                                                        //		type: {
-                                                        //				$elemMatch: {
-                                                        //						idProduct: '$localID'
-                                                        //				}
-                                                        //		}
-                                                        //}
+
                                                     ]
                                             }
                                         },
                                         {
+                                            $set: {
+                                                kecoa: {
+                                                    $arrayElemAt: ['$type', {
+                                                        $indexOfArray: ['$type.idProduct', '$$localID']
+                                                    }]
+                                                }
+                                            }
+                                        },
+                                        {
                                             $project: {
-                                                index: { $indexOfArray: ['$type.idProduct', '$$localID'] },
-                                                coa: { $arrayElemAt: ['$type.name', { $indexOfArray: ['$type.idProduct', '$$localID'] }] }
+                                                index: {
+                                                    $indexOfArray: ['$type.idProduct', '$$localID']
+                                                },
+                                                coa: {
+                                                    $arrayElemAt: ['$type.name', {
+                                                        $indexOfArray: ['$type.idProduct', '$$localID']
+                                                    }]
+                                                },
+                                                coaDetailName: {
+                                                    $arrayElemAt: ['$kecoa.transaction.name', 0]
+                                                },
+                                                coaDetailStatus: {
+                                                    $arrayElemAt: ['$kecoa.transaction.status', 0]
+                                                },
+                                                kecoa: 1,
                                             }
                                         }
                                     ],
@@ -8439,6 +8450,37 @@ export class UserbasicnewService {
 
                             },
                             {
+                                $lookup: {
+                                    from: "withdraws",
+                                    as: "withdrawData",
+                                    let: {
+                                        localID: {
+                                            $arrayElemAt: ["$detail.withdrawId", 0]
+                                        }
+                                    },
+                                    pipeline: [
+                                        {
+                                            $match:
+                                            {
+                                                $and:
+                                                    [
+                                                        {
+                                                            $expr: {
+                                                                $eq: ['$_id', '$$localID']
+                                                            }
+                                                        },
+                                                    ]
+                                            }
+                                        },
+                                        {
+                                            $project: {
+                                                tracking: { $reverseArray: "$tracking" }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
                                 $unwind: {
                                     path: "$transOld",
                                     preserveNullAndEmptyArrays: true
@@ -8450,7 +8492,12 @@ export class UserbasicnewService {
                                     preserveNullAndEmptyArrays: true
                                 }
                             },
-
+                            {
+                                $unwind: {
+                                    path: "$withdrawData",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
                         ],
 
                     },
@@ -8488,7 +8535,10 @@ export class UserbasicnewService {
                         status: "$trans.status",
                         package: "$trans.transOld.packageName",
                         coa: "$trans.coa.coa",
-                        detail: "$trans.detail"
+                        coaDetailName: "$trans.coa.coaDetailName",
+                        coaDetailStatus: "$trans.coa.coaDetailStatus",
+                        detail: "$trans.detail",
+                        tracking: "$trans.withdrawData.tracking"
                     }
                 }
             ]
@@ -8496,24 +8546,23 @@ export class UserbasicnewService {
         return result;
     }
 
-    async transaksiHistory2(email:string, namaproduk:string, startdate:string, enddate:string, tipetransaksi:any[], showtrueonly: boolean, skip:number)
-    {
+    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number) {
         var pipeline = [];
-        
+
         pipeline.push(
             {
-                $match: 
+                $match:
                 {
                     "email": email
                 }
             },
             {
-                $project: 
+                $project:
                 {
                     "_id": 1,
                     "userName": '$username',
                     "fullName": 1,
-                    "email": 1,      
+                    "email": 1,
                 }
             }
         );
@@ -8521,19 +8570,18 @@ export class UserbasicnewService {
         var match = [];
         match.push(
             {
-                $expr: 
+                $expr:
                 {
                     $eq: ['$idUser', '$$localID']
                 }
             }
         );
 
-        if(startdate != null && enddate != null)
-        {
+        if (startdate != null && enddate != null) {
             var dateend = null;
             try {
                 var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
-          
+
                 dateend = currentdate.toISOString();
             } catch (e) {
                 dateend = "";
@@ -8543,29 +8591,27 @@ export class UserbasicnewService {
                     "$expr":
                     {
                         "$gte":
-                        [
-                            "$createdAt", startdate
-                        ]
+                            [
+                                "$createdAt", startdate
+                            ]
                     }
                 },
                 {
                     "$expr":
                     {
                         "$lt":
-                        [
-                            "$createdAt", dateend
-                        ]
+                            [
+                                "$createdAt", dateend
+                            ]
                     }
                 },
-            );    
+            );
         }
 
-        if(tipetransaksi != null && tipetransaksi != undefined)
-        {
+        if (tipetransaksi != null && tipetransaksi != undefined) {
             var listtipe = [];
-            for(var i = 0; i < tipetransaksi.length; i++)
-            {
-                listtipe.push(new mongoose.Types.ObjectId(tipetransaksi[i]));    
+            for (var i = 0; i < tipetransaksi.length; i++) {
+                listtipe.push(new mongoose.Types.ObjectId(tipetransaksi[i]));
             }
 
             match.push(
@@ -8573,27 +8619,26 @@ export class UserbasicnewService {
                     "$expr":
                     {
                         "$in":
-                        [
-                            "$category", listtipe
-                        ]
+                            [
+                                "$category", listtipe
+                            ]
                     }
                 }
-            );    
+            );
         }
-        else
-        {
+        else {
             match.push(
                 {
                     "$expr":
                     {
                         "$in":
-                        [
-                            "$category", 
                             [
-                                new mongoose.Types.ObjectId("660f9095c306d245ed2c207f"), 
-                                new mongoose.Types.ObjectId("6627309656375e3a6b223091")
+                                "$category",
+                                [
+                                    new mongoose.Types.ObjectId("660f9095c306d245ed2c207f"),
+                                    new mongoose.Types.ObjectId("6627309656375e3a6b223091")
+                                ]
                             ]
-                        ]
                     }
                 }
             )
@@ -8604,7 +8649,7 @@ export class UserbasicnewService {
             {
                 "$match":
                 {
-                    "$and":match
+                    "$and": match
                 }
             },
             {
@@ -8616,17 +8661,17 @@ export class UserbasicnewService {
             },
             {
                 $set: {
-                    type: 
+                    type:
                     {
                         $cond: {
-                            if : {
+                            if: {
                                 $eq: ['$category', new mongoose.Types.ObjectId("660f9095c306d245ed2c207f")]
                             },
                             then: "Pembelian Coin",
-                            else : 'Penukaran Coin'
+                            else: 'Penukaran Coin'
                         }
                     },
-                    
+
                 }
             },
             {
@@ -8638,17 +8683,17 @@ export class UserbasicnewService {
                     },
                     pipeline: [
                         {
-                            $match: 
+                            $match:
                             {
-                                $and: 
-                                [
-                                    {
-                                        $expr: {
-                                            $eq: ['$nova', '$$localID']
-                                        }
-                                    },
-                                    
-                                ]
+                                $and:
+                                    [
+                                        {
+                                            $expr: {
+                                                $eq: ['$nova', '$$localID']
+                                            }
+                                        },
+
+                                    ]
                             }
                         },
                         {
@@ -8660,17 +8705,17 @@ export class UserbasicnewService {
                                 },
                                 pipeline: [
                                     {
-                                        $match: 
+                                        $match:
                                         {
-                                            $and: 
-                                            [
-                                                {
-                                                    $expr: {
-                                                        $eq: ['$package_id', '$$localID']
-                                                    }
-                                                },
-                                                
-                                            ]
+                                            $and:
+                                                [
+                                                    {
+                                                        $expr: {
+                                                            $eq: ['$package_id', '$$localID']
+                                                        }
+                                                    },
+
+                                                ]
                                         }
                                     },
                                     {
@@ -8679,9 +8724,9 @@ export class UserbasicnewService {
                                         }
                                     }
                                 ],
-                                
+
                             },
-                            
+
                         },
                         {
                             $set: {
@@ -8691,9 +8736,9 @@ export class UserbasicnewService {
                             }
                         },
                     ],
-                    
+
                 },
-                
+
             },
             {
                 $unwind: {
@@ -8703,16 +8748,15 @@ export class UserbasicnewService {
             },
         );
 
-        if(namaproduk != null && namaproduk != undefined)
-        {
+        if (namaproduk != null && namaproduk != undefined) {
             lookup.push(
                 {
                     "$match":
                     {
                         "packageName":
                         {
-                            "$regex":namaproduk,
-                            "$options":"i"
+                            "$regex": namaproduk,
+                            "$options": "i"
                         }
                     }
                 }
@@ -8721,15 +8765,15 @@ export class UserbasicnewService {
 
         pipeline.push(
             {
-                "$lookup": 
+                "$lookup":
                 {
                     from: "transactionsV2",
                     as: "trans",
-                    let: 
+                    let:
                     {
                         localID: "$_id"
                     },
-                    pipeline:lookup
+                    pipeline: lookup
                 }
             },
             {
@@ -8744,16 +8788,15 @@ export class UserbasicnewService {
             },
         );
 
-        if(showtrueonly == true)
-        {
+        if (showtrueonly == true) {
             pipeline.push(
                 {
                     "$match":
                     {
-                        "trans.status":'SUCCESS'
+                        "trans.status": 'SUCCESS'
                     }
                 }
-            )   
+            )
         }
 
         pipeline.push(
@@ -8766,19 +8809,19 @@ export class UserbasicnewService {
             {
                 $project:
                 {
-                    email:1,
-                    idUser:1,
-                    userName:1,
-                    idTrans:"$trans.idTransaction",
-                    type:"$trans.type",
-                    noInvoice:"$trans.noInvoice",
-                    price:"$trans.price",
-                    totalPrice:"$trans.totalPrice",
-                    createdAt:"$trans.createdAt",
-                    updatedAt:"$trans.updatedAt",
-                    status:"$trans.status",
-                    package:"$trans.transOld.packageName",
-                    
+                    email: 1,
+                    idUser: 1,
+                    userName: 1,
+                    idTrans: "$trans.idTransaction",
+                    type: "$trans.type",
+                    noInvoice: "$trans.noInvoice",
+                    price: "$trans.price",
+                    totalPrice: "$trans.totalPrice",
+                    createdAt: "$trans.createdAt",
+                    updatedAt: "$trans.updatedAt",
+                    status: "$trans.status",
+                    package: "$trans.transOld.packageName",
+
                 }
             }
         );
