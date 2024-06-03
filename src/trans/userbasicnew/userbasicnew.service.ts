@@ -7941,6 +7941,7 @@ export class UserbasicnewService {
             },
             {
                 $project: {
+                    _id: 1,
                     fullName: 1,
                     email: 1,
                     username: 1,

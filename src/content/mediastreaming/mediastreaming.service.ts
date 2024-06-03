@@ -1266,9 +1266,360 @@ export class MediastreamingService {
     return DataList;
   }
 
+  async findOneStreaming2(_id: string): Promise<Mediastreaming> {
+    let paramaggregate = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id)
+        }
+      },
+      {
+        $unwind:
+        {
+          path: "$comment",
+          includeArrayIndex: "updateAt_index"
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          as: "data_userbasics",
+          let: {
+            localID: "$comment.userId"
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$localID"]
+                },
+
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                avatar: {
+                  "mediaBasePath": "$mediaBasePath",
+                  "mediaUri": "$mediaUri",
+                  "mediaType": "$mediaType",
+                  "mediaEndpoint": "$mediaEndpoint",
+
+                }
+              }
+            },
+          ],
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "title": 1,
+          "url": 1,
+          "textUrl": 1,
+          "userId": 1,
+          "expireTime": 1,
+          "startLive": 1,
+          "endLive": 1,
+          "status": 1,
+          "view": 1,
+          "like": 1,
+          "comment": 1,
+          "share": 1,
+          "shareCount": 1,
+          "follower": 1,
+          "gift": 1,
+          "urlStream": 1,
+          "urlIngest": 1,
+          "feedBack": 1,
+          "createAt": 1,
+          "feedback": 1,
+          "pause": 1,
+          "pauseDate": 1,
+          "kick": 1,
+          "commentDisabled": 1,
+          "tokenAgora": 1,
+          "report": 1,
+          "dateBanned": 1,
+          "banned": 1,
+          "income": 1,
+          "userIdComment": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "email": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.email"
+            }
+          },
+          "fullName": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+          "username": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          "avatar": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.avatar"
+            }
+          },
+          "messages": "$comment.messages",
+          "idStream": "$_id",
+          "idComment": "$comment.idComment",
+
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          title: {
+            $first: '$title'
+          },
+          url: {
+            $first: '$url'
+          },
+          textUrl: {
+            $first: '$textUrl'
+          },
+          userId: {
+            $first: '$userId'
+          },
+          expireTime: {
+            $first: '$expireTime'
+          },
+          startLive: {
+            $first: '$startLive'
+          },
+          endLive: {
+            $first: '$endLive'
+          },
+          status: {
+            $first: '$status'
+          },
+          view: {
+            $first: '$view'
+          },
+          like: {
+            $first: '$like'
+          },
+          share: {
+            $first: '$share'
+          },
+          shareCount: {
+            $first: '$shareCount'
+          },
+          follower: {
+            $first: '$follower'
+          },
+          gift: {
+            $first: '$gift'
+          },
+          urlStream: {
+            $first: '$urlStream'
+          },
+          urlIngest: {
+            $first: '$urlIngest'
+          },
+          feedBack: {
+            $first: '$feedBack'
+          },
+          feedback: {
+            $first: '$feedback'
+          },
+          createAt: {
+            $first: '$createAt'
+          },
+          pause: {
+            $first: '$pause'
+          },
+          pauseDate: {
+            $first: '$pauseDate'
+          },
+          commentDisabled: {
+            $first: '$commentDisabled'
+          },
+          kick: {
+            $first: '$kick'
+          },
+          tokenAgora: {
+            $first: '$tokenAgora'
+          },
+          report: {
+            $first: '$report'
+          },
+          banned: {
+            $first: '$banned'
+          },
+          dateBanned: {
+            $first: '$dateBanned'
+          },
+          income: {
+            $first: '$income'
+          },
+          comment: {
+            $push: {
+              "userId": "$userIdComment",
+              "email": "$email",
+              "fullName": "$fullName",
+              "username": "$username",
+              "avatar": "$avatar",
+              "messages": "$messages",
+              "idComment": "$idComment",
+
+            }
+          }
+        }
+      }
+    ];
+    console.log(JSON.stringify(paramaggregate));
+    const data = await this.MediastreamingModel.aggregate(paramaggregate);
+    return data[0];
+    // const data = await this.MediastreamingModel.findOne({ _id: new mongoose.Types.ObjectId(_id) });
+    // return data;
+  }
+
   async findOneStreaming(_id: string): Promise<Mediastreaming> {
-    const data = await this.MediastreamingModel.findOne({ _id: new mongoose.Types.ObjectId(_id) });
-    return data;
+    let paramaggregate = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id)
+        }
+      },
+      {
+        $unwind:
+        {
+          path: "$comment",
+          includeArrayIndex: "updateAt_index"
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          as: "data_userbasics",
+          let: {
+            localID: "$comment.userId"
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$localID"]
+                },
+
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                avatar: {
+                  "mediaBasePath": "$mediaBasePath",
+                  "mediaUri": "$mediaUri",
+                  "mediaType": "$mediaType",
+                  "mediaEndpoint": "$mediaEndpoint",
+                }
+              }
+            },
+
+          ],
+        }
+      },
+      {
+        "$project": {
+          "_id": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "email": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.email"
+            }
+          },
+          "fullName": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+          "username": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          "avatar": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.avatar"
+            }
+          },
+          "messages": "$comment.messages",
+          "idStream": "$_id",
+          "idComment": "$comment.idComment",
+        }
+      },
+    ];
+    console.log(JSON.stringify(paramaggregate));
+    const data = await this.MediastreamingModel.aggregate(paramaggregate);
+    return data[0];
+    // const data = await this.MediastreamingModel.findOne({ _id: new mongoose.Types.ObjectId(_id) });
+    // return data;
   }
 
   async findOneStreamingView(_id: string): Promise<Mediastreaming[]> {

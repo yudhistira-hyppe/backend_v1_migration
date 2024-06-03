@@ -35,7 +35,7 @@ export class TransactionsCategorysService {
         return await this.transactionsCategorysModel.find({ "type": type, isDelete: false }).exec();
     }
 
-    async findByProduct(product: string, category: string): Promise<TransactionsCategorys[]> {
+    async findByProduct(product: string, category: string, type?: string): Promise<TransactionsCategorys[]> {
         let where_and = {
             $and: []
         };
@@ -43,6 +43,9 @@ export class TransactionsCategorysService {
         where_and.$and.push({ "type.idProduct": new mongoose.Types.ObjectId(product) });
         if (category != undefined) {
             where_and.$and.push({ "type.category": category });
+        }
+        if (type != undefined) {
+            where_and.$and.push({ "user": type });
         }
         return await this.transactionsCategorysModel.find(where_and).exec();
     }
