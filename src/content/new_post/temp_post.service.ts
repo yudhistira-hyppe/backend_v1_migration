@@ -1595,8 +1595,8 @@ export class TempPOSTService {
             }
         );
 
-        var util = require('util');
-        console.log(util.inspect(pipeline, { showHidden:false, depth:null }));
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { showHidden:false, depth:null }));
 
         var data = await this.loaddata.aggregate(pipeline);
         return data;
