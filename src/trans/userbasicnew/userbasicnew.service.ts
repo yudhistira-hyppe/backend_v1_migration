@@ -979,10 +979,10 @@ export class UserbasicnewService {
                                     isPinExist:
                                     {
                                         "$ifNull":
-                                        [
-                                            "$pin",
-                                            false
-                                        ]
+                                            [
+                                                "$pin",
+                                                false
+                                            ]
                                     },
                                     insight:
                                     {
@@ -1441,18 +1441,18 @@ export class UserbasicnewService {
                             "if":
                             {
                                 "$eq":
-                                [
-                                    {
-                                        "$arrayElemAt":
-                                        [
-                                            "$detail.isPinExist", 0
-                                        ]
-                                    },
-                                    false
-                                ]
+                                    [
+                                        {
+                                            "$arrayElemAt":
+                                                [
+                                                    "$detail.isPinExist", 0
+                                                ]
+                                        },
+                                        false
+                                    ]
                             },
-                            "then":false,
-                            "else":true
+                            "then": false,
+                            "else": true
                         }
                     },
                     roles:
@@ -8198,7 +8198,7 @@ export class UserbasicnewService {
         return result;
     }
 
-    async getUserStreamWrning(): Promise<Userbasicnew[]>{
+    async getUserStreamWrning(): Promise<Userbasicnew[]> {
         let getDataUser = await this.UserbasicnewModel.aggregate([
             {
                 "$match": {
@@ -8221,5 +8221,240 @@ export class UserbasicnewService {
             "streamBanding.status": true
         });
         return getDataUser;
+    }
+
+    async getUserCoinTransactionHistory(email: string, skip: number) {
+        let result = await this.UserbasicnewModel.aggregate(
+            [
+                {
+                    $match:
+                    {
+                        "email": email
+                    }
+                },
+                {
+                    $project: {
+                        "_id": 1,
+                        "userName": '$username',
+                        "fullName": 1,
+                        "email": 1,
+
+                    }
+                },
+                {
+                    "$lookup": {
+                        from: "transactionsV2",
+                        as: "trans",
+                        let: {
+                            localID: "$_id"
+                        },
+                        pipeline: [
+                            {
+                                $match:
+                                {
+                                    $and:
+                                        [
+                                            {
+                                                $expr: {
+                                                    $eq: ['$idUser', '$$localID']
+                                                }
+                                            },
+                                            //{
+                                            //    category: {
+                                            //        $in: [ObjectId("660f9095c306d245ed2c207f"), ObjectId("6627309656375e3a6b223091")]
+                                            //    }
+                                            //},
+                                        ]
+                                }
+                            },
+                            {
+                                $set: {
+                                    vaNumber: {
+                                        $arrayElemAt: ['$detail.payload.va_number', 0]
+                                    }
+                                }
+                            },
+                            {
+                                $set: {
+                                    type:
+                                    {
+                                        $cond: {
+                                            if: {
+                                                $eq: ['$category', new Types.ObjectId("660f9095c306d245ed2c207f")]
+                                            },
+                                            then: "Pembelian Coin",
+                                            else: 'Penukaran Coin'
+                                        }
+                                    },
+
+                                }
+                            },
+                            {
+                                "$lookup": {
+                                    from: "transactionsCategorys",
+                                    as: "coa",
+                                    let: {
+                                        localID: "$product",
+                                        cat: '$category'
+                                    },
+                                    pipeline: [
+                                        {
+                                            $match:
+                                            {
+                                                $and:
+                                                    [
+                                                        {
+                                                            $expr: {
+                                                                $eq: ['$_id', '$$cat']
+                                                            }
+                                                        },
+                                                        //{
+                                                        //    $expr: {
+                                                        //        $eq: [{$arrayElemAt:['$type.idProduct',0]}, '$$localID']
+                                                        //    }
+                                                        //},
+                                                        //{
+                                                        //		type: {
+                                                        //				$elemMatch: {
+                                                        //						idProduct: '$localID'
+                                                        //				}
+                                                        //		}
+                                                        //}
+                                                    ]
+                                            }
+                                        },
+                                        {
+                                            $project: {
+                                                index: { $indexOfArray: ['$type.idProduct', '$$localID'] },
+                                                coa: { $arrayElemAt: ['$type.name', { $indexOfArray: ['$type.idProduct', '$$localID'] }] }
+                                            }
+                                        }
+                                    ],
+
+                                },
+
+                            },
+                            {
+                                "$lookup": {
+                                    from: "transactions",
+                                    as: "transOld",
+                                    let: {
+                                        localID: "$vaNumber"
+                                    },
+                                    pipeline: [
+                                        {
+                                            $match:
+                                            {
+                                                $and:
+                                                    [
+                                                        {
+                                                            $expr: {
+                                                                $eq: ['$nova', '$$localID']
+                                                            }
+                                                        },
+
+                                                    ]
+                                            }
+                                        },
+                                        {
+                                            "$lookup": {
+                                                from: "monetize",
+                                                as: "monetized",
+                                                let: {
+                                                    localID: "$product_id"
+                                                },
+                                                pipeline: [
+                                                    {
+                                                        $match:
+                                                        {
+                                                            $and:
+                                                                [
+                                                                    {
+                                                                        $expr: {
+                                                                            $eq: ['$package_id', '$$localID']
+                                                                        }
+                                                                    },
+
+                                                                ]
+                                                        }
+                                                    },
+                                                    {
+                                                        $project: {
+                                                            packageName: '$name'
+                                                        }
+                                                    }
+                                                ],
+
+                                            },
+
+                                        },
+                                        {
+                                            $set: {
+                                                packageName: {
+                                                    $arrayElemAt: ['$monetized.packageName', 0]
+                                                }
+                                            }
+                                        },
+
+                                    ],
+
+                                },
+
+                            },
+                            {
+                                $unwind: {
+                                    path: "$transOld",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+                            {
+                                $unwind: {
+                                    path: "$coa",
+                                    preserveNullAndEmptyArrays: true
+                                }
+                            },
+
+                        ],
+
+                    },
+
+                },
+                {
+                    $unwind: {
+                        path: "$trans"
+                    }
+                },
+                {
+                    $sort: {
+                        createdAt: - 1
+                    }
+                },
+                {
+                    $skip: skip
+                },
+                {
+                    $limit: 5
+                },
+                {
+                    $project: {
+                        email: 1,
+                        idUser: 1,
+                        userName: 1,
+                        idTrans: "$trans.idTransaction",
+                        type: "$trans.type",
+                        noInvoice: "$trans.noInvoice",
+                        coin: "$trans.coin",
+                        coinDiscount: { $ifNull: ["$trans.coinDiscount", 0] },
+                        totalCoin: "$trans.totalCoin",
+                        createdAt: "$trans.createdAt",
+                        updatedAt: "$trans.updatedAt",
+                        status: "$trans.status",
+                        package: "$trans.transOld.packageName",
+                        coa: "$trans.coa.coa",
+                    }
+                }
+            ]
+        )
+        return result;
     }
 }
