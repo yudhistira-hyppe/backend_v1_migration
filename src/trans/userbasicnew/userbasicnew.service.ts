@@ -8496,7 +8496,7 @@ export class UserbasicnewService {
         return result;
     }
 
-    async transaksiHistory2(email:string, namaproduk:string, startdate:string, enddate:string, tipetransaksi:any[], skip:number)
+    async transaksiHistory2(email:string, namaproduk:string, startdate:string, enddate:string, tipetransaksi:any[], showtrueonly: boolean, skip:number)
     {
         var pipeline = [];
         
@@ -8742,6 +8742,21 @@ export class UserbasicnewService {
                     createdAt: - 1
                 }
             },
+        );
+
+        if(showtrueonly == true)
+        {
+            pipeline.push(
+                {
+                    "$match":
+                    {
+                        "trans.status":'SUCCESS'
+                    }
+                }
+            )   
+        }
+
+        pipeline.push(
             {
                 $skip: (skip * 5)
             },
