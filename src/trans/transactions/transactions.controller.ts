@@ -20871,11 +20871,13 @@ export class TransactionsController {
                 datawithdraw.totalamount = totalamount;
                 datawithdraw.idAccountBank = idbankaccount;
                 datawithdraw.tracking = [{
-                    title: "Pengajuan Penukaran Coin",
+                    title_id: "Pengajuan Penukaran Coin",
+                    title_en: "Coin Withdrawal Request Submitted",
                     status: "PENDING",
                     action: "SUBMITTED",
                     timestamp: dtnow.toISOString(),
-                    description: "Penukaran Coins akan diproses dalam 3-5 hari kerja sejak disetujui oleh tim kami"
+                    description_id: "Penukaran Coins akan diproses dalam 3-5 hari kerja sejak disetujui oleh tim kami",
+                    description_en: "Coin withdrawal will be processed within 3-5 work days after our team's approval"
                 }]
 
                 let createdata = await this.withdrawsService.create(datawithdraw);
@@ -21029,11 +21031,13 @@ export class TransactionsController {
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
                     let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Success", infodisbursemen, statuscode, {
-                        "title": "Penukaran Coins Berhasil",
+                        "title_id": "Penukaran Coins Berhasil",
+                        "title_en": "Coin Withdrawal Successful",
                         "status": "SUCCESS",
                         "action": "APPROVAL",
                         "timestamp": dtb,
-                        "description": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`
+                        "description_id": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`,
+                        "description_en": `Rp${disbursementData.amount} has been successfully transferred to the destination account`
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
                     updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", infodisbursemen);
@@ -21141,11 +21145,13 @@ export class TransactionsController {
                     let dtb = dtburs.toISOString();
 
                     let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Failed", infodisbursemen, statuscode, {
-                        "title": "Penukaran Coins Gagal",
+                        "title_id": "Penukaran Coins Gagal",
+                        "title_en": "Coin Withdrawal Failed",
                         "status": "FAILED",
                         "action": "APPROVAL",
                         "timestamp": dtb,
-                        "description": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`
+                        "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`,
+                        "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.tx_status_description}`
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
                     updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", infodisbursemen);
@@ -21191,11 +21197,13 @@ export class TransactionsController {
             dtnow.setHours(dtnow.getHours() + 7); // timestamp
             dtnow = new Date(dtnow);
             let updateWithdraw = await this.withdrawsService.updaterejectedwithtracking(withdrawData.partnerTrxid, {
-                "title": "Penukaran Coins Ditolak",
+                "title_id": "Penukaran Coins Ditolak",
+                "title_en": "Coin Withdrawal Request Rejected",
                 "status": "REJECTED",
                 "action": "APPROVAL",
                 "timestamp": dtnow.toISOString(),
-                "description": `Penukaran coins ditolak dengan alasan ${request_json.remark}`
+                "description_id": `Penukaran coins ditolak dengan alasan ${request_json.remark}`,
+                "description_en": `Coin withdrawal request rejected with the following reason: ${request_json.remark}`
             });
             updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", {});
             let data = {
