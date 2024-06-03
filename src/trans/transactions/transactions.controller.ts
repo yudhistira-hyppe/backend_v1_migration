@@ -21322,7 +21322,7 @@ export class TransactionsController {
         // }
 
         try {
-            var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5);
+            var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
             return {

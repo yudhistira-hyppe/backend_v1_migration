@@ -8223,7 +8223,45 @@ export class UserbasicnewService {
         return getDataUser;
     }
 
-    async getUserCoinTransactionHistory(email: string, skip: number) {
+    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string) {
+        let matchAnd = [];
+        matchAnd.push({
+            $expr: {
+                $eq: ['$idUser', '$$localID']
+            }
+        });
+        if (status && status.length > 0) matchAnd.push({
+            status: {
+                $in: status
+            }
+        });
+        let category = [];
+        if (type.includes("Pembelian Coin")) category.push(new Types.ObjectId("660f9095c306d245ed2c207f"));
+        if (type.includes("Penukaran Coin")) category.push(new Types.ObjectId("6627309656375e3a6b223091"));
+        if (category.length > 0) matchAnd.push({
+            category: {
+                $in: category
+            }
+        });
+        else matchAnd.push({
+            category: {
+                $in: [new Types.ObjectId("660f9095c306d245ed2c207f"), new Types.ObjectId("6627309656375e3a6b223091")]
+            }
+        });
+        if (startdate && startdate !== undefined) {
+            matchAnd.push({
+                "createdAt": {
+                    $gte: startdate + " 00:00:00"
+                }
+            })
+        }
+        if (enddate && enddate !== undefined) {
+            matchAnd.push({
+                "createdAt": {
+                    $lte: enddate + " 23:59:59"
+                }
+            })
+        }
         let result = await this.UserbasicnewModel.aggregate(
             [
                 {
@@ -8237,8 +8275,7 @@ export class UserbasicnewService {
                         "_id": 1,
                         "userName": '$username',
                         "fullName": 1,
-                        "email": 1,
-
+                        "email": 1
                     }
                 },
                 {
@@ -8252,19 +8289,19 @@ export class UserbasicnewService {
                             {
                                 $match:
                                 {
-                                    $and:
-                                        [
-                                            {
-                                                $expr: {
-                                                    $eq: ['$idUser', '$$localID']
-                                                }
-                                            },
-                                            //{
-                                            //    category: {
-                                            //        $in: [ObjectId("660f9095c306d245ed2c207f"), ObjectId("6627309656375e3a6b223091")]
-                                            //    }
-                                            //},
-                                        ]
+                                    $and: matchAnd
+                                    // [
+                                    //     {
+                                    //         $expr: {
+                                    //             $eq: ['$idUser', '$$localID']
+                                    //         }
+                                    //     },
+                                    //     //{
+                                    //     //    category: {
+                                    //     //        $in: [ObjectId("660f9095c306d245ed2c207f"), ObjectId("6627309656375e3a6b223091")]
+                                    //     //    }
+                                    //     //},
+                                    // ]
                                 }
                             },
                             {
@@ -8451,6 +8488,7 @@ export class UserbasicnewService {
                         status: "$trans.status",
                         package: "$trans.transOld.packageName",
                         coa: "$trans.coa.coa",
+                        detail: "$trans.detail"
                     }
                 }
             ]
