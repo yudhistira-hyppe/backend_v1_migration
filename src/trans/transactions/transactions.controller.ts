@@ -15641,332 +15641,332 @@ export class TransactionsController {
     //     return { response_code: 202, data, skip, limit, messages };
     // }
 
-    @Post('api/transactions/historys')
-    @UseGuards(JwtAuthGuard)
-    async searchhistorynew2(@Req() request: Request, @Headers() headers): Promise<any> {
-
-        var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactions/historys';
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var setemail = auth.email;
-
-        var startdate = null;
-        var enddate = null;
-        var iduser = null;
-        var email = null;
-        var type = null;
-
-        var skip = null;
-        var limit = null;
-
-        var query = [];
-        var status = null;
-        var sell = null;
-        var buy = null;
-        var withdrawal = null;
-        var boost = null;
-        var rewards = null;
-        var voucher = null;
-        var request_json = JSON.parse(JSON.stringify(request.body));
-        if (request_json["email"] !== undefined) {
-            email = request_json["email"];
-            var ubasic = await this.basic2SS.findBymail(email);
-
-            iduser = ubasic._id;
-
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-
-            throw new BadRequestException("Unabled to proceed");
-        }
-        status = request_json["status"];
-        startdate = request_json["startdate"];
-        enddate = request_json["enddate"];
-        type = request_json["type"];
-        sell = request_json["sell"];
-        buy = request_json["buy"];
-        withdrawal = request_json["withdrawal"];
-        boost = request_json["boost"];
-        rewards = request_json["rewards"];
-        voucher = request_json["voucher"];
-        if (request_json["skip"] !== undefined) {
-            skip = request_json["skip"];
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-
-            throw new BadRequestException("Unabled to proceed");
-        }
-        if (request_json["limit"] !== undefined) {
-            limit = request_json["limit"];
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-
-            throw new BadRequestException("Unabled to proceed");
-        }
-
-        const messages = {
-            "info": ["The process successful"],
-        };
-
-
-        const mongoose = require('mongoose');
-        var ObjectId = require('mongodb').ObjectId;
-        var idadmin = mongoose.Types.ObjectId(iduser);
-
-
-        try {
-            query = await this.basic2SS.transaksiHistoryv2(email, skip, limit, startdate, enddate, sell, buy, withdrawal, rewards, boost, voucher);
-        } catch (e) {
-            query = [];
-        }
-
-        var datanew = null;
-        var data = [];
-        let pict: String[] = [];
-        var objk = {};
-        var type = null;
-        var idapsara = null;
-        var apsara = null;
-        var idapsaradefine = null;
-        var apsaradefine = null;
-        var arrdata = [];
-        var iconvoucher = null;
-        console.log(query);
-        //push ke data
-        var listdata = [];
-        var tempresult = null;
-        var tempdata = null;
-        var jenis = null;
-        for (var i = 0; i < query.length; i++) {
-            tempdata = query[i];
-            if (tempdata.apsara == true) {
-                listdata.push(tempdata.apsaraId);
-            }
-            else {
-                listdata.push(undefined);
-            }
-        }
-
-        //console.log(listdata);
-        var apsaraimagedata = await this.postContentService.getImageApsara(listdata);
-        // console.log(resultdata.ImageInfo[0]);
-        tempresult = apsaraimagedata.ImageInfo;
-        for (var i = 0; i < query.length; i++) {
-
-            jenis = query[i].jenis;
-
-            try {
-                iconvoucher = query[i].iconVoucher;
-            } catch (e) {
-                iconvoucher = "";
-            }
-
-            for (var j = 0; j < tempresult.length; j++) {
-                if (tempresult[j].ImageId == query[i].apsaraId) {
-
-                    if (jenis == "VOUCHER") {
-                        query[i].description = "buy VOUCHER";
-                        query[i].media =
-                        {
-                            "ImageInfo": [{
-
-                                URL: iconvoucher
-                            }]
-                        }
-                    } else {
-                        query[i].media =
-                        {
-                            "ImageInfo": [tempresult[j]]
-                        }
-                    }
-
-                    query[i].mediaThumbEndpoint = tempresult[j].URL;
-                }
-                else if (query[i].apsara == false && (query[i].mediaType == "image" || query[i].mediaType == "images")) {
-                    query[i].media =
-                    {
-                        "ImageInfo": []
-                    }
-                }
-            }
-        }
-
-        var apsaravideodata = await this.postContentService.getVideoApsara(listdata);
-        // console.log(apsaravideodata);
-        // console.log(resultdata.ImageInfo[0]);
-        tempresult = apsaravideodata.VideoList;
-        for (var i = 0; i < query.length; i++) {
-
-            jenis = query[i].jenis;
-
-            try {
-                iconvoucher = query[i].iconVoucher;
-            } catch (e) {
-                iconvoucher = "";
-            }
-            for (var j = 0; j < tempresult.length; j++) {
-                if (tempresult[j].VideoId == query[i].apsaraId) {
-
-                    if (jenis == "VOUCHER") {
-                        query[i].description = "buy VOUCHER";
-                        query[i].media =
-                        {
-                            "ImageInfo": [{
-
-                                URL: iconvoucher
-                            }]
-                        }
-                    } else {
-                        query[i].media =
-                        {
-                            "VideoList": [tempresult[j]]
-                        }
-                    }
-
-                    query[i].mediaThumbEndpoint = tempresult[j].CoverURL;
-                }
-                else if (query[i].apsara == false && query[i].mediaType == "video") {
-                    query[i].media =
-                    {
-                        "VideoList": []
-                    }
-                }
-            }
-        }
-        for (var i = 0; i < query.length; i++) {
-            tempdata = query[i];
-            if (tempdata._id !== undefined) {
-                arrdata.push(tempdata);
-            }
-        }
-        data = arrdata;
-        var datatrpending = null;
-        var datatrpendingjual = null;
-
-        try {
-
-            datatrpending = await this.transactionsService.findExpirednew(iduser);
-
-
-        } catch (e) {
-            datatrpending = null;
-
-        }
-
-        if (datatrpending !== null && datatrpending.length > 0) {
-            var datenow = new Date(Date.now());
-            var callback = null;
-            var statuswaiting = null;
-            var lengdatatr = datatrpending.length;
-
-            for (var i = 0; i < lengdatatr; i++) {
-
-                var idva = datatrpending[i].idva;
-                var idtransaction = datatrpending[i]._id;
-                statuswaiting = datatrpending[i].status;
-                var expiredva = new Date(datatrpending[i].expiredtimeva);
-                expiredva.setHours(expiredva.getHours() - 7);
-
-                // if (datenow > expiredva) {
-                let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-
-                if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
-                    await this.transactionsService.updatestatuscancel(idtransaction);
-
-                } else if (cekstatusva.va_status === "COMPLETE") {
-
-                    if (statuswaiting == "WAITING_PAYMENT") {
-                        var VaCallback_ = new VaCallback();
-                        VaCallback_.va_number = cekstatusva.va_number;
-                        VaCallback_.amount = cekstatusva.amount;
-                        VaCallback_.partner_user_id = cekstatusva.partner_user_id;
-                        VaCallback_.success = true;
-                        try {
-                            callback = await this.transactionsService.callbackVA(VaCallback_);
-                            console.log(callback)
-
-                        } catch (e) {
-                            e.toString()
-                        }
-                    }
-
-                }
-
-
-
-                //}
-
-
-            }
-
-        }
-
-        try {
-
-            datatrpendingjual = await this.transactionsService.findExpiredSell(iduser);
-
-
-        } catch (e) {
-            datatrpendingjual = null;
-
-        }
-
-        if (datatrpendingjual !== null && datatrpendingjual.length > 0) {
-            var datenow = new Date(Date.now());
-            var callback = null;
-            var statuswaiting = null;
-            var lengdatatr = datatrpendingjual.length;
-
-            for (var i = 0; i < lengdatatr; i++) {
-
-                var idva = datatrpendingjual[i].idva;
-                var idtransaction = datatrpendingjual[i]._id;
-                statuswaiting = datatrpendingjual[i].status;
-                var expiredva = new Date(datatrpendingjual[i].expiredtimeva);
-                expiredva.setHours(expiredva.getHours() - 7);
-
-                // if (datenow > expiredva) {
-                let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-
-                if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
-                    await this.transactionsService.updatestatuscancel(idtransaction);
-
-                }
-                else if (cekstatusva.va_status === "COMPLETE") {
-
-                    if (statuswaiting == "WAITING_PAYMENT") {
-                        var VaCallback_ = new VaCallback();
-                        VaCallback_.va_number = cekstatusva.va_number;
-                        VaCallback_.amount = cekstatusva.amount;
-                        VaCallback_.partner_user_id = cekstatusva.partner_user_id;
-                        VaCallback_.success = true;
-                        try {
-                            callback = await this.transactionsService.callbackVA(VaCallback_);
-                            console.log(callback)
-
-                        } catch (e) {
-                            e.toString()
-                        }
-                    }
-
-                }
-
-                //}
-
-
-            }
-
-        }
-
-        var timestamps_end = await this.utilsService.getDateTimeString();
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-
-        return { response_code: 202, data, skip, limit, messages };
-    }
+    // @Post('api/transactions/historys')
+    // @UseGuards(JwtAuthGuard)
+    // async searchhistorynew2(@Req() request: Request, @Headers() headers): Promise<any> {
+
+    //     var timestamps_start = await this.utilsService.getDateTimeString();
+    //     var fullurl = headers.host + '/api/transactions/historys';
+    //     var token = headers['x-auth-token'];
+    //     var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    //     var setemail = auth.email;
+
+    //     var startdate = null;
+    //     var enddate = null;
+    //     var iduser = null;
+    //     var email = null;
+    //     var type = null;
+
+    //     var skip = null;
+    //     var limit = null;
+
+    //     var query = [];
+    //     var status = null;
+    //     var sell = null;
+    //     var buy = null;
+    //     var withdrawal = null;
+    //     var boost = null;
+    //     var rewards = null;
+    //     var voucher = null;
+    //     var request_json = JSON.parse(JSON.stringify(request.body));
+    //     if (request_json["email"] !== undefined) {
+    //         email = request_json["email"];
+    //         var ubasic = await this.basic2SS.findBymail(email);
+
+    //         iduser = ubasic._id;
+
+    //     } else {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+    //         throw new BadRequestException("Unabled to proceed");
+    //     }
+    //     status = request_json["status"];
+    //     startdate = request_json["startdate"];
+    //     enddate = request_json["enddate"];
+    //     type = request_json["type"];
+    //     sell = request_json["sell"];
+    //     buy = request_json["buy"];
+    //     withdrawal = request_json["withdrawal"];
+    //     boost = request_json["boost"];
+    //     rewards = request_json["rewards"];
+    //     voucher = request_json["voucher"];
+    //     if (request_json["skip"] !== undefined) {
+    //         skip = request_json["skip"];
+    //     } else {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+    //         throw new BadRequestException("Unabled to proceed");
+    //     }
+    //     if (request_json["limit"] !== undefined) {
+    //         limit = request_json["limit"];
+    //     } else {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+    //         throw new BadRequestException("Unabled to proceed");
+    //     }
+
+    //     const messages = {
+    //         "info": ["The process successful"],
+    //     };
+
+
+    //     const mongoose = require('mongoose');
+    //     var ObjectId = require('mongodb').ObjectId;
+    //     var idadmin = mongoose.Types.ObjectId(iduser);
+
+
+    //     try {
+    //         query = await this.basic2SS.transaksiHistoryv2(email, skip, limit, startdate, enddate, sell, buy, withdrawal, rewards, boost, voucher);
+    //     } catch (e) {
+    //         query = [];
+    //     }
+
+    //     var datanew = null;
+    //     var data = [];
+    //     let pict: String[] = [];
+    //     var objk = {};
+    //     var type = null;
+    //     var idapsara = null;
+    //     var apsara = null;
+    //     var idapsaradefine = null;
+    //     var apsaradefine = null;
+    //     var arrdata = [];
+    //     var iconvoucher = null;
+    //     console.log(query);
+    //     //push ke data
+    //     var listdata = [];
+    //     var tempresult = null;
+    //     var tempdata = null;
+    //     var jenis = null;
+    //     for (var i = 0; i < query.length; i++) {
+    //         tempdata = query[i];
+    //         if (tempdata.apsara == true) {
+    //             listdata.push(tempdata.apsaraId);
+    //         }
+    //         else {
+    //             listdata.push(undefined);
+    //         }
+    //     }
+
+    //     //console.log(listdata);
+    //     var apsaraimagedata = await this.postContentService.getImageApsara(listdata);
+    //     // console.log(resultdata.ImageInfo[0]);
+    //     tempresult = apsaraimagedata.ImageInfo;
+    //     for (var i = 0; i < query.length; i++) {
+
+    //         jenis = query[i].jenis;
+
+    //         try {
+    //             iconvoucher = query[i].iconVoucher;
+    //         } catch (e) {
+    //             iconvoucher = "";
+    //         }
+
+    //         for (var j = 0; j < tempresult.length; j++) {
+    //             if (tempresult[j].ImageId == query[i].apsaraId) {
+
+    //                 if (jenis == "VOUCHER") {
+    //                     query[i].description = "buy VOUCHER";
+    //                     query[i].media =
+    //                     {
+    //                         "ImageInfo": [{
+
+    //                             URL: iconvoucher
+    //                         }]
+    //                     }
+    //                 } else {
+    //                     query[i].media =
+    //                     {
+    //                         "ImageInfo": [tempresult[j]]
+    //                     }
+    //                 }
+
+    //                 query[i].mediaThumbEndpoint = tempresult[j].URL;
+    //             }
+    //             else if (query[i].apsara == false && (query[i].mediaType == "image" || query[i].mediaType == "images")) {
+    //                 query[i].media =
+    //                 {
+    //                     "ImageInfo": []
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     var apsaravideodata = await this.postContentService.getVideoApsara(listdata);
+    //     // console.log(apsaravideodata);
+    //     // console.log(resultdata.ImageInfo[0]);
+    //     tempresult = apsaravideodata.VideoList;
+    //     for (var i = 0; i < query.length; i++) {
+
+    //         jenis = query[i].jenis;
+
+    //         try {
+    //             iconvoucher = query[i].iconVoucher;
+    //         } catch (e) {
+    //             iconvoucher = "";
+    //         }
+    //         for (var j = 0; j < tempresult.length; j++) {
+    //             if (tempresult[j].VideoId == query[i].apsaraId) {
+
+    //                 if (jenis == "VOUCHER") {
+    //                     query[i].description = "buy VOUCHER";
+    //                     query[i].media =
+    //                     {
+    //                         "ImageInfo": [{
+
+    //                             URL: iconvoucher
+    //                         }]
+    //                     }
+    //                 } else {
+    //                     query[i].media =
+    //                     {
+    //                         "VideoList": [tempresult[j]]
+    //                     }
+    //                 }
+
+    //                 query[i].mediaThumbEndpoint = tempresult[j].CoverURL;
+    //             }
+    //             else if (query[i].apsara == false && query[i].mediaType == "video") {
+    //                 query[i].media =
+    //                 {
+    //                     "VideoList": []
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     for (var i = 0; i < query.length; i++) {
+    //         tempdata = query[i];
+    //         if (tempdata._id !== undefined) {
+    //             arrdata.push(tempdata);
+    //         }
+    //     }
+    //     data = arrdata;
+    //     var datatrpending = null;
+    //     var datatrpendingjual = null;
+
+    //     try {
+
+    //         datatrpending = await this.transactionsService.findExpirednew(iduser);
+
+
+    //     } catch (e) {
+    //         datatrpending = null;
+
+    //     }
+
+    //     if (datatrpending !== null && datatrpending.length > 0) {
+    //         var datenow = new Date(Date.now());
+    //         var callback = null;
+    //         var statuswaiting = null;
+    //         var lengdatatr = datatrpending.length;
+
+    //         for (var i = 0; i < lengdatatr; i++) {
+
+    //             var idva = datatrpending[i].idva;
+    //             var idtransaction = datatrpending[i]._id;
+    //             statuswaiting = datatrpending[i].status;
+    //             var expiredva = new Date(datatrpending[i].expiredtimeva);
+    //             expiredva.setHours(expiredva.getHours() - 7);
+
+    //             // if (datenow > expiredva) {
+    //             let cekstatusva = await this.oyPgService.staticVaInfo(idva);
+
+    //             if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
+    //                 await this.transactionsService.updatestatuscancel(idtransaction);
+
+    //             } else if (cekstatusva.va_status === "COMPLETE") {
+
+    //                 if (statuswaiting == "WAITING_PAYMENT") {
+    //                     var VaCallback_ = new VaCallback();
+    //                     VaCallback_.va_number = cekstatusva.va_number;
+    //                     VaCallback_.amount = cekstatusva.amount;
+    //                     VaCallback_.partner_user_id = cekstatusva.partner_user_id;
+    //                     VaCallback_.success = true;
+    //                     try {
+    //                         callback = await this.transactionsService.callbackVA(VaCallback_);
+    //                         console.log(callback)
+
+    //                     } catch (e) {
+    //                         e.toString()
+    //                     }
+    //                 }
+
+    //             }
+
+
+
+    //             //}
+
+
+    //         }
+
+    //     }
+
+    //     try {
+
+    //         datatrpendingjual = await this.transactionsService.findExpiredSell(iduser);
+
+
+    //     } catch (e) {
+    //         datatrpendingjual = null;
+
+    //     }
+
+    //     if (datatrpendingjual !== null && datatrpendingjual.length > 0) {
+    //         var datenow = new Date(Date.now());
+    //         var callback = null;
+    //         var statuswaiting = null;
+    //         var lengdatatr = datatrpendingjual.length;
+
+    //         for (var i = 0; i < lengdatatr; i++) {
+
+    //             var idva = datatrpendingjual[i].idva;
+    //             var idtransaction = datatrpendingjual[i]._id;
+    //             statuswaiting = datatrpendingjual[i].status;
+    //             var expiredva = new Date(datatrpendingjual[i].expiredtimeva);
+    //             expiredva.setHours(expiredva.getHours() - 7);
+
+    //             // if (datenow > expiredva) {
+    //             let cekstatusva = await this.oyPgService.staticVaInfo(idva);
+
+    //             if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
+    //                 await this.transactionsService.updatestatuscancel(idtransaction);
+
+    //             }
+    //             else if (cekstatusva.va_status === "COMPLETE") {
+
+    //                 if (statuswaiting == "WAITING_PAYMENT") {
+    //                     var VaCallback_ = new VaCallback();
+    //                     VaCallback_.va_number = cekstatusva.va_number;
+    //                     VaCallback_.amount = cekstatusva.amount;
+    //                     VaCallback_.partner_user_id = cekstatusva.partner_user_id;
+    //                     VaCallback_.success = true;
+    //                     try {
+    //                         callback = await this.transactionsService.callbackVA(VaCallback_);
+    //                         console.log(callback)
+
+    //                     } catch (e) {
+    //                         e.toString()
+    //                     }
+    //                 }
+
+    //             }
+
+    //             //}
+
+
+    //         }
+
+    //     }
+
+    //     var timestamps_end = await this.utilsService.getDateTimeString();
+    //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+    //     return { response_code: 202, data, skip, limit, messages };
+    // }
 
     @Post('api/transactions/historys/v2')
     @UseGuards(JwtAuthGuard)

@@ -549,4 +549,75 @@ export class UserbasicnewController {
             messages
         }
     }
+
+    @Post('transactions/historys')
+    @UseGuards(JwtAuthGuard)
+    async historyTransaksi(@Req() request, @Headers() headers)
+    {
+        var setdate = new Date();
+        var DateTime = new Date(setdate.getTime() - (setdate.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+        var timestamps_start = DateTime.substring(0, DateTime.lastIndexOf('.'));
+        var fullurl = headers.host + '/api/transactions/historys';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+
+        var namaproduk = null;
+        var startdate = null;        
+        var enddate = null;
+        var tipetransaksi = null;
+        var skip = null;
+        var limit = null;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        if(request_json.namaproduk != null && request_json.namaproduk != undefined)
+        {
+            namaproduk = request_json.namaproduk;   
+        }
+
+        if(request_json.startdate != null && request_json.startdate != undefined && request_json.enddate != null && request_json.enddate != undefined)
+        {
+            startdate = request_json.startdate;   
+            enddate = request_json.enddate;   
+        }
+
+        if(request_json.type != null && request_json.type != undefined)
+        {
+            tipetransaksi = request_json.type;   
+        }
+
+        if (request_json["skip"] !== undefined) {
+            skip = request_json["skip"];
+        } else {
+            var setdate = new Date();
+            var DateTime = new Date(setdate.getTime() - (setdate.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+            var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            throw new BadRequestException("Unabled to proceed");
+        }
+        // if (request_json["limit"] !== undefined) {
+        //     limit = request_json["limit"];
+        // } else {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+        //     throw new BadRequestException("Unabled to proceed");
+        // }
+
+        var data = await this.UserbasicnewService.transaksiHistory2(email, namaproduk, startdate, enddate, tipetransaksi, skip);
+
+        var setdate = new Date();
+        var DateTime = new Date(setdate.getTime() - (setdate.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+        var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+        return {
+            response_code:202,
+            data:data,
+            messages:
+            {
+                "info": ["The process successful"],
+            }
+        }
+    }
 }
