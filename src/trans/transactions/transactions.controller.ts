@@ -21241,6 +21241,7 @@ export class TransactionsController {
         const messages = {
             "info": ["The process was successful"],
         };
+        var success = false;
 
         var request_json = JSON.parse(JSON.stringify(request.body));
         var user_data = await this.basic2SS.findBymail(setemail);
@@ -21262,9 +21263,66 @@ export class TransactionsController {
 
             throw new BadRequestException("Missing field: limit (number)");
         }
+        if (request_json.success) success = true;
 
         try {
-            var data = await this.transactionsService.getUserCoinOrderHistory(user_data._id, request_json.page * request_json.limit, request_json.limit, request_json.startdate, request_json.enddate);
+            var data = await this.transactionsService.getUserCoinOrderHistory(user_data._id, request_json.page * request_json.limit, request_json.limit, request_json.startdate, request_json.enddate, success);
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('api/transactions/cointransactionhistory')
+    @UseGuards(JwtAuthGuard)
+    async cointransactionhistory(@Req() request: Request, @Headers() headers): Promise<any> {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/cointransactionhistory';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var user_data = await this.basic2SS.findBymail(setemail);
+        if (!user_data) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("User data not found");
+        }
+        if (request_json.email == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: email (string)");
+        }
+        if (request_json.page == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: page (number)");
+        }
+        // if (request_json.limit == undefined) {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+        //     throw new BadRequestException("Missing field: limit (number)");
+        // }
+
+        try {
+            var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
             return {

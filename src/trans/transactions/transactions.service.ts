@@ -46,26 +46,26 @@ export class TransactionsService {
     }
     async getcount() {
 
-        var total=0;
+        var total = 0;
         var query = await this.transactionsModel.aggregate([
-          {
-            $group: {
-              _id: null,
-              totalpost: {
-                $sum: 1
-              }
+            {
+                $group: {
+                    _id: null,
+                    totalpost: {
+                        $sum: 1
+                    }
+                }
             }
-          }
         ]);
 
-        try{
-            total=query[0].totalpost;
-        }catch(e){
-            total=0;
+        try {
+            total = query[0].totalpost;
+        } catch (e) {
+            total = 0;
         }
 
         return total;
-      }
+    }
     async findid(id: string): Promise<Transactions> {
         return this.transactionsModel.findOne({ _id: id }).exec();
     }
@@ -79,7 +79,7 @@ export class TransactionsService {
         return this.transactionsModel.findOne({ postid: postid, status: "Success" }).exec();
     }
 
-    
+
 
     async findpostidanduser(postid: string, iduserbuyer: ObjectId): Promise<Transactions> {
         return this.transactionsModel.findOne({ postid: postid, iduserbuyer: iduserbuyer, status: "Success" }).exec();
@@ -10895,7 +10895,7 @@ export class TransactionsService {
         return query;
     }
 
-    async getUserCoinOrderHistory(userid: mongoose.Types.ObjectId, skip: number, limit: number, startdate?: string, enddate?: string) {
+    async getUserCoinOrderHistory(userid: mongoose.Types.ObjectId, skip: number, limit: number, startdate?: string, enddate?: string, success?: boolean) {
         let pipeline = [];
         let matchAnd = [];
         matchAnd.push(
@@ -10904,6 +10904,11 @@ export class TransactionsService {
             },
             {
                 type: "COIN"
+            }
+        )
+        if (!success) matchAnd.push(
+            {
+                status: { $ne: "Success" }
             }
         )
         if (startdate && startdate != "") matchAnd.push({
@@ -10931,6 +10936,7 @@ export class TransactionsService {
             },
             {
                 $project: {
+                    noinvoice: 1,
                     status: 1,
                     description: 1,
                     va_status: "$response.va_status",
@@ -10953,6 +10959,7 @@ export class TransactionsService {
             },
             {
                 $project: {
+                    noinvoice: 1,
                     status: 1,
                     description: 1,
                     va_status: 1,
