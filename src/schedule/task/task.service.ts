@@ -41,7 +41,7 @@ export class TaskService {
     this.adsService.ceckAdsActive();
   }
   // // @Cron('5 * * * * *')
-  @Cron('0 */1 * * * *')
+  @Cron('0 */10 * * * *')
   ceckUserStream() {
     this.logger.debug('----------STREAM JOB START----------', new Date());
     this.mediastreamingService.StreamRefreshUserWarning();

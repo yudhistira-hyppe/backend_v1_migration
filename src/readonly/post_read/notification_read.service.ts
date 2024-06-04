@@ -765,6 +765,7 @@ export class NotificationReadService {
                     body: 1,
                     bodyId: 1,
                     streamId: 1,
+                    titleId: 1,
                     contentEventID: 1,
                     createdAt: 1,
                     email: 1,
@@ -1043,6 +1044,7 @@ export class NotificationReadService {
             {
                 '$project': {
                     active: 1,
+                    titleId: 1,
                     body: 1,
                     bodyId: 1,
                     streamId: 1,

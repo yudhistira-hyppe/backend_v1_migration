@@ -31,6 +31,8 @@ export class Notifications {
   @Prop()
   title: String
   @Prop()
+  titleId: String
+  @Prop()
   body: String
   @Prop()
   bodyId: String

@@ -350,7 +350,6 @@ export class TransactionsV2Service {
                     if (data != null) {
                         dataDetail.push(data)
                     }
-                    console.log(dataTransaction._id.toString());
                     let transactionsV2_ = new transactionsV2();
                     transactionsV2_.status = status;
                     transactionsV2_.detail = dataDetail;
