@@ -1742,7 +1742,6 @@ export class TransactionsV2Service {
                     as: "databasic"
                 }
             },
-
             {
                 $project: {
                     "type": 1,
@@ -1774,6 +1773,9 @@ export class TransactionsV2Service {
                     "biayPG": {
                         $arrayElemAt: ['$detail.biayPG', 0]
                     },
+                    "withdrawId": {
+                        $arrayElemAt: ['$detail.withdrawId', 0]
+                    },
                     "code": {
                         $arrayElemAt: ['$dataproduk.code', 0]
                     },
@@ -1799,6 +1801,14 @@ export class TransactionsV2Service {
                     localField: "post_id",
                     foreignField: "postID",
                     as: "datapost"
+                }
+            },
+            {
+                $lookup: {
+                    from: "withdraws",
+                    localField: "withdrawId",
+                    foreignField: "_id",
+                    as: "datawithdraw"
                 }
             },
             {
@@ -1882,7 +1892,22 @@ export class TransactionsV2Service {
                             ],
                             default: ''
                         }
-                    }
+                    },
+                    withdrawAmount: {
+                        $arrayElemAt: ['$datawithdraw.amount', 0]
+                    },
+                    withdrawTotal: {
+                        $arrayElemAt: ['$datawithdraw.totalamount', 0]
+                    },
+                    withdrawCost: {
+                        $subtract: [{ $arrayElemAt: ['$datawithdraw.amount', 0] }, { $arrayElemAt: ['$datawithdraw.totalamount', 0] }]
+                    },
+                    recipientAccId: {
+                        $arrayElemAt: ['$datawithdraw.idAccountBank', 0]
+                    },
+                    recipientUser: {
+                        $arrayElemAt: ['$datawithdraw.idUser', 0]
+                    },
                 }
             },
             {
@@ -1899,6 +1924,22 @@ export class TransactionsV2Service {
                     localField: "product_id",
                     foreignField: "package_id",
                     as: "monetdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "userbankaccounts",
+                    localField: "recipientAccId",
+                    foreignField: "_id",
+                    as: "recipientaccdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "recipientUser",
+                    foreignField: "_id",
+                    as: "recipientuserdata"
                 }
             },
             {
@@ -1940,7 +1981,22 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$monetdata.name', 0]
                     },
                     "post_id": 1,
-                    "post_type": 1
+                    "post_type": 1,
+                    withdrawAmount: 1,
+                    withdrawTotal: 1,
+                    withdrawCost: 1,
+                    recipientNoRek: {
+                        $arrayElemAt: ['$recipientaccdata.noRek', 0]
+                    },
+                    recipientName: {
+                        $arrayElemAt: ['$recipientaccdata.nama', 0]
+                    },
+                    recipientUsername: {
+                        $arrayElemAt: ['$recipientuserdata.username', 0]
+                    },
+                    recipientBankId: {
+                        $arrayElemAt: ['$recipientaccdata.idBank', 0]
+                    },
                 }
             },
             {
@@ -1949,6 +2005,14 @@ export class TransactionsV2Service {
                     localField: "bank",
                     foreignField: "_id",
                     as: "databank"
+                }
+            },
+            {
+                $lookup: {
+                    from: "banks",
+                    localField: "recipientBankId",
+                    foreignField: "_id",
+                    as: "datarecipientbank"
                 }
             },
             {
@@ -2026,6 +2090,15 @@ export class TransactionsV2Service {
                     "jenisTransaksi": "Pembelian Coins",
                     "post_id": 1,
                     "post_type": 1,
+                    withdrawAmount: 1,
+                    withdrawTotal: 1,
+                    withdrawCost: 1,
+                    recipientNoRek: 1,
+                    recipientName: 1,
+                    recipientUsername: 1,
+                    recipientBankName: {
+                        $arrayElemAt: ['$datarecipientbank.bankname', 0]
+                    }
                 }
             },
 
