@@ -455,11 +455,11 @@ export class MonetizationController {
     var data = null;
     if(tipeKurs == "PUBLIC")
     {
-      data = await this.monetizationService.discount_usage_general(id, username, transactionid, startdate, enddate, page, limit);
+      data = await this.monetizationService.discount_usage_general(id, username, transactionid, startdate, enddate, status, page, limit);
     }
     else if(tipeKurs == "SPECIAL")
     {
-      data = await this.monetizationService.discount_usage_special(id, username, transactionid, startdate, enddate, page, limit);
+      data = await this.monetizationService.discount_usage_special(id, username, transactionid, startdate, enddate, status, page, limit);
     }
     else
     {
