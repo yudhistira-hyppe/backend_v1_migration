@@ -227,8 +227,8 @@ export class MediastreamingController {
         //Get ID_SETTING_MAX_BANNED
         const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
         const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
-        let streamWarning = profile.streamWarning;
-        let streamBanding = profile.streamBanding;
+        let streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
+        let streamBanding = (profile.streamBanding != undefined) ? profile.streamBanding:[];
         if (streamWarning.length > 0) {
           streamWarning.sort(function (a, b) {
             return Date.parse(b.createAt) - Date.parse(a.createAt);
