@@ -2096,6 +2096,7 @@ export class MonetizationService {
             last_stock: 1,
             active: 1,
             status: 1,
+            description: 1,
         };
 
         insertproject['available_to_choose'] = {
@@ -2204,7 +2205,7 @@ export class MonetizationService {
         return data;
     }
 
-    async discount_usage_general(target:string, username:string, transaction_id:string, startdate:string, enddate:string, page:number, limit:number)
+    async discount_usage_general(target:string, username:string, transaction_id:string, startdate:string, enddate:string, status:string, page:number, limit:number)
     {
         var pipeline = [];
         var facet = {};
@@ -2573,6 +2574,26 @@ export class MonetizationService {
             );
         }
 
+        if(status != null)
+        {
+            if(status.toString() == "true")
+            {
+                match.push(
+                    {
+                        "used_discount":true
+                    }
+                ); 
+            }
+            else
+            {
+                match.push(
+                    {
+                        "used_discount":false
+                    }
+                );
+            }
+        }
+
         if(startdate != null && enddate != null)
         {
             var before = new Date(startdate).toISOString().split("T")[0];
@@ -2629,7 +2650,7 @@ export class MonetizationService {
         return data;
     }
 
-    async discount_usage_special(target:string, username:string, transaction_id:string, startdate:string, enddate:string, page:number, limit:number)
+    async discount_usage_special(target:string, username:string, transaction_id:string, startdate:string, enddate:string, status:string, page:number, limit:number)
     {
         var pipeline = [];
         var facet = {};
@@ -2942,6 +2963,26 @@ export class MonetizationService {
         );
         
         var match = [];
+        if(status != null)
+        {
+            if(status.toString() == "true")
+            {
+                match.push(
+                    {
+                        "used_discount":true
+                    }
+                ); 
+            }
+            else
+            {
+                match.push(
+                    {
+                        "used_discount":false
+                    }
+                );
+            }
+        }
+
         if(username != null)
         {
             match.push(
@@ -3030,7 +3071,7 @@ export class MonetizationService {
         );
 
         // var util = require('util');
-        // util.inspect(pipeline, { showHidden:false, depth:null });
+        // console.log(util.inspect(pipeline, { showHidden:false, depth:null }));
 
         var data = await this.monetData.aggregate(pipeline);
         return data;
