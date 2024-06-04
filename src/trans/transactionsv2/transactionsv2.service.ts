@@ -38,7 +38,7 @@ export class TransactionsV2Service {
         private readonly adsPriceCreditsService: AdsPriceCreditsService,
         private readonly transactionsCoaService: TransactionsCoaService,
         private readonly transactionsCoaTableService: TransactionsCoaTableService,
-        private readonly disquslogsService: DisquslogsService, 
+        private readonly disquslogsService: DisquslogsService,
         private readonly adsService: AdsService,
     ) { }
 
@@ -84,15 +84,15 @@ export class TransactionsV2Service {
         //Get Current Date
         const currentDate = await this.utilsService.getDateTimeString();
         let productCode = "";
-        let transactionsV2_: transactionsV2 ;
+        let transactionsV2_: transactionsV2;
 
         //Get Data Transaction
         const getDataTransaction = await this.transactionsModel.find({ idTransaction: idTrans }).exec();
-        if (await this.utilsService.ceckData(getDataTransaction)){
+        if (await this.utilsService.ceckData(getDataTransaction)) {
             if (getDataTransaction.length > 0) {
                 for (let uh = 0; uh < getDataTransaction.length; uh++) {
                     let dataTransaction = getDataTransaction[uh];
-                    if (dataTransaction.type=="USER"){
+                    if (dataTransaction.type == "USER") {
                         transactionsV2_ = dataTransaction;
                         const getProduct = await this.transactionsProductsService.findOne(dataTransaction.product.toString());
                         if (await this.utilsService.ceckData(getProduct)) {
@@ -103,10 +103,10 @@ export class TransactionsV2Service {
             }
         }
 
-        if (productCode=="AD"){
-            if (status == "FAILED"){
+        if (productCode == "AD") {
+            if (status == "FAILED") {
                 if (transactionsV2_.detail != undefined) {
-                    if (transactionsV2_.detail.length>0) {
+                    if (transactionsV2_.detail.length > 0) {
                         if (transactionsV2_.detail[0].adsID != undefined) {
                             let idAds = transactionsV2_.detail[0].adsID.toString();
                             const adsService_ = await this.adsService.findOne(idAds);
@@ -2147,6 +2147,35 @@ export class TransactionsV2Service {
 
         );
         let query = await this.transactionsModel.aggregate(pipeline);
+        return query[0];
+    }
+
+    async consoleWithdrawDetail(noInvoice: string) {
+        let query = await this.transactionsModel.aggregate([
+            {
+                $match: {
+                    noInvoice: noInvoice
+                }
+            },
+            {
+                $project: {
+                    idTransaction: 1,
+                    noInvoice: 1,
+                    amount: {
+                        $arrayElemAt: ['$detail.amount', 0]
+                    },
+                    transactionFee: {
+                        $add: [{ $arrayElemAt: ['$detail.biayPG', 0] }, { $arrayElemAt: ['$detail.biayAdmin', 0] }]
+                    },
+                    conversionFee: {
+                        $arrayElemAt: ['$detail.transactionFees', 0]
+                    },
+                    totalAmount: {
+                        $arrayElemAt: ['$detail.totalAmount', 0]
+                    }
+                }
+            }
+        ]);
         return query[0];
     }
 

@@ -21450,7 +21450,7 @@ export class TransactionsController {
     @UseGuards(JwtAuthGuard)
     async listWithdrawCoin(@Req() request: Request, @Headers() headers) {
         var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactions/cointransactionhistory';
+        var fullurl = headers.host + '/api/transactions/listwithdrawcoin';
         var token = headers['x-auth-token'];
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
         var setemail = auth.email;
@@ -21464,6 +21464,37 @@ export class TransactionsController {
             if (request_json.limit != undefined) limit = request_json.limit;
             if (request_json.page != undefined) skip = request_json.page * limit;
             let data = await this.withdrawsService.listWithdrawCoin(skip, limit, request_json.status, request_json.startdate, request_json.enddate, request_json.amountgte, request_json.amountlte, request_json.banks);
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('api/transactions/consoleWithdrawDetail')
+    @UseGuards(JwtAuthGuard)
+    async consoleWithdrawDetail(@Req() request: Request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/consolewithdrawdetail';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            var request_json = JSON.parse(JSON.stringify(request.body));
+            let noInvoice = "";
+            if (request_json.noInvoice != undefined) noInvoice = request_json.noInvoice;
+            let data = await this.TransactionsV2Service.consoleWithdrawDetail(noInvoice);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
             return {
