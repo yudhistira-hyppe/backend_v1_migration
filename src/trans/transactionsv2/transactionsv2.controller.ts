@@ -51,7 +51,7 @@ export class TransactionsV2Controller {
     @HttpCode(HttpStatus.ACCEPTED)
     async update(@Req() request: any) {
         const data = await this.transactionsV2Service.updateTransaction(
-            request.body.dTrans,
+            request.body.idTrans,
             request.body.status,
             request.body.data,);
         return data;

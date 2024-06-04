@@ -148,9 +148,9 @@ export class TransactionsV2Service {
             const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
             const currencyCoinId = (await this.transactionsCoinSettingsService.findStatusActive())._id;
             if (getDataTransaction.length > 0) {
-                let debet = 0;
-                let kredit = 0;
                 for (let uh = 0; uh < getDataTransaction.length; uh++) {
+                    let debet = 0;
+                    let kredit = 0;
                     let dataTransaction = getDataTransaction[uh];
                     product = dataTransaction.product.toString();
                     const categoryTransaction = await this.transactionsCategorysService.findOne(dataTransaction.category.toString());
@@ -168,7 +168,7 @@ export class TransactionsV2Service {
                                                     if (transactionTypetransaction[tr].name != undefined) {
                                                         if (transactionTypetransaction[tr].name == "BalacedCoin") {
                                                             if (transactionTypetransaction[tr].status != undefined) {
-                                                                if (transactionTypetransaction.status == "debit") {
+                                                                if (transactionTypetransaction[tr].status == "debit") {
                                                                     if (status == "SUCCESS") {
                                                                         debet = dataTransaction.coin;
                                                                         kredit = 0;
@@ -189,7 +189,7 @@ export class TransactionsV2Service {
                                                 for (let tr = 0; tr < transactionTypetransaction.length; tr++) {
                                                     if (transactionTypetransaction[tr].name != undefined) {
                                                         if (transactionTypetransaction[tr].name == "BalacedCoin") {
-                                                            if (transactionTypetransaction.status == "credit") {
+                                                            if (transactionTypetransaction[tr].status == "credit") {
                                                                 if (status == "FAILED") {
                                                                     coin = dataTransaction.coin;
                                                                     let coin_wd_failed = Number(cost_verification) / Number(currencyCoin)
@@ -226,7 +226,7 @@ export class TransactionsV2Service {
                                                 if (transactionTypetransaction[tr].name != undefined) {
                                                     if (transactionTypetransaction[tr].name == "Kas") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "credit") {
+                                                            if (transactionTypetransaction[tr].status == "credit") {
                                                                 if (status == "FAILED") {
                                                                     kas = cost_verification;
                                                                 }
@@ -235,7 +235,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "BiayaPG") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "debit") {
+                                                            if (transactionTypetransaction[tr].status == "debit") {
                                                                 if (status == "FAILED") {
                                                                     biayaPaymentGateway = cost_verification;
                                                                 }
@@ -244,7 +244,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "HutangCoin") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "debit") {
+                                                            if (transactionTypetransaction[tr].status == "debit") {
                                                                 if (status == "FAILED") {
                                                                     hutangSaldoCoin = (Number(currencyCoin) * (dataTransaction.coin)) - cost_verification;
                                                                 }
@@ -253,7 +253,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "PendapatanBiayaTransaksi") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "debit") {
+                                                            if (transactionTypetransaction[tr].status == "debit") {
                                                                 if (status == "FAILED") {
                                                                     pendapatanBiayaTransaction = cost_verification;
                                                                 }
@@ -262,7 +262,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "PendapatanPenukaranCoin") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "credit") {
+                                                            if (transactionTypetransaction[tr].status == "credit") {
                                                                 if (status == "FAILED") {
                                                                     pendapatanPenukaranCoin = 0;
                                                                 }
@@ -350,10 +350,11 @@ export class TransactionsV2Service {
                     if (data != null) {
                         dataDetail.push(data)
                     }
-                    const transactionsV2_ = new transactionsV2();
+                    console.log(dataTransaction._id.toString());
+                    let transactionsV2_ = new transactionsV2();
                     transactionsV2_.status = status;
                     transactionsV2_.detail = dataDetail;
-                    this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
+                    await this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
                 }
             }
 
