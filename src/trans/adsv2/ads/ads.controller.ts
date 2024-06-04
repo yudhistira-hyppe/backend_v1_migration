@@ -32,6 +32,7 @@ import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service
 import { UservouchersService } from 'src/trans/uservouchers/uservouchers.service';
 import { CreateUservouchersDto } from 'src/trans/uservouchers/dto/create-uservouchers.dto';
 import { AdsRewardsService } from '../adsrewards/adsrewards.service';
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 const sharp = require('sharp');
 
 @Controller('api/adsv2/ads')
@@ -58,7 +59,8 @@ export class AdsController {
         private adsBalaceCreditService: AdsBalaceCreditService,
         private readonly adsPriceCreditsService: AdsPriceCreditsService,
         private readonly uservouchersService: UservouchersService,
-        private readonly adsRewardsService: AdsRewardsService,
+        private readonly adsRewardsService: AdsRewardsService, 
+        private readonly transactionsV2Service: TransactionsV2Service,
         private readonly adsService: AdsService) {
         this.locks = new Map();
     }
@@ -888,20 +890,26 @@ export class AdsController {
                 AdsDto_.idAdspricecredits = getSetting_CreditPrice._id;
                 AdsDto_.adspricecredits = getSetting_CreditPrice.creditPrice;
             }
-            let data = await this.adsService.create(AdsDto_);
             if (AdsDto_.status == "UNDER_REVIEW") {
-                //--------------------INSERT BALANCE DEBET--------------------
-                const AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
-                AdsBalaceCreditDto_._id = new mongoose.Types.ObjectId;
-                AdsBalaceCreditDto_.iduser = AdsDto_.userID;
-                AdsBalaceCreditDto_.debet = AdsDto_.credit;
-                AdsBalaceCreditDto_.kredit = 0;
-                AdsBalaceCreditDto_.type = "USE";
-                AdsBalaceCreditDto_.timestamp = await this.utilsService.getDateTimeString();
-                AdsBalaceCreditDto_.description = "USE ADS CREATE";
-                AdsBalaceCreditDto_.idtrans = data._id;
-                await this.adsService.insertBalaceDebit(AdsBalaceCreditDto_);
+                var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, AdsDto_.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "PENDING");
+                if (dataTransaction != false) {
+                    AdsDto_.idTransaction = dataTransaction.data[0].idTransaction.toString()
+                }
             }
+            let data = await this.adsService.create(AdsDto_);
+            // if (AdsDto_.status == "UNDER_REVIEW") {
+            //     //--------------------INSERT BALANCE DEBET--------------------
+            //     const AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
+            //     AdsBalaceCreditDto_._id = new mongoose.Types.ObjectId;
+            //     AdsBalaceCreditDto_.iduser = AdsDto_.userID;
+            //     AdsBalaceCreditDto_.debet = AdsDto_.credit;
+            //     AdsBalaceCreditDto_.kredit = 0;
+            //     AdsBalaceCreditDto_.type = "USE";
+            //     AdsBalaceCreditDto_.timestamp = await this.utilsService.getDateTimeString();
+            //     AdsBalaceCreditDto_.description = "USE ADS CREATE";
+            //     AdsBalaceCreditDto_.idtrans = data._id;
+            //     await this.adsService.insertBalaceDebit(AdsBalaceCreditDto_);
+            // }
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
@@ -982,49 +990,54 @@ export class AdsController {
         }
 
         if (AdsDto_.status == "UNDER_REVIEW" || AdsDto_.status == "IN_ACTIVE") {
-            const AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
-            AdsBalaceCreditDto_._id = new mongoose.Types.ObjectId;
-            AdsBalaceCreditDto_.iduser = AdsDto_.userID;
-            AdsBalaceCreditDto_.timestamp = await this.utilsService.getDateTimeString();
-            AdsBalaceCreditDto_.idtrans = ads._id;
+            // const AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
+            // AdsBalaceCreditDto_._id = new mongoose.Types.ObjectId;
+            // AdsBalaceCreditDto_.iduser = AdsDto_.userID;
+            // AdsBalaceCreditDto_.timestamp = await this.utilsService.getDateTimeString();
+            // AdsBalaceCreditDto_.idtrans = ads._id;
             if (ads.status != "ACTIVE") {
                 if ((ads.status == "DRAFT") && (AdsDto_.status == "UNDER_REVIEW")) {
-                    //--------------------INSERT BALANCE DEBET--------------------
-                    AdsBalaceCreditDto_.iduser = ads.userID;
-                    AdsBalaceCreditDto_.debet = ads.credit;
-                    AdsBalaceCreditDto_.kredit = 0;
-                    AdsBalaceCreditDto_.type = "USE";
-                    AdsBalaceCreditDto_.description = "ADS CREATION";
-
-                    const getUserVoucher = await this.uservouchersService.findUserVouchers(ads.userID.toString());
-
-                    let buyAds = ads.credit;
-                    if (await this.utilsService.ceckData(getUserVoucher)) {
-                        for (let i = 0; i < getUserVoucher.length; i++) {
-                            let sisaKredit = Number(getUserVoucher[i].totalCredit) - Number(getUserVoucher[i].usedCredit);
-                            if (buyAds <= sisaKredit) {
-                                let CreateUservouchersDto_ = new CreateUservouchersDto();
-                                CreateUservouchersDto_.usedCredit = Number(getUserVoucher[i].usedCredit) + Number(buyAds);
-                                await this.uservouchersService.update(getUserVoucher[i]._id.toString(), CreateUservouchersDto_);
-                                break;
-                            } else {
-                                buyAds = buyAds - sisaKredit;
-                                let CreateUservouchersDto_ = new CreateUservouchersDto();
-                                CreateUservouchersDto_.usedCredit = Number(getUserVoucher[i].usedCredit) + Number(sisaKredit);
-                                await this.uservouchersService.update(getUserVoucher[i]._id.toString(), CreateUservouchersDto_);
-                            }
-                        }
+                    var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, AdsDto_.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "PENDING");
+                    if (dataTransaction != false) {
+                        AdsDto_.idTransaction = dataTransaction.data[0].idTransaction.toString()
                     }
+                    //--------------------INSERT BALANCE DEBET--------------------
+                    // AdsBalaceCreditDto_.iduser = ads.userID;
+                    // AdsBalaceCreditDto_.debet = ads.credit;
+                    // AdsBalaceCreditDto_.kredit = 0;
+                    // AdsBalaceCreditDto_.type = "USE";
+                    // AdsBalaceCreditDto_.description = "ADS CREATION";
+
+                    // const getUserVoucher = await this.uservouchersService.findUserVouchers(ads.userID.toString());
+
+                    // let buyAds = ads.credit;
+                    // if (await this.utilsService.ceckData(getUserVoucher)) {
+                    //     for (let i = 0; i < getUserVoucher.length; i++) {
+                    //         let sisaKredit = Number(getUserVoucher[i].totalCredit) - Number(getUserVoucher[i].usedCredit);
+                    //         if (buyAds <= sisaKredit) {
+                    //             let CreateUservouchersDto_ = new CreateUservouchersDto();
+                    //             CreateUservouchersDto_.usedCredit = Number(getUserVoucher[i].usedCredit) + Number(buyAds);
+                    //             await this.uservouchersService.update(getUserVoucher[i]._id.toString(), CreateUservouchersDto_);
+                    //             break;
+                    //         } else {
+                    //             buyAds = buyAds - sisaKredit;
+                    //             let CreateUservouchersDto_ = new CreateUservouchersDto();
+                    //             CreateUservouchersDto_.usedCredit = Number(getUserVoucher[i].usedCredit) + Number(sisaKredit);
+                    //             await this.uservouchersService.update(getUserVoucher[i]._id.toString(), CreateUservouchersDto_);
+                    //         }
+                    //     }
+                    // }
                 }
                 if ((ads.status == "UNDER_REVIEW") && (AdsDto_.status == "IN_ACTIVE")) {
+                    await this.transactionsV2Service.updateTransaction(AdsDto_.idTransaction, "FAILED", [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }]);
                     //--------------------INSERT BALANCE KREDIT--------------------
-                    AdsBalaceCreditDto_.iduser = ads.userID;
-                    AdsBalaceCreditDto_.debet = 0;
-                    AdsBalaceCreditDto_.kredit = ads.credit;
-                    AdsBalaceCreditDto_.type = "REFUND";
-                    AdsBalaceCreditDto_.description = "ADS REJECTED";
+                    // AdsBalaceCreditDto_.iduser = ads.userID;
+                    // AdsBalaceCreditDto_.debet = 0;
+                    // AdsBalaceCreditDto_.kredit = ads.credit;
+                    // AdsBalaceCreditDto_.type = "REFUND";
+                    // AdsBalaceCreditDto_.description = "ADS REJECTED";
                 }
-                await this.adsService.insertBalaceDebit(AdsBalaceCreditDto_);
+                //await this.adsService.insertBalaceDebit(AdsBalaceCreditDto_);
             }
         } else {
             //VALIDASI PARAM userId

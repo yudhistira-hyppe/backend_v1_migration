@@ -113,6 +113,7 @@ export class AdsDto {
     adspricecredits: number;
     CPA: number;
     CPV: number;
+    idTransaction: string;
 }
 
 export class AdsAction {

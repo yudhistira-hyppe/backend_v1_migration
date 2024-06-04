@@ -38,6 +38,8 @@ import { transactionCoin3Schema, transactionCoin3 } from './monetizenew/schemas/
 import { TransactionsDiscounts, TransactionsDiscountsSchema } from './discount/schema/transactionsdiscount.schema';
 import { TransactionsDiscountsService } from './discount/transactionsdiscount.service';
 import { DisquslogsModule } from 'src/content/disquslogs/disquslogs.module';
+import { AdsService } from './Ads/ads.service';
+import { Ads, AdsSchema } from '../ads/schemas/ads.schema';
 // import { BoostintervalModule } from 'src/content/boostinterval/boostinterval.module';
 // import { BoostsessionModule } from 'src/content/boostsession/boostsession.module';
 @Module({
@@ -65,11 +67,12 @@ import { DisquslogsModule } from 'src/content/disquslogs/disquslogs.module';
             { name: TransactionsCoaTable.name, schema: TransactionsCoaTableSchema },
             { name: transactionCoin3.name, schema: transactionCoin3Schema },
             { name: Monetizenew2.name, schema: monetizenew2Schema },
-            { name: TransactionsDiscounts.name, schema: TransactionsDiscountsSchema },
+            { name: TransactionsDiscounts.name, schema: TransactionsDiscountsSchema }, 
+            { name: Ads.name, schema: AdsSchema },
         ], 'SERVER_FULL')
     ],
     controllers: [TransactionsV2Controller, TransactionsCategorysController, TransactionsCoaController, TransactionsBalancedsController, TransactionsProductsController, TransactionsCoinSettingsController, TransactionsCreditsController],
-    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService, Monetizenew2Service, transactionCoin3Service, TransactionsDiscountsService],
-    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService, Monetizenew2Service, transactionCoin3Service, TransactionsDiscountsService],
+    providers: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService, Monetizenew2Service, transactionCoin3Service, TransactionsDiscountsService, AdsService],
+    exports: [TransactionsV2Service, TransactionsCategorysService, TransactionsCoaService, TransactionsBalancedsService, TransactionsProductsService, TransactionsCoinSettingsService, TransactionsCreditsService, TransactionsCoaTableService, Monetizenew2Service, transactionCoin3Service, TransactionsDiscountsService, AdsService],
 })
 export class TransactionsV2Module { }

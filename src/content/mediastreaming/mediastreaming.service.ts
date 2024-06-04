@@ -3810,41 +3810,46 @@ export class MediastreamingService {
   }
 
   async StreamAppeal() {
-    // let getDataUser = await this.userbasicnewService.getUserStreamBanned();
-    // if (getDataUser.length > 0) {
-    //   for (let i = 0; i < getDataUser.length; i++) {
-    //     let dataUser = getDataUser[i];
-    //     let streamBanding = dataUser.streamBanding;
-    //     let streamBandingFilter = streamBanding.filter((bd) => {
-    //       return bd.status == true;
-    //     });
-    //     let objIndex = streamBanding.findIndex(obj => obj.status == true);
-    //     let currentDate = new Date();
-    //     let firstBanding = streamBandingFilter[0].createAt;
-    //     let firstBandingToDate = new Date(firstBanding);
-    //     let firstBandingDateTime = new Date(firstBandingToDate.getTime() - (firstBandingToDate.getTimezoneOffset() * 60000));
+    let getDataUser = await this.userbasicnewService.getUserStreamBanned();
+    if (getDataUser.length > 0) {
+      for (let i = 0; i < getDataUser.length; i++) {
+        let dataUser = getDataUser[i];
+        let streamBanding = dataUser.streamBanding;
+        let streamBandingFilter = streamBanding.filter((bd) => {
+          return bd.status == true;
+        });
+        let objIndex = streamBanding.findIndex(obj => obj.status == true);
+        let currentDate = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000));
+        let firstBanding = streamBandingFilter[0].createAt;
+        let firstBandingToDate = new Date(firstBanding);
+        let firstBandingDateTime = new Date(firstBandingToDate.getTime() - (firstBandingToDate.getTimezoneOffset() * 60000));
+        let firstBandingDateTime_ = new Date(firstBandingToDate.getTime() - (firstBandingToDate.getTimezoneOffset() * 60000)).toISOString();
+        let firstBandingDateTime_Date = new Date(firstBandingDateTime_);
 
-    //     //GET ID SETTING REFRESH MAX REPORT
-    //     const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
-    //     const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
+        //GET ID SETTING REFRESH MAX REPORT
+        const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
+        const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
 
-    //     if (GET_ID_SETTING_APPEAL_AUTO_APPROVE != undefined) {
-    //       const dayToAdd = Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE);
-    //       firstBandingDateTime.setTime(firstBandingDateTime.getDate() + dayToAdd);
-    //       if (currentDate.getTime() >= firstBandingDateTime.getTime()) {
-    //         streamBanding[objIndex].notes = "AUTO APPROVE BY SYSTEM";
-    //         streamBanding[objIndex].status = false;
-    //         streamBanding[objIndex].approve = true;
-    //         let Userbasicnew_ = new Userbasicnew();
-    //         Userbasicnew_.streamWarning = [];
-    //         Userbasicnew_.streamBanned = false;
-    //         Userbasicnew_.streamBanding = streamBanding;
-    //         //UPDATE DATA USER STREAM
-    //         await await this.userbasicnewService.update2(dataUser._id.toString(), Userbasicnew_);
-    //       }
-    //     }
-    //   }
-    // }
+        if (GET_ID_SETTING_APPEAL_AUTO_APPROVE != undefined) {
+          const dayToAdd = Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE);
+          firstBandingDateTime_Date.setDate(firstBandingDateTime.getDate() + dayToAdd);
+          console.log(firstBandingDateTime_Date)
+          console.log(currentDate)
+          console.log(currentDate.getTime() >= firstBandingDateTime_Date.getTime())
+          if (currentDate.getTime() >= firstBandingDateTime_Date.getTime()) {
+            streamBanding[objIndex].notes = "AUTO APPROVE BY SYSTEM";
+            streamBanding[objIndex].status = false;
+            streamBanding[objIndex].approve = true;
+            let Userbasicnew_ = new Userbasicnew();
+            Userbasicnew_.streamWarning = [];
+            Userbasicnew_.streamBanned = false;
+            Userbasicnew_.streamBanding = streamBanding;
+            //UPDATE DATA USER STREAM
+            await await this.userbasicnewService.update2(dataUser._id.toString(), Userbasicnew_);
+          }
+        }
+      }
+    }
   }
 
   async updateDataStream(
