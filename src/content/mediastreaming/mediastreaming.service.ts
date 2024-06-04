@@ -1521,6 +1521,7 @@ export class MediastreamingService {
         $unwind:
         {
           path: "$comment",
+          preserveNullAndEmptyArrays: true,
           includeArrayIndex: "updateAt_index"
         }
       },
