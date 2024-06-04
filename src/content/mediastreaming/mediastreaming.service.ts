@@ -337,7 +337,6 @@ export class MediastreamingService {
               { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
             ]
           },
-
         },
         {
           "$lookup": {
@@ -3057,7 +3056,7 @@ export class MediastreamingService {
   }
 
   async getDataGift(_id: string, page: number, limit: number) {
-    let paramaggregate = [
+    const data = await this.MediastreamingModel.aggregate([
       {
         $match: {
           _id: new mongoose.Types.ObjectId(_id)
@@ -3083,7 +3082,7 @@ export class MediastreamingService {
       },
       {
         "$project": {
-          "_id":1,
+          "_id": 1,
           "gift": 1,
           "giftCreate": "$gift.createAt"
         }
@@ -3146,6 +3145,7 @@ export class MediastreamingService {
       },
       {
         "$project": {
+          "giftCreate": 1,
           "giftId": {
             "$let": {
               "vars": {
@@ -3265,6 +3265,11 @@ export class MediastreamingService {
         }
       },
       {
+        $sort: {
+          'data.giftCreate': 1
+        }
+      },
+      {
         $project: {
           "count": 1,
           "_id": {
@@ -3369,9 +3374,7 @@ export class MediastreamingService {
           },
         }
       },
-    ];
-    console.log(JSON.stringify(paramaggregate));
-    const data = await this.MediastreamingModel.aggregate(paramaggregate);
+    ]);
     return data;
   }
 

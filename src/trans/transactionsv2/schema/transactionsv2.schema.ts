@@ -42,5 +42,7 @@ export class transactionsV2 {
     createdAt: string;
     @Prop()
     updatedAt: string;
+    @Prop()
+    credit: number;
 }
 export const transactionsV2Schema = SchemaFactory.createForClass(transactionsV2);

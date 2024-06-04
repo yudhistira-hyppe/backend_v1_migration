@@ -558,7 +558,8 @@ export class TransactionsV2Service {
                 let saldo = 0;
                 let coinProfitSharingCM = 0;
                 let coinProfitSharingGF = 0;
-                let coinProfitSharingPenukaranCoin = 0;
+                let coinProfitSharingPenukaranCoin = 0; 
+                let credit = 0;
 
                 let priceDiscont = 0;
                 let price = 0;
@@ -993,79 +994,81 @@ export class TransactionsV2Service {
                         }
                     }
 
-                    //Insert Coa Table
-                    let TransactionsCoa_ = new TransactionsCoa();
-                    TransactionsCoa_._id = new mongoose.Types.ObjectId();
-                    TransactionsCoa_.coaTransaction = generateInvoice;
-                    TransactionsCoa_.asset = {
-                        kas: kas,
-                        biaya: {
-                            biayaPaymentGateway: biayaPaymentGateway,
-                            biayaDiscount: biayaDiscount,
-                            biayaFreeCreator: biayaFreeCreator
+                    if (transactionProductCode != "AD") {
+                        //Insert Coa Table
+                        let TransactionsCoa_ = new TransactionsCoa();
+                        TransactionsCoa_._id = new mongoose.Types.ObjectId();
+                        TransactionsCoa_.coaTransaction = generateInvoice;
+                        TransactionsCoa_.asset = {
+                            kas: kas,
+                            biaya: {
+                                biayaPaymentGateway: biayaPaymentGateway,
+                                biayaDiscount: biayaDiscount,
+                                biayaFreeCreator: biayaFreeCreator
+                            }
+                        };
+                        TransactionsCoa_.hutang = {
+                            hutangSaldoCoin: hutangSaldoCoin,
+                            hutangSaldoCredit: hutangSaldoCredit
+                        };
+                        TransactionsCoa_.ekuitas = {
+                            saldoPendapatan: {
+                                pendapatanBiayaTransaction: pendapatanBiayaTransaction,
+                                pendapatanPenukaranCoin: pendapatanPenukaranCoin,
+                                pendapatanContentOwnership: pendapatanContentOwnership,
+                                pendapatanContentMarketPlace: pendapatanContentMarketPlace,
+                                pendapatanBoostPost: pendapatanBoostPost,
+                                pendapatanLiveGift: pendapatanLiveGift,
+                                pendapatanContentGift: pendapatanContentGift,
+                                pendapatanAdvertisement: pendapatanAdvertisement
+                            },
+                            saldoDiTarik: {
+                                pendapatanDiTarik: pendapatanDiTarik
+                            }
+                        };
+                        TransactionsCoa_.modal = {
+                            modalDiSetor: modalDiSetor
                         }
-                    };
-                    TransactionsCoa_.hutang = {
-                        hutangSaldoCoin: hutangSaldoCoin,
-                        hutangSaldoCredit: hutangSaldoCredit
-                    };
-                    TransactionsCoa_.ekuitas = {
-                        saldoPendapatan: {
-                            pendapatanBiayaTransaction: pendapatanBiayaTransaction,
-                            pendapatanPenukaranCoin: pendapatanPenukaranCoin,
-                            pendapatanContentOwnership: pendapatanContentOwnership,
-                            pendapatanContentMarketPlace: pendapatanContentMarketPlace,
-                            pendapatanBoostPost: pendapatanBoostPost,
-                            pendapatanLiveGift: pendapatanLiveGift,
-                            pendapatanContentGift: pendapatanContentGift,
-                            pendapatanAdvertisement: pendapatanAdvertisement
-                        },
-                        saldoDiTarik: {
-                            pendapatanDiTarik: pendapatanDiTarik
-                        }
-                    };
-                    TransactionsCoa_.modal = {
-                        modalDiSetor: modalDiSetor
-                    }
-                    TransactionsCoa_.allProductPendapatan = allProductPendapatan;
-                    TransactionsCoa_.idTransaction = idTransaction;
-                    TransactionsCoa_.idCoinSettings = currencyCoinId;
-                    TransactionsCoa_.createdAt = currentDate;
-                    TransactionsCoa_.updatedAt = currentDate;
-                    TransactionsCoa_.product = getProduct._id;
-                    TransactionsCoa_.category = categoryTransaction._id;
-                    TransactionsCoa_.status = status;
-                    await this.transactionsCoaService.create(TransactionsCoa_);
+                        TransactionsCoa_.allProductPendapatan = allProductPendapatan;
+                        TransactionsCoa_.idTransaction = idTransaction;
+                        TransactionsCoa_.idCoinSettings = currencyCoinId;
+                        TransactionsCoa_.createdAt = currentDate;
+                        TransactionsCoa_.updatedAt = currentDate;
+                        TransactionsCoa_.product = getProduct._id;
+                        TransactionsCoa_.category = categoryTransaction._id;
+                        TransactionsCoa_.status = status;
+                        await this.transactionsCoaService.create(TransactionsCoa_);
 
-                    //Insert Coa Table
-                    let TransactionsCoaTable_ = new TransactionsCoaTable();
-                    TransactionsCoaTable_._id = new mongoose.Types.ObjectId();
-                    TransactionsCoaTable_.coaTransaction = generateInvoice;
-                    TransactionsCoaTable_.kas = kas;
-                    TransactionsCoaTable_.biayaPaymentGateway = biayaPaymentGateway;
-                    TransactionsCoaTable_.biayaDiscount = biayaDiscount;
-                    TransactionsCoaTable_.biayaFreeCreator = biayaFreeCreator;
-                    TransactionsCoaTable_.hutangSaldoCoin = hutangSaldoCoin;
-                    TransactionsCoaTable_.hutangSaldoCredit = hutangSaldoCredit;
-                    TransactionsCoaTable_.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
-                    TransactionsCoaTable_.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
-                    TransactionsCoaTable_.pendapatanContentOwnership = pendapatanContentOwnership;
-                    TransactionsCoaTable_.pendapatanContentMarketPlace = pendapatanContentMarketPlace;
-                    TransactionsCoaTable_.pendapatanBoostPost = pendapatanBoostPost;
-                    TransactionsCoaTable_.pendapatanLiveGift = pendapatanLiveGift;
-                    TransactionsCoaTable_.pendapatanContentGift = pendapatanContentGift;
-                    TransactionsCoaTable_.pendapatanAdvertisement = pendapatanAdvertisement;
-                    TransactionsCoaTable_.pendapatanDiTarik = pendapatanDiTarik;
-                    TransactionsCoaTable_.modalDiSetor = modalDiSetor;
-                    TransactionsCoaTable_.allProductPendapatan = allProductPendapatan;
-                    TransactionsCoaTable_.createdAt = currentDate;
-                    TransactionsCoaTable_.updatedAt = currentDate;
-                    TransactionsCoaTable_.idTransaction = idTransaction;
-                    TransactionsCoaTable_.idCoinSettings = currencyCoinId;
-                    TransactionsCoaTable_.product = getProduct._id;
-                    TransactionsCoaTable_.category = categoryTransaction._id;
-                    TransactionsCoaTable_.status = status;
-                    await this.transactionsCoaTableService.create(TransactionsCoaTable_);
+                        //Insert Coa Table
+                        let TransactionsCoaTable_ = new TransactionsCoaTable();
+                        TransactionsCoaTable_._id = new mongoose.Types.ObjectId();
+                        TransactionsCoaTable_.coaTransaction = generateInvoice;
+                        TransactionsCoaTable_.kas = kas;
+                        TransactionsCoaTable_.biayaPaymentGateway = biayaPaymentGateway;
+                        TransactionsCoaTable_.biayaDiscount = biayaDiscount;
+                        TransactionsCoaTable_.biayaFreeCreator = biayaFreeCreator;
+                        TransactionsCoaTable_.hutangSaldoCoin = hutangSaldoCoin;
+                        TransactionsCoaTable_.hutangSaldoCredit = hutangSaldoCredit;
+                        TransactionsCoaTable_.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
+                        TransactionsCoaTable_.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
+                        TransactionsCoaTable_.pendapatanContentOwnership = pendapatanContentOwnership;
+                        TransactionsCoaTable_.pendapatanContentMarketPlace = pendapatanContentMarketPlace;
+                        TransactionsCoaTable_.pendapatanBoostPost = pendapatanBoostPost;
+                        TransactionsCoaTable_.pendapatanLiveGift = pendapatanLiveGift;
+                        TransactionsCoaTable_.pendapatanContentGift = pendapatanContentGift;
+                        TransactionsCoaTable_.pendapatanAdvertisement = pendapatanAdvertisement;
+                        TransactionsCoaTable_.pendapatanDiTarik = pendapatanDiTarik;
+                        TransactionsCoaTable_.modalDiSetor = modalDiSetor;
+                        TransactionsCoaTable_.allProductPendapatan = allProductPendapatan;
+                        TransactionsCoaTable_.createdAt = currentDate;
+                        TransactionsCoaTable_.updatedAt = currentDate;
+                        TransactionsCoaTable_.idTransaction = idTransaction;
+                        TransactionsCoaTable_.idCoinSettings = currencyCoinId;
+                        TransactionsCoaTable_.product = getProduct._id;
+                        TransactionsCoaTable_.category = categoryTransaction._id;
+                        TransactionsCoaTable_.status = status;
+                        await this.transactionsCoaTableService.create(TransactionsCoaTable_);
+                    }
                 }
 
                 //Set User, coin
@@ -1169,7 +1172,8 @@ export class TransactionsV2Service {
                                                                         for (let k = 0; k < detail.length; k++) {
                                                                             let dataDetail = detail[k];
                                                                             dataGrandTotalCredit = dataDetail.credit;
-                                                                        }
+                                                                        } 
+                                                                        credit = dataGrandTotalCredit;
                                                                         let AdsBalaceCredit_ = new AdsBalaceCredit();
                                                                         AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
                                                                         AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(idUser);
@@ -1202,6 +1206,7 @@ export class TransactionsV2Service {
                 transactionsV2_.totalCoin = totalCoin;
                 transactionsV2_.priceDiscont = priceDiscont;
                 transactionsV2_.price = price;
+                transactionsV2_.credit = credit;
                 transactionsV2_.totalPrice = totalPrice;
                 await this.transactionsModel.create(transactionsV2_);
 
