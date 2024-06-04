@@ -21064,7 +21064,8 @@ export class TransactionsController {
                         "action": "APPROVAL",
                         "timestamp": dtb,
                         "description_id": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`,
-                        "description_en": `Rp${disbursementData.amount} has been successfully transferred to the destination account`
+                        "description_en": `Rp${disbursementData.amount} has been successfully transferred to the destination account`,
+                        "approved_by": user_data._id
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
                     updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", infodisbursemen);
@@ -21178,7 +21179,8 @@ export class TransactionsController {
                         "action": "APPROVAL",
                         "timestamp": dtb,
                         "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`,
-                        "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.tx_status_description}`
+                        "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.tx_status_description}`,
+                        "approved_by": user_data._id
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
                     updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", infodisbursemen);
@@ -21230,7 +21232,8 @@ export class TransactionsController {
                 "action": "APPROVAL",
                 "timestamp": dtnow.toISOString(),
                 "description_id": `Penukaran coins ditolak dengan alasan ${request_json.remark}`,
-                "description_en": `Coin withdrawal request rejected with the following reason: ${request_json.remark}`
+                "description_en": `Coin withdrawal request rejected with the following reason: ${request_json.remark}`,
+                "approved_by": user_data._id
             });
             updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", {});
             let data = {
@@ -21428,6 +21431,39 @@ export class TransactionsController {
                         break;
                 }
             }
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('api/transactions/listwithdrawcoin')
+    @UseGuards(JwtAuthGuard)
+    async listWithdrawCoin(@Req() request: Request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/cointransactionhistory';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            var request_json = JSON.parse(JSON.stringify(request.body));
+            let skip = 0;
+            let limit = 0;
+            if (request_json.limit != undefined) limit = request_json.limit;
+            if (request_json.page != undefined) skip = request_json.page * limit;
+            let data = await this.withdrawsService.listWithdrawCoin(skip, limit, request_json.status, request_json.startdate, request_json.enddate, request_json.amountgte, request_json.amountlte, request_json.banks);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
             return {

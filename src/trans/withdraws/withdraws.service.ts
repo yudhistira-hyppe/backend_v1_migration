@@ -959,4 +959,156 @@ export class WithdrawsService {
         return query;
     }
 
+    async listWithdrawCoin(skip: number, limit: number, status?: string[], startdate?: string, enddate?: string, amountgte?: number, amountlte?: number, banks?: string[]) {
+        let currentdate = null;
+        let dateend = null;
+        if (enddate != undefined) {
+            currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
+            dateend = currentdate.toISOString();
+        };
+        let pipeline = [];
+        let matchAnd = [];
+        matchAnd.push({
+            tracking: { $ne: null }
+        });
+        if (status && status.length > 0) matchAnd.push(
+            {
+                $expr: {
+                    $in: [{ $last: "$tracking.status" }, status]
+                }
+            }
+        );
+        if (startdate != undefined) matchAnd.push(
+            {
+                timestamp: { $gte: startdate }
+            }
+        );
+        if (dateend != null) matchAnd.push(
+            {
+                timestamp: { $lt: dateend }
+            }
+        );
+        if (amountgte != undefined) matchAnd.push(
+            {
+                totalamount: { $gte: amountgte }
+            }
+        );
+        if (amountlte != undefined) matchAnd.push(
+            {
+                totalamount: { $lte: amountlte }
+            }
+        )
+        pipeline.push(
+            {
+                $match: {
+                    $and: matchAnd
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "idUser",
+                    foreignField: "_id",
+                    as: "userdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "userbankaccounts",
+                    localField: "idAccountBank",
+                    foreignField: "_id",
+                    as: "userbankaccdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "transactionsV2",
+                    let: { local_id: "$_id" },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $eq: [{ $arrayElemAt: ["$detail.withdrawId", 0] }, "$$local_id"]
+                            }
+                        }
+                    }],
+                    as: "trxdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "banks",
+                    let: { local_id: { $arrayElemAt: ["$userbankaccdata.idBank", 0] } },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$local_id"]
+                            }
+                        }
+                    }],
+                    as: "bankdata"
+                }
+            },
+            {
+                $project: {
+                    timestamp: 1,
+                    avatar: {
+                        "mediaBasePath":
+                        {
+                            "$ifNull":
+                                [
+                                    { $arrayElemAt: ["$userdata.mediaBasePath", 0] },
+                                    null
+                                ]
+                        },
+                        "mediaUri":
+                        {
+                            "$ifNull":
+                                [
+                                    { $arrayElemAt: ["$userdata.mediaUri", 0] },
+                                    null
+                                ]
+                        },
+                        "mediaType":
+                        {
+                            "$ifNull":
+                                [
+                                    { $arrayElemAt: ["$userdata.mediaType", 0] },
+                                    null
+                                ]
+                        },
+                        "mediaEndpoint":
+                        {
+                            "$ifNull":
+                                [
+                                    { $arrayElemAt: ["$userdata.mediaEndpoint", 0] },
+                                    null
+                                ]
+                        },
+                    },
+                    fullName: { $arrayElemAt: ["$userdata.fullName", 0] },
+                    email: { $arrayElemAt: ["$userdata.email", 0] },
+                    idTransaction: { $arrayElemAt: ["$trxdata.idTransaction", 0] },
+                    noInvoice: { $arrayElemAt: ["$trxdata.noInvoice", 0] },
+                    totalAmount: "$totalamount",
+                    destBank: { $arrayElemAt: ["$bankdata.bankname", 0] },
+                    approvedBy: { $last: "$tracking.approvedBy" },
+                    status: { $last: "$tracking.status" }
+                }
+            }
+        )
+        if (banks && banks.length > 0) pipeline.push(
+            {
+                $match: {
+                    destBank: { $in: banks }
+                }
+            }
+        )
+        if (skip > 0) pipeline.push({ $skip: skip });
+        if (limit > 0) pipeline.push({ $limit: limit });
+        var setutil = require('util');
+        console.log(setutil.inspect(pipeline, { depth: null, showHidden: false }))
+        const query = await this.withdrawsModel.aggregate(pipeline);
+        return query;
+    }
+
 }
