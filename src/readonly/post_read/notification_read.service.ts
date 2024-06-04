@@ -649,7 +649,7 @@ export class NotificationReadService {
 
                                     },
                                     {
-                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL', 'COMMENT', 'LIKE'] },
+                                        "eventType": { $in: ['VERIFICATIONID', 'SUPPORTFILE', 'TRANSACTION', 'POST', 'ADS VIEW', 'BOOST_CONTENT', 'BOOST_BUY', 'CONTENT', 'ADS CLICK', 'BANK', 'CONTENTMOD', 'KYC', 'GENERAL', 'COMMENT', 'LIKE', 'NOTIFY_LIVE'] },
 
                                     },
                                     {
@@ -764,6 +764,7 @@ export class NotificationReadService {
                     active: 1,
                     body: 1,
                     bodyId: 1,
+                    streamId: 1,
                     contentEventID: 1,
                     createdAt: 1,
                     email: 1,
@@ -1044,6 +1045,7 @@ export class NotificationReadService {
                     active: 1,
                     body: 1,
                     bodyId: 1,
+                    streamId: 1,
                     contentEventID: 1,
                     createdAt: 1,
                     email: 1,
