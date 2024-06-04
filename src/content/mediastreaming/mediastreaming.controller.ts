@@ -344,7 +344,7 @@ export class MediastreamingController {
     }
 
     //const ceckId = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
-    const ceckId = await this.mediastreamingService.findOneStreaming3(MediastreamingDto_._id.toString());
+    const ceckId = await this.mediastreamingService.findOneStreaming4(MediastreamingDto_._id.toString());
     let UserBanned = false;
     let UserReport = false;
     let UserKick = false;
@@ -501,15 +501,6 @@ export class MediastreamingController {
         if (await this.utilsService.ceckData(ceckView)) {
           //UPDATE VIEW
           await this.mediastreamingService.updateView(MediastreamingDto_._id.toString(), profile._id.toString(), true, false, currentDate);
-          //UPDATE COMMENT
-          // const dataComment = {
-          //   userId: new mongoose.Types.ObjectId(profile._id.toString()),
-          //   status: true,
-          //   messages: profile_auth.username + " Leave in room",
-          //   createAt: currentDate,
-          //   updateAt: currentDate
-          // }
-          // await this.mediastreamingService.insertComment(MediastreamingDto_._id.toString(), dataComment);
           //SEND VIEW COUNT
           const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
           let viewCount = 0;
@@ -531,14 +522,6 @@ export class MediastreamingController {
             RequestSoctDto_.data = JSON.stringify(dataStreamSend);
             this.mediastreamingService.socketRequest(RequestSoctDto_);
           }
-          //SEND COMMENT SINGLE
-          // const getUser = await this.userbasicsService.getUser(profile._id.toString());
-          // getUser[0]["idStream"] = MediastreamingDto_._id.toString();
-          // getUser[0]["messages"] = profile_auth.username + " Leave in room";
-          // const singleSend = {
-          //   data: getUser[0]
-          // }
-          // this.appGateway.eventStream("COMMENT_STREAM_SINGLE", JSON.stringify(singleSend));
         }
       }
       //CECK TYPE LIKE
@@ -818,17 +801,16 @@ export class MediastreamingController {
               this.mediastreamingService.socketRequest(RequestSoctDto_);
             }
             //SEND VIEW COUNT
-            //const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
+            const dataStream = await this.mediastreamingService.findOneStreamingView(MediastreamingDto_._id.toString());
             
             let viewCount = 0;
             if (dataStreamUnic.length > 0) {
-              viewCount = dataStreamUnic.length;
+              viewCount = dataStream[0].view.length;
             }
             const dataStreamSend = {
               data: {
                 idStream: MediastreamingDto_._id.toString(),
                 viewCount: viewCount,
-                totalViews: dataStreamUnic.length,
               }
             }
             if (STREAM_MODE == "1") {
