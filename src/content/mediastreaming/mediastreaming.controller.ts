@@ -344,7 +344,7 @@ export class MediastreamingController {
     }
 
     //const ceckId = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
-    const ceckId = await this.mediastreamingService.findOneStreaming2(MediastreamingDto_._id.toString());
+    const ceckId = await this.mediastreamingService.findOneStreaming3(MediastreamingDto_._id.toString());
     let UserBanned = false;
     let UserReport = false;
     let UserKick = false;

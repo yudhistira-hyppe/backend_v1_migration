@@ -1510,6 +1510,11 @@ export class MediastreamingService {
     // return data;
   }
 
+  async findOneStreaming3(_id: string): Promise<Mediastreaming> {
+    const data = await this.MediastreamingModel.findOne({ _id: new mongoose.Types.ObjectId(_id) });
+    return data;
+  }
+
   async findOneStreaming(_id: string): Promise<Mediastreaming> {
     let paramaggregate = [
       {
