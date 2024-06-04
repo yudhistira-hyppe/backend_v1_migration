@@ -70,10 +70,12 @@ export class TransactionsV2Service {
         }).exec();
     }
 
-    async findByOneNova(iduser: string,nova:string): Promise<transactionsV2> {
-        return this.transactionsModel.findOne({  "type": "USER",
-        "idUser": new mongoose.Types.ObjectId(iduser),
-        'detail.payload.va_number': nova }).exec();
+    async findByOneNova(iduser: string, nova: string): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({
+            "type": "USER",
+            "idUser": new mongoose.Types.ObjectId(iduser),
+            'detail.payload.va_number': nova
+        }).exec();
     }
 
     async updateTransaction(idTrans: string, status: string, data: any) {
@@ -102,7 +104,7 @@ export class TransactionsV2Service {
 
         //Get Data Transaction
         const getDataTransaction = await this.transactionsModel.find({ idTransaction: idTrans }).exec();
-        
+
         if (getDataTransaction.length > 0) {
             let debet = 0;
             let kredit = 0;
@@ -111,7 +113,7 @@ export class TransactionsV2Service {
                 product = dataTransaction.product.toString();
                 const categoryTransaction = await this.transactionsCategorysService.findOne(dataTransaction.category.toString());
                 if (dataTransaction.type == "USER") {
-                    if (categoryTransaction.type!=undefined){
+                    if (categoryTransaction.type != undefined) {
                         if (categoryTransaction.type.length > 0) {
                             for (let j = 0; j < categoryTransaction.type.length; j++) {
                                 if (categoryTransaction.type[j].category != undefined) {
@@ -149,7 +151,7 @@ export class TransactionsV2Service {
                                                             if (status = "FAILED") {
                                                                 coin = dataTransaction.coin;
                                                                 let coin_wd_failed = Number(cost_verification) / Number(currencyCoin)
-                                                                debet = coin - coin_wd_failed; 
+                                                                debet = coin - coin_wd_failed;
                                                                 kredit = 0;
                                                             }
                                                         }
@@ -202,7 +204,7 @@ export class TransactionsV2Service {
                                                     if (transactionTypetransaction[tr].status != undefined) {
                                                         if (transactionTypetransaction.status == "debit") {
                                                             if (status = "FAILED") {
-                                                                hutangSaldoCoin = (Number(currencyCoin) * (dataTransaction.coin)) - cost_verification; 
+                                                                hutangSaldoCoin = (Number(currencyCoin) * (dataTransaction.coin)) - cost_verification;
                                                             }
                                                         }
                                                     }
@@ -309,7 +311,7 @@ export class TransactionsV2Service {
                 const transactionsV2_ = new transactionsV2();
                 transactionsV2_.status = status;
                 transactionsV2_.detail = dataDetail;
-                this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(),transactionsV2_,{ new: true });
+                this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
             }
         }
 
@@ -334,7 +336,7 @@ export class TransactionsV2Service {
 
             let modalDiSetor = 0;
             let allProductPendapatan = 0;
-            if (category=="WD"){
+            if (category == "WD") {
                 const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(product.toString(), "REFUND");
                 if (getCategoryTransaction.length > 0) {
                     for (let z = 0; z < getCategoryTransaction.length; z++) {
@@ -364,11 +366,11 @@ export class TransactionsV2Service {
                                                                         pendapatanBiayaTransaction = cost_verification;
                                                                     }
                                                                 }
-                                                            } 
+                                                            }
                                                             if (categoryTransactionType.transaction[tr].name == "HutangCoin") {
                                                                 if (categoryTransactionType.transaction[tr].status != undefined) {
                                                                     if (categoryTransactionType.transaction[tr].status == "debit") {
-                                                                        hutangSaldoCoin = (Number(currencyCoin) * (coin)) - cost_verification; 
+                                                                        hutangSaldoCoin = (Number(currencyCoin) * (coin)) - cost_verification;
                                                                     }
                                                                 }
                                                             }
@@ -558,7 +560,7 @@ export class TransactionsV2Service {
                 let saldo = 0;
                 let coinProfitSharingCM = 0;
                 let coinProfitSharingGF = 0;
-                let coinProfitSharingPenukaranCoin = 0; 
+                let coinProfitSharingPenukaranCoin = 0;
                 let credit = 0;
 
                 let priceDiscont = 0;
@@ -1172,7 +1174,7 @@ export class TransactionsV2Service {
                                                                         for (let k = 0; k < detail.length; k++) {
                                                                             let dataDetail = detail[k];
                                                                             dataGrandTotalCredit = dataDetail.credit;
-                                                                        } 
+                                                                        }
                                                                         credit = dataGrandTotalCredit;
                                                                         let AdsBalaceCredit_ = new AdsBalaceCredit();
                                                                         AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
@@ -1421,7 +1423,7 @@ export class TransactionsV2Service {
                     as: "databasic"
                 }
             },
-                
+
             {
                 $project: {
                     "type": 1,
@@ -1459,7 +1461,9 @@ export class TransactionsV2Service {
                     "namePaket": {
                         $arrayElemAt: ['$dataproduk.name', 0]
                     },
-                    
+                    "post_id": {
+                        $arrayElemAt: ['$detail.postID', 0]
+                    }
                 }
             },
             {
@@ -1468,6 +1472,14 @@ export class TransactionsV2Service {
                     localField: "va_number",
                     foreignField: "nova",
                     as: "datatr"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newPosts",
+                    localField: "post_id",
+                    foreignField: "postID",
+                    as: "datapost"
                 }
             },
             {
@@ -1516,10 +1528,42 @@ export class TransactionsV2Service {
                     "product_id": {
                         $arrayElemAt: ['$datatr.product_id', 0]
                     },
-                                 "expiredtimeva": {
+                    "expiredtimeva": {
                         $arrayElemAt: ['$datatr.expiredtimeva', 0]
                     },
-                    
+                    "post_id": 1,
+                    "post_type": {
+                        $switch: {
+                            branches: [
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'pict']
+                                    },
+                                    'then': "HyppePic"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'vid']
+                                    },
+                                    'then': "HyppeVid"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'diary']
+                                    },
+                                    'then': "HyppeVid"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'story']
+                                    },
+                                    'then': "HyppeStory"
+                                },
+
+                            ],
+                            default: ''
+                        }
+                    }
                 }
             },
             {
@@ -1530,7 +1574,7 @@ export class TransactionsV2Service {
                     as: "datamethod"
                 }
             },
-                   {
+            {
                 $lookup: {
                     from: "monetize",
                     localField: "product_id",
@@ -1569,13 +1613,15 @@ export class TransactionsV2Service {
                     "bank": 1,
                     "totalamount": 1,
                     "product_id": 1,
-                                "expiredtimeva":1,
+                    "expiredtimeva": 1,
                     "methodename": {
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
-                     "productName": {
+                    "productName": {
                         $arrayElemAt: ['$monetdata.name', 0]
                     },
+                    "post_id": 1,
+                    "post_type": 1
                 }
             },
             {
@@ -1586,22 +1632,22 @@ export class TransactionsV2Service {
                     as: "databank"
                 }
             },
-                 {
-                        $set: {
-                            "timenow": 
-                            {
-                                "$dateToString": {
-                                    "format": "%Y-%m-%d %H:%M:%S",
-                                    "date": {
-                                        $add: [
-                                            new Date(),
-                                            25200000
-                                        ]
-                                    }
-                                }
+            {
+                $set: {
+                    "timenow":
+                    {
+                        "$dateToString": {
+                            "format": "%Y-%m-%d %H:%M:%S",
+                            "date": {
+                                $add: [
+                                    new Date(),
+                                    25200000
+                                ]
                             }
                         }
-                    },
+                    }
+                }
+            },
             {
                 $project: {
                     "type": 1,
@@ -1623,7 +1669,7 @@ export class TransactionsV2Service {
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
-                                "expiredtimeva":1,
+                    "expiredtimeva": 1,
                     "transactionFees": 1,
                     "biayPG": 1,
                     "code": 1,
@@ -1635,33 +1681,35 @@ export class TransactionsV2Service {
                     "totalamount": 1,
                     "product_id": 1,
                     "methodename": 1,
-                                "productName":1,
-                                 "timenow": 1,
+                    "productName": 1,
+                    "timenow": 1,
                     "bankname": {
                         $arrayElemAt: ['$databank.bankname', 0]
                     },
                     "bankcode": {
                         $arrayElemAt: ['$databank.bankcode', 0]
                     },
-                    "urlEbanking":  {
+                    "urlEbanking": {
                         $arrayElemAt: ['$databank.urlEbanking', 0]
                     },
                     "bankIcon": {
                         $arrayElemAt: ['$databank.bankIcon', 0]
                     },
-                    "atm":  {
+                    "atm": {
                         $arrayElemAt: ['$databank.atm', 0]
                     },
-                    "internetBanking":  {
+                    "internetBanking": {
                         $arrayElemAt: ['$databank.internetBanking', 0]
                     },
                     "mobileBanking": {
                         $arrayElemAt: ['$databank.mobileBanking', 0]
                     },
-                    "jenisTransaksi": "Pembelian Coins"
+                    "jenisTransaksi": "Pembelian Coins",
+                    "post_id": 1,
+                    "post_type": 1
                 }
             },
-            
+
         );
         let query = await this.transactionsModel.aggregate(pipeline);
         return query[0];
