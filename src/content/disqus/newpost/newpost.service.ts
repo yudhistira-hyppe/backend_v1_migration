@@ -30,6 +30,15 @@ export class NewpostService {
     async findid(id: string): Promise<Newpost> {
         return this.PostsModel.findOne({ _id: id }).exec();
     }
+
+    async update(id: string, update: Newpost): Promise<Newpost> {
+        let data = await this.PostsModel.findByIdAndUpdate(id, update, { new: true });
+        if (!data) {
+            throw new Error('Data is not found!');
+        }
+        return data;
+    }
+
     async updateCommentPlus(postID: string) {
         this.PostsModel.updateOne(
             {
