@@ -787,7 +787,7 @@ export class UtilsService {
   }
 
   async numberFormatString(nominal: string) {
-    return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, ".")
+    return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.")
   }
 
   async sendFcmCMod(receiverParty: string, eventType: string, event: string, postID?: string, postType?: string) {
