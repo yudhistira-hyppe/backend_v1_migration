@@ -8226,11 +8226,18 @@ export class UserbasicnewService {
 
     async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string) {
         let matchAnd = [];
-        matchAnd.push({
-            $expr: {
-                $eq: ['$idUser', '$$localID']
+        matchAnd.push(
+            {
+                $expr: {
+                    $eq: ['$idUser', '$$localID']
+                }
+            },
+            {
+                category: {
+                    $nin: [new Types.ObjectId("66306d4dff1a0000750077e2"), new Types.ObjectId("662731cc56375e3a6b2230a6")]
+                }
             }
-        });
+        );
         if (status && status.length > 0) matchAnd.push({
             status: {
                 $in: status
