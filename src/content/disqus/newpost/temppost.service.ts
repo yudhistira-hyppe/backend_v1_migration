@@ -124,4 +124,12 @@ export class temppostDISCUSS {
             },
         );
     }
+    
+    async update(id: string, update: tempposts2): Promise<tempposts2> {
+        let data = await this.PostsModel.findByIdAndUpdate(id, update, { new: true });
+        if (!data) {
+            throw new Error('Data is not found!');
+        }
+        return data;
+    }
 }
