@@ -8531,6 +8531,7 @@ export class UserbasicnewService {
                     updatedAt: "$trans.updatedAt",
                     status: "$trans.status",
                     package: "$trans.transOld.packageName",
+                    noInvoiceLama: "$trans.transOld.noinvoice",
                     coa: "$trans.coa.coa",
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
