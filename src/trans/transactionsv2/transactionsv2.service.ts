@@ -1163,35 +1163,26 @@ export class TransactionsV2Service {
                                                                 }
                                                             }
                                                             if (categoryTransactionType.transaction[tr].status == "credit") {
-                                                                // if (detail != undefined) {
-                                                                //     if (detail.length > 0) {
-                                                                //         let dataGrandTotalCredit = 0;
-                                                                //         for (let k = 0; k < detail.length; k++) {
-                                                                //             let dataDetail = detail[k];
-                                                                //             let dataCredit = 0;
-                                                                //             let dataQty = 0;
-                                                                //             let dataTotalCredit = 0;
-                                                                //             if (dataDetail.credit != undefined) {
-                                                                //                 dataCredit = dataDetail.credit;
-                                                                //             }
-                                                                //             if (dataDetail.qty != undefined) {
-                                                                //                 dataQty = dataDetail.qty;
-                                                                //             }
-                                                                //             dataTotalCredit = Number(dataCredit) * Number(dataQty);
-                                                                //             dataGrandTotalCredit += dataTotalCredit;
-                                                                //         }
-                                                                //         let AdsBalaceCredit_ = new AdsBalaceCredit();
-                                                                //         AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
-                                                                //         AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(idUser);
-                                                                //         AdsBalaceCredit_.debet = dataGrandTotalCredit;
-                                                                //         AdsBalaceCredit_.type = "TOPUP";
-                                                                //         AdsBalaceCredit_.kredit = 0;
-                                                                //         AdsBalaceCredit_.idtrans = transactionsV2_id;
-                                                                //         AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
-                                                                //         AdsBalaceCredit_.description = "BUY PAKET CREDIT";
-                                                                //         await this.adsService.insertBalaceDebit(AdsBalaceCredit_);
-                                                                //     }
-                                                                // }
+                                                                if (detail != undefined) {
+                                                                    if (detail.length > 0) {
+                                                                        let dataGrandTotalCredit = 0;
+                                                                        for (let k = 0; k < detail.length; k++) {
+                                                                            let dataDetail = detail[k];
+                                                                            dataGrandTotalCredit = dataDetail.credit;
+                                                                        }
+                                                                        let AdsBalaceCredit_ = new AdsBalaceCredit();
+                                                                        AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
+                                                                        AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(idUser);
+                                                                        AdsBalaceCredit_.debet = 0;
+                                                                        AdsBalaceCredit_.type = "USE";
+                                                                        AdsBalaceCredit_.kredit = dataGrandTotalCredit;
+                                                                        AdsBalaceCredit_.idtrans = transactionsV2_id;
+                                                                        AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
+                                                                        AdsBalaceCredit_.description = "USE ADS CREATE";
+                                                                        AdsBalaceCredit_.idAdspricecredits = currencyCreditId;
+                                                                        await this.adsBalaceCreditService.create(AdsBalaceCredit_);
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -1224,24 +1215,8 @@ export class TransactionsV2Service {
                     }
                 }
 
-                if (status == "SUCCESS") {
-                    //Insert Balanceds
-                    let Balanceds_ = new TransactionsBalanceds();
-                    Balanceds_._id = new mongoose.Types.ObjectId();
-                    Balanceds_.idTransaction = transactionsV2_id;
-                    Balanceds_.idUser = idUser;
-                    Balanceds_.debit = debet;
-                    Balanceds_.credit = kredit;
-                    Balanceds_.saldo = saldo - kredit + debet;
-                    Balanceds_.noInvoice = generateInvoice;
-                    Balanceds_.createdAt = currentDate;
-                    Balanceds_.updatedAt = currentDate;
-                    Balanceds_.userType = categoryTransaction.user;
-                    Balanceds_.coa = [];
-                    Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
-                    await this.transactionsBalancedsService.create(Balanceds_);
-                } else{
-                    if (category == "WD") {
+                if (transactionProductCode != "AD") {
+                    if (status == "SUCCESS") {
                         //Insert Balanceds
                         let Balanceds_ = new TransactionsBalanceds();
                         Balanceds_._id = new mongoose.Types.ObjectId();
@@ -1257,6 +1232,24 @@ export class TransactionsV2Service {
                         Balanceds_.coa = [];
                         Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
                         await this.transactionsBalancedsService.create(Balanceds_);
+                    } else {
+                        if (category == "WD") {
+                            //Insert Balanceds
+                            let Balanceds_ = new TransactionsBalanceds();
+                            Balanceds_._id = new mongoose.Types.ObjectId();
+                            Balanceds_.idTransaction = transactionsV2_id;
+                            Balanceds_.idUser = idUser;
+                            Balanceds_.debit = debet;
+                            Balanceds_.credit = kredit;
+                            Balanceds_.saldo = saldo - kredit + debet;
+                            Balanceds_.noInvoice = generateInvoice;
+                            Balanceds_.createdAt = currentDate;
+                            Balanceds_.updatedAt = currentDate;
+                            Balanceds_.userType = categoryTransaction.user;
+                            Balanceds_.coa = [];
+                            Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
+                            await this.transactionsBalancedsService.create(Balanceds_);
+                        }
                     }
                 }
             }

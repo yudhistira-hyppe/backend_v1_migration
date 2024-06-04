@@ -225,8 +225,8 @@ export class MediastreamingController {
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
         //Get ID_SETTING_MAX_BANNED
-        const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
-        const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
+        const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+        const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
         let streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
         let streamBanding = (profile.streamBanding != undefined) ? profile.streamBanding:[];
         if (streamWarning.length > 0) {
@@ -242,7 +242,7 @@ export class MediastreamingController {
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
             streamBannedDate: profile.streamBannedDate,
-            streamBannedMax: Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE),
+            streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
             user: {
@@ -530,7 +530,7 @@ export class MediastreamingController {
           let dataLike = MediastreamingDto_.like;
           const likesave = dataLike.map((str) => ({ userId: new mongoose.Types.ObjectId(profile._id.toString()), createAt: str }));
           await this.mediastreamingService.insertLike(MediastreamingDto_._id.toString(), likesave);
-          const dataStream = await this.mediastreamingService.findOneStreaming(MediastreamingDto_._id.toString());
+          const dataStream = await this.mediastreamingService.findOneStreaming4(MediastreamingDto_._id.toString());
           const dataStreamSend = {
             data:{
               idStream: dataStream._id,
