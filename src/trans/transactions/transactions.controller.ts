@@ -3740,6 +3740,33 @@ export class TransactionsController {
 
 
     }
+    @Post('api/transactions/detail/coin/v2')
+    @UseGuards(JwtAuthGuard)
+    async profiv2(@Req() request: Request): Promise<any> {
+        var request_json = JSON.parse(JSON.stringify(request.body));
+
+        var datatr = null;
+        var noinvoice = null;
+        var data = null;
+        var idtransaksi = null;
+        var expired = null;
+        var status = null;
+        const messages = {
+            "info": ["The process successful"],
+        };
+
+        if (request_json["noinvoice"] !== undefined) {
+            noinvoice = request_json["noinvoice"];
+            try {
+                data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+                return { response_code: 202, data, messages };
+            } catch (e) {
+                data = null;
+                throw new BadRequestException("Transaction is not found..!");
+            }
+        } else throw new BadRequestException("Missing param: noinvoice (string)");
+
+    }
     // @Post('api/pg/oy/callback/va')
     // async callbackVa(@Res() res, @Body() payload: VaCallback, @Req() req, @Headers() headers) {
     //     const messages = {
