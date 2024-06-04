@@ -1118,20 +1118,20 @@ export class MediastreamingController {
     );
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/gift')
   @HttpCode(HttpStatus.ACCEPTED)
   async getGiftStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     //VALIDASI PARAM _id
     var ceckId = await this.utilsService.validateParam("_id", MediastreamingDto_._id.toString(), "string")
     if (ceckId != "") {

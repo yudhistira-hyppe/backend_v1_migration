@@ -47,6 +47,16 @@ export class TransactionsV2Controller {
         return data;
     }
 
+    @Post('/update')
+    @HttpCode(HttpStatus.ACCEPTED)
+    async update(@Req() request: any) {
+        const data = await this.transactionsV2Service.updateTransaction(
+            request.body.dTrans,
+            request.body.status,
+            request.body.data,);
+        return data;
+    }
+
     @Post('/coinhistory')
     @UseGuards(JwtAuthGuard)
     async listCoinHistory(@Req() request: any, @Headers() headers) {
