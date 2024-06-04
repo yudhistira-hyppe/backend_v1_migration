@@ -72,10 +72,12 @@ export class TransactionsV2Service {
         }).exec();
     }
 
-    async findByOneNova(iduser: string,nova:string): Promise<transactionsV2> {
-        return this.transactionsModel.findOne({  "type": "USER",
-        "idUser": new mongoose.Types.ObjectId(iduser),
-        'detail.payload.va_number': nova }).exec();
+    async findByOneNova(iduser: string, nova: string): Promise<transactionsV2> {
+        return this.transactionsModel.findOne({
+            "type": "USER",
+            "idUser": new mongoose.Types.ObjectId(iduser),
+            'detail.payload.va_number': nova
+        }).exec();
     }
 
     async updateTransaction(idTrans: string, status: string, data: any) {
@@ -601,7 +603,7 @@ export class TransactionsV2Service {
                 let saldo = 0;
                 let coinProfitSharingCM = 0;
                 let coinProfitSharingGF = 0;
-                let coinProfitSharingPenukaranCoin = 0; 
+                let coinProfitSharingPenukaranCoin = 0;
                 let credit = 0;
 
                 let priceDiscont = 0;
@@ -1215,7 +1217,7 @@ export class TransactionsV2Service {
                                                                         for (let k = 0; k < detail.length; k++) {
                                                                             let dataDetail = detail[k];
                                                                             dataGrandTotalCredit = dataDetail.credit;
-                                                                        } 
+                                                                        }
                                                                         credit = dataGrandTotalCredit;
                                                                         let AdsBalaceCredit_ = new AdsBalaceCredit();
                                                                         AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
@@ -1464,7 +1466,7 @@ export class TransactionsV2Service {
                     as: "databasic"
                 }
             },
-                
+
             {
                 $project: {
                     "type": 1,
@@ -1502,7 +1504,9 @@ export class TransactionsV2Service {
                     "namePaket": {
                         $arrayElemAt: ['$dataproduk.name', 0]
                     },
-                    
+                    "post_id": {
+                        $arrayElemAt: ['$detail.postID', 0]
+                    }
                 }
             },
             {
@@ -1511,6 +1515,14 @@ export class TransactionsV2Service {
                     localField: "va_number",
                     foreignField: "nova",
                     as: "datatr"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newPosts",
+                    localField: "post_id",
+                    foreignField: "postID",
+                    as: "datapost"
                 }
             },
             {
@@ -1559,10 +1571,42 @@ export class TransactionsV2Service {
                     "product_id": {
                         $arrayElemAt: ['$datatr.product_id', 0]
                     },
-                                 "expiredtimeva": {
+                    "expiredtimeva": {
                         $arrayElemAt: ['$datatr.expiredtimeva', 0]
                     },
-                    
+                    "post_id": 1,
+                    "post_type": {
+                        $switch: {
+                            branches: [
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'pict']
+                                    },
+                                    'then': "HyppePic"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'vid']
+                                    },
+                                    'then': "HyppeVid"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'diary']
+                                    },
+                                    'then': "HyppeVid"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'story']
+                                    },
+                                    'then': "HyppeStory"
+                                },
+
+                            ],
+                            default: ''
+                        }
+                    }
                 }
             },
             {
@@ -1573,7 +1617,7 @@ export class TransactionsV2Service {
                     as: "datamethod"
                 }
             },
-                   {
+            {
                 $lookup: {
                     from: "monetize",
                     localField: "product_id",
@@ -1612,13 +1656,15 @@ export class TransactionsV2Service {
                     "bank": 1,
                     "totalamount": 1,
                     "product_id": 1,
-                                "expiredtimeva":1,
+                    "expiredtimeva": 1,
                     "methodename": {
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
-                     "productName": {
+                    "productName": {
                         $arrayElemAt: ['$monetdata.name', 0]
                     },
+                    "post_id": 1,
+                    "post_type": 1
                 }
             },
             {
@@ -1629,22 +1675,22 @@ export class TransactionsV2Service {
                     as: "databank"
                 }
             },
-                 {
-                        $set: {
-                            "timenow": 
-                            {
-                                "$dateToString": {
-                                    "format": "%Y-%m-%d %H:%M:%S",
-                                    "date": {
-                                        $add: [
-                                            new Date(),
-                                            25200000
-                                        ]
-                                    }
-                                }
+            {
+                $set: {
+                    "timenow":
+                    {
+                        "$dateToString": {
+                            "format": "%Y-%m-%d %H:%M:%S",
+                            "date": {
+                                $add: [
+                                    new Date(),
+                                    25200000
+                                ]
                             }
                         }
-                    },
+                    }
+                }
+            },
             {
                 $project: {
                     "type": 1,
@@ -1666,7 +1712,7 @@ export class TransactionsV2Service {
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
-                                "expiredtimeva":1,
+                    "expiredtimeva": 1,
                     "transactionFees": 1,
                     "biayPG": 1,
                     "code": 1,
@@ -1678,33 +1724,427 @@ export class TransactionsV2Service {
                     "totalamount": 1,
                     "product_id": 1,
                     "methodename": 1,
-                                "productName":1,
-                                 "timenow": 1,
+                    "productName": 1,
+                    "timenow": 1,
                     "bankname": {
                         $arrayElemAt: ['$databank.bankname', 0]
                     },
                     "bankcode": {
                         $arrayElemAt: ['$databank.bankcode', 0]
                     },
-                    "urlEbanking":  {
+                    "urlEbanking": {
                         $arrayElemAt: ['$databank.urlEbanking', 0]
                     },
                     "bankIcon": {
                         $arrayElemAt: ['$databank.bankIcon', 0]
                     },
-                    "atm":  {
+                    "atm": {
                         $arrayElemAt: ['$databank.atm', 0]
                     },
-                    "internetBanking":  {
+                    "internetBanking": {
                         $arrayElemAt: ['$databank.internetBanking', 0]
                     },
                     "mobileBanking": {
                         $arrayElemAt: ['$databank.mobileBanking', 0]
                     },
-                    "jenisTransaksi": "Pembelian Coins"
+                    "jenisTransaksi": "Pembelian Coins",
+                    "post_id": 1,
+                    "post_type": 1
                 }
             },
-            
+
+        );
+        let query = await this.transactionsModel.aggregate(pipeline);
+        return query[0];
+    }
+
+    async getdetailtransaksinewinvoiceonly(noinvoice: string) {
+
+        var pipeline = [];
+
+        pipeline.push(
+            {
+                $match: {
+                    "type": "USER",
+                    'noInvoice': noinvoice
+                }
+            },
+            {
+                $lookup: {
+                    from: "transactionsProducts",
+                    localField: "product",
+                    foreignField: "_id",
+                    as: "dataproduk"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "idUser",
+                    foreignField: "_id",
+                    as: "databasic"
+                }
+            },
+            {
+                $project: {
+                    "type": 1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                    "category": 1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    "status": 1,
+                    "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "emailbuyer": {
+                        $arrayElemAt: ['$databasic.email', 0]
+                    },
+                    "va_number": {
+                        $arrayElemAt: ['$detail.payload.va_number', 0]
+                    },
+                    "transactionFees": {
+                        $arrayElemAt: ['$detail.transactionFees', 0]
+                    },
+                    "biayPG": {
+                        $arrayElemAt: ['$detail.biayPG', 0]
+                    },
+                    "withdrawId": {
+                        $arrayElemAt: ['$detail.withdrawId', 0]
+                    },
+                    "code": {
+                        $arrayElemAt: ['$dataproduk.code', 0]
+                    },
+                    "namePaket": {
+                        $arrayElemAt: ['$dataproduk.name', 0]
+                    },
+                    "post_id": {
+                        $arrayElemAt: ['$detail.postID', 0]
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "transactions",
+                    localField: "va_number",
+                    foreignField: "nova",
+                    as: "datatr"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newPosts",
+                    localField: "post_id",
+                    foreignField: "postID",
+                    as: "datapost"
+                }
+            },
+            {
+                $lookup: {
+                    from: "withdraws",
+                    localField: "withdrawId",
+                    foreignField: "_id",
+                    as: "datawithdraw"
+                }
+            },
+            {
+                $project: {
+                    "type": 1,
+                    "emailbuyer": 1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                    "category": 1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    //"status": 1,
+                    "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "va_number": 1,
+                    "transactionFees": 1,
+                    "biayPG": 1,
+                    "code": 1,
+                    "namePaket": 1,
+                    "amount": {
+                        $arrayElemAt: ['$datatr.amount', 0]
+                    },
+                    "paymentmethod": {
+                        $arrayElemAt: ['$datatr.paymentmethod', 0]
+                    },
+                    "status": {
+                        $arrayElemAt: ['$datatr.status', 0]
+                    },
+                    "description": {
+                        $arrayElemAt: ['$datatr.description', 0]
+                    },
+                    "bank": {
+                        $arrayElemAt: ['$datatr.bank', 0]
+                    },
+                    "totalamount": {
+                        $arrayElemAt: ['$datatr.totalamount', 0]
+                    },
+                    "product_id": {
+                        $arrayElemAt: ['$datatr.product_id', 0]
+                    },
+                    "expiredtimeva": {
+                        $arrayElemAt: ['$datatr.expiredtimeva', 0]
+                    },
+                    "post_id": 1,
+                    "post_type": {
+                        $switch: {
+                            branches: [
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'pict']
+                                    },
+                                    'then': "HyppePic"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'vid']
+                                    },
+                                    'then': "HyppeVid"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'diary']
+                                    },
+                                    'then': "HyppeVid"
+                                },
+                                {
+                                    'case': {
+                                        '$eq': [{ $arrayElemAt: ['$datapost.postType', 0] }, 'story']
+                                    },
+                                    'then': "HyppeStory"
+                                },
+
+                            ],
+                            default: ''
+                        }
+                    },
+                    withdrawAmount: {
+                        $arrayElemAt: ['$datawithdraw.amount', 0]
+                    },
+                    withdrawTotal: {
+                        $arrayElemAt: ['$datawithdraw.totalamount', 0]
+                    },
+                    withdrawCost: {
+                        $subtract: [{ $arrayElemAt: ['$datawithdraw.amount', 0] }, { $arrayElemAt: ['$datawithdraw.totalamount', 0] }]
+                    },
+                    recipientAccId: {
+                        $arrayElemAt: ['$datawithdraw.idAccountBank', 0]
+                    },
+                    recipientUser: {
+                        $arrayElemAt: ['$datawithdraw.idUser', 0]
+                    },
+                }
+            },
+            {
+                $lookup: {
+                    from: "methodepayments",
+                    localField: "paymentmethod",
+                    foreignField: "_id",
+                    as: "datamethod"
+                }
+            },
+            {
+                $lookup: {
+                    from: "monetize",
+                    localField: "product_id",
+                    foreignField: "package_id",
+                    as: "monetdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "userbankaccounts",
+                    localField: "recipientAccId",
+                    foreignField: "_id",
+                    as: "recipientaccdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "recipientUser",
+                    foreignField: "_id",
+                    as: "recipientuserdata"
+                }
+            },
+            {
+                $project: {
+                    "type": 1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                    "emailbuyer": 1,
+                    "category": 1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    "status": 1,
+                    "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "va_number": 1,
+                    "transactionFees": 1,
+                    "biayPG": 1,
+                    "code": 1,
+                    "namePaket": 1,
+                    "amount": 1,
+                    "paymentmethod": 1,
+                    "description": 1,
+                    "bank": 1,
+                    "totalamount": 1,
+                    "product_id": 1,
+                    "expiredtimeva": 1,
+                    "methodename": {
+                        $arrayElemAt: ['$datamethod.methodename', 0]
+                    },
+                    "productName": {
+                        $arrayElemAt: ['$monetdata.name', 0]
+                    },
+                    "post_id": 1,
+                    "post_type": 1,
+                    withdrawAmount: 1,
+                    withdrawTotal: 1,
+                    withdrawCost: 1,
+                    recipientNoRek: {
+                        $arrayElemAt: ['$recipientaccdata.noRek', 0]
+                    },
+                    recipientName: {
+                        $arrayElemAt: ['$recipientaccdata.nama', 0]
+                    },
+                    recipientUsername: {
+                        $arrayElemAt: ['$recipientuserdata.username', 0]
+                    },
+                    recipientBankId: {
+                        $arrayElemAt: ['$recipientaccdata.idBank', 0]
+                    },
+                }
+            },
+            {
+                $lookup: {
+                    from: "banks",
+                    localField: "bank",
+                    foreignField: "_id",
+                    as: "databank"
+                }
+            },
+            {
+                $lookup: {
+                    from: "banks",
+                    localField: "recipientBankId",
+                    foreignField: "_id",
+                    as: "datarecipientbank"
+                }
+            },
+            {
+                $set: {
+                    "timenow":
+                    {
+                        "$dateToString": {
+                            "format": "%Y-%m-%d %H:%M:%S",
+                            "date": {
+                                $add: [
+                                    new Date(),
+                                    25200000
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    "type": 1,
+                    "idTransaction": 1,
+                    "noInvoice": 1,
+                    "category": 1,
+                    "emailbuyer": 1,
+                    "product": 1,
+                    "voucherDiskon": 1,
+                    "idUser": 1,
+                    "coinDiscount": 1,
+                    "coin": 1,
+                    "totalCoin": 1,
+                    "priceDiscont": 1,
+                    "price": 1,
+                    "totalPrice": 1,
+                    "status": 1,
+                    // "detail": 1,
+                    "createdAt": 1,
+                    "updatedAt": 1,
+                    "va_number": 1,
+                    "expiredtimeva": 1,
+                    "transactionFees": 1,
+                    "biayPG": 1,
+                    "code": 1,
+                    "namePaket": 1,
+                    "amount": 1,
+                    "paymentmethod": 1,
+                    "description": 1,
+                    "bank": 1,
+                    "totalamount": 1,
+                    "product_id": 1,
+                    "methodename": 1,
+                    "productName": 1,
+                    "timenow": 1,
+                    "bankname": {
+                        $arrayElemAt: ['$databank.bankname', 0]
+                    },
+                    "bankcode": {
+                        $arrayElemAt: ['$databank.bankcode', 0]
+                    },
+                    "urlEbanking": {
+                        $arrayElemAt: ['$databank.urlEbanking', 0]
+                    },
+                    "bankIcon": {
+                        $arrayElemAt: ['$databank.bankIcon', 0]
+                    },
+                    "atm": {
+                        $arrayElemAt: ['$databank.atm', 0]
+                    },
+                    "internetBanking": {
+                        $arrayElemAt: ['$databank.internetBanking', 0]
+                    },
+                    "mobileBanking": {
+                        $arrayElemAt: ['$databank.mobileBanking', 0]
+                    },
+                    "jenisTransaksi": "Pembelian Coins",
+                    "post_id": 1,
+                    "post_type": 1,
+                    withdrawAmount: 1,
+                    withdrawTotal: 1,
+                    withdrawCost: 1,
+                    recipientNoRek: 1,
+                    recipientName: 1,
+                    recipientUsername: 1,
+                    recipientBankName: {
+                        $arrayElemAt: ['$datarecipientbank.bankname', 0]
+                    }
+                }
+            },
+
         );
         let query = await this.transactionsModel.aggregate(pipeline);
         return query[0];
