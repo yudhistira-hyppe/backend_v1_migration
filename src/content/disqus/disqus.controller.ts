@@ -2561,6 +2561,20 @@ export class DisqusController {
                 media_["view"] = dataStream.view.length;
               }
             }
+          } else {
+            if (dataStream.status != undefined) {
+              media_["status"] = dataStream.status;
+            }
+            if (dataStream.view != undefined) {
+              media_["view"] = dataStream.view.length;
+            }
+          }
+        } else {
+          if (dataStream.status != undefined) {
+            media_["status"] = dataStream.status;
+          }
+          if (dataStream.view != undefined) {
+            media_["view"] = dataStream.view.length;
           }
         }
         if (dataStream.expireTime != undefined) {
@@ -2592,7 +2606,8 @@ export class DisqusController {
     dis.disqusLogs = usparr;
 
     dis.updatedAt = dl.createdAt;
-    dis.lastestMessage = dl.txtMessages.substring(0, 21);
+    dis.lastestMessage = dl.txtMessages;
+    //dis.lastestMessage = dl.txtMessages.substring(0, 21);
     dis.mateActive = true;
     dis.emailActive = true;
     this.disqusService.create(dis);
