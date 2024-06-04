@@ -3066,14 +3066,26 @@ export class MediastreamingService {
       {
         "$project": {
           "_id": 1,
-          "gift": 1,
-
+          "gift": {
+            $sortArray:
+            {
+              input: "$gift",
+              sortBy: { "createAt": 1 }
+            }
+          }
         }
       },
       {
         $unwind:
         {
           path: "$gift"
+        }
+      },
+      {
+        "$project": {
+          "_id":1,
+          "gift": 1,
+          "giftCreate": "$gift.createAt"
         }
       },
       {
@@ -3125,7 +3137,6 @@ export class MediastreamingService {
                 avatar: 1,
                 follower: 1,
                 following: 1,
-
               }
             },
 
