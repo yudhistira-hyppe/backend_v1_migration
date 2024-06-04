@@ -1061,11 +1061,6 @@ export class MonetizationService {
                 {
                     "type":"DISCOUNT",
                     "active":true,
-                    "createdAt":
-                    {
-                        "$gte":start,
-                        "$lt":dateend
-                    }
                 }
             },
             {
@@ -1073,6 +1068,16 @@ export class MonetizationService {
                 {
                     "total":
                     [
+                        {
+                            "$match":
+                            {
+                                "createdAt":
+                                {
+                                    "$gte":start,
+                                    "$lt":dateend
+                                }
+                            }   
+                        },
                         {
                             "$group":
                             {
@@ -1187,7 +1192,14 @@ export class MonetizationService {
                                 "from":"transactionsDiscounts",
                                 "let":
                                 {
-                                    "fk_id":"$_id"
+                                    "fk_id":"$_id",
+                                    "created_id":
+                                    {
+                                        "$substr":
+                                        [
+                                            "$createdAt", 0, 10
+                                        ]
+                                    }
                                 },
                                 "as":"detail_trans",
                                 "pipeline":
@@ -1209,10 +1221,16 @@ export class MonetizationService {
                                                 {
                                                     "$expr":
                                                     {
-                                                        "$lt":
+                                                        "$gte":
                                                         [
-                                                            "$transactionDate", dateend
+                                                            "$transactionDate", "$$created_id"
                                                         ]
+                                                    }
+                                                },
+                                                {
+                                                    "transactionDate":
+                                                    {
+                                                        "$lt":dateend
                                                     }
                                                 }
                                             ]
@@ -1221,8 +1239,7 @@ export class MonetizationService {
                                     {
                                         "$project":
                                         {
-                                            _id:1,
-                                            tanggal:
+                                            "tanggal":
                                             {
                                                 "$substr":
                                                 [
@@ -1230,6 +1247,16 @@ export class MonetizationService {
                                                     0,
                                                     10
                                                 ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "$group":
+                                        {
+                                            "_id":"$tanggal",
+                                            "total":
+                                            {
+                                                "$sum":1
                                             }
                                         }
                                     }
@@ -1243,14 +1270,20 @@ export class MonetizationService {
                             }
                         },
                         {
-                           "$group":
-                           {
-                                "_id":"$detail_trans.tanggal",
+                            "$group":
+                            {
+                                "_id":"$detail_trans._id",
                                 "total":
                                 {
-                                    "$sum":1
+                                    "$sum":"$detail_trans.total"
                                 }
-                           } 
+                            }
+                        },
+                        {
+                            "$sort":
+                            {
+                                "_id":1
+                            }
                         }
                     ],
                     "chart_special":
@@ -1267,7 +1300,14 @@ export class MonetizationService {
                                 "from":"transactionsDiscounts",
                                 "let":
                                 {
-                                    "fk_id":"$_id"
+                                    "fk_id":"$_id",
+                                    "created_id":
+                                    {
+                                        "$substr":
+                                        [
+                                            "$createdAt", 0, 10
+                                        ]
+                                    },
                                 },
                                 "as":"detail_trans",
                                 "pipeline":
@@ -1289,10 +1329,16 @@ export class MonetizationService {
                                                 {
                                                     "$expr":
                                                     {
-                                                        "$lt":
+                                                        "$gte":
                                                         [
-                                                            "$transactionDate", dateend
+                                                            "$transactionDate", "$$created_id"
                                                         ]
+                                                    }
+                                                },
+                                                {
+                                                    "transactionDate":
+                                                    {
+                                                        "$lt":dateend
                                                     }
                                                 }
                                             ]
@@ -1301,8 +1347,7 @@ export class MonetizationService {
                                     {
                                         "$project":
                                         {
-                                            _id:1,
-                                            tanggal:
+                                            "tanggal":
                                             {
                                                 "$substr":
                                                 [
@@ -1310,6 +1355,16 @@ export class MonetizationService {
                                                     0,
                                                     10
                                                 ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "$group":
+                                        {
+                                            "_id":"$tanggal",
+                                            "total":
+                                            {
+                                                "$sum":1
                                             }
                                         }
                                     }
@@ -1323,51 +1378,19 @@ export class MonetizationService {
                             }
                         },
                         {
-                           "$group":
-                           {
-                                "_id":"$detail_trans.tanggal",
+                            "$group":
+                            {
+                                "_id":"$detail_trans._id",
                                 "total":
                                 {
-                                    "$sum":1
+                                    "$sum":"$detail_trans.total"
                                 }
-                           } 
-                        }
-                    ],
-                    "total_available_public":
-                    [
-                        {
-                            "$match":
-                            {
-                                "audiens":"PUBLIC"
                             }
                         },
                         {
-                            "$group":
+                            "$sort":
                             {
-                                "_id":null,
-                                "total":
-                                {
-                                    "$sum":"$stock"
-                                }
-                            }
-                        }
-                    ],
-                    "total_available_special":
-                    [
-                        {
-                            "$match":
-                            {
-                                "audiens":"SPECIAL"
-                            }
-                        },
-                        {
-                            "$group":
-                            {
-                                "_id":null,
-                                "total":
-                                {
-                                    "$sum":"$stock"
-                                }
+                                "_id":1
                             }
                         }
                     ],
@@ -1442,6 +1465,131 @@ export class MonetizationService {
                 }
             },
             {
+                "$addFields":
+                {
+                    "list_used_chart_public_before_filter":
+                    {
+                        "$filter":
+                        {
+                            "input":"$chart_public",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$lt":
+                                [
+                                    "$$getData._id",
+                                    start
+                                ]
+                            }
+                        }
+                    },
+                    "list_used_chart_special_before_filter":
+                    {
+                        "$filter":
+                        {
+                            "input":"$chart_special",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$lt":
+                                [
+                                    "$$getData._id",
+                                    start
+                                ]
+                            }
+                        }
+                    },
+                    "list_available_chart_public_before_filter":
+                    {
+                        "$filter":
+                        {
+                            "input":"$total_stock_first_public",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$lt":
+                                [
+                                    "$$getData._id",
+                                    start
+                                ]
+                            }
+                        }
+                    },
+                    "list_available_chart_special_before_filter":
+                    {
+                        "$filter":
+                        {
+                            "input":"$total_stock_first_special",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$lt":
+                                [
+                                    "$$getData._id",
+                                    start
+                                ]
+                            }
+                        }
+                    },
+                    "list_used_chart_public":
+                    {
+                        "$filter":
+                        {
+                            "input":"$chart_public",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "$gte":
+                                        [
+                                            "$$getData._id",
+                                            start
+                                        ]
+                                    },
+                                    {
+                                        "$lt":
+                                        [
+                                            "$$getData._id",
+                                            dateend
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "list_used_chart_special":
+                    {
+                        "$filter":
+                        {
+                            "input":"$chart_special",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "$gte":
+                                        [
+                                            "$$getData._id",
+                                            start
+                                        ]
+                                    },
+                                    {
+                                        "$lt":
+                                        [
+                                            "$$getData._id",
+                                            dateend
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                },
+            },
+            {
                 "$project":
                 {
                     "total_created":
@@ -1449,38 +1597,75 @@ export class MonetizationService {
                         "$arrayElemAt":
                         [
                             "$total.total", 0
-                        ]
+                        ]   
                     },
                     "popular_discount":"$popular",
-                    "total_used_special":
+                    list_used_chart_public:1,
+                    list_used_chart_special:1,
+                    "total_stock_temp_public":
                     {
-                        "$sum":
-                        [
-                            "$chart_special.total"
-                        ]
+                        "$filter":
+                        {
+                            "input":"$total_stock_first_public",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "$gte":
+                                        [
+                                            "$$getData._id",
+                                            start
+                                        ]
+                                    },
+                                    {
+                                        "$lt":
+                                        [
+                                            "$$getData._id",
+                                            dateend
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
                     },
-                    "total_used_public":
+                    "total_stock_temp_special":
                     {
-                        "$sum":
-                        [
-                            "$chart_public.total"
-                        ]
+                        "$filter":
+                        {
+                            "input":"$total_stock_first_special",
+                            "as":"getData",
+                            "cond":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "$gte":
+                                        [
+                                            "$$getData._id",
+                                            start
+                                        ]
+                                    },
+                                    {
+                                        "$lt":
+                                        [
+                                            "$$getData._id",
+                                            dateend
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
                     },
                     "total_available_public_before":
-                    {
-                        "$arrayElemAt":
-                        [
-                            "$total_available_public.total", 0
-                        ]
-                    },
-                    "total_available_public":
                     {
                         "$subtract":
                         [
                             {
-                                "$arrayElemAt":
+                                "$sum":
                                 [
-                                    "$total_available_public.total", 0
+                                    "$list_available_chart_public_before_filter.total",
                                 ]
                             },
                             {
@@ -1491,38 +1676,31 @@ export class MonetizationService {
                                         "$eq":
                                         [
                                             {
-                                                "$size":"$chart_public"
+                                                "$size":"$list_used_chart_public_before_filter"
                                             },
                                             0
-                                        ]   
+                                        ]
                                     },
                                     "then":0,
                                     "else":
                                     {
                                         "$sum":
                                         [
-                                            "$chart_public.total"
+                                            "$list_used_chart_public_before_filter.total"
                                         ]
-                                    },
+                                    }
                                 }
                             }
                         ]
                     },
                     "total_available_special_before":
                     {
-                        "$arrayElemAt":
-                        [
-                            "$total_available_special.total", 0
-                        ]
-                    },
-                    "total_available_special_after":
-                    {
                         "$subtract":
                         [
                             {
-                                "$arrayElemAt":
+                                "$sum":
                                 [
-                                    "$total_available_special.total", 0
+                                    "$list_available_chart_special_before_filter.total",
                                 ]
                             },
                             {
@@ -1533,27 +1711,37 @@ export class MonetizationService {
                                         "$eq":
                                         [
                                             {
-                                                "$size":"$chart_special"
+                                                "$size":"$list_used_chart_special_before_filter"
                                             },
                                             0
-                                        ]   
+                                        ]
                                     },
                                     "then":0,
                                     "else":
                                     {
                                         "$sum":
                                         [
-                                            "$chart_special.total"
+                                            "$list_used_chart_special_before_filter.total"
                                         ]
-                                    },
+                                    }
                                 }
                             }
                         ]
                     },
-                    "total_stock_temp_special":"$total_stock_first_special",
-                    "total_stock_temp_public":"$total_stock_first_public",
-                    "chart_public":1,
-                    "chart_special":1,
+                    "total_used_discount_public":
+                    {
+                        "$sum":
+                        [
+                            "$list_used_chart_public.total"
+                        ]
+                    },
+                    "total_used_discount_special":
+                    {
+                        "$sum":
+                        [
+                            "$list_used_chart_special.total"
+                        ]
+                    },
                 }
             }
         ]);  
@@ -1570,7 +1758,7 @@ export class MonetizationService {
             tempdate = new Date(temp).toISOString().split("T")[0];
             // console.log(tempdate);
 
-            let obj = data[0].chart_public.find(objs => objs._id === tempdate);
+            let obj = data[0].list_used_chart_public.find(objs => objs._id === tempdate);
             //console.log(obj);
             if (obj == undefined) {
                 obj =
@@ -1595,7 +1783,7 @@ export class MonetizationService {
             tempdate = new Date(temp).toISOString().split("T")[0];
             //console.log(tempdate);
 
-            let obj = data[0].chart_special.find(objs => objs._id === tempdate);
+            let obj = data[0].list_used_chart_special.find(objs => objs._id === tempdate);
             //console.log(obj);
             if (obj == undefined) {
                 obj =
@@ -1613,7 +1801,7 @@ export class MonetizationService {
         startdate.setDate(startdate.getDate() - 1);
         var tempdate = new Date(startdate).toISOString().split("T")[0];
         var available_public  = [];
-        var total_discount_public = parseInt((data[0].total_available_public_before == null || data[0].total_available_public_before == undefined ? 0 : data[0].total_available_public_before));
+        var total_discount_public = parseInt(data[0].total_available_public_before);
         //kalo lama, berarti error disini!!
         while (tempdate != dateend) {
             var temp = new Date(tempdate);
@@ -1646,7 +1834,7 @@ export class MonetizationService {
         startdate.setDate(startdate.getDate() - 1);
         var tempdate = new Date(startdate).toISOString().split("T")[0];
         var available_special  = [];
-        var total_discount_special = parseInt((data[0].total_available_special_before == null || data[0].total_available_special_before == undefined ? 0 : data[0].total_available_special_before));
+        var total_discount_special = parseInt(data[0].total_available_special_before);
         //kalo lama, berarti error disini!!
         while (tempdate != dateend) {
             var temp = new Date(tempdate);
@@ -1684,842 +1872,12 @@ export class MonetizationService {
             list_available_chart_special:available_special,
             total_available_discount_public:total_discount_public,
             total_available_discount_special:total_discount_special,
-            total_used_discount_public:(data[0].total_available_public_before == null || data[0].total_available_public_before == undefined ? 0 : data[0].total_available_public_before),
-            total_used_discount_special:(data[0].total_available_special_before == null || data[0].total_available_special_before == undefined ? 0 : data[0].total_available_special_before),
+            total_used_discount_public:data[0].total_used_discount_public,
+            total_used_discount_special:data[0].total_used_discount_special,
         };
 
         return result;
     }
-
-    // async dashboard(start:string, end:string)
-    // {   
-    //     var currentdate = new Date(new Date(end).setDate(new Date(end).getDate() + 1));
-      
-    //     var dateend = currentdate.toISOString().split("T")[0];
-
-    //     var data = await this.monetData.aggregate([
-    //         {
-    //             "$match":
-    //             {
-    //                 "type":"DISCOUNT",
-    //                 "active":true,
-    //             }
-    //         },
-    //         {
-    //             "$facet":
-    //             {
-    //                 "total":
-    //                 [
-    //                     {
-    //                         "$match":
-    //                         {
-    //                             "createdAt":
-    //                             {
-    //                                 "$gte":start,
-    //                                 "$lt":dateend
-    //                             }
-    //                         }   
-    //                     },
-    //                     {
-    //                         "$group":
-    //                         {
-    //                             "_id":null,
-    //                             "total":
-    //                             {
-    //                                 "$sum":"$stock"
-    //                             }
-    //                         }
-    //                     },
-    //                 ],
-    //                 "popular":
-    //                 [
-    //                     {
-    //                         "$lookup":
-    //                         {
-    //                             "from":"transactionsDiscounts",
-    //                             "let":
-    //                             {
-    //                                 "fk_id":"$_id"
-    //                             },
-    //                             "as":"detail_trans",
-    //                             "pipeline":
-    //                             [
-    //                                 {
-    //                                     "$match":
-    //                                     {
-    //                                         "$and":
-    //                                         [
-    //                                             {
-    //                                                 "$expr":
-    //                                                 {
-    //                                                     "$eq":
-    //                                                     [
-    //                                                         "$idDiscount", "$$fk_id"
-    //                                                     ]
-    //                                                 }
-    //                                             },
-    //                                             {
-    //                                                 "createdAt":
-    //                                                 {
-    //                                                     "$gte":start,
-    //                                                     "$lt":dateend
-    //                                                 }
-    //                                             }
-    //                                         ]
-    //                                     }
-    //                                 },
-    //                                 {
-    //                                     "$group":
-    //                                     {
-    //                                         "_id":null,
-    //                                         "total":
-    //                                         {
-    //                                             "$sum":1
-    //                                         }
-    //                                     }
-    //                                 }
-    //                             ]
-    //                         }
-    //                     },
-    //                     {
-    //                         "$set":
-    //                         {
-    //                             "gettotal":
-    //                             {
-    //                                 "$arrayElemAt":
-    //                                 [
-    //                                     "$detail_trans.total", 0
-    //                                 ]
-    //                             }
-    //                         }
-    //                     },
-    //                     {
-    //                         "$sort":
-    //                         {
-    //                             "gettotal":-1
-    //                         }
-    //                     },
-    //                     {
-    //                         "$limit":5
-    //                     },
-    //                     {
-    //                         "$project":
-    //                         {
-    //                             _id:1,
-    //                             code_package:1,
-    //                             package_id:1,
-    //                             name:1,
-    //                             total:
-    //                             {
-    //                                 "$ifNull":
-    //                                 [
-    //                                     "$gettotal",
-    //                                     0
-    //                                 ]
-    //                             },
-    //                         }
-    //                     }
-    //                 ],
-    //                 "chart_public":
-    //                 [
-    //                     {
-    //                         "$match":
-    //                         {
-    //                             "audiens":"PUBLIC"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup":
-    //                         {
-    //                             "from":"transactionsDiscounts",
-    //                             "let":
-    //                             {
-    //                                 "fk_id":"$_id",
-    //                                 "created_id":
-    //                                 {
-    //                                     "$substr":
-    //                                     [
-    //                                         "$createdAt", 0, 10
-    //                                     ]
-    //                                 }
-    //                             },
-    //                             "as":"detail_trans",
-    //                             "pipeline":
-    //                             [
-    //                                 {
-    //                                     "$match":
-    //                                     {
-    //                                         "$and":
-    //                                         [
-    //                                             {
-    //                                                 "$expr":
-    //                                                 {
-    //                                                     "$eq":
-    //                                                     [
-    //                                                         "$idDiscount", "$$fk_id"
-    //                                                     ]
-    //                                                 }
-    //                                             },
-    //                                             {
-    //                                                 "$expr":
-    //                                                 {
-    //                                                     "$gte":
-    //                                                     [
-    //                                                         "$transactionDate", "$$created_id"
-    //                                                     ]
-    //                                                 }
-    //                                             },
-    //                                             {
-    //                                                 "transactionDate":
-    //                                                 {
-    //                                                     "$lt":dateend
-    //                                                 }
-    //                                             }
-    //                                         ]
-    //                                     }
-    //                                 },
-    //                                 {
-    //                                     "$project":
-    //                                     {
-    //                                         "tanggal":
-    //                                         {
-    //                                             "$substr":
-    //                                             [
-    //                                                 "$transactionDate",
-    //                                                 0,
-    //                                                 10
-    //                                             ]
-    //                                         }
-    //                                     }
-    //                                 },
-    //                                 {
-    //                                     "$group":
-    //                                     {
-    //                                         "_id":"$tanggal",
-    //                                         "total":
-    //                                         {
-    //                                             "$sum":1
-    //                                         }
-    //                                     }
-    //                                 }
-    //                             ]
-    //                         }
-    //                     },
-    //                     {
-    //                         "$unwind":
-    //                         {
-    //                             path:"$detail_trans"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$group":
-    //                         {
-    //                             "_id":"$detail_trans._id",
-    //                             "total":
-    //                             {
-    //                                 "$sum":"$detail_trans.total"
-    //                             }
-    //                         }
-    //                     },
-    //                     {
-    //                         "$sort":
-    //                         {
-    //                             "_id":1
-    //                         }
-    //                     }
-    //                 ],
-    //                 "chart_special":
-    //                 [
-    //                     {
-    //                         "$match":
-    //                         {
-    //                             "audiens":"SPECIAL"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$lookup":
-    //                         {
-    //                             "from":"transactionsDiscounts",
-    //                             "let":
-    //                             {
-    //                                 "fk_id":"$_id",
-    //                                 "created_id":
-    //                                 {
-    //                                     "$substr":
-    //                                     [
-    //                                         "$createdAt", 0, 10
-    //                                     ]
-    //                                 },
-    //                             },
-    //                             "as":"detail_trans",
-    //                             "pipeline":
-    //                             [
-    //                                 {
-    //                                     "$match":
-    //                                     {
-    //                                         "$and":
-    //                                         [
-    //                                             {
-    //                                                 "$expr":
-    //                                                 {
-    //                                                     "$eq":
-    //                                                     [
-    //                                                         "$idDiscount", "$$fk_id"
-    //                                                     ]
-    //                                                 }
-    //                                             },
-    //                                             {
-    //                                                 "$expr":
-    //                                                 {
-    //                                                     "$gte":
-    //                                                     [
-    //                                                         "$transactionDate", "$$created_id"
-    //                                                     ]
-    //                                                 }
-    //                                             },
-    //                                             {
-    //                                                 "transactionDate":
-    //                                                 {
-    //                                                     "$lt":dateend
-    //                                                 }
-    //                                             }
-    //                                         ]
-    //                                     }
-    //                                 },
-    //                                 {
-    //                                     "$project":
-    //                                     {
-    //                                         "tanggal":
-    //                                         {
-    //                                             "$substr":
-    //                                             [
-    //                                                 "$transactionDate",
-    //                                                 0,
-    //                                                 10
-    //                                             ]
-    //                                         }
-    //                                     }
-    //                                 },
-    //                                 {
-    //                                     "$group":
-    //                                     {
-    //                                         "_id":"$tanggal",
-    //                                         "total":
-    //                                         {
-    //                                             "$sum":1
-    //                                         }
-    //                                     }
-    //                                 }
-    //                             ]
-    //                         }
-    //                     },
-    //                     {
-    //                         "$unwind":
-    //                         {
-    //                             path:"$detail_trans"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$group":
-    //                         {
-    //                             "_id":"$detail_trans._id",
-    //                             "total":
-    //                             {
-    //                                 "$sum":"$detail_trans.total"
-    //                             }
-    //                         }
-    //                     },
-    //                     {
-    //                         "$sort":
-    //                         {
-    //                             "_id":1
-    //                         }
-    //                     }
-    //                 ],
-    //                 "total_stock_first_public":
-    //                 [
-    //                     {
-    //                         "$match":
-    //                         {
-    //                             "audiens":"PUBLIC"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$project":
-    //                         {
-    //                             "tanggal":
-    //                             {
-    //                                 "$substr":
-    //                                 [
-    //                                     "$createdAt",
-    //                                     0,
-    //                                     10
-    //                                 ]
-    //                             },
-    //                             "total":"$stock"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$group":
-    //                         {
-    //                             "_id":"$tanggal",
-    //                             "total":
-    //                             {
-    //                                 "$sum":"$total"
-    //                             }
-    //                         }
-    //                     }
-    //                 ],
-    //                 "total_stock_first_special":
-    //                 [
-    //                     {
-    //                         "$match":
-    //                         {
-    //                             "audiens":"SPECIAL"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$project":
-    //                         {
-    //                             "tanggal":
-    //                             {
-    //                                 "$substr":
-    //                                 [
-    //                                     "$createdAt",
-    //                                     0,
-    //                                     10
-    //                                 ]
-    //                             },
-    //                             "total":"$stock"
-    //                         }
-    //                     },
-    //                     {
-    //                         "$group":
-    //                         {
-    //                             "_id":"$tanggal",
-    //                             "total":
-    //                             {
-    //                                 "$sum":"$total"
-    //                             }
-    //                         }
-    //                     }
-    //                 ]
-    //             }
-    //         },
-    //         {
-    //             "$addFields":
-    //             {
-    //                 "list_used_chart_public_before_filter":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$chart_public",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$lt":
-    //                             [
-    //                                 "$$getData._id",
-    //                                 start
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //                 "list_used_chart_special_before_filter":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$chart_special",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$lt":
-    //                             [
-    //                                 "$$getData._id",
-    //                                 start
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //                 "list_available_chart_public_before_filter":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$total_stock_first_public",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$lt":
-    //                             [
-    //                                 "$$getData._id",
-    //                                 start
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //                 "list_available_chart_special_before_filter":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$total_stock_first_special",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$lt":
-    //                             [
-    //                                 "$$getData._id",
-    //                                 start
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //                 "list_used_chart_public":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$chart_public",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$and":
-    //                             [
-    //                                 {
-    //                                     "$gte":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         start
-    //                                     ]
-    //                                 },
-    //                                 {
-    //                                     "$lt":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         dateend
-    //                                     ]
-    //                                 }
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //                 "list_used_chart_special":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$chart_special",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$and":
-    //                             [
-    //                                 {
-    //                                     "$gte":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         start
-    //                                     ]
-    //                                 },
-    //                                 {
-    //                                     "$lt":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         dateend
-    //                                     ]
-    //                                 }
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //             },
-    //         },
-    //         {
-    //             "$project":
-    //             {
-    //                 "total_created":
-    //                 {
-    //                     "$arrayElemAt":
-    //                     [
-    //                         "$total.total", 0
-    //                     ]   
-    //                 },
-    //                 "popular_discount":"$popular",
-    //                 list_used_chart_public:1,
-    //                 list_used_chart_special:1,
-    //                 "total_stock_temp_public":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$total_stock_first_public",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$and":
-    //                             [
-    //                                 {
-    //                                     "$gte":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         start
-    //                                     ]
-    //                                 },
-    //                                 {
-    //                                     "$lt":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         dateend
-    //                                     ]
-    //                                 }
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //                 "total_stock_temp_special":
-    //                 {
-    //                     "$filter":
-    //                     {
-    //                         "input":"$total_stock_first_special",
-    //                         "as":"getData",
-    //                         "cond":
-    //                         {
-    //                             "$and":
-    //                             [
-    //                                 {
-    //                                     "$gte":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         start
-    //                                     ]
-    //                                 },
-    //                                 {
-    //                                     "$lt":
-    //                                     [
-    //                                         "$$getData._id",
-    //                                         dateend
-    //                                     ]
-    //                                 }
-    //                             ]
-    //                         }
-    //                     }
-    //                 },
-    //                 "total_available_public_before":
-    //                 {
-    //                     "$subtract":
-    //                     [
-    //                         {
-    //                             "$sum":
-    //                             [
-    //                                 "$list_available_chart_public_before_filter.total",
-    //                             ]
-    //                         },
-    //                         {
-    //                             "$cond":
-    //                             {
-    //                                 "if":
-    //                                 {
-    //                                     "$eq":
-    //                                     [
-    //                                         {
-    //                                             "$size":"$list_used_chart_public_before_filter"
-    //                                         },
-    //                                         0
-    //                                     ]
-    //                                 },
-    //                                 "then":0,
-    //                                 "else":
-    //                                 {
-    //                                     "$sum":
-    //                                     [
-    //                                         "$list_used_chart_public_before_filter.total"
-    //                                     ]
-    //                                 }
-    //                             }
-    //                         }
-    //                     ]
-    //                 },
-    //                 "total_available_special_before":
-    //                 {
-    //                     "$subtract":
-    //                     [
-    //                         {
-    //                             "$sum":
-    //                             [
-    //                                 "$list_available_chart_special_before_filter.total",
-    //                             ]
-    //                         },
-    //                         {
-    //                             "$cond":
-    //                             {
-    //                                 "if":
-    //                                 {
-    //                                     "$eq":
-    //                                     [
-    //                                         {
-    //                                             "$size":"$list_used_chart_special_before_filter"
-    //                                         },
-    //                                         0
-    //                                     ]
-    //                                 },
-    //                                 "then":0,
-    //                                 "else":
-    //                                 {
-    //                                     "$sum":
-    //                                     [
-    //                                         "$list_used_chart_special_before_filter.total"
-    //                                     ]
-    //                                 }
-    //                             }
-    //                         }
-    //                     ]
-    //                 },
-    //                 "total_used_discount_public":
-    //                 {
-    //                     "$sum":
-    //                     [
-    //                         "$list_used_chart_public.total"
-    //                     ]
-    //                 },
-    //                 "total_used_discount_special":
-    //                 {
-    //                     "$sum":
-    //                     [
-    //                         "$list_used_chart_special.total"
-    //                     ]
-    //                 },
-    //             }
-    //         }
-    //     ]);  
-        
-    //     //untuk nyari chart penggunaan diskon public
-    //     var startdate = new Date(start);
-    //     startdate.setDate(startdate.getDate() - 1);
-    //     var tempdate = new Date(startdate).toISOString().split("T")[0];
-    //     var used_public  = [];
-    //     //kalo lama, berarti error disini!!
-    //     while (tempdate != dateend) {
-    //         var temp = new Date(tempdate);
-    //         temp.setDate(temp.getDate() + 1);
-    //         tempdate = new Date(temp).toISOString().split("T")[0];
-    //         // console.log(tempdate);
-
-    //         let obj = data[0].list_used_chart_public.find(objs => objs._id === tempdate);
-    //         //console.log(obj);
-    //         if (obj == undefined) {
-    //             obj =
-    //             {
-    //                 _id: tempdate,
-    //                 total: 0
-    //             }
-    //         }
-
-    //         used_public.push(obj);
-    //     }
-
-    //     //untuk nyari chart penggunaan diskon special
-    //     var startdate = new Date(start);
-    //     startdate.setDate(startdate.getDate() - 1);
-    //     var tempdate = new Date(startdate).toISOString().split("T")[0];
-    //     var used_special  = [];
-    //     //kalo lama, berarti error disini!!
-    //     while (tempdate != dateend) {
-    //         var temp = new Date(tempdate);
-    //         temp.setDate(temp.getDate() + 1);
-    //         tempdate = new Date(temp).toISOString().split("T")[0];
-    //         //console.log(tempdate);
-
-    //         let obj = data[0].list_used_chart_special.find(objs => objs._id === tempdate);
-    //         //console.log(obj);
-    //         if (obj == undefined) {
-    //             obj =
-    //             {
-    //                 _id: tempdate,
-    //                 total: 0
-    //             }
-    //         }
-
-    //         used_special.push(obj);
-    //     }
-
-    //     //untuk nyari chart kosong diskon public
-    //     var startdate = new Date(start);
-    //     startdate.setDate(startdate.getDate() - 1);
-    //     var tempdate = new Date(startdate).toISOString().split("T")[0];
-    //     var available_public  = [];
-    //     var total_discount_public = parseInt(data[0].total_available_public_before);
-    //     //kalo lama, berarti error disini!!
-    //     while (tempdate != dateend) {
-    //         var temp = new Date(tempdate);
-    //         temp.setDate(temp.getDate() + 1);
-    //         tempdate = new Date(temp).toISOString().split("T")[0];
-    //         //console.log(tempdate);
-
-    //         let obj = data[0].total_stock_temp_public.find(objs => objs._id === tempdate);
-    //         let checkexist = used_public.find(objs => objs._id === tempdate);
-    //         //console.log(obj);
-    //         if (obj == undefined) {
-    //             total_discount_public = total_discount_public - checkexist.total;
-    //             obj =
-    //             {
-    //                 _id: tempdate,
-    //                 total: total_discount_public
-    //             }
-    //         }
-    //         else
-    //         {
-    //             total_discount_public = total_discount_public + obj.total - checkexist.total;
-    //             obj.total = total_discount_public;
-    //         }
-
-    //         available_public.push(obj);
-    //     }
-
-    //     //untuk nyari chart kosong diskon special
-    //     var startdate = new Date(start);
-    //     startdate.setDate(startdate.getDate() - 1);
-    //     var tempdate = new Date(startdate).toISOString().split("T")[0];
-    //     var available_special  = [];
-    //     var total_discount_special = parseInt(data[0].total_available_special_before);
-    //     //kalo lama, berarti error disini!!
-    //     while (tempdate != dateend) {
-    //         var temp = new Date(tempdate);
-    //         temp.setDate(temp.getDate() + 1);
-    //         tempdate = new Date(temp).toISOString().split("T")[0];
-    //         //console.log(tempdate);
-
-    //         let obj = data[0].total_stock_temp_special.find(objs => objs._id === tempdate);
-    //         let checkexist = used_special.find(objs => objs._id === tempdate);
-    //         //console.log(obj);
-    //         if (obj == undefined) {
-    //             total_discount_special = total_discount_special - checkexist.total;
-    //             obj =
-    //             {
-    //                 _id: tempdate,
-    //                 total: total_discount_special
-    //             }
-    //         }
-    //         else
-    //         {
-    //             total_discount_special = total_discount_special + obj.total - checkexist.total;
-    //             obj.total = total_discount_special;
-    //         }
-
-    //         available_special.push(obj);
-    //     }
-
-    //     var result = 
-    //     {
-    //         total_created:data[0].total_created,
-    //         popular_discount:data[0].popular_discount,
-    //         list_used_chart_public:used_public,
-    //         list_used_chart_special:used_special,
-    //         list_available_chart_public:available_public,
-    //         list_available_chart_special:available_special,
-    //         total_available_discount_public:total_discount_public,
-    //         total_available_discount_special:total_discount_special,
-    //         total_used_discount_public:data[0].total_used_discount_public,
-    //         total_used_discount_special:data[0].total_used_discount_special,
-    //     };
-
-    //     return result;
-    // }
 
     async updateStock(id: string, quantity: number, reduce: boolean) {
         let packageData = await this.monetData.findById(id);
