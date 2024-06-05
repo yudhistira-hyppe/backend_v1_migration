@@ -48075,7 +48075,7 @@ export class NewPostService {
           }
         },
         {
-          "$skip": (skip * limit)
+          "$skip": ((skip - 1) * limit)
         },
         {
           "$limit": limit
@@ -49500,7 +49500,7 @@ export class NewPostService {
           }
         },
         {
-          "$skip": (skip * limit)
+          "$skip": ((skip - 1) * limit)
         },
         {
           "$limit": limit
@@ -50391,7 +50391,7 @@ export class NewPostService {
           }
         },
         { '$sort': { createdAt: -1 } },
-        { '$skip': (skip * limit) },
+        { '$skip': ((skip - 1) * limit) },
         { '$limit': limit },
         {
           '$lookup': {
@@ -51409,7 +51409,7 @@ export class NewPostService {
           }
         },
         { '$sort': { createdAt: -1 } },
-        { '$skip': (skip * limit) },
+        { '$skip': ((skip - 1) * limit) },
         { '$limit': limit },
         {
           '$lookup': {
