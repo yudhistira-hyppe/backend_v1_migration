@@ -12,6 +12,7 @@ import { AccountbalancesService } from '../../../trans/accountbalances/accountba
 import { UserAdsService } from '../../../trans/userads/userads.service';
 import { OssContentPictService } from '../../../content/posts/osscontentpict.service';
 import { UtilsService } from 'src/utils/utils.service';
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 
 @Injectable()
 export class AdsService {
@@ -26,6 +27,7 @@ export class AdsService {
         private readonly userAdsService: UserAdsService,
         private readonly utilsService: UtilsService,
         private readonly ossContentPictService: OssContentPictService,
+        private readonly transactionsV2Service: TransactionsV2Service,
     ) { }
 
     async create(AdsDto_: AdsDto): Promise<Ads> {
@@ -13169,6 +13171,10 @@ export class AdsService {
                     AdsDto_.status = status;
                     AdsDto_.isActive = false;
                     await this.update(ads[t]._id, AdsDto_);
+                    var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "END", 0, 0, 0, 0, ads[t].userID.toString(), undefined, undefined, [{ "adsID": ads[t]._id, "credit": sisaCredit }], "PENDING");
+                    if (dataTransaction != false) {
+                        AdsDto_.idTransactionCreate = dataTransaction.data[0].idTransaction.toString()
+                    }
                     let AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
                     AdsBalaceCreditDto_.idtrans = ads[t]._id;
                     AdsBalaceCreditDto_.iduser = ads[t].userID;
