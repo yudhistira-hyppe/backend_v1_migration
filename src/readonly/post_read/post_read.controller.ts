@@ -897,7 +897,15 @@ export class PostsReadController {
 
             //data = await this.postsReadService.landingpageMy2V2(email, postType, parseInt(pageNumber), parseInt(pageRow), emailLogin);
             // data = await this.post2SS.landingpageMigration(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
-            data = await this.post2SS.landingpageMigrationUpdate(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
+            // data = await this.post2SS.landingpageMigrationUpdate(email, emailLogin, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow))
+            if(email != emailLogin)
+            {
+                data = await this.post2SS.landingPageGelondonganBedaEmail(email, emailLogin, postType, parseInt(pageNumber), parseInt(pageRow));    
+            }
+            else
+            {
+                data = await this.post2SS.landingPageGelondonganSamaEmail(email, postType, parseInt(pageNumber), parseInt(pageRow));
+            }
             lengpict = data.length;
             console.log("data", data);
         } catch (e) {
@@ -1881,9 +1889,8 @@ export class PostsReadController {
         const messages = {
             "info": ["The process was successful"],
         };
-        // console.log(await this.utilsService.getDateTimeString());
+        console.log(await this.utilsService.getDateTimeString());
         try {
-
             data = await this.notificationReadService.getNotification2V2(email, eventType, parseInt(pageNumber), parseInt(pageRow));
             lengpict = data.length;
 
@@ -1893,7 +1900,7 @@ export class PostsReadController {
 
         }
         // console.log(JSON.parse(JSON.stringify(data)));
-        // console.log(await this.utilsService.getDateTimeString());
+        console.log(await this.utilsService.getDateTimeString());
 
         var datatemp = [];
         var tempdatapict = [];

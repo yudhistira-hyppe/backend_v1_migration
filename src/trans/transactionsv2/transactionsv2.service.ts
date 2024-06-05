@@ -2254,6 +2254,8 @@ export class TransactionsV2Service {
                 $project: {
                     idTransaction: 1,
                     noInvoice: 1,
+                    totalCoin: 1,
+                    createdAt: 1,
                     amount: {
                         $arrayElemAt: ['$detail.amount', 0]
                     },
@@ -2281,7 +2283,7 @@ export class TransactionsV2Service {
                     status: {
                         $last: "$withdrawdata.tracking.status"
                     },
-                    tracking: "$withdrawdata.tracking"
+                    tracking: { $reverseArray: "$withdrawdata.tracking" }
                 }
             }
         ]);

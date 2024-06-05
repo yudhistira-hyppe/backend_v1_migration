@@ -21015,36 +21015,13 @@ export class TransactionsController {
             // console.log("userBankAccData:", userBankAccData);
             let bankData = await this.banksService.findOne(userBankAccData.idBank.toString());
             let userBasicData = await this.basic2SS.findOne(userBankAccData.userId.toString());
-            let disbursementData = new OyDisbursements();
-            disbursementData.recipient_account = userBankAccData.noRek;
-            disbursementData.recipient_bank = bankData.bankcode;
-            disbursementData.note = withdrawData.description;
-            disbursementData.partner_trx_id = withdrawData.partnerTrxid;
-            disbursementData.email = userBasicData.email.toString();
-            disbursementData.amount = withdrawData.totalamount;
-            detailTrans.payload = disbursementData;
-            let datadisbursemen = await this.oyPgService.disbursement(disbursementData);
-            var statusdisb = datadisbursemen.status.code;
-            var statusmessagedis = datadisbursemen.status.message;
-            var timeoy = datadisbursemen.timestamp;
-            var splittimeoy = timeoy.split(" ");
-
-            var substrtahun = splittimeoy[0].substring(10, 6);
-
-            var substrbulan = splittimeoy[0].substring(5, 3);
-
-            var substrtanggal = splittimeoy[0].substring(0, 2);
-
-            var strdate = substrtahun + "-" + substrbulan + "-" + substrtanggal + " " + splittimeoy[1];
-            if (statusdisb === "101") {
-
-                var partnerTrxid = datadisbursemen.partner_trx_id;
-
+            if (detailTrans.response && detailTrans.response.status.code == "101") {
+                let partnerTrxid = withdrawData.partnerTrxid;
                 let reqinfo = new OyDisbursementStatus2();
                 reqinfo.partner_trx_id = partnerTrxid;
                 let infodisbursemen = await this.oyPgService.disbursementStatus(reqinfo);
-                var statuscode = infodisbursemen.status.code;
-                var statusmessage = infodisbursemen.status.message;
+                let statuscode = infodisbursemen.status.code;
+                let statusmessage = infodisbursemen.status.message;
                 detailTrans.response = infodisbursemen;
 
                 if (statuscode === "000") {
@@ -21063,8 +21040,8 @@ export class TransactionsController {
                         "status": "SUCCESS",
                         "action": "APPROVAL",
                         "timestamp": dtb,
-                        "description_id": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`,
-                        "description_en": `Rp${disbursementData.amount} has been successfully transferred to the destination account`,
+                        "description_id": `Rp${infodisbursemen.amount} berhasil ditransfer ke rekening tujuan`,
+                        "description_en": `Rp${infodisbursemen.amount} has been successfully transferred to the destination account`,
                         "approved_by": user_data._id
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
@@ -21208,11 +21185,206 @@ export class TransactionsController {
                         messages
                     }
                 }
-
             } else {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-                throw new BadRequestException(`Disbursement request rejected: ${datadisbursemen.status.message}`);
+                let disbursementData = new OyDisbursements();
+                disbursementData.recipient_account = userBankAccData.noRek;
+                disbursementData.recipient_bank = bankData.bankcode;
+                disbursementData.note = withdrawData.description;
+                disbursementData.partner_trx_id = withdrawData.partnerTrxid;
+                disbursementData.email = userBasicData.email.toString();
+                disbursementData.amount = withdrawData.totalamount;
+                detailTrans.payload = disbursementData;
+                let datadisbursemen = await this.oyPgService.disbursement(disbursementData);
+                var statusdisb = datadisbursemen.status.code;
+                var statusmessagedis = datadisbursemen.status.message;
+                var timeoy = datadisbursemen.timestamp;
+                var splittimeoy = timeoy.split(" ");
+
+                var substrtahun = splittimeoy[0].substring(10, 6);
+
+                var substrbulan = splittimeoy[0].substring(5, 3);
+
+                var substrtanggal = splittimeoy[0].substring(0, 2);
+
+                var strdate = substrtahun + "-" + substrbulan + "-" + substrtanggal + " " + splittimeoy[1];
+                if (statusdisb === "101") {
+
+                    let partnerTrxid = datadisbursemen.partner_trx_id;
+
+                    let reqinfo = new OyDisbursementStatus2();
+                    reqinfo.partner_trx_id = partnerTrxid;
+                    let infodisbursemen = await this.oyPgService.disbursementStatus(reqinfo);
+                    let statuscode = infodisbursemen.status.code;
+                    let statusmessage = infodisbursemen.status.message;
+                    detailTrans.response = infodisbursemen;
+
+                    if (statuscode === "000") {
+                        let splittimedbs = infodisbursemen.timestamp.split(" ");
+                        let substry = splittimedbs[0].substring(10, 6);
+                        let substrm = splittimedbs[0].substring(5, 3);
+                        let substrd = splittimedbs[0].substring(0, 2);
+                        let strts = substry + "-" + substrm + "-" + substrd + " " + splittimedbs[1];
+                        let dtburs = new Date(strts);
+                        dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                        dtburs = new Date(dtburs);
+                        let dtb = dtburs.toISOString();
+                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Success", infodisbursemen, statuscode, {
+                            "title_id": "Penukaran Coins Berhasil",
+                            "title_en": "Coin Withdrawal Successful",
+                            "status": "SUCCESS",
+                            "action": "APPROVAL",
+                            "timestamp": dtb,
+                            "description_id": `Rp${disbursementData.amount} berhasil ditransfer ke rekening tujuan`,
+                            "description_en": `Rp${disbursementData.amount} has been successfully transferred to the destination account`,
+                            "approved_by": user_data._id
+                        });
+                        // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
+                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", infodisbursemen);
+                        let data = {
+                            "idUser": withdrawData.idUser,
+                            "amount": withdrawData.amount,
+                            "status": "SUCCESS",
+                            "bankVerificationCharge": valuebankcharge,
+                            "bankDisbursmentCharge": valuedisbcharge,
+                            "timestamp": dtb,
+                            "verified": withdrawData.verified,
+                            "description": withdrawData.description,
+                            "partnerTrxid": withdrawData.partnerTrxid,
+                            "statusOtp": withdrawData.statusOtp,
+                            "totalamount": withdrawData.totalamount,
+                            "_id": withdrawData._id,
+                            "responOy": infodisbursemen
+                        };
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                        this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "SUCCESS_WITHDRAW_COIN", "SUCCESS_WITHDRAW_COIN", "SUCCESS_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
+                        return {
+                            response_code: 202,
+                            data: data,
+                            messages
+                        }
+                    } else if (statuscode === "101" || statuscode === "102") {
+                        let splittimedbs = infodisbursemen.timestamp.split(" ");
+                        let substry = splittimedbs[0].substring(10, 6);
+                        let substrm = splittimedbs[0].substring(5, 3);
+                        let substrd = splittimedbs[0].substring(0, 2);
+                        let strts = substry + "-" + substrm + "-" + substrd + " " + splittimedbs[1];
+                        let dtburs = new Date(strts);
+                        dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                        dtburs = new Date(dtburs);
+                        let dtb = dtburs.toISOString();
+                        // let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "In Progress", infodisbursemen, statuscode, {
+                        //     "title": "Penukaran Coins Sedang Berlangsung",
+                        //     "status": "IN PROGRESS",
+                        //     "action": "APPROVAL",
+                        //     "timestamp": dtb,
+                        //     "description": `Penukaran coin sedang diproses`
+                        // });
+                        // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "IN PROGRESS", detail: detailTrans });
+                        let data = {
+                            "idUser": withdrawData.idUser,
+                            "amount": withdrawData.amount,
+                            "status": "IN PROGRESS",
+                            "bankVerificationCharge": valuebankcharge,
+                            "bankDisbursmentCharge": valuedisbcharge,
+                            "timestamp": dtb,
+                            "verified": withdrawData.verified,
+                            "description": withdrawData.description,
+                            "partnerTrxid": withdrawData.partnerTrxid,
+                            "statusOtp": withdrawData.statusOtp,
+                            "totalamount": withdrawData.totalamount,
+                            "_id": withdrawData._id,
+                            "responOy": infodisbursemen
+                        };
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                        return {
+                            response_code: 202,
+                            data: data,
+                            messages
+                        }
+                    } else if (statuscode === "301") {
+                        let splittimedbs = infodisbursemen.timestamp.split(" ");
+                        let substry = splittimedbs[0].substring(10, 6);
+                        let substrm = splittimedbs[0].substring(5, 3);
+                        let substrd = splittimedbs[0].substring(0, 2);
+                        let strts = substry + "-" + substrm + "-" + substrd + " " + splittimedbs[1];
+                        let dtburs = new Date(strts);
+                        dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                        dtburs = new Date(dtburs);
+                        let dtb = dtburs.toISOString();
+
+                        // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "PENDING", detail: detailTrans });
+                        let data = {
+                            "idUser": withdrawData.idUser,
+                            "amount": withdrawData.amount,
+                            "status": "PENDING",
+                            "bankVerificationCharge": valuebankcharge,
+                            "bankDisbursmentCharge": valuedisbcharge,
+                            "timestamp": dtb,
+                            "verified": withdrawData.verified,
+                            "description": withdrawData.description,
+                            "partnerTrxid": withdrawData.partnerTrxid,
+                            "statusOtp": withdrawData.statusOtp,
+                            "totalamount": withdrawData.totalamount,
+                            "_id": withdrawData._id,
+                            "responOy": infodisbursemen
+                        };
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                        return {
+                            response_code: 202,
+                            data: data,
+                            messages
+                        }
+                    } else {
+                        let dtburs = new Date(Date.now());
+                        dtburs.setHours(dtburs.getHours() + 7); // timestamp
+                        dtburs = new Date(dtburs);
+                        let dtb = dtburs.toISOString();
+
+                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Failed", infodisbursemen, statuscode, {
+                            "title_id": "Penukaran Coins Gagal",
+                            "title_en": "Coin Withdrawal Failed",
+                            "status": "FAILED",
+                            "action": "APPROVAL",
+                            "timestamp": dtb,
+                            "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`,
+                            "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.tx_status_description}`,
+                            "approved_by": user_data._id
+                        });
+                        // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
+                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", infodisbursemen);
+                        let data = {
+                            "idUser": withdrawData.idUser,
+                            "amount": withdrawData.amount,
+                            "status": "FAILED",
+                            "bankVerificationCharge": valuebankcharge,
+                            "bankDisbursmentCharge": valuedisbcharge,
+                            "timestamp": dtb,
+                            "verified": withdrawData.verified,
+                            "description": withdrawData.description,
+                            "partnerTrxid": withdrawData.partnerTrxid,
+                            "statusOtp": withdrawData.statusOtp,
+                            "totalamount": withdrawData.totalamount,
+                            "_id": withdrawData._id,
+                            "responOy": infodisbursemen
+                        };
+                        var timestamps_end = await this.utilsService.getDateTimeString();
+                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                        this.utilsService.sendFcmV2(userBasicData.email.toString(), setemail, "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", "FAILED_WITHDRAW_COIN", null, null, null, null, withdrawData.totalamount.toString(), userBankAccData.nama, valuedisbcharge.toString());
+                        return {
+                            response_code: 202,
+                            data: data,
+                            messages
+                        }
+                    }
+
+                } else {
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    throw new BadRequestException(`Disbursement request rejected: ${datadisbursemen.status.message}`);
+                }
             }
         } else {
             let updateTrans = null;
