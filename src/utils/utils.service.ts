@@ -570,6 +570,42 @@ export class UtilsService {
         }
       }
 
+      if (Templates_.subject != undefined) {
+        if (Templates_.subject.toString() == "${user_name}") {
+          title_save_en = "@" + get_username_senderParty;
+        } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
+          title_save_en = "Hi, @" + get_username_senderParty;
+        } else {
+          title_save_en = Templates_.subject.toString();
+        }
+      } else {
+        if (Templates_.subject_id.toString() == "${user_name}") {
+          title_save_en = "@" + get_username_senderParty;
+        } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
+          title_save_en = "Hi, @" + get_username_senderParty;
+        } else {
+          title_save_en = Templates_.subject_id.toString();
+        }
+      }
+
+      if (Templates_.subject_id != undefined) {
+        if (Templates_.subject_id.toString() == "${user_name}") {
+          title_save_id = "@" + get_username_senderParty;
+        } else if (Templates_.subject_id.toString() == "Hi, ${user_name}") {
+          title_save_id = "Hi, @" + get_username_senderParty;
+        } else {
+          title_save_id = Templates_.subject_id.toString();
+        }
+      } else {
+        if (Templates_.subject.toString() == "${user_name}") {
+          title_save_id = "@" + get_username_senderParty;
+        } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
+          title_save_id = "Hi, @" + get_username_senderParty;
+        } else {
+          title_save_id = Templates_.subject.toString();
+        }
+      }
+
       //SET BODY SAVE
       if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (eventType == "NOTIFY_LIVE" || eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN")) {
         if (event == "BOOST_SUCCES" || event == "ADS VIEW" || event == "ADS CLICK") {

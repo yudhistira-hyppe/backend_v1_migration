@@ -289,6 +289,7 @@ export class TransactionsV2Service {
                             TransactionsCoaTable_Update.status = status;
                             await this.transactionsCoaTableService.updateData(TransactionsCoaTable_Filter, TransactionsCoaTable_Update);
                         } else if (transactionTypeCategory == "WD") {
+                            //let getTransactionsCoa = await this.transactionsCoaService.findOne()
                             let TransactionsCoa_Filter = new TransactionsCoa();
                             TransactionsCoa_Filter.coaTransaction = dataTransaction.noInvoice;
                             let TransactionsCoa_Update = new TransactionsCoa();
