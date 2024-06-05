@@ -321,21 +321,21 @@ export class MediastreamingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('/update')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
     const currentDate = await this.utilsService.getDateTimeString();
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
-      );
-    }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
-      );
-    }
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
@@ -1056,7 +1056,7 @@ export class MediastreamingController {
           MediastreamingDto_Res.commentDisabled = ceckId.commentDisabled;
           MediastreamingDto_Res.tokenAgora = ceckId.tokenAgora;
           MediastreamingDto_Res.reportRemark = remarkSetting[0].value; 
-          MediastreamingDto_Res.viewCountUnic = dataStreamView[0].viewCountUnic;
+          MediastreamingDto_Res.viewCountUnic = dataStreamView[0].viewCountUnic.length;
           return await this.errorHandler.generateAcceptResponseCodeWithData(
             "Update stream succesfully", MediastreamingDto_Res
           );
