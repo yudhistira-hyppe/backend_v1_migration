@@ -1200,8 +1200,45 @@ export class TempPOSTService {
                 }
             },
             {
+                "$lookup": {
+                    from: "mediastreaming",
+                    as: "stream",
+                    let: {
+                        localID: true
+                    },
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $expr: {
+                                    $eq: ['$status', '$$localID']
+                                }
+                            }
+                        },
+                        {
+                            $limit: 1,
+                        },
+                        {
+                            $project: {
+                                status: 1,
+                            }
+                        },
+
+                    ]
+                }
+            },
+            {
                 '$project': {
                     _id: 1,
+                    streamer: {
+                        $cond: {
+                            if: {
+                                $eq: [{ $ifNull: ["$stream", []] }, []]
+                            },
+                            then: false,
+                            else: true
+                        }
+                    },
                     version: {
                         '$arrayElemAt': ['$setting.value', 0]
                     },

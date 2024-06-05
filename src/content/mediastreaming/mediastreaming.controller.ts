@@ -80,7 +80,7 @@ export class MediastreamingController {
 
           if (streamBanding_.length > 0) {
             statusAppeal = true;
-            statusApprove = streamBanding[0].approveText;
+            statusApprove = streamBanding_[0].approveText;
           } 
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
@@ -198,20 +198,20 @@ export class MediastreamingController {
     return Response;
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('/ceck')
   @HttpCode(HttpStatus.ACCEPTED)
   async getStatusStream(@Headers() headers) {
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     console.log(profile);
     if (!(await this.utilsService.ceckData(profile))) {
