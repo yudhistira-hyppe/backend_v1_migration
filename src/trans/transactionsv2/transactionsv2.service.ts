@@ -2181,6 +2181,36 @@ export class TransactionsV2Service {
                 }
             },
             {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "withdrawdata.idUser",
+                    foreignField: "_id",
+                    as: "userdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "userbankaccounts",
+                    localField: "withdrawdata.idAccountBank",
+                    foreignField: "_id",
+                    as: "bankaccdata"
+                }
+            },
+            {
+                $lookup: {
+                    from: "banks",
+                    let: { local_id: { $arrayElemAt: ["$bankaccdata.idBank", 0] } },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$local_id"]
+                            }
+                        }
+                    }],
+                    as: "bankdata"
+                }
+            },
+            {
                 $project: {
                     idTransaction: 1,
                     noInvoice: 1,
@@ -2196,9 +2226,22 @@ export class TransactionsV2Service {
                     totalAmount: {
                         $arrayElemAt: ['$detail.totalAmount', 0]
                     },
+                    email: {
+                        $arrayElemAt: ['$userdata.email', 0]
+                    },
+                    accNo: {
+                        $arrayElemAt: ['$bankaccdata.noRek', 0]
+                    },
+                    accName: {
+                        $arrayElemAt: ['$bankaccdata.nama', 0]
+                    },
+                    bankName: {
+                        $arrayElemAt: ['$bankdata.bankname', 0]
+                    },
                     status: {
                         $last: "$withdrawdata.tracking.status"
-                    }
+                    },
+                    tracking: "$withdrawdata.tracking"
                 }
             }
         ]);
