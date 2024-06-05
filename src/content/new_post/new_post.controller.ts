@@ -248,7 +248,37 @@ export class NewPostController {
         var posts = null;
         var startDatetime = null;
         var endDatetime = null;
+        var timenow= await this.utilsService.getDateTimeString();
+        var postID = null;
+        var postType = null;
+        var contentModeration=null;
+        var reportedStatus=null;
+        var visibility=null;
+        var activeContent=null;
+        var emailContent=null;
+        var PostTask_= new Posttask();
 
+        if(body.postID !==undefined){
+            postID=body.postID;
+        }
+        if(body.postType !==undefined){
+            postType=body.postType;
+        }
+        if(body.contentModeration !==undefined){
+            contentModeration=body.contentModeration;
+        }
+        if(body.reportedStatus !==undefined){
+            reportedStatus=body.reportedStatus;
+        }
+        if(body.visibility !==undefined){
+            visibility=body.visibility;
+        }
+        if(body.active !==undefined){
+            activeContent=body.active;
+        }
+        if(body.email !==undefined){
+            emailContent=body.email;
+        }
         try {
             posts = await this.newPostService.findid(body.postID.toString());
         } catch (e) {
@@ -287,6 +317,13 @@ export class NewPostController {
                 datapostawal = null;
                 tags = [];
                 cats = [];
+            }
+            
+            PostTask_.active=false;
+            try{
+                this.posttaskUpdate(postID,PostTask_)
+            }catch(e){
+
             }
 
             if (datapostchallenge == null) {
@@ -359,6 +396,7 @@ export class NewPostController {
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
                 this.TempPostService.updateByPostId(body, headers, dataUser);
+
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postID', body.postID.toString());
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postType', posts.postType.toString());
                 if (saleAmount > 0) {
@@ -366,7 +404,8 @@ export class NewPostController {
                     //await this.utilsService.sendFcm(email.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, body.postID.toString(), posts.postType.toString());
                 }
                 return data;
-            } else {
+            } 
+            else {
                 var datenow = new Date(Date.now());
                 startDatetime = datapostchallenge.startDatetime;
                 endDatetime = datapostchallenge.endDatetime;
@@ -475,7 +514,9 @@ export class NewPostController {
 
                 //}
             }
-        } else {
+            
+        } 
+        else {
             var datapostawal = null;
             var tags = [];
             var arrtag = [];
@@ -491,6 +532,16 @@ export class NewPostController {
                 tags = [];
                 cats = [];
             }
+
+            if(visibility !==undefined){
+                PostTask_.visibility=visibility;
+                try{
+                    this.posttaskUpdate(postID,PostTask_)
+                }catch(e){
+    
+                }
+            }
+         
             var datatag = null;
             if (datapostchallenge == null) {
                 if (tags.length > 0) {
@@ -793,7 +844,8 @@ export class NewPostController {
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
 
                 return data;
-            } else {
+            } 
+            else {
                 var datenow = new Date(Date.now());
                 startDatetime = datapostchallenge.startDatetime;
                 endDatetime = datapostchallenge.endDatetime;
@@ -5012,6 +5064,34 @@ export class NewPostController {
         } catch (e) {
 
         }
+    }
+
+    async posttaskUpdate(postID: string,Posttask_:Posttask) {
+       var dataposttask=null;
+
+       try{
+        dataposttask= await this.PosttaskService.findBypostID(postID);
+       }catch(e){
+        dataposttask=null;
+       }
+
+       if(dataposttask !==null){
+        let id=null;
+
+        try{
+            id=dataposttask._id.toString();
+        }catch(e){
+            id=null;
+        }
+      
+        try {
+            await this.PosttaskService.update(id,Posttask_);
+        } catch (e) {
+
+        }
+       }
+       
+       
     }
 
     async schedul(postID: string, email: string) {
