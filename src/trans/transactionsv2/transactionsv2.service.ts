@@ -38,7 +38,7 @@ export class TransactionsV2Service {
         private readonly adsPriceCreditsService: AdsPriceCreditsService,
         private readonly transactionsCoaService: TransactionsCoaService,
         private readonly transactionsCoaTableService: TransactionsCoaTableService,
-        private readonly disquslogsService: DisquslogsService, 
+        private readonly disquslogsService: DisquslogsService,
         private readonly adsService: AdsService,
     ) { }
 
@@ -84,15 +84,15 @@ export class TransactionsV2Service {
         //Get Current Date
         const currentDate = await this.utilsService.getDateTimeString();
         let productCode = "";
-        let transactionsV2_: transactionsV2 ;
+        let transactionsV2_: transactionsV2;
 
         //Get Data Transaction
         const getDataTransaction = await this.transactionsModel.find({ idTransaction: idTrans }).exec();
-        if (await this.utilsService.ceckData(getDataTransaction)){
+        if (await this.utilsService.ceckData(getDataTransaction)) {
             if (getDataTransaction.length > 0) {
                 for (let uh = 0; uh < getDataTransaction.length; uh++) {
                     let dataTransaction = getDataTransaction[uh];
-                    if (dataTransaction.type=="USER"){
+                    if (dataTransaction.type == "USER") {
                         transactionsV2_ = dataTransaction;
                         const getProduct = await this.transactionsProductsService.findOne(dataTransaction.product.toString());
                         if (await this.utilsService.ceckData(getProduct)) {
@@ -103,10 +103,10 @@ export class TransactionsV2Service {
             }
         }
 
-        if (productCode=="AD"){
-            if (status == "FAILED"){
+        if (productCode == "AD") {
+            if (status == "FAILED") {
                 if (transactionsV2_.detail != undefined) {
-                    if (transactionsV2_.detail.length>0) {
+                    if (transactionsV2_.detail.length > 0) {
                         if (transactionsV2_.detail[0].adsID != undefined) {
                             let idAds = transactionsV2_.detail[0].adsID.toString();
                             const adsService_ = await this.adsService.findOne(idAds);
@@ -148,9 +148,9 @@ export class TransactionsV2Service {
             const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
             const currencyCoinId = (await this.transactionsCoinSettingsService.findStatusActive())._id;
             if (getDataTransaction.length > 0) {
-                let debet = 0;
-                let kredit = 0;
                 for (let uh = 0; uh < getDataTransaction.length; uh++) {
+                    let debet = 0;
+                    let kredit = 0;
                     let dataTransaction = getDataTransaction[uh];
                     product = dataTransaction.product.toString();
                     const categoryTransaction = await this.transactionsCategorysService.findOne(dataTransaction.category.toString());
@@ -168,7 +168,7 @@ export class TransactionsV2Service {
                                                     if (transactionTypetransaction[tr].name != undefined) {
                                                         if (transactionTypetransaction[tr].name == "BalacedCoin") {
                                                             if (transactionTypetransaction[tr].status != undefined) {
-                                                                if (transactionTypetransaction.status == "debit") {
+                                                                if (transactionTypetransaction[tr].status == "debit") {
                                                                     if (status == "SUCCESS") {
                                                                         debet = dataTransaction.coin;
                                                                         kredit = 0;
@@ -189,7 +189,7 @@ export class TransactionsV2Service {
                                                 for (let tr = 0; tr < transactionTypetransaction.length; tr++) {
                                                     if (transactionTypetransaction[tr].name != undefined) {
                                                         if (transactionTypetransaction[tr].name == "BalacedCoin") {
-                                                            if (transactionTypetransaction.status == "credit") {
+                                                            if (transactionTypetransaction[tr].status == "credit") {
                                                                 if (status == "FAILED") {
                                                                     coin = dataTransaction.coin;
                                                                     let coin_wd_failed = Number(cost_verification) / Number(currencyCoin)
@@ -226,7 +226,7 @@ export class TransactionsV2Service {
                                                 if (transactionTypetransaction[tr].name != undefined) {
                                                     if (transactionTypetransaction[tr].name == "Kas") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "credit") {
+                                                            if (transactionTypetransaction[tr].status == "credit") {
                                                                 if (status == "FAILED") {
                                                                     kas = cost_verification;
                                                                 }
@@ -235,7 +235,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "BiayaPG") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "debit") {
+                                                            if (transactionTypetransaction[tr].status == "debit") {
                                                                 if (status == "FAILED") {
                                                                     biayaPaymentGateway = cost_verification;
                                                                 }
@@ -244,7 +244,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "HutangCoin") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "debit") {
+                                                            if (transactionTypetransaction[tr].status == "debit") {
                                                                 if (status == "FAILED") {
                                                                     hutangSaldoCoin = (Number(currencyCoin) * (dataTransaction.coin)) - cost_verification;
                                                                 }
@@ -253,7 +253,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "PendapatanBiayaTransaksi") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "debit") {
+                                                            if (transactionTypetransaction[tr].status == "debit") {
                                                                 if (status == "FAILED") {
                                                                     pendapatanBiayaTransaction = cost_verification;
                                                                 }
@@ -262,7 +262,7 @@ export class TransactionsV2Service {
                                                     }
                                                     if (transactionTypetransaction[tr].name == "PendapatanPenukaranCoin") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction.status == "credit") {
+                                                            if (transactionTypetransaction[tr].status == "credit") {
                                                                 if (status == "FAILED") {
                                                                     pendapatanPenukaranCoin = 0;
                                                                 }
@@ -350,10 +350,10 @@ export class TransactionsV2Service {
                     if (data != null) {
                         dataDetail.push(data)
                     }
-                    const transactionsV2_ = new transactionsV2();
+                    let transactionsV2_ = new transactionsV2();
                     transactionsV2_.status = status;
                     transactionsV2_.detail = dataDetail;
-                    this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
+                    await this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
                 }
             }
 
@@ -2147,6 +2147,61 @@ export class TransactionsV2Service {
 
         );
         let query = await this.transactionsModel.aggregate(pipeline);
+        return query[0];
+    }
+
+    async consoleWithdrawDetail(noInvoice: string) {
+        let query = await this.transactionsModel.aggregate([
+            {
+                $match: {
+                    noInvoice: noInvoice
+                }
+            },
+            {
+                $lookup: {
+                    from: "withdraws",
+                    let: {
+                        local_id: { $arrayElemAt: ["$detail.withdrawId", 0] }
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$local_id"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "withdrawdata"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$withdrawdata"
+                }
+            },
+            {
+                $project: {
+                    idTransaction: 1,
+                    noInvoice: 1,
+                    amount: {
+                        $arrayElemAt: ['$detail.amount', 0]
+                    },
+                    transactionFee: {
+                        $add: [{ $arrayElemAt: ['$detail.biayPG', 0] }, { $arrayElemAt: ['$detail.biayAdmin', 0] }]
+                    },
+                    conversionFee: {
+                        $arrayElemAt: ['$detail.transactionFees', 0]
+                    },
+                    totalAmount: {
+                        $arrayElemAt: ['$detail.totalAmount', 0]
+                    },
+                    status: {
+                        $last: "$withdrawdata.tracking.status"
+                    }
+                }
+            }
+        ]);
         return query[0];
     }
 

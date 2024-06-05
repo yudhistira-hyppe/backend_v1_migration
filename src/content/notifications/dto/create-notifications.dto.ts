@@ -20,6 +20,7 @@ export class CreateNotificationsDto {
         username: String;
     };
     title: String;
+    titleId: String
     body: String;
     bodyId: String;
     active: boolean;

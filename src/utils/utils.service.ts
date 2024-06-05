@@ -493,6 +493,9 @@ export class UtilsService {
       let body_send = "";
       let data_send = {};
 
+      let title_save_id = "";
+      let title_save_en = "";
+
       let body_save_id = "";
       let body_save_en = "";
 
@@ -511,8 +514,10 @@ export class UtilsService {
         if (Templates_.subject != undefined) {
           if (Templates_.subject.toString() == "${user_name}") {
             title_send = "@" + get_username_senderParty;
+            title_save_en = "@" + get_username_senderParty;
           } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
             title_send = "Hi, @" + get_username_senderParty;
+            title_save_en = "Hi, @" + get_username_senderParty;
           } else {
             // if (typeTemplate == "LIVE_START") {
             //   title_send = Templates_.subject.toString().replace("${user_name}", get_username_senderParty)
@@ -520,12 +525,15 @@ export class UtilsService {
             //   title_send = Templates_.subject.toString();
             // }
             title_send = Templates_.subject.toString();
+            title_save_en = Templates_.subject.toString();
           }
         } else {
           if (Templates_.subject_id.toString() == "${user_name}") {
             title_send = "@" + get_username_senderParty;
+            title_save_en = "@" + get_username_senderParty;
           } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
             title_send = "Hi, @" + get_username_senderParty;
+            title_save_en = "Hi, @" + get_username_senderParty;
           } else {
             // if (typeTemplate == "LIVE_START") {
             //   title_send = Templates_.subject_id.toString().replace("${user_name}", get_username_senderParty)
@@ -533,24 +541,31 @@ export class UtilsService {
             //   title_send = Templates_.subject_id.toString();
             // }
             title_send = Templates_.subject_id.toString();
+            title_save_en = Templates_.subject_id.toString();
           }
         }
       } else {
         if (Templates_.subject_id != undefined) {
           if (Templates_.subject_id.toString() == "${user_name}") {
             title_send = "@" + get_username_senderParty;
+            title_save_id = "@" + get_username_senderParty;
           } else if (Templates_.subject_id.toString() == "Hi, ${user_name}") {
             title_send = "Hi, @" + get_username_senderParty;
+            title_save_id = "Hi, @" + get_username_senderParty;
           } else {
             title_send = Templates_.subject_id.toString();
+            title_save_id = Templates_.subject_id.toString();
           }
         } else {
           if (Templates_.subject.toString() == "${user_name}") {
             title_send = "@" + get_username_senderParty;
+            title_save_id = "@" + get_username_senderParty;
           } else if (Templates_.subject.toString() == "Hi, ${user_name}") {
             title_send = "Hi, @" + get_username_senderParty;
+            title_save_id = "Hi, @" + get_username_senderParty;
           } else {
             title_send = Templates_.subject.toString();
+            title_save_id = Templates_.subject.toString();
           }
         }
       }
@@ -727,7 +742,8 @@ export class UtilsService {
       createNotificationsDto.event = event;
       createNotificationsDto.mate = senderParty;
       createNotificationsDto.devices = device_user;
-      createNotificationsDto.title = title_send;
+      createNotificationsDto.title = title_save_en;
+      createNotificationsDto.titleId = title_save_id;
       createNotificationsDto.body = body_save_en;
       createNotificationsDto.bodyId = body_save_id;
       createNotificationsDto.active = true;
@@ -771,7 +787,7 @@ export class UtilsService {
   }
 
   async numberFormatString(nominal: string) {
-    return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, ".")
+    return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.")
   }
 
   async sendFcmCMod(receiverParty: string, eventType: string, event: string, postID?: string, postType?: string) {
