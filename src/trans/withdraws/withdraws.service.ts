@@ -1030,7 +1030,8 @@ export class WithdrawsService {
                         $match: {
                             $expr: {
                                 $eq: [{ $arrayElemAt: ["$detail.withdrawId", 0] }, "$$local_id"]
-                            }
+                            },
+                            type: "USER"
                         }
                     }],
                     as: "trxdata"
