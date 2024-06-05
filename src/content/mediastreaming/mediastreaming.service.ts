@@ -3544,7 +3544,7 @@ export class MediastreamingService {
     );
   }
 
-  async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: any) {
+  async transactionGift(idStream: string, idUser: string, idGift: string, idDiscond: any, dataComment: any) {
     const getDataGift = await this.monetizationService.findOne(idGift);
     const getDataStream = await this.findById(idStream);
     let amount = 0;
@@ -3570,20 +3570,24 @@ export class MediastreamingService {
     
     const data = await this.transactionsV2Service.insertTransaction("APP", "GF", "LIVE", Number(getDataGift.price), Number(disconCoin), 0, 0, idUser, getDataStream.userId.toString(), voucher, detail,"SUCCESS")
 
-    let coinProfitSharingGF = 0;
-    let totalIncome = 0;
-    const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
-    const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
-    if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
-      if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
-        coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+    if (data != false) {
+      await this.insertGift(idStream.toString(), dataComment);
+      this.monetizationService.updateStock(getDataGift._id.toString(), 1, true);
+      let coinProfitSharingGF = 0;
+      let totalIncome = 0;
+      const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
+      const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
+      if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
+        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
+          coinProfitSharingGF = amount * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+        }
+        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
+          coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+        }
       }
-      if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
-        coinProfitSharingGF = amount - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
-      }
+      totalIncome = amount - coinProfitSharingGF;
+      this.updateIncome(idStream, totalIncome);
     }
-    totalIncome = amount - coinProfitSharingGF;
-    this.updateIncome(idStream, totalIncome);
   }
 
   async broadcastFCMLive(Userbasicnew_: Userbasicnew, title: string, streamId: string){
@@ -3789,7 +3793,8 @@ export class MediastreamingService {
         let currentDate = new Date();
         let firstReport = streamWarning[0].createAt;
         let firstReportToDate = new Date(firstReport);
-        let firstReportDateTime = new Date(firstReportToDate.getTime() - (firstReportToDate.getTimezoneOffset() * 60000));
+        let firstReportToDate_ = new Date(firstReportToDate.getTime() - (firstReportToDate.getTimezoneOffset() * 60000)).toISOString();
+        let firstReportToDate_Date = new Date(firstReportToDate_);
 
         //GET ID SETTING REFRESH MAX REPORT
         const ID_SETTING_REFRESH_MAX_REPORT = this.configService.get("ID_SETTING_REFRESH_MAX_REPORT");
@@ -3797,9 +3802,9 @@ export class MediastreamingService {
 
         if (GET_ID_SETTING_REFRESH_MAX_REPORT != undefined) {
           const hoursToAdd = Number(GET_ID_SETTING_REFRESH_MAX_REPORT) * 60 * 60 * 1000;
-          firstReportDateTime.setTime(firstReportDateTime.getTime() + hoursToAdd);
+          firstReportToDate_Date.setTime(firstReportToDate_Date.getTime() + hoursToAdd);
         }
-        if (currentDate.getTime() > firstReportDateTime.getTime()) {
+        if (currentDate.getTime() > firstReportToDate_Date.getTime()) {
           let Userbasicnew_ = new Userbasicnew();
           Userbasicnew_.streamWarning = [];
           //UPDATE DATA USER STREAM
@@ -3822,7 +3827,6 @@ export class MediastreamingService {
         let currentDate = new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000));
         let firstBanding = streamBandingFilter[0].createAt;
         let firstBandingToDate = new Date(firstBanding);
-        let firstBandingDateTime = new Date(firstBandingToDate.getTime() - (firstBandingToDate.getTimezoneOffset() * 60000));
         let firstBandingDateTime_ = new Date(firstBandingToDate.getTime() - (firstBandingToDate.getTimezoneOffset() * 60000)).toISOString();
         let firstBandingDateTime_Date = new Date(firstBandingDateTime_);
 
@@ -3832,10 +3836,7 @@ export class MediastreamingService {
 
         if (GET_ID_SETTING_APPEAL_AUTO_APPROVE != undefined) {
           const dayToAdd = Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE);
-          firstBandingDateTime_Date.setDate(firstBandingDateTime.getDate() + dayToAdd);
-          console.log(firstBandingDateTime_Date)
-          console.log(currentDate)
-          console.log(currentDate.getTime() >= firstBandingDateTime_Date.getTime())
+          firstBandingDateTime_Date.setDate(firstBandingDateTime_Date.getDate() + dayToAdd);
           if (currentDate.getTime() >= firstBandingDateTime_Date.getTime()) {
             streamBanding[objIndex].notes = "AUTO APPROVE BY SYSTEM";
             streamBanding[objIndex].status = false;

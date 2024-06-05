@@ -1245,6 +1245,7 @@ export class TransactionsV2Service {
                     }
                 }
 
+                
                 transactionsV2_.idUser = idUser;
                 transactionsV2_.coinDiscount = coinDiscount;
                 transactionsV2_.coin = coin;

@@ -44,5 +44,7 @@ export class transactionsV2 {
     updatedAt: string;
     @Prop()
     credit: number;
+    @Prop()
+    typeCategory: string;
 }
 export const transactionsV2Schema = SchemaFactory.createForClass(transactionsV2);
