@@ -34,19 +34,6 @@ import { PosttaskService } from '../../content/posttask/posttask.service';
 import { ScheduleinjectService } from '../../schedule/scheduleinject/scheduleinject.service';
 import { Scheduleinject } from '../../schedule/scheduleinject/schemas/scheduleinject.schema';
 import { TempPOSTService } from './temp_post.service';
-import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
-import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
-import { TransactionsDiscounts, TransactionsDiscountsSchema } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
-import { TransactionsBalancedsService } from 'src/trans/transactionsv2/balanceds/transactionsbalanceds.service';
-import { TransactionsCategorysService } from 'src/trans/transactionsv2/categorys/transactionscategorys.service';
-import { TransactionsProductsService } from 'src/trans/transactionsv2/products/transactionsproducts.service';
-import { MonetizationService } from 'src/trans/monetization/monetization.service';
-import { CreateNewPostDTO } from './dto/create-newPost.dto';
-import { TemplatesRepo } from 'src/infra/templates_repo/schemas/templatesrepo.schema';
-import { Settings2Service } from 'src/trans/settings2/settings2.service';
-import { BoostintervalService } from '../boostinterval/boostinterval.service';
-import { BoostsessionService } from '../boostsession/boostsession.service';
-
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -58,7 +45,6 @@ export class NewPostController {
         private readonly basic2SS: UserbasicnewService,
         private readonly logapiSS: LogapisService,
         private readonly settingsService: SettingsService,
-        private readonly settings2Service: Settings2Service,
         private readonly utilsService: UtilsService,
         private transactionsPostService: TransactionsPostService,
         private readonly errorHandler: ErrorHandler,
@@ -73,15 +59,7 @@ export class NewPostController {
         private readonly newPostModService: NewPostModService,
         private readonly PosttaskService: PosttaskService,
         private readonly ScheduleinjectService: ScheduleinjectService,
-        private readonly TempPostService: TempPOSTService,
-        private readonly transV2Service: TransactionsV2Service,
-        private readonly transDiscountService: TransactionsDiscountsService,
-        private readonly transBalancedService: TransactionsBalancedsService,
-        private readonly transCategoryService: TransactionsCategorysService,
-        private readonly transProductsService: TransactionsProductsService,
-        private readonly monetizationService: MonetizationService,
-        private readonly boostIntervalService: BoostintervalService,
-        private readonly boostSessionService: BoostsessionService
+        private readonly TempPostService: TempPOSTService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -170,6 +148,11 @@ export class NewPostController {
             var postID = null;
             var posttype = null;
             var email = null;
+            var contentModeration=null;
+            var reportedStatus=null;
+            var visibility=null;
+            var activeContent=null;
+            var createdAtContent=null;
             try {
                 postID = data.data.postID;
             } catch (e) {
@@ -187,20 +170,42 @@ export class NewPostController {
             } catch (e) {
                 email = null;
             }
-
-
-
-            // try {
-            //     this.posttask(postID, email, current_date);
-            // } catch (e) {
-
-            // }
             try {
-                this.schedul(postID, email);
+                contentModeration = data.data.contentModeration;
             } catch (e) {
-
+                contentModeration = null;
             }
+            try {
+                reportedStatus = data.data.reportedStatus;
+            } catch (e) {
+                reportedStatus = null;
+            }
+            try {
+                visibility = data.data.visibility;
+            } catch (e) {
+                visibility = null;
+            }
+            try {
+                activeContent = data.data.active;
+            } catch (e) {
+                activeContent = null;
+            }
+            try {
+                createdAtContent = data.data.createdAt;
+            } catch (e) {
+                createdAtContent = null;
+            }
+                try {
+                    this.posttask(postID, email, current_date,posttype,contentModeration,reportedStatus,visibility,activeContent,createdAtContent);
+                } catch (e) {
 
+                }
+                try {
+                    this.schedul(postID, email);
+                } catch (e) {
+
+                }
+            
 
             const databasic = await this.basic2SS.findBymail(
                 email
@@ -220,33 +225,6 @@ export class NewPostController {
 
             //untuk temppost
             this.TempPostService.duplicatedata(data.data, null, "create");
-
-            var transaction_fee = 0;
-            var discount_id = null;
-            var discount_fee = 0;
-            if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined) {
-                transaction_fee = Number(CreatePostRequest_.transaction_fee.toString());
-                if (CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined) {
-                    discount_id = CreatePostRequest_.discount_id;
-                    discount_fee = Number(CreatePostRequest_.discount_fee.toString());
-                }
-
-                if (data.data.certified == true) {
-                    var resultTrans = await this.setTransaksiContentOwnership(postID, transaction_fee, discount_id, discount_fee);
-
-                    data['DetailTransaction'] = {
-                        invoiceID: resultTrans.noInvoice,
-                        totalPayment: resultTrans.detail[0].totalAmount,
-                        transactionID: resultTrans.idTransaction,
-                        transactionTitle: resultTrans.transactionType,
-                        packageTitle: resultTrans.productionTitle,
-                        email: resultTrans.email,
-                        paymentMethod: resultTrans.paymentMethod,
-                        date: resultTrans.createdAt.split(" ")[0],
-                        time: resultTrans.createdAt.split(" ")[1],
-                    }
-                }
-            }
         }
 
         return data;
@@ -259,9 +237,6 @@ export class NewPostController {
         var timestamps_start = await this.utilsService.getDateTimeString();
         var fullurl = headers.host + "/api/posts/updatepost/v2";
         var reqbody = body;
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var setemail = auth.email;
 
         this.logger.log("updatePost >>> start");
         var email = headers['x-auth-user'];
@@ -282,7 +257,7 @@ export class NewPostController {
         var dataTransaction = await this.transactionsPostService.findpostid(body.postID.toString());
         if (await this.utilsService.ceckData(dataTransaction)) {
             var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
             if (((dataUser.languagesLangIso != undefined ? dataUser.languagesLangIso : "id")) == "id") {
                 await this.errorHandler.generateNotAcceptableException(
                     "Tidak bisa mengedit postingan karena sedang dalam proses pembayaran",
@@ -469,7 +444,7 @@ export class NewPostController {
                 // }
 
                 var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
 
                 let datapostchallenge2 = null;
                 try {
@@ -611,33 +586,6 @@ export class NewPostController {
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
                 this.TempPostService.updateByPostId(body, headers, dataUser);
-
-                var transaction_fee = 0;
-                var discount_id = null;
-                var discount_fee = 0;
-                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
-                    transaction_fee = body.transaction_fee;
-                    if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
-                        discount_id = body.discount_id;
-                        discount_fee = body.discount_fee;
-                    }
-
-                    if (body.certified == true) {
-                        var resultTrans = await this.setTransaksiContentOwnership(body.postID, transaction_fee, discount_id, discount_fee);
-                        data['DetailTransaction'] = {
-                            invoiceID: resultTrans.noInvoice,
-                            totalPayment: resultTrans.detail[0].totalAmount,
-                            transactionID: resultTrans.idTransaction,
-                            transactionTitle: resultTrans.transactionType,
-                            packageTitle: resultTrans.productionTitle,
-                            email: resultTrans.email,
-                            paymentMethod: resultTrans.paymentMethod,
-                            date: resultTrans.createdAt.split(" ")[0],
-                            time: resultTrans.createdAt.split(" ")[1],
-                        }
-                    }
-                }
-
                 //tags
                 if (body.tags !== undefined && body.tags.length > 0) {
                     var tag2 = body.tags;
@@ -842,7 +790,7 @@ export class NewPostController {
                 }
 
                 var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
 
                 return data;
             } else {
@@ -852,7 +800,7 @@ export class NewPostController {
 
                 if (datenow >= new Date(startDatetime) && datenow <= new Date(endDatetime) && saleAmount > 0) {
                     var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
 
                     await this.errorHandler.generateNotAcceptableException(
                         'Unabled to proceed, content is participating in the challenge',
@@ -1154,7 +1102,7 @@ export class NewPostController {
                     }
 
                     var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
 
                     return data;
                 }
@@ -1170,7 +1118,7 @@ export class NewPostController {
         }
 
         var timestamps_end = await this.utilsService.getDateTimeString();
-        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, reqbody.email, null, null, reqbody);
         return data;
     }
 
@@ -1195,6 +1143,7 @@ export class NewPostController {
 
         var token = headers['x-auth-token'];
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        console.log(auth);
         var profile = await this.basic2SS.findbyemail(auth.email);
         if (profile == null) {
             var dt = new Date(Date.now());
@@ -2735,8 +2684,8 @@ export class NewPostController {
 
         try {
 
-            // data = await this.newPostService.landingpageMigration(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
             data = await this.newPostService.landingpageMigrationUpdate(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
+            // data = await this.newPostService.landingpageMigration(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
             lengpict = data.length;
 
         } catch (e) {
@@ -5042,505 +4991,6 @@ export class NewPostController {
         return Response;
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('posts/check-post')
-    async checkTotalPost(@Headers() headers): Promise<any> {
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var profile = await this.basic2SS.findbyemail(auth.email);
-        if (profile == null) {
-            await this.errorHandler.generateUnauthorizedException("profile not found!!")
-        }
-
-        var getdata = await this.newPostService.findUserPostfirst(auth.email);
-
-        if (getdata.length == 0) {
-            return {
-                response_code: 202,
-                result: false
-            }
-        }
-        else {
-            return {
-                response_code: 202,
-                result: true
-            }
-        }
-    }
-
-    @Post('/transactionsv2/boostpostdetail')
-    @UseGuards(JwtAuthGuard)
-    async boostPostPaymentDetail(@Req() request: any, @Headers() headers) {
-        var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactionsv2/boostpostdetail';
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var email = auth.email;
-        var request_json = JSON.parse(JSON.stringify(request.body));
-        const messages = {
-            "info": ["The process was successful"],
-        };
-        try {
-            let priceData = await this.transProductsService.findOneByCode("BP");
-            let price = priceData.price;
-            var interval;
-            var session;
-            if (request_json.type == "automatic") {
-                //CHECK INTERVAL
-                interval = await this.boostIntervalService.findByType("automatic");
-                if (!(await this.utilsService.ceckData(interval))) {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                    throw new BadRequestException(
-                        'Unable to proceed: interval not found',
-                    );
-                }
-
-                //CHECK SESSION
-                session = await this.boostSessionService.findByType("automatic");
-                if (!(await this.utilsService.ceckData(session))) {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                    throw new BadRequestException(
-                        'Unable to proceed: session not found',
-                    );
-                }
-            } else if (request_json.type == "manual") {
-                //CHECK PARAM INTERVAL, SESSION
-                if (request_json.interval == undefined) {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                    throw new BadRequestException(
-                        'Unable to proceed: interval is required',
-                    );
-                }
-                if (request_json.session.toLowerCase() == undefined) {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                    throw new BadRequestException(
-                        'Unable to proceed: session is required',
-                    );
-                }
-
-                //CHECK INTERVAL
-                interval = await this.boostIntervalService.findById(request_json.interval);
-                if (!(await this.utilsService.ceckData(interval))) {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                    throw new BadRequestException(
-                        'Unable to proceed: interval not found',
-                    );
-                }
-
-                //CHECK SESSION
-                session = await this.boostSessionService.findById(request_json.session);
-                if (!(await this.utilsService.ceckData(session))) {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                    throw new BadRequestException(
-                        'Unable to proceed: session not found',
-                    );
-                }
-            } else {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
-            }
-            let total = price - (request_json.discount ? request_json.discount : 0);
-            total = (total >= 0) ? total : 0;
-            let data = {
-                posttype: request_json.posttype,
-                typeBoost: request_json.type,
-                dateStart: request_json.dateStart,
-                dateEnd: request_json.dateEnd,
-                price: price,
-                discount: request_json.discount ? request_json.discount : 0,
-                total: total,
-                session: session,
-                interval: interval
-            }
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            return {
-                response_code: 202,
-                data,
-                messages
-            }
-        } catch (e) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            throw new BadRequestException("Process error: " + e);
-        }
-    }
-
-    @Post('/transactionsv2/createboostpost')
-    @UseGuards(JwtAuthGuard)
-    async createBoostPostTransaction(@Req() request: any, @Headers() headers) {
-        var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactionsv2/createboostpost';
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var email = auth.email;
-        var request_json = JSON.parse(JSON.stringify(request.body));
-        const messages = {
-            "info": ["The process was successful"],
-        };
-        var ubasic = await this.basic2SS.findOneBymail(email);
-        // var buyerubasic = await this.basic2SS.findOne(request_json.idUserBuy);
-        // var emailbuyer = buyerubasic.email;
-        if (request_json.pin && request_json.pin != "") {
-            if (await this.utilsService.ceckData(ubasic)) {
-                if (ubasic.pin && ubasic.pin != "") {
-                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
-                    if (pinDecrypt != request_json.pin) {
-                        var timestamps_end = await this.utilsService.getDateTimeString();
-                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                        throw new BadRequestException("Unable to proceed: PIN mismatch");
-                    }
-                } else {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
-                }
-            } else {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                throw new BadRequestException("Unable to proceed: User data not found");
-            }
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            throw new BadRequestException("Unable to proceed: Missing param: pin");
-        }
-        try {
-            //Generate detail
-            var detail;
-            // var interval;
-            // var session;
-            // if (request_json.type == "automatic") {
-            //     //CHECK INTERVAL
-            //     interval = await this.boostIntervalService.findByType("automatic");
-            //     if (!(await this.utilsService.ceckData(interval))) {
-            //         var timestamps_end = await this.utilsService.getDateTimeString();
-            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-            //         throw new BadRequestException(
-            //             'Unable to proceed: interval not found',
-            //         );
-            //     }
-
-            //     //CHECK SESSION
-            //     session = await this.boostSessionService.findByType("automatic");
-            //     if (!(await this.utilsService.ceckData(session))) {
-            //         var timestamps_end = await this.utilsService.getDateTimeString();
-            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-            //         throw new BadRequestException(
-            //             'Unable to proceed: session not found',
-            //         );
-            //     }
-            // } else if (request_json.type == "manual") {
-            //     //CHECK PARAM INTERVAL, SESSION
-            //     if (request_json.interval == undefined) {
-            //         var timestamps_end = await this.utilsService.getDateTimeString();
-            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-            //         throw new BadRequestException(
-            //             'Unable to proceed: interval is required',
-            //         );
-            //     }
-            //     if (request_json.session.toLowerCase() == undefined) {
-            //         var timestamps_end = await this.utilsService.getDateTimeString();
-            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-            //         throw new BadRequestException(
-            //             'Unable to proceed: session is required',
-            //         );
-            //     }
-
-            //     //CHECK INTERVAL
-            //     interval = await this.boostIntervalService.findById(request_json.interval);
-            //     if (!(await this.utilsService.ceckData(interval))) {
-            //         var timestamps_end = await this.utilsService.getDateTimeString();
-            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-            //         throw new BadRequestException(
-            //             'Unable to proceed: interval not found',
-            //         );
-            //     }
-
-            //     //CHECK SESSION
-            //     session = await this.boostSessionService.findById(request_json.session);
-            //     if (!(await this.utilsService.ceckData(session))) {
-            //         var timestamps_end = await this.utilsService.getDateTimeString();
-            //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-            //         throw new BadRequestException(
-            //             'Unable to proceed: session not found',
-            //         );
-            //     }
-            // } else {
-            //     var timestamps_end = await this.utilsService.getDateTimeString();
-            //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            //     throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
-            // }
-            detail = [
-                {
-                    "postID": request_json.postId,
-                    "typeData": "POST",
-                    "discont": "0",
-                    "amount": request_json.coin,
-                    "discountCoin": request_json.discountCoin ? request_json.discountCoin : 0,
-                    "totalAmount": request_json.coin - (request_json.discountCoin ? request_json.discountCoin : 0),
-                    "qty": 1,
-                    "interval": request_json.interval,
-                    "session": request_json.session,
-                    "type": request_json.type,
-                    "dateStart": request_json.dateStart,
-                    "datedateEnd": request_json.dateEnd
-                }
-            ]
-            var data;
-            data = await this.transV2Service.insertTransaction(
-                request_json.platform,
-                "BP",
-                undefined,
-                request_json.coin,
-                request_json.discountCoin ? request_json.discountCoin : 0,
-                0,
-                0,
-                ubasic._id.toString(),
-                undefined,
-                request_json.idVoucher ? request_json.idVoucher : undefined,
-                detail,
-                "SUCCESS");
-            // console.log("data.data[0]:", data.data[0])
-            // data.transactionType = "BOOST POST";
-            // data.transactionUnit = "COIN";
-            if (request_json.idVoucher && request_json.idVoucher.length > 0) {
-                for (let i = 0; i < request_json.idVoucher.length; i++) {
-                    this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
-                }
-            }
-            var balanceData = await this.transBalancedService.findOneByTransactionId(data.data[0]._id);
-            var data_response = {
-                "noinvoice": data.data[0].noInvoice,
-                "postid": data.data[0].detail.postID,
-                "idusersell": data.data[1].idUser,
-                "iduserbuyer": data.data[0].idUser,
-                "NamaPembeli": ubasic.fullName,
-                "emailbuyer": email,
-                "amount": data.data[0].coin,
-                "discount": data.data[0].discountCoin,
-                "paymentmethod": "COIN",
-                "status": data.data[0].status,
-                "description": "BOOST",
-                // "idva": transaction_boost.idva,
-                // "nova": transaction_boost.nova,
-                // "expiredtimeva": transaction_boost.expiredtimeva,
-                // "salelike": transaction_boost.saleview,
-                // "saleview": transaction_boost.salelike,
-                // "bank": bank.bankname,
-                // "bankvacharge": BankVaCharge,
-                "detail": data.data[0].detail,
-                "totalamount": data.data[0].totalCoin,
-                "accountbalance": balanceData.saldo,
-                "timestamp": data.data[0].createdAt,
-                "_id": data.data[0]._id
-            }
-            this.editPostBoost(request_json.postId, detail);
-            // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            return {
-                response_code: 202,
-                data_response,
-                messages
-            }
-        } catch (e) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            throw new BadRequestException("Process error: " + e);
-        }
-    }
-
-    @Post('/transactionsv2/creditpurchasedetail')
-    @UseGuards(JwtAuthGuard)
-    async getCreditPurchaseDetail(@Req() request: any, @Headers() headers) {
-        var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactionsv2/creditpurchasedetail';
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var email = auth.email;
-        var request_json = JSON.parse(JSON.stringify(request.body));
-        const messages = {
-            "info": ["The process was successful"],
-        };
-        try {
-            let creditData = await this.monetizationService.findOne(request_json.paketID);
-            let data = {
-                paketID: request_json.paketID,
-                typeData: "CREDIT",
-                qty: 1,
-                credit: creditData.amount,
-                amount: creditData.price,
-                discountCoin: request_json.discount ? request_json.discount : 0,
-                totalAmount: creditData.price - (request_json.discount ? request_json.discount : 0)
-            }
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            return {
-                response_code: 202,
-                data,
-                messages
-            }
-        } catch (e) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            throw new BadRequestException("Process error: " + e);
-        }
-    }
-
-    @Post('/transactionsv2/insertcointransaction')
-    @UseGuards(JwtAuthGuard)
-    async insertCoinTransaction(@Req() request: any, @Headers() headers) {
-        var timestamps_start = await this.utilsService.getDateTimeString();
-        var fullurl = headers.host + '/api/transactionsv2/insertcointransaction';
-        var token = headers['x-auth-token'];
-        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        var email = auth.email;
-        var request_json = JSON.parse(JSON.stringify(request.body));
-        const messages = {
-            "info": ["The process was successful"],
-        };
-        var ubasic = await this.basic2SS.findOneBymail(email);
-        if (request_json.pin && request_json.pin != "") {
-            if (await this.utilsService.ceckData(ubasic)) {
-                if (ubasic.pin && ubasic.pin != "") {
-                    let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
-                    if (pinDecrypt != request_json.pin) {
-                        var timestamps_end = await this.utilsService.getDateTimeString();
-                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                        throw new BadRequestException("Unable to proceed: PIN mismatch");
-                    }
-                } else {
-                    var timestamps_end = await this.utilsService.getDateTimeString();
-                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                    throw new BadRequestException("Unable to proceed: Please create a PIN first");
-                }
-            } else {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                throw new BadRequestException("Unable to proceed: User data not found");
-            }
-        } else {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            throw new BadRequestException("Unable to proceed: Missing param: pin");
-        }
-        try {
-            // var data;
-            // var detail;
-            // // Generate detail
-            // switch (request_json.transactionProductCode) {
-            //     case "CR": //Paket kredit
-            //         let creditData = await this.monetizationService.findOne(request_json.paketID);
-            //         detail = {
-            //             paketID: request_json.paketID,
-            //             typeData: "CREDIT",
-            //             qty: 1,
-            //             credit: creditData.amount,
-            //         }
-            //         break;
-            // }
-
-            var idusersell = null;
-            if (request_json.idUserSell != null && request_json.idUserSell != undefined) {
-                idusersell = request_json.idUserSell;
-            }
-            else {
-                //masuk kesini apabila ingin membayar ads atau ads credit atau kredit
-                var getdata = await this.settings2Service.findOne(process.env.ID_USER_HYPPE);
-                idusersell = getdata.value.toString();
-            }
-
-            var response = await this.transV2Service.insertTransaction(
-                "BUS",
-                request_json.transactionProductCode,
-                request_json.category ? request_json.category : undefined,
-                request_json.coin,
-                request_json.discountCoin,
-                0,
-                0,
-                ubasic._id.toString(),
-                idusersell,
-                request_json.idVoucher ? request_json.idVoucher : undefined,
-                request_json.detail,
-                "SUCCESS");
-
-            if (response == false) {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                await this.errorHandler.generateInternalServerErrorException("error while processing data");
-            }
-            else {
-                // var listtransaksi = [];
-                var getdataresulttrans = response.data;
-                var responseTransFiltered = getdataresulttrans.filter((data) => { return data.idUser.toString() == ubasic._id.toString() })
-
-                // for(var i = 0; i < getdataresulttrans.length; i++)
-                // {
-                // var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-                //     if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
-                //     {
-                //         var upd_last_stock = getgiftdata.last_stock - 1;
-                //         var upd_used_stock = getgiftdata.used_stock + 1;
-                //         var detailtransdata = getdataresulttrans[i]._id;
-                //         var insertlogtransaksi = 
-                //         {
-                //             "idPackage" : getgiftdata._id,
-                //             "idTransaction" : detailtransdata,
-                //             "status" : "SUCCESS",
-                //             "quantity" : 1,
-                //             "last_stock": upd_last_stock,
-                //             "used_stock": upd_used_stock,
-                //             "idUser" : getdatapembeli._id
-                //         };
-
-                //         await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
-
-                //         listtransaksi.push(getdataresulttrans[i].idTransaction);
-
-                //         responseTransGIFT = getdataresulttrans[i];
-                //     }
-                // }
-
-                if (request_json.idVoucher && request_json.idVoucher.length > 0) {
-                    for (let i = 0; i < request_json.idVoucher.length; i++) {
-                        this.monetizationService.updateStock(request_json.idVoucher[i], 1, true);
-                    }
-                }
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-                return {
-                    response_code: 202,
-                    responseTransFiltered,
-                    messages
-                }
-            }
-
-        } catch (e) {
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-            throw new BadRequestException("Process error: " + e);
-        }
-    }
-
     async posttask(postID: string, email: string, createdAt: string,postType:string,contentModeration: boolean, reportedStatus: string,visibility: String,activeContent: boolean,createdAtContent: string) {
         var Posttask_ = new Posttask();
         Posttask_.postID = postID;
@@ -5563,6 +5013,7 @@ export class NewPostController {
 
         }
     }
+
     async schedul(postID: string, email: string) {
         let arr = [];
         let rd = null;
@@ -5649,166 +5100,5 @@ export class NewPostController {
         }
     }
 
-    async setTransaksiContentOwnership(postID: string, transaction_fee: number, discount_id: string, discount_fee: number) {
-        var getPost = await this.newPostService.findByPostId(postID);
-        var getUserData = await this.basic2SS.findBymail(getPost.email.toString());
-        var setDetail = [];
-        var setVoucher = [];
-
-        if (discount_id != undefined && discount_id != null) {
-            setVoucher.push(discount_id);
-        }
-
-        setDetail.push(
-            {
-                "postID": postID,
-                "typeData": "POST",
-                "qty": 1,
-                "amount": transaction_fee,
-                "discountCoin": discount_fee,
-                "totalAmount": transaction_fee - discount_fee
-            }
-        )
-
-        var userhyppe = await this.settings2Service.findOne(process.env.ID_USER_HYPPE);
-
-        var resultTransaksi = await this.transV2Service.insertTransaction("APP", "CO", null, transaction_fee, discount_fee, 0, 0, getUserData._id.toString(), userhyppe.value.toString(), setVoucher, setDetail, "SUCCESS");
-
-        if (resultTransaksi != false) {
-            var resultArray = resultTransaksi.data;
-            var listid = [];
-            var response = null;
-            for (var i = 0; i < resultArray.length; i++) {
-                var checkexist = listid.includes(resultArray[i].idTransaction);
-                if (checkexist == false && getUserData._id.toString() == resultArray[i].idUser.toString()) {
-                    if (discount_id != undefined && discount_id != null) {
-                        var insertDatatransDiscount = new TransactionsDiscounts();
-                        insertDatatransDiscount._id = new mongoose.Types.ObjectId();
-                        insertDatatransDiscount.idTransaction = resultArray[i]._id;
-                        insertDatatransDiscount.idUser = resultArray[i].idUser;
-                        insertDatatransDiscount.idDiscount = new mongoose.Types.ObjectId(discount_id);
-                        insertDatatransDiscount.totalPayment = resultArray[i].totalCoin;
-                        insertDatatransDiscount.transactionDate = resultArray[i].createdAt;
-                        insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
-                        insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
-                        await this.transDiscountService.create(insertDatatransDiscount);
-                    }
-
-                    listid.push(resultArray[i].idTransaction);
-                    response = resultArray[i];
-                }
-            }
-
-            if (discount_id != undefined && discount_id != null) {
-                await this.monetizationService.updateStock(discount_id, 1, true);
-            }
-
-            var getcatdata = await this.transCategoryService.findOne(response.category.toString());
-            var getproddata = await this.transProductsService.findOne(response.product.toString());
-
-            response.transactionType = getcatdata.coa;
-            response.productionTitle = getproddata.name;
-            response.email = getUserData.email;
-            response.paymentMethod = 'COIN';
-
-            return response;
-        }
-    }
-
-    async editPostBoost(postid: string, detail: any[]) {
-        // var databoost = null;
-        // if (detail != undefined) {
-        //     if (detail.length > 0) {
-        //         databoost = detail.filter((item, index) => {
-        //             return (item.description == "BOOST");
-        //         });
-        //     }
-        // }
-
-        var GetMaxBoost = await this.utilsService.getSetting_("636212526f07000023005ce3");
-        let ContInterval = Number(detail[0].interval.value.toString()) * Number(GetMaxBoost.toString());
-        // let ContInterval = Number(databoost[0].interval.value.toString()) * Number(GetMaxBoost.toString());
-
-        var boost = [];
-        var dateStartString = (detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")
-        // var dateStartString = (databoost[0].dateStart.toString() + "T" + databoost[0].session.start.toString() + ".000Z")
-        // var dateStartDate = new Date(dateStartString)
-        // var dateStartAdd = new Date(dateStartDate.getTime() + ContInterval * 60000)
-        // var dateStartGetTime = dateStartAdd.toISOString().split('T')[1].split(".")[0]
-
-        // console.log("date String", dateStartString);
-        // console.log("date Date", new Date(dateStartString));
-        // console.log("date Add", dateStartAdd);
-        // console.log("date GetTime", dateStartGetTime);
-
-        var dataBoost = {
-            type: detail[0].type.toString(),
-            // type: databoost[0].type.toString(),
-            boostDate: new Date(detail[0].dateStart.toString()),
-            // boostDate: new Date(databoost[0].dateStart.toString()),
-            boostInterval: {
-                id: new mongoose.Types.ObjectId(detail[0].interval._id.toString()),
-                // id: new mongoose.Types.ObjectId(databoost[0].interval._id.toString()),
-                value: detail[0].interval.value.toString(),
-                // value: databoost[0].interval.value.toString(),
-                remark: detail[0].interval.remark.toString(),
-                // remark: databoost[0].interval.remark.toString(),
-            },
-            boostSession: {
-                id: new mongoose.Types.ObjectId(detail[0].session._id.toString()),
-                // id: new mongoose.Types.ObjectId(databoost[0].session._id.toString()),
-                //start: new Date((detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")),
-                //end: new Date((detail[0].datedateEnd.toString() + "T" + detail[0].session.end.toString() + ".000Z")),
-
-                start: (detail[0].dateStart.toString() + " " + detail[0].session.start.toString()),
-                // start: (databoost[0].dateStart.toString() + " " + databoost[0].session.start.toString()),
-                end: (detail[0].datedateEnd.toString() + " " + detail[0].session.end.toString()),
-                // end: (databoost[0].datedateEnd.toString() + " " + dateStartGetTime),
-                timeStart: detail[0].session.start,
-                // timeStart: databoost[0].session.start,
-                timeEnd: detail[0].session.end,
-                name: detail[0].session.name,
-                // name: databoost[0].session.name,
-            },
-            boostViewer: [],
-        }
-        boost.push(dataBoost);
-        var CreateNewPostDTO_ = new CreateNewPostDTO();
-        CreateNewPostDTO_.boostCount = 0;
-        CreateNewPostDTO_.isBoost = 5;
-        CreateNewPostDTO_.boosted = boost;
-        await this.newPostService.updateByPostId(postid, CreateNewPostDTO_)
-    }
-
-    async sendCommentFCM(type: string, postID: string, receiverParty: string, idtransaction?: string) {
-        var Templates_ = new TemplatesRepo();
-        Templates_ = await this.utilsService.getTemplate_repo(type, 'NOTIFICATION');
-
-        var email = receiverParty;
-        var titlein = Templates_.subject.toString();
-        var titleen = Templates_.subject.toString();
-        var bodyin = "";
-        var bodyen = "";
-
-        var email_post = "";
-        var posts = await this.newPostService.findid(postID);
-        var bodyin_get = Templates_.body_detail_id.toString();
-        var bodyen_get = Templates_.body_detail.toString();
-        var post_type = "";
-        if (await this.utilsService.ceckData(posts)) {
-            post_type = posts.postType.toString();
-            email_post = posts.email.toString();
-        }
-        var new_bodyin_get = bodyin_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
-        var new_bodyen_get = bodyen_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
-
-        var bodyin = new_bodyin_get;
-        var bodyen = new_bodyen_get;
-
-        var eventType = "TRANSACTION";
-        var event = type;
-
-        await this.utilsService.sendFcmV2(email, email, eventType, event, type, postID, post_type, idtransaction)
-        //await this.utilsService.sendFcm(email, titlein, titleen, bodyin, bodyen, eventType, event);
-    }
+    
 }
