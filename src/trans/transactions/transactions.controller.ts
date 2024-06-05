@@ -21045,7 +21045,7 @@ export class TransactionsController {
                         "approved_by": user_data._id
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
-                    updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", infodisbursemen);
+                    updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", detailTrans);
                     let data = {
                         "idUser": withdrawData.idUser,
                         "amount": withdrawData.amount,
@@ -21160,7 +21160,7 @@ export class TransactionsController {
                         "approved_by": user_data._id
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
-                    updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", infodisbursemen);
+                    updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", detailTrans);
                     let data = {
                         "idUser": withdrawData.idUser,
                         "amount": withdrawData.amount,
@@ -21239,7 +21239,7 @@ export class TransactionsController {
                             "approved_by": user_data._id
                         });
                         // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "SUCCESS", detail: detailTrans });
-                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", infodisbursemen);
+                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "SUCCESS", detailTrans);
                         let data = {
                             "idUser": withdrawData.idUser,
                             "amount": withdrawData.amount,
@@ -21354,7 +21354,7 @@ export class TransactionsController {
                             "approved_by": user_data._id
                         });
                         // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
-                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", infodisbursemen);
+                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", detailTrans);
                         let data = {
                             "idUser": withdrawData.idUser,
                             "amount": withdrawData.amount,
@@ -21407,7 +21407,7 @@ export class TransactionsController {
                 "description_en": `Coin withdrawal request rejected with the following reason: ${request_json.remark}`,
                 "approved_by": user_data._id
             });
-            updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", {});
+            updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", detailTrans);
             let data = {
                 "idUser": withdrawData.idUser,
                 "amount": withdrawData.amount,
