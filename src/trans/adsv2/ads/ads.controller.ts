@@ -1959,7 +1959,7 @@ export class AdsController {
         //Validasi Token
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unauthorized" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -1970,7 +1970,7 @@ export class AdsController {
         }
         if (!(await this.utilsService.validasiTokenEmail(headers))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed email header dan token not match" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -1983,7 +1983,7 @@ export class AdsController {
         //Validasi Param typeAdsId
         if (id == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed, param id is required" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -1995,7 +1995,7 @@ export class AdsController {
         const dataTypeAds = await this.adsTypeService.findOne(id);
         if (!(await this.utilsService.ceckData(dataTypeAds))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed TypeAds not found" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -2009,7 +2009,7 @@ export class AdsController {
         const data_userbasic = await this.basic2SS.findBymail(headers['x-auth-user']);
         if (!(await this.utilsService.ceckData(data_userbasic))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed User not found" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -2148,7 +2148,7 @@ export class AdsController {
             data_response['heightLandscape'] = data_ads[0].heightLandscape;
 
             AdsLogsDto_.responseAds = JSON.stringify(data_response);
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             return {
                 "response_code": 202,
                 "data": data_response,
@@ -2162,7 +2162,7 @@ export class AdsController {
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed Ads not found" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
             await this.errorHandler.generateNotAcceptableException(
@@ -2198,7 +2198,7 @@ export class AdsController {
         //Validasi Token
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unauthorized" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -2209,7 +2209,7 @@ export class AdsController {
         }
         if (!(await this.utilsService.validasiTokenEmail(headers))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed email header dan token not match" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -2222,7 +2222,7 @@ export class AdsController {
         //Validasi Param typeAdsId
         if (id == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed, param id is required" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -2234,7 +2234,7 @@ export class AdsController {
         const dataTypeAds = await this.adsTypeService.findOne(id);
         if (!(await this.utilsService.ceckData(dataTypeAds))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed TypeAds not found" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -2248,7 +2248,7 @@ export class AdsController {
         const data_userbasic = await this.basic2SS.findBymail(headers['x-auth-user']);
         if (!(await this.utilsService.ceckData(data_userbasic))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed User not found" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
@@ -2387,7 +2387,7 @@ export class AdsController {
             data_response['heightLandscape'] = data_ads[0].heightLandscape;
 
             AdsLogsDto_.responseAds = JSON.stringify(data_response);
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             return {
                 "response_code": 202,
                 "data": data_response,
@@ -2401,7 +2401,7 @@ export class AdsController {
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed Ads not found" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
             await this.errorHandler.generateNotAcceptableException(
@@ -2436,7 +2436,7 @@ export class AdsController {
         //Validasi Token
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unauthorized" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2445,7 +2445,7 @@ export class AdsController {
         }
         if (!(await this.utilsService.validasiTokenEmail(headers))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed email header dan token not match" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2456,7 +2456,7 @@ export class AdsController {
         //Validasi Param
         if (AdsAction_.watchingTime == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed param watchingTime is reqired" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2465,7 +2465,7 @@ export class AdsController {
         }
         if (typeof AdsAction_.watchingTime != 'number') {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed param watchingTime invalid format ' + typeof AdsAction_.watchingTime });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2474,7 +2474,7 @@ export class AdsController {
         }
         if (AdsAction_.adsId == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed param adsId is reqired' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2483,7 +2483,7 @@ export class AdsController {
         }
         if (AdsAction_.useradsId == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed param useradsId is reqired' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2495,7 +2495,7 @@ export class AdsController {
         const dataAdsUser = await this.userAdsService.getAdsUser(AdsAction_.useradsId.toString());
         if (!(await this.utilsService.ceckData(dataAdsUser))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed UserAds not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2507,7 +2507,7 @@ export class AdsController {
         const data_userbasic = await this.basic2SS.findBymail(headers['x-auth-user']);
         if (!(await this.utilsService.ceckData(data_userbasic))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed User not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2519,7 +2519,7 @@ export class AdsController {
         const dataAds = await this.adsService.findOneActive(AdsAction_.adsId.toString());
         if (!(await this.utilsService.ceckData(dataAds))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed Ads not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2531,7 +2531,7 @@ export class AdsController {
         const dataTypeAds = await this.adsTypeService.findOne(dataAds.typeAdsID.toString());
         if (!(await this.utilsService.ceckData(dataTypeAds))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed typeAds not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2542,7 +2542,7 @@ export class AdsController {
         //Get CPV
         if (dataTypeAds.CPV == undefined || dataTypeAds.CPA == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed typeAds CPV not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2582,7 +2582,7 @@ export class AdsController {
                 },
             };
             AdsLogsDto_.responseAds = JSON.stringify(response);
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
@@ -2590,7 +2590,7 @@ export class AdsController {
             return response;
         } catch (e) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed User Ads not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2626,7 +2626,7 @@ export class AdsController {
         //Validasi Token
         if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unauthorized" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2635,7 +2635,7 @@ export class AdsController {
         }
         if (!(await this.utilsService.validasiTokenEmail(headers))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed email header dan token not match" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2646,7 +2646,7 @@ export class AdsController {
         //Validasi Param
         if (AdsAction_.watchingTime == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed param watchingTime is reqired" });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2655,7 +2655,7 @@ export class AdsController {
         }
         if (typeof AdsAction_.watchingTime != 'number') {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed param watchingTime invalid format ' + typeof AdsAction_.watchingTime });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2664,7 +2664,7 @@ export class AdsController {
         }
         if (AdsAction_.adsId == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed param adsId is reqired' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2673,7 +2673,7 @@ export class AdsController {
         }
         if (AdsAction_.useradsId == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed param useradsId is reqired' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2685,7 +2685,7 @@ export class AdsController {
         const dataAdsUser = await this.userAdsService.getAdsUser(AdsAction_.useradsId.toString());
         if (!(await this.utilsService.ceckData(dataAdsUser))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed UserAds not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2697,7 +2697,7 @@ export class AdsController {
         const data_userbasic = await this.basic2SS.findBymail(headers['x-auth-user']);
         if (!(await this.utilsService.ceckData(data_userbasic))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed User not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2709,7 +2709,7 @@ export class AdsController {
         const dataAds = await this.adsService.findOneActive(AdsAction_.adsId.toString());
         if (!(await this.utilsService.ceckData(dataAds))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed Ads not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2720,7 +2720,7 @@ export class AdsController {
         const dataRewards = await this.adsRewardsService.findStatusActive(dataAds.typeAdsID.toString());
         if (!(await this.utilsService.ceckData(dataRewards))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed rewards not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2732,7 +2732,7 @@ export class AdsController {
         const dataTypeAds = await this.adsTypeService.findOne(dataAds.typeAdsID.toString());
         if (!(await this.utilsService.ceckData(dataTypeAds))) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed typeAds not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2743,7 +2743,7 @@ export class AdsController {
         //Get CPA
         if (dataTypeAds.CPA == undefined || dataTypeAds.CPA == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed typeAds CPA not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2754,7 +2754,7 @@ export class AdsController {
         //Get Reward
         if (dataTypeAds.rewards == undefined || dataTypeAds.rewards == undefined) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed typeAds rewards not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
@@ -2841,7 +2841,7 @@ export class AdsController {
                 },
             };
             AdsLogsDto_.responseAds = JSON.stringify(response);
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
 
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
@@ -2849,7 +2849,7 @@ export class AdsController {
             return response;
         } catch (e) {
             AdsLogsDto_.responseAds = JSON.stringify({ response: 'Unabled to proceed User Ads not found' });
-            await this.adslogsService.create(AdsLogsDto_);
+            //await this.adslogsService.create(AdsLogsDto_);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
             await this.errorHandler.generateNotAcceptableException(
