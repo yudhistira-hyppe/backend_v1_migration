@@ -255,6 +255,7 @@ export class MediastreamingController {
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
             streamBannedDate: profile.streamBannedDate,
+            totalPelanggaran: streamBanding_.length,
             streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
@@ -340,21 +341,21 @@ export class MediastreamingController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/update')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
     const currentDate = await this.utilsService.getDateTimeString();
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
