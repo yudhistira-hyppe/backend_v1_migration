@@ -22,7 +22,18 @@ export class Posttask {
     active: boolean;
     @Prop()
     totalInject: number;
-  
+    @Prop()
+    postType: string;
+    @Prop()
+    contentModeration: boolean
+    @Prop()
+    reportedStatus: string
+    @Prop()
+    visibility: String;
+    @Prop()
+    activeContent: boolean;
+    @Prop()
+    createdAtContent: string;
    
 }
 export const PosttaskSchema = SchemaFactory.createForClass(Posttask)

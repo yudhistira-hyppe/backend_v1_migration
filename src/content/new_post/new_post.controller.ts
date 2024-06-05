@@ -190,11 +190,11 @@ export class NewPostController {
 
 
 
-            try {
-                this.posttask(postID, email, current_date);
-            } catch (e) {
+            // try {
+            //     this.posttask(postID, email, current_date);
+            // } catch (e) {
 
-            }
+            // }
             try {
                 this.schedul(postID, email);
             } catch (e) {
@@ -5541,7 +5541,7 @@ export class NewPostController {
         }
     }
 
-    async posttask(postID: string, email: string, createdAt: string) {
+    async posttask(postID: string, email: string, createdAt: string,postType:string,contentModeration: boolean, reportedStatus: string,visibility: String,activeContent: boolean,createdAtContent: string) {
         var Posttask_ = new Posttask();
         Posttask_.postID = postID;
         Posttask_.email = email;
@@ -5551,13 +5551,18 @@ export class NewPostController {
         Posttask_.active = true;
         Posttask_.createdAt = createdAt;
         Posttask_.updatedAt = createdAt;
+        Posttask_.postType=postType;
+        Posttask_.contentModeration=contentModeration;
+        Posttask_.reportedStatus=reportedStatus;
+        Posttask_.visibility=visibility;
+        Posttask_.activeContent=activeContent;
+        Posttask_.createdAtContent=createdAtContent;
         try {
             await this.PosttaskService.create(Posttask_);
         } catch (e) {
 
         }
     }
-
     async schedul(postID: string, email: string) {
         let arr = [];
         let rd = null;
