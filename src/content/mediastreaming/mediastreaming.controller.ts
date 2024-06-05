@@ -1029,7 +1029,7 @@ export class MediastreamingController {
               return el.language == "EN";
             });
           }
-
+          console.log(dataStreamView)
           const getUser = await this.userbasicnewService.getUser(ceckId.userId.toString());
           const MediastreamingDto_Res = new MediastreamingDto();
           MediastreamingDto_Res._id = ceckId._id;
@@ -1056,7 +1056,7 @@ export class MediastreamingController {
           MediastreamingDto_Res.commentDisabled = ceckId.commentDisabled;
           MediastreamingDto_Res.tokenAgora = ceckId.tokenAgora;
           MediastreamingDto_Res.reportRemark = remarkSetting[0].value; 
-          MediastreamingDto_Res.viewCountUnic = dataStreamView[0].viewCountUnic.length;
+          MediastreamingDto_Res.viewCountUnic = dataStreamView[0].view_unique.length;
           return await this.errorHandler.generateAcceptResponseCodeWithData(
             "Update stream succesfully", MediastreamingDto_Res
           );
