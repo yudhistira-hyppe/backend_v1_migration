@@ -249,7 +249,7 @@ export class MediastreamingController {
 
           if (streamBanding_.length > 0) {
             statusAppeal = true;
-            statusApprove = streamBanding[0].approveText;
+            statusApprove = streamBanding_[0].approveText;
           } 
 
           let dataStream = {
