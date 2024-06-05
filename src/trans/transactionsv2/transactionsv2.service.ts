@@ -242,7 +242,7 @@ export class TransactionsV2Service {
                                                             }
                                                         }
                                                     }
-                                                    if (transactionTypetransaction[tr].name == "HutangCoin") {
+                                                    if (transactionTypetransaction[tr].name == "credit") {
                                                         if (transactionTypetransaction[tr].status != undefined) {
                                                             if (transactionTypetransaction[tr].status == "debit") {
                                                                 if (status == "FAILED") {

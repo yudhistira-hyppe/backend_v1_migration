@@ -14,6 +14,7 @@ import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service
 import { MediastreamingAgoraService } from './mediastreamingagora.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
 import { Disqus } from '../disqus/schemas/disqus.schema';
+import { log } from 'console';
 
 @Controller("api/live") 
 export class MediastreamingController {
@@ -64,24 +65,30 @@ export class MediastreamingController {
         //Get ID_SETTING_MAX_BANNED
         const ID_SETTING_APPEAL_AUTO_APPROVE = this.configService.get("ID_SETTING_APPEAL_AUTO_APPROVE");
         const GET_ID_SETTING_APPEAL_AUTO_APPROVE = await this.utilsService.getSetting_Mixed(ID_SETTING_APPEAL_AUTO_APPROVE);
-        let streamWarning = profile.streamWarning;
-        let streamBanding = profile.streamBanding;
+        let statusApprove = "NONE"
+        
+        let streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
+        let streamBanding = (profile.streamBanding != undefined) ? profile.streamBanding : [];
         if (streamWarning.length>0){
           streamWarning.sort(function (a, b) {
             return Date.parse(b.createAt) - Date.parse(a.createAt);
           })
-          streamBanding.filter((bd) => {
-            return bd.status == true;
+
+          let streamBanding_ = streamBanding.filter(function (el) {
+            return el.status == true;
           });
-          if (streamBanding.length>0){
+
+          if (streamBanding_.length > 0) {
             statusAppeal = true;
-          }
+            statusApprove = streamBanding[0].approveText;
+          } 
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
             streamBannedDate: profile.streamBannedDate, 
             streamBannedMax: Number(GET_ID_SETTING_APPEAL_AUTO_APPROVE),
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
+            statusApprove: statusApprove,
             user: {
               _id: profile._id._id.toString(),
               fullName: profile.fullName,
@@ -191,20 +198,20 @@ export class MediastreamingController {
     return Response;
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Get('/ceck')
   @HttpCode(HttpStatus.ACCEPTED)
   async getStatusStream(@Headers() headers) {
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
-      );
-    }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
-      );
-    }
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     console.log(profile);
     if (!(await this.utilsService.ceckData(profile))) {
@@ -235,10 +242,12 @@ export class MediastreamingController {
           streamWarning.sort(function (a, b) {
             return Date.parse(b.createAt) - Date.parse(a.createAt);
           })
-          streamBanding.filter((bd) => {
-            return bd.status == true;
+
+          let streamBanding_ = streamBanding.filter(function (el) {
+            return el.status == true;
           });
-          if (streamBanding.length > 0) {
+
+          if (streamBanding_.length > 0) {
             statusAppeal = true;
             statusApprove = streamBanding[0].approveText;
           } 
