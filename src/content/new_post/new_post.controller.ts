@@ -34,6 +34,13 @@ import { PosttaskService } from '../../content/posttask/posttask.service';
 import { ScheduleinjectService } from '../../schedule/scheduleinject/scheduleinject.service';
 import { Scheduleinject } from '../../schedule/scheduleinject/schemas/scheduleinject.schema';
 import { TempPOSTService } from './temp_post.service';
+import { TransactionsDiscounts } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
+import { Settings2Service } from 'src/trans/settings2/settings2.service';
+import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
+import { MonetizationService } from 'src/trans/monetization/monetization.service';
+import { TransactionsCategorysService } from 'src/trans/transactionsv2/categorys/transactionscategorys.service';
+import { TransactionsProductsService } from 'src/trans/transactionsv2/products/transactionsproducts.service';
+import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -59,7 +66,13 @@ export class NewPostController {
         private readonly newPostModService: NewPostModService,
         private readonly PosttaskService: PosttaskService,
         private readonly ScheduleinjectService: ScheduleinjectService,
-        private readonly TempPostService: TempPOSTService
+        private readonly TempPostService: TempPOSTService,
+        private readonly settings2Service: Settings2Service,
+        private readonly transV2Service: TransactionsV2Service,
+        private readonly transDiscountService: TransactionsDiscountsService,
+        private readonly monetizationService: MonetizationService,
+        private readonly transCategoryService: TransactionsCategorysService,
+        private readonly transProductsService: TransactionsProductsService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -221,6 +234,33 @@ export class NewPostController {
                     }
                 }
 
+            }
+
+            var transaction_fee = 0;
+            var discount_id = null;
+            var discount_fee = 0;
+            if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined) {
+                transaction_fee = Number(CreatePostRequest_.transaction_fee.toString());
+                if (CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined) {
+                    discount_id = CreatePostRequest_.discount_id;
+                    discount_fee = Number(CreatePostRequest_.discount_fee.toString());
+                }
+
+                if (data.data.certified == true) {
+                    var resultTrans = await this.setTransaksiContentOwnership(postID, transaction_fee, discount_id, discount_fee);
+
+                    data['DetailTransaction'] = {
+                        invoiceID: resultTrans.noInvoice,
+                        totalPayment: resultTrans.detail[0].totalAmount,
+                        transactionID: resultTrans.idTransaction,
+                        transactionTitle : resultTrans.transactionType,
+                        packageTitle : resultTrans.productionTitle,
+                        email : resultTrans.email,
+                        paymentMethod : resultTrans.paymentMethod,
+                        date:resultTrans.createdAt.split(" ")[0],
+                        time:resultTrans.createdAt.split(" ")[1],
+                    }
+                }
             }
 
             //untuk temppost
@@ -395,6 +435,34 @@ export class NewPostController {
                     }
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
+
+                var transaction_fee = 0;
+                var discount_id = null;
+                var discount_fee = 0;
+                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
+                    transaction_fee = Number(body.transaction_fee.toString());
+                    if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
+                        discount_id = body.discount_id;
+                        discount_fee = Number(body.discount_fee.toString());
+                    }
+    
+                    if (data.data.certified == true) {
+                        var resultTrans = await this.setTransaksiContentOwnership(postID, transaction_fee, discount_id, discount_fee);
+    
+                        data['DetailTransaction'] = {
+                            invoiceID: resultTrans.noInvoice,
+                            totalPayment: resultTrans.detail[0].totalAmount,
+                            transactionID: resultTrans.idTransaction,
+                            transactionTitle : resultTrans.transactionType,
+                            packageTitle : resultTrans.productionTitle,
+                            email : resultTrans.email,
+                            paymentMethod : resultTrans.paymentMethod,
+                            date:resultTrans.createdAt.split(" ")[0],
+                            time:resultTrans.createdAt.split(" ")[1],
+                        }
+                    }
+                }
+
                 this.TempPostService.updateByPostId(body, headers, dataUser);
 
                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> postID', body.postID.toString());
@@ -2736,7 +2804,8 @@ export class NewPostController {
 
         try {
 
-            data = await this.newPostService.landingpageMigrationUpdate(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
+            data = await this.newPostService.landingPageGelondonganSamaEmail(email, postType, parseInt(pageNumber), parseInt(pageRow));
+            // data = await this.newPostService.landingpageMigrationUpdate(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
             // data = await this.newPostService.landingpageMigration(email, email, postType, postid, visibility, active, exp, withinsight, parseInt(pageNumber), parseInt(pageRow));
             lengpict = data.length;
 
@@ -5180,5 +5249,92 @@ export class NewPostController {
         }
     }
 
-    
+    @UseGuards(JwtAuthGuard)
+    @Get('posts/check-post')
+    async checkTotalPost(@Headers() headers): Promise<any> {
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var profile = await this.basic2SS.findbyemail(auth.email);
+        if (profile == null) {
+            await this.errorHandler.generateUnauthorizedException("profile not found!!")
+        }
+
+        var getdata = await this.newPostService.findUserPostfirst(auth.email);
+
+        if (getdata.length == 0) {
+            return {
+                response_code: 202,
+                result: false
+            }
+        }
+        else {
+            return {
+                response_code: 202,
+                result: true
+            }
+        }
+    }
+
+    async setTransaksiContentOwnership(postID: string, transaction_fee: number, discount_id: string, discount_fee: number) {
+        var getPost = await this.newPostService.findByPostId(postID);
+        var getUserData = await this.basic2SS.findBymail(getPost.email.toString());
+        var setDetail = [];
+        var setVoucher = [];
+
+        if (discount_id != undefined && discount_id != null) {
+            setVoucher.push(discount_id);
+        }
+
+        setDetail.push(
+            {
+                "postID": postID,
+                "typeData": "POST",
+                "qty": 1,
+                "amount": transaction_fee,
+                "discountCoin": discount_fee,
+                "totalAmount": transaction_fee - discount_fee
+            }
+        )
+
+        var userhyppe = await this.settings2Service.findOne(process.env.ID_USER_HYPPE);
+
+        var resultTransaksi = await this.transV2Service.insertTransaction("APP", "CO", null, transaction_fee, discount_fee, 0, 0, getUserData._id.toString(), userhyppe.value.toString(), setVoucher, setDetail, "SUCCESS");
+
+        if (resultTransaksi != false) {
+            var resultArray = resultTransaksi.data;
+            var listid = [];
+            var response = null;
+            for (var i = 0; i < resultArray.length; i++) {
+                var checkexist = listid.includes(resultArray[i].idTransaction);
+                if (checkexist == false && getUserData._id.toString() == resultArray[i].idUser.toString()) {
+                    var insertDatatransDiscount = new TransactionsDiscounts();
+                    insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                    insertDatatransDiscount.idTransaction = resultArray[i].idTransaction;
+                    insertDatatransDiscount.idUser = resultArray[i].idUser;
+                    insertDatatransDiscount.totalPayment = resultArray[i].totalCoin;
+                    insertDatatransDiscount.transactionDate = resultArray[i].createdAt;
+                    insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                    insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                    await this.transDiscountService.create(insertDatatransDiscount);
+
+                    listid.push(resultArray[i].idTransaction);
+                    response = resultArray[i]; 
+                }
+            }
+
+            if (discount_id != undefined && discount_id != null) {
+                await this.monetizationService.updateStock(discount_id, 1, true);
+            }
+
+            var getcatdata = await this.transCategoryService.findOne(response.category.toString());
+            var getproddata = await this.transProductsService.findOne(response.product.toString());
+
+            response.transactionType = getcatdata.coa;
+            response.productionTitle = getproddata.name;
+            response.email = getUserData.email;
+            response.paymentMethod = 'COIN';
+
+            return response;
+        }
+    }
 }
