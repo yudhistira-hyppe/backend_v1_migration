@@ -1049,6 +1049,20 @@ export class WithdrawsService {
                 }
             },
             {
+                $lookup: {
+                    from: "newUserBasics",
+                    let: { local_id: { $last: "$tracking.approvedBy" } },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$local_id"]
+                            }
+                        }
+                    }],
+                    as: "approverdata"
+                }
+            },
+            {
                 $project: {
                     timestamp: 1,
                     avatar: {
@@ -1091,7 +1105,7 @@ export class WithdrawsService {
                     noInvoice: { $arrayElemAt: ["$trxdata.noInvoice", 0] },
                     totalAmount: "$totalamount",
                     destBank: { $arrayElemAt: ["$bankdata.bankname", 0] },
-                    approvedBy: { $last: "$tracking.approvedBy" },
+                    approvedBy: { $arrayElemAt: ["$approverdata.fullName", 0] },
                     status: { $last: "$tracking.status" }
                 }
             }
