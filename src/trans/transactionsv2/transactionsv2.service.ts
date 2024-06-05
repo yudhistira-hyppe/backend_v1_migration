@@ -2159,6 +2159,29 @@ export class TransactionsV2Service {
                 }
             },
             {
+                $lookup: {
+                    from: "withdraws",
+                    let: {
+                        local_id: { $arrayElemAt: ["$detail.withdrawId", 0] }
+                    },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$_id", "$$local_id"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "withdrawdata"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$withdrawdata"
+                }
+            },
+            {
                 $project: {
                     idTransaction: 1,
                     noInvoice: 1,
@@ -2173,6 +2196,9 @@ export class TransactionsV2Service {
                     },
                     totalAmount: {
                         $arrayElemAt: ['$detail.totalAmount', 0]
+                    },
+                    status: {
+                        $last: "$withdrawdata.tracking.status"
                     }
                 }
             }
