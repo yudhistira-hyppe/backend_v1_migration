@@ -1892,6 +1892,14 @@ export class NewPostContentService {
       post.certified = false;
     }
 
+    if(body.urlLink != undefined) {
+      post.urlLink = body.urlLink.toString();
+    }
+
+    if(body.judulLink != undefined) {
+      post.judulLink = body.judulLink.toString();
+    }
+
     return post;
   }
 

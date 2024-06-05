@@ -893,7 +893,7 @@ export class AdsController {
             if (AdsDto_.status == "UNDER_REVIEW") {
                 var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, AdsDto_.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "PENDING");
                 if (dataTransaction != false) {
-                    AdsDto_.idTransaction = dataTransaction.data[0].idTransaction.toString()
+                    AdsDto_.idTransactionCreate = dataTransaction.data[0].idTransaction.toString()
                 }
             }
             let data = await this.adsService.create(AdsDto_);
@@ -999,7 +999,7 @@ export class AdsController {
                 if ((ads.status == "DRAFT") && (AdsDto_.status == "UNDER_REVIEW")) {
                     var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, AdsDto_.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "PENDING");
                     if (dataTransaction != false) {
-                        AdsDto_.idTransaction = dataTransaction.data[0].idTransaction.toString()
+                        AdsDto_.idTransactionCreate = dataTransaction.data[0].idTransaction.toString()
                     }
                     //--------------------INSERT BALANCE DEBET--------------------
                     // AdsBalaceCreditDto_.iduser = ads.userID;
@@ -1029,7 +1029,7 @@ export class AdsController {
                     // }
                 }
                 if ((ads.status == "UNDER_REVIEW") && (AdsDto_.status == "IN_ACTIVE")) {
-                    await this.transactionsV2Service.updateTransaction(AdsDto_.idTransaction, "FAILED", [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }]);
+                    await this.transactionsV2Service.updateTransaction(AdsDto_.idTransactionCreate, "FAILED", [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }]);
                     //--------------------INSERT BALANCE KREDIT--------------------
                     // AdsBalaceCreditDto_.iduser = ads.userID;
                     // AdsBalaceCreditDto_.debet = 0;

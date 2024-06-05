@@ -959,7 +959,9 @@ export class WithdrawsService {
         return query;
     }
 
-    async listWithdrawCoin(skip: number, limit: number, status?: string[], startdate?: string, enddate?: string, amountgte?: number, amountlte?: number, banks?: string[]) {
+    async listWithdrawCoin(skip: number, limit: number, status?: string[], startdate?: string, enddate?: string, amountgte?: number, amountlte?: number, banks?: string[], descending?: boolean, search?: string) {
+        let order = true;
+        if (descending != undefined) order = descending;
         let currentdate = null;
         let dateend = null;
         if (enddate != undefined) {
@@ -1110,17 +1112,36 @@ export class WithdrawsService {
                 }
             }
         )
-        if (banks && banks.length > 0) pipeline.push(
+        let matchAnd2 = [];
+        if (banks && banks.length > 0) matchAnd2.push(
+            {
+                destBank: { $in: banks }
+            }
+        );
+        if (search != undefined) matchAnd2.push(
+            {
+                $or: [
+                    { fullName: new RegExp(search, "i") },
+                    { email: new RegExp(search, "i") }
+                ]
+            }
+        )
+        if (matchAnd2.length > 0) pipeline.push(
             {
                 $match: {
-                    destBank: { $in: banks }
+                    $and: matchAnd2
                 }
+            },
+        )
+        pipeline.push(
+            {
+                $sort: { timestamp: order ? -1 : 1 }
             }
         )
         if (skip > 0) pipeline.push({ $skip: skip });
         if (limit > 0) pipeline.push({ $limit: limit });
-        var setutil = require('util');
-        console.log(setutil.inspect(pipeline, { depth: null, showHidden: false }))
+        // var setutil = require('util');
+        // console.log(setutil.inspect(pipeline, { depth: null, showHidden: false }))
         const query = await this.withdrawsModel.aggregate(pipeline);
         return query;
     }

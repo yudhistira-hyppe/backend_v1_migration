@@ -227,6 +227,8 @@ export class MediastreamingController {
         //Get ID_SETTING_MAX_BANNED
         const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
         const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
+        let statusApprove = "NONE"
+
         let streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
         let streamBanding = (profile.streamBanding != undefined) ? profile.streamBanding:[];
         if (streamWarning.length > 0) {
@@ -238,13 +240,16 @@ export class MediastreamingController {
           });
           if (streamBanding.length > 0) {
             statusAppeal = true;
-          }
+            statusApprove = streamBanding[0].approveText;
+          } 
+
           let dataStream = {
             streamId: new mongoose.Types.ObjectId(streamWarning[0].idStream),
             streamBannedDate: profile.streamBannedDate,
             streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
+            statusApprove: statusApprove,
             user: {
               _id: profile._id._id.toString(),
               fullName: profile.fullName,
@@ -1174,6 +1179,7 @@ export class MediastreamingController {
         messages: RequestAppealStream_.messages,
         status: true,
         approve: false,
+        approveText: "WAITING_RESPONSE",
         createAt: currentDate,
       };
 
@@ -1233,8 +1239,10 @@ export class MediastreamingController {
       }
       if (RequestAppealStream_.approve) {
         streamBanding[objIndex].status = false;
+        streamBanding[objIndex].approveText = "APPROVE";
       } else {
         streamBanding[objIndex].status = true;
+        streamBanding[objIndex].approveText = "REJECT";
       }
       streamBanding[objIndex].approve = RequestAppealStream_.approve;
       let Userbasicnew_ = new Userbasicnew();

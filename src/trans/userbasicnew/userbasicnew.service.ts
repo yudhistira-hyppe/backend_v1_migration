@@ -8246,7 +8246,7 @@ export class UserbasicnewService {
         if (type && type.length > 0) {
             let category = [];
             if (type.includes("Pembelian Coin")) category.push(new Types.ObjectId("660f9095c306d245ed2c207f"));
-            if (type.includes("Penukaran Coin")) category.push(new Types.ObjectId("6627309656375e3a6b223091"));
+            if (type.includes("Penukaran Coin")) category.push(new Types.ObjectId("662b16b3dc3e000022007e13"));
             if (category.length > 0) matchAnd.push({
                 category: {
                     $in: category
@@ -8255,7 +8255,7 @@ export class UserbasicnewService {
         }
         // else matchAnd.push({
         //     category: {
-        //         $in: [new Types.ObjectId("660f9095c306d245ed2c207f"), new Types.ObjectId("6627309656375e3a6b223091")]
+        //         $in: [new Types.ObjectId("660f9095c306d245ed2c207f"), new Types.ObjectId("662b16b3dc3e000022007e13")]
         //     }
         // });
         if (startdate && startdate !== undefined) {
