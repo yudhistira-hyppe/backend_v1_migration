@@ -1126,12 +1126,14 @@ export class WithdrawsService {
                 ]
             }
         )
-        pipeline.push(
+        if (matchAnd2.length > 0) pipeline.push(
             {
                 $match: {
                     $and: matchAnd2
                 }
             },
+        )
+        pipeline.push(
             {
                 $sort: { timestamp: order ? -1 : 1 }
             }
