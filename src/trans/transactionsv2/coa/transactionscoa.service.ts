@@ -31,8 +31,8 @@ export class TransactionsCoaService {
         return data;
     }
 
-    async findOneIdTransaction(id: string): Promise<TransactionsCoa> {
-        return await this.transactionsCoaModel.findOne({ _id: new mongoose.Types.ObjectId(id), isDelete: false }).exec();
+    async findOneIdTransaction(idTransaction: string): Promise<TransactionsCoa> {
+        return await this.transactionsCoaModel.findOne({ idTransaction: idTransaction }).exec();
     }
 
     async findOne(id: string): Promise<TransactionsCoa> {

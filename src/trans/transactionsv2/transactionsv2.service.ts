@@ -289,7 +289,7 @@ export class TransactionsV2Service {
                             TransactionsCoaTable_Update.status = status;
                             await this.transactionsCoaTableService.updateData(TransactionsCoaTable_Filter, TransactionsCoaTable_Update);
                         } else if (transactionTypeCategory == "WD") {
-                            //let getTransactionsCoa = await this.transactionsCoaService.findOne()
+                            let getTransactionsCoa = await this.transactionsCoaService.findOneIdTransaction(idTrans);
                             let TransactionsCoa_Filter = new TransactionsCoa();
                             TransactionsCoa_Filter.coaTransaction = dataTransaction.noInvoice;
                             let TransactionsCoa_Update = new TransactionsCoa();
@@ -298,38 +298,21 @@ export class TransactionsV2Service {
                             TransactionsCoaTable_Filter.coaTransaction = dataTransaction.noInvoice;
                             let TransactionsCoaTable_Update = new TransactionsCoaTable();
                             if (status == "FAILED") {
-                                TransactionsCoa_Update.asset = {
-                                    kas: kas,
-                                    biaya: {
-                                        biayaPaymentGateway: biayaPaymentGateway,
-                                        biayaDiscount: 0,
-                                        biayaFreeCreator: 0
-                                    }
+                                if (await this.utilsService.ceckData(getTransactionsCoa)) {
+                                    let asset = getTransactionsCoa.asset;
+                                    asset.kas = kas;
+                                    asset.biaya.biayaPaymentGateway = biayaPaymentGateway;
+                                    TransactionsCoa_Update.asset = asset;
+
+                                    let hutang = getTransactionsCoa.hutang;
+                                    hutang.hutangSaldoCoin = hutangSaldoCoin;
+                                    TransactionsCoa_Update.hutang = hutang;
+
+                                    let ekuitas = getTransactionsCoa.ekuitas;
+                                    ekuitas.saldoPendapatan.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
+                                    ekuitas.saldoPendapatan.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
+                                    TransactionsCoa_Update.ekuitas = ekuitas;
                                 }
-                                TransactionsCoa_Update.hutang = {
-                                    hutangSaldoCoin: hutangSaldoCoin,
-                                    hutangSaldoCredit: 0
-                                };
-                                TransactionsCoa_Update.ekuitas = {
-                                    saldoPendapatan: {
-                                        pendapatanBiayaTransaction: pendapatanBiayaTransaction,
-                                        pendapatanPenukaranCoin: pendapatanPenukaranCoin,
-                                        pendapatanContentOwnership: 0,
-                                        pendapatanContentMarketPlace: 0,
-                                        pendapatanBoostPost: 0,
-                                        pendapatanLiveGift: 0,
-                                        pendapatanContentGift: 0,
-                                        pendapatanAdvertisement: 0
-                                    },
-                                    saldoDiTarik: {
-                                        pendapatanDiTarik: 0
-                                    }
-                                };
-                                //TransactionsCoa_Update.asset.kas = kas;
-                                //TransactionsCoa_Update.asset.biaya.biayaPaymentGateway = biayaPaymentGateway;
-                                //TransactionsCoa_Update.hutang.hutangSaldoCoin = hutangSaldoCoin;
-                                //TransactionsCoa_Update.ekuitas.saldoPendapatan.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
-                                //TransactionsCoa_Update.ekuitas.saldoPendapatan.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
 
                                 TransactionsCoaTable_Update.kas = kas;
                                 TransactionsCoaTable_Update.biayaPaymentGateway = biayaPaymentGateway;
