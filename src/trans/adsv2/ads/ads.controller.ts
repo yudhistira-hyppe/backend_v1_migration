@@ -2789,22 +2789,44 @@ export class AdsController {
                 data_Update_Ads["status"] = "IN_ACTIVE";
                 data_Update_Ads["isActive"] = false;
             }
+
+
+            
+
+
+            //Ads Rewatch Transaction
+            let getDatacurency = await this.transactionsV2Service.getCurency();
+            let cointReward = Number(dataRewards.rewardPrice) / Number(getDatacurency.coin);
+            
+            var dataTransaction = await this.transactionsV2Service.insertTransaction("APP", "AD", "ADS", cointReward, 0, 0, 0, undefined, data_userbasic._id.toString(), undefined, [dataAds], "SUCCESS");
+            if (dataTransaction != false) {
+                let arrayDataTransaction = dataTransaction.data;
+                arrayDataTransaction.filter((bd) => {
+                    return bd.type == "USER";
+                });
+
+                if (arrayDataTransaction.length == 1) {
+                    let dataTransactionSharing = dataAds.idTransactionSharing;
+                    dataTransactionSharing.push(arrayDataTransaction[0].idTransaction);
+                    data_Update_Ads["idTransactionSharing"] = dataTransaction.data[0].idTransaction.toString()
+                } 
+            }
             this.adsService.updateData(AdsAction_.adsId.toString(), data_Update_Ads)
 
             //Update Account Balace
-            var CreateAccountbalancesDto_ = new CreateAccountbalancesDto();
-            CreateAccountbalancesDto_.iduser = Object(data_userbasic._id.toString());
-            CreateAccountbalancesDto_.debet = 0;
-            CreateAccountbalancesDto_.kredit = dataRewards.rewardPrice;
-            CreateAccountbalancesDto_.type = "rewards";
-            CreateAccountbalancesDto_.timestamp = current_date.toISOString();
-            CreateAccountbalancesDto_.description = "rewards form ads view";
-            CreateAccountbalancesDto_.idtrans = new mongoose.Types.ObjectId(AdsAction_.adsId.toString());
-            this.accountbalancesService.create(CreateAccountbalancesDto_);
+            // var CreateAccountbalancesDto_ = new CreateAccountbalancesDto();
+            // CreateAccountbalancesDto_.iduser = Object(data_userbasic._id.toString());
+            // CreateAccountbalancesDto_.debet = 0;
+            // CreateAccountbalancesDto_.kredit = dataRewards.rewardPrice;
+            // CreateAccountbalancesDto_.type = "rewards";
+            // CreateAccountbalancesDto_.timestamp = current_date.toISOString();
+            // CreateAccountbalancesDto_.description = "rewards form ads view";
+            // CreateAccountbalancesDto_.idtrans = new mongoose.Types.ObjectId(AdsAction_.adsId.toString());
+            // this.accountbalancesService.create(CreateAccountbalancesDto_);
 
             //Send Fcm
             var eventType = "TRANSACTION";
-            var event = "ADS VIEW";
+            var event = "ADS CLICK";
             this.utilsService.sendFcmV2(data_userbasic.email.toString(), data_userbasic.email.toString(), eventType, event, "REWARDS", null, null, null, dataRewards.rewardPrice.toString());
 
             //Set Response

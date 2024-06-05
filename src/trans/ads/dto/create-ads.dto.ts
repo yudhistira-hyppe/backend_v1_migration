@@ -78,6 +78,9 @@ export class CreateAdsDto {
     adspricecredits: number;
     CPA: number;
     CPV: number;
+    idTransactionCreate: string;
+    idTransactionEnd: string;
+    idTransactionSharing: any[];
 }
 
 export class MediaimageadsDto {

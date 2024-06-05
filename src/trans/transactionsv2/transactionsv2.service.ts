@@ -297,11 +297,38 @@ export class TransactionsV2Service {
                             TransactionsCoaTable_Filter.coaTransaction = dataTransaction.noInvoice;
                             let TransactionsCoaTable_Update = new TransactionsCoaTable();
                             if (status == "FAILED") {
-                                TransactionsCoa_Update.asset.kas = kas;
-                                TransactionsCoa_Update.asset.biaya.biayaPaymentGateway = biayaPaymentGateway;
-                                TransactionsCoa_Update.hutang.hutangSaldoCoin = hutangSaldoCoin;
-                                TransactionsCoa_Update.ekuitas.saldoPendapatan.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
-                                TransactionsCoa_Update.ekuitas.saldoPendapatan.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
+                                TransactionsCoa_Update.asset = {
+                                    kas: kas,
+                                    biaya: {
+                                        biayaPaymentGateway: biayaPaymentGateway,
+                                        biayaDiscount: 0,
+                                        biayaFreeCreator: 0
+                                    }
+                                }
+                                TransactionsCoa_Update.hutang = {
+                                    hutangSaldoCoin: hutangSaldoCoin,
+                                    hutangSaldoCredit: 0
+                                };
+                                TransactionsCoa_Update.ekuitas = {
+                                    saldoPendapatan: {
+                                        pendapatanBiayaTransaction: pendapatanBiayaTransaction,
+                                        pendapatanPenukaranCoin: pendapatanPenukaranCoin,
+                                        pendapatanContentOwnership: 0,
+                                        pendapatanContentMarketPlace: 0,
+                                        pendapatanBoostPost: 0,
+                                        pendapatanLiveGift: 0,
+                                        pendapatanContentGift: 0,
+                                        pendapatanAdvertisement: 0
+                                    },
+                                    saldoDiTarik: {
+                                        pendapatanDiTarik: 0
+                                    }
+                                };
+                                //TransactionsCoa_Update.asset.kas = kas;
+                                //TransactionsCoa_Update.asset.biaya.biayaPaymentGateway = biayaPaymentGateway;
+                                //TransactionsCoa_Update.hutang.hutangSaldoCoin = hutangSaldoCoin;
+                                //TransactionsCoa_Update.ekuitas.saldoPendapatan.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
+                                //TransactionsCoa_Update.ekuitas.saldoPendapatan.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
 
                                 TransactionsCoaTable_Update.kas = kas;
                                 TransactionsCoaTable_Update.biayaPaymentGateway = biayaPaymentGateway;
@@ -1007,6 +1034,16 @@ export class TransactionsV2Service {
                                                         }
                                                     }
                                                     if (categoryTransactionType.transaction[tr].name == "PenarikanCoin") {
+                                                        if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                            if (categoryTransactionType.transaction[tr].status == "debit") {
+
+                                                            }
+                                                            if (categoryTransactionType.transaction[tr].status == "credit") {
+
+                                                            }
+                                                        }
+                                                    }
+                                                    if (categoryTransactionType.transaction[tr].name == "PendapatanAdvertisement") {
                                                         if (categoryTransactionType.transaction[tr].status != undefined) {
                                                             if (categoryTransactionType.transaction[tr].status == "debit") {
 
@@ -2265,5 +2302,14 @@ export class TransactionsV2Service {
         view: number,
     ): Promise<any> {
         return await this.disquslogsService.updateDataStreamSpecificUser(streamID, status, email, view);
+    }
+
+    async getCurency(){
+        const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
+        const currencyCoinId = (await this.transactionsCoinSettingsService.findStatusActive())._id;
+        return {
+            coin: currencyCoin,
+            id: currencyCoinId
+        }
     }
 }

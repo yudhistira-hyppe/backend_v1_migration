@@ -219,6 +219,12 @@ export class Ads {
     CPA: number;
     @Prop()
     CPV: number;
+    @Prop()
+    idTransactionCreate: string;
+    @Prop()
+    idTransactionEnd: string;
+    @Prop()
+    idTransactionSharing: any[];
 }
 
 export const AdsSchema = SchemaFactory.createForClass(Ads);

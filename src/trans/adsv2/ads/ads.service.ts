@@ -13173,28 +13173,28 @@ export class AdsService {
                     await this.update(ads[t]._id, AdsDto_);
                     var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "END", 0, 0, 0, 0, ads[t].userID.toString(), undefined, undefined, [{ "adsID": ads[t]._id, "credit": sisaCredit }], "PENDING");
                     if (dataTransaction != false) {
-                        AdsDto_.idTransactionCreate = dataTransaction.data[0].idTransaction.toString()
+                        AdsDto_.idTransactionEnd = dataTransaction.data[0].idTransaction.toString()
                     }
-                    let AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
-                    AdsBalaceCreditDto_.idtrans = ads[t]._id;
-                    AdsBalaceCreditDto_.iduser = ads[t].userID;
-                    AdsBalaceCreditDto_.type = "REFUND";
-                    AdsBalaceCreditDto_.description = "ADS REFUND REMAINING CREDIT"
-                    AdsBalaceCreditDto_.idAdspricecredits = ads[t].idAdspricecredits;
-                    const cecBalanceCredit = await this.adsBalaceCreditService.find(AdsBalaceCreditDto_);
-                    if (!(await this.utilsService.ceckData(cecBalanceCredit))) {
-                        let _AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
-                        _AdsBalaceCreditDto_._id = new mongoose.Types.ObjectId();
-                        _AdsBalaceCreditDto_.iduser = ads[t].userID;
-                        _AdsBalaceCreditDto_.debet = 0;
-                        _AdsBalaceCreditDto_.kredit = sisaCredit;
-                        _AdsBalaceCreditDto_.type = "REFUND";
-                        _AdsBalaceCreditDto_.timestamp = await this.utilsService.getDateTimeString();
-                        _AdsBalaceCreditDto_.description = "ADS REFUND REMAINING CREDIT";
-                        _AdsBalaceCreditDto_.idtrans = ads[t]._id;
-                        _AdsBalaceCreditDto_.idAdspricecredits = ads[t].idAdspricecredits;
-                        await this.insertBalaceDebit(_AdsBalaceCreditDto_);
-                    }
+                    // let AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
+                    // AdsBalaceCreditDto_.idtrans = ads[t]._id;
+                    // AdsBalaceCreditDto_.iduser = ads[t].userID;
+                    // AdsBalaceCreditDto_.type = "REFUND";
+                    // AdsBalaceCreditDto_.description = "ADS REFUND REMAINING CREDIT"
+                    // AdsBalaceCreditDto_.idAdspricecredits = ads[t].idAdspricecredits;
+                    // const cecBalanceCredit = await this.adsBalaceCreditService.find(AdsBalaceCreditDto_);
+                    // if (!(await this.utilsService.ceckData(cecBalanceCredit))) {
+                    //     let _AdsBalaceCreditDto_ = new AdsBalaceCreditDto();
+                    //     _AdsBalaceCreditDto_._id = new mongoose.Types.ObjectId();
+                    //     _AdsBalaceCreditDto_.iduser = ads[t].userID;
+                    //     _AdsBalaceCreditDto_.debet = 0;
+                    //     _AdsBalaceCreditDto_.kredit = sisaCredit;
+                    //     _AdsBalaceCreditDto_.type = "REFUND";
+                    //     _AdsBalaceCreditDto_.timestamp = await this.utilsService.getDateTimeString();
+                    //     _AdsBalaceCreditDto_.description = "ADS REFUND REMAINING CREDIT";
+                    //     _AdsBalaceCreditDto_.idtrans = ads[t]._id;
+                    //     _AdsBalaceCreditDto_.idAdspricecredits = ads[t].idAdspricecredits;
+                    //     await this.insertBalaceDebit(_AdsBalaceCreditDto_);
+                    // }
                 }
             }
         }

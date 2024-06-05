@@ -115,7 +115,7 @@ export class AdsDto {
     CPV: number;
     idTransactionCreate: string;
     idTransactionEnd: string;
-    idTransactionSharing: [];
+    idTransactionSharing: any[];
 }
 
 export class AdsAction {

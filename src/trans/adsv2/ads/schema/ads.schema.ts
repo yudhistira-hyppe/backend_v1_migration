@@ -213,6 +213,6 @@ export class Ads {
     @Prop()
     idTransactionEnd: string;
     @Prop()
-    idTransactionSharing: [];
+    idTransactionSharing: any[];
 }
 export const AdsSchema = SchemaFactory.createForClass(Ads);
