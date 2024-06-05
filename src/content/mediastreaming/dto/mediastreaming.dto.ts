@@ -38,6 +38,7 @@ export class MediastreamingDto {
   pause: boolean;
   idGift: String;
   viewCountActive: number;
+  viewCountUnic: number;
   tokenAgora: String;
   report: any[];
   banned: boolean;

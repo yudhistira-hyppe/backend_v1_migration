@@ -1913,7 +1913,7 @@ export class MediastreamingService {
     // return data;
   }
 
-  async findOneStreamingView(_id: string): Promise<Mediastreaming[]> {
+  async findOneStreamingView(_id: string) {
     let paramaggregate = [
       {
         $match: {
@@ -1931,6 +1931,11 @@ export class MediastreamingService {
               }
             }
           },
+        }
+      },
+      {
+        $set: {
+          view_unique: { "$setUnion": ["$view.userId", []] }
         }
       },
     ];

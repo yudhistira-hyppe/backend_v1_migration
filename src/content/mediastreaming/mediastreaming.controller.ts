@@ -1055,7 +1055,8 @@ export class MediastreamingController {
           MediastreamingDto_Res.comment = dataStreamPinned;
           MediastreamingDto_Res.commentDisabled = ceckId.commentDisabled;
           MediastreamingDto_Res.tokenAgora = ceckId.tokenAgora;
-          MediastreamingDto_Res.reportRemark = remarkSetting[0].value;
+          MediastreamingDto_Res.reportRemark = remarkSetting[0].value; 
+          MediastreamingDto_Res.viewCountUnic = dataStreamView[0].viewCountUnic;
           return await this.errorHandler.generateAcceptResponseCodeWithData(
             "Update stream succesfully", MediastreamingDto_Res
           );
