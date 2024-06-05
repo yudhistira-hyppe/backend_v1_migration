@@ -1200,21 +1200,21 @@ export class MediastreamingController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/appeal/approve')
   @HttpCode(HttpStatus.ACCEPTED)
   async appealStreamingApprove(@Body() RequestAppealStream_: RequestAppealStream, @Headers() headers) {
     const currentDate = await this.utilsService.getDateTimeString();
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     //VALIDASI PARAM idAppeal
     var ceck_idAppeal = await this.utilsService.validateParam("idAppeal", RequestAppealStream_.idAppeal.toString(), "string")
     if (ceck_idAppeal != "") {
