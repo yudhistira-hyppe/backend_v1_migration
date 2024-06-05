@@ -1245,6 +1245,9 @@ export class TransactionsV2Service {
                     }
                 }
 
+                if (category != undefined) {
+                    transactionsV2_.typeCategory = category;
+                }
                 transactionsV2_.idUser = idUser;
                 transactionsV2_.coinDiscount = coinDiscount;
                 transactionsV2_.coin = coin;

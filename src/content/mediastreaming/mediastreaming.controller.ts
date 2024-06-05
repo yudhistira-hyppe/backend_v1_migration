@@ -608,8 +608,7 @@ export class MediastreamingController {
                   dataComment['urlGiftThum'] = MediastreamingDto_.urlGiftThum;
                 }
                 getUser[0]["idGift"] = MediastreamingDto_.idGift;
-                await this.mediastreamingService.insertGift(MediastreamingDto_._id.toString(), dataComment);
-                this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond);
+                this.mediastreamingService.transactionGift(MediastreamingDto_._id.toString(), profile._id.toString(), MediastreamingDto_.idGift.toString(), MediastreamingDto_.idDiscond, dataComment);
               }
               if (MediastreamingDto_.urlGift != undefined) {
                 getUser[0]["urlGift"] = MediastreamingDto_.urlGift;
