@@ -1200,21 +1200,21 @@ export class MediastreamingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('/appeal/approve')
   @HttpCode(HttpStatus.ACCEPTED)
   async appealStreamingApprove(@Body() RequestAppealStream_: RequestAppealStream, @Headers() headers) {
     const currentDate = await this.utilsService.getDateTimeString();
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
-      );
-    }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
-      );
-    }
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
     //VALIDASI PARAM idAppeal
     var ceck_idAppeal = await this.utilsService.validateParam("idAppeal", RequestAppealStream_.idAppeal.toString(), "string")
     if (ceck_idAppeal != "") {
@@ -1222,8 +1222,15 @@ export class MediastreamingController {
         ceck_idAppeal,
       );
     }
+    //VALIDASI PARAM idUser
+    var ceck_idUser = await this.utilsService.validateParam("idUser", RequestAppealStream_.idUser.toString(), "string")
+    if (ceck_idUser != "") {
+      await this.errorHandler.generateBadRequestException(
+        ceck_idUser,
+      );
+    }
     
-    var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
+    var profile = await this.userbasicnewService.findOne(RequestAppealStream_.idUser.toString());
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
         'Unabled to proceed user not found',
@@ -1232,8 +1239,8 @@ export class MediastreamingController {
 
     try {
       let streamBanding = profile.streamBanding;
-      let objIndex = streamBanding.findIndex(obj => obj.status == true && obj.idAppeal == new mongoose.Types.ObjectId(RequestAppealStream_.idAppeal));
-
+      let objIndex = streamBanding.findIndex(obj => obj.status == true && obj.idAppeal == RequestAppealStream_.idAppeal);
+      
       if (RequestAppealStream_.notes != undefined) {
         streamBanding[objIndex].notes = RequestAppealStream_.notes;
       }

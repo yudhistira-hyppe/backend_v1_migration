@@ -81,6 +81,7 @@ export class RequestSoctDto {
 export class RequestAppealStream {
   idAppeal: mongoose.Types.ObjectId;
   idStream: mongoose.Types.ObjectId;
+  idUser: mongoose.Types.ObjectId;
   title: String;
   messages: String;
   notes: String;
