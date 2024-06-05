@@ -21463,7 +21463,7 @@ export class TransactionsController {
             let limit = 0;
             if (request_json.limit != undefined) limit = request_json.limit;
             if (request_json.page != undefined) skip = request_json.page * limit;
-            let data = await this.withdrawsService.listWithdrawCoin(skip, limit, request_json.status, request_json.startdate, request_json.enddate, request_json.amountgte, request_json.amountlte, request_json.banks);
+            let data = await this.withdrawsService.listWithdrawCoin(skip, limit, request_json.status, request_json.startdate, request_json.enddate, request_json.amountgte, request_json.amountlte, request_json.banks, request_json.descending, request_json.search);
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
             return {
