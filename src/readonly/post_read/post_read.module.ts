@@ -12,9 +12,11 @@ import { ContenteventsModule } from 'src/content/contentevents/contentevents.mod
 import { NotificationReadService } from './notification_read.service';
 import { NotificationsRead, NotificationsReadSchema } from './schema/notifications_read.schema';
 import { NewPostModule } from 'src/content/new_post/new_post.module';
+import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
 
 @Module({
     imports: [
+        UserbasicnewModule, 
         SettingsReadModule,
         PostsModule,
         LogapisModule,
