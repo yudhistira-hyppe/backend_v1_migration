@@ -56,6 +56,10 @@ import { transactionsV2 } from 'src/trans/transactionsv2/schema/transactionsv2.s
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { Posttask } from '../../content/posttask/schemas/posttask.schema';
 import { PosttaskService } from '../../content/posttask/posttask.service';
+import { transactionCoin } from '../monetization/transactionCoin/schemas/transactionCoin.schema';
+import { TransactionsCredits } from '../transactionsv2/credit/schema/transactionscredits.schema';
+import { transactionCoinService } from '../monetization/transactionCoin/transactionCoin.service';
+import { TransactionsCreditsService } from '../transactionsv2/credit/transactionscredits.service';
 
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
@@ -95,7 +99,6 @@ export class TransactionsController {
         private readonly TransactionsV2Service: TransactionsV2Service,
         private readonly transBalanceSS: TransactionsBalancedsService,
         private readonly transProdSS: TransactionsProductsService,
-        private readonly PosttaskService: PosttaskService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -2842,6 +2845,27 @@ export class TransactionsController {
                                     CreateTransactionsDto.product_id = product_id;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
+                                    try
+                                    {
+                                        let getdata = await this.transactionsService.findOne(no);
+                                        var inserttransaksi = new transactionCoin();
+                                        inserttransaksi._id = new mongoose.Types.ObjectId();
+                                        inserttransaksi.idTransaction = new mongoose.Types.ObjectId(getdata._id.toString());
+                                        inserttransaksi.idUser = iduser;
+                                        let getdetail = JSON.parse(JSON.stringify(datatr.detail));
+                                        inserttransaksi.idPackage = new mongoose.Types.ObjectId(getdetail[0].id);
+                                        inserttransaksi.qty = 1;
+                                        inserttransaksi.status = "PENDING";
+                                        inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+                                        inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+
+                                        this.transCoinSS.create(inserttransaksi);
+                                    }
+                                    catch(e)
+                                    {
+                                        console.log(e.message);
+                                    }
+
                                     try {
 
                                         await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
@@ -3060,6 +3084,28 @@ export class TransactionsController {
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                 CreateTransactionsDto.product_id = product_id;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
+
+                                try
+                                {
+                                    let getdata = await this.transactionsService.findOne(no);
+                                    var inserttransaksi = new transactionCoin();
+                                    inserttransaksi._id = new mongoose.Types.ObjectId();
+                                    inserttransaksi.idTransaction = new mongoose.Types.ObjectId(getdata._id.toString());
+                                    inserttransaksi.idUser = iduser;
+                                    let getdetail = JSON.parse(JSON.stringify(datatr.detail));
+                                    inserttransaksi.idPackage = new mongoose.Types.ObjectId(getdetail[0].id);
+                                    inserttransaksi.qty = 1;
+                                    inserttransaksi.status = "PENDING";
+                                    inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+                                    inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+
+                                    this.transCoinSS.create(inserttransaksi);
+                                }
+                                catch(e)
+                                {
+                                    console.log(e.message);
+                                }
+
                                 try {
 
                                     await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
@@ -3320,6 +3366,32 @@ export class TransactionsController {
                     arrDiskon,
                     arrDt,
                     "SUCCESS");
+
+                var listtransaksi = [];
+                var recordTransCOIN = null;
+                if(dttr != false)
+                {
+                    var getdataresulttrans = dttr.data;
+                    for(var i = 0; i < getdataresulttrans.length; i++)
+                    {
+                        var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+                        if(checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString())
+                        {
+                            recordTransCOIN = getdataresulttrans[i];
+                        }
+                    }
+                    
+                    var inserttransaksi = new transactionCoin();
+                    inserttransaksi._id = new mongoose.Types.ObjectId();
+                    inserttransaksi.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
+                    inserttransaksi.idUser = new mongoose.Types.ObjectId(iduser.toString());
+                    inserttransaksi.qty = 1;
+                    inserttransaksi.status = "SUCCESS";
+                    inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+                    inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+
+                    this.transCoinSS.create(inserttransaksi);
+                }
             } catch (e) {
                 dttr = null
             }
@@ -3554,6 +3626,52 @@ export class TransactionsController {
                         arrDiskon,
                         arrDt,
                         "SUCCESS");
+
+                    var listtransaksi = [];
+                    var recordTransCOIN = null;
+                    if(dttr != false)
+                    {
+                        var getdataresulttrans = dttr.data;
+                        for(var i = 0; i < getdataresulttrans.length; i++)
+                        {
+                            var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+                            if(checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString())
+                            {
+                                recordTransCOIN = getdataresulttrans[i];
+                            }
+                        }
+                        
+                        var inserttransaksi = new transactionCoin();
+                        inserttransaksi._id = new mongoose.Types.ObjectId();
+                        inserttransaksi.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
+                        inserttransaksi.idUser = new mongoose.Types.ObjectId(iduser.toString());
+                        inserttransaksi.qty = 1;
+                        inserttransaksi.status = "SUCCESS";
+                        inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+                        inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+    
+                        this.transCoinSS.create(inserttransaksi);
+
+                        var inserttransaksi2 = new TransactionsCredits();
+                        inserttransaksi2._id = new mongoose.Types.ObjectId();
+                        inserttransaksi2.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
+                        inserttransaksi2.idUser = new mongoose.Types.ObjectId(iduser.toString());
+                        inserttransaksi2.type = recordTransCOIN.type;
+                        inserttransaksi2.noInvoice = recordTransCOIN.noInvoice;
+                        inserttransaksi2.category = recordTransCOIN.category;
+                        inserttransaksi2.voucherDiskon = recordTransCOIN.voucherDiskon;
+                        inserttransaksi2.creditDiscount = 0; // recordTransCOIN.voucherDiskon;
+                        inserttransaksi2.credit = 0; // recordTransCOIN.credit;
+                        inserttransaksi2.totalCredit = 0; // recordTransCOIN.totalCredit;
+                        inserttransaksi2.status = "SUCCESS";
+                        inserttransaksi2.detail = recordTransCOIN.detail;
+                        inserttransaksi2.remark = null; // recordTransCOIN.remark;
+                        inserttransaksi2.createdAt = await this.utilsService.getDateTimeString();
+                        inserttransaksi2.updatedAt = await this.utilsService.getDateTimeString();
+
+                        this.transCreditSS.create(inserttransaksi2);
+
+                    }
                 } catch (e) {
                     dttr = null
                 }
@@ -4988,6 +5106,19 @@ export class TransactionsController {
                                 await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "SUCCESS", payload);
                             } catch (e) {
 
+                            }
+
+                            // update transaction coin
+                            try
+                            {
+                                var updateTrans = new transactionCoin();
+                                updateTrans.status = "SUCCESS";
+                                updateTrans.updatedAt = await this.utilsService.getDateTimeString();
+                                await this.transCoinSS.updateByIdTrans(idtransaction.toString(), updateTrans);
+                            }
+                            catch(e)
+                            {
+                                console.log(e.message);
                             }
                         }
 
