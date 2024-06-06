@@ -1207,7 +1207,6 @@ export class MediastreamingController {
     try {
       const dataAppeal = {
         idAppeal: new mongoose.Types.ObjectId(),
-        idStream: new mongoose.Types.ObjectId(RequestAppealStream_.idStream.toString()),
         messages: RequestAppealStream_.messages,
         status: true,
         approve: false,
