@@ -23,11 +23,12 @@ import { LogapisModule } from '../logapis/logapis.module';
 import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { UserbasicnewModule } from '../userbasicnew/userbasicnew.module';
 import { AdsModule as AdsV2Module } from '../adsv2/ads/ads.module';
+import { PosttaskModule } from '../../content/posttask/posttask.module';
 @Module({
 
     imports: [
         SettingsModule, GetusercontentsModule, UserbankaccountsModule, UserticketsModule, UtilsModule, UserbasicsModule, MediaprofilepictsModule, UserAdsModule, UserauthsModule, TransactionsModule, PostsModule, AdsModule, ReportreasonsModule, MediaproofpictsModule, RemovedreasonsModule, LogapisModule, ConfigModule.forRoot(), NewPostModule, UserbasicnewModule, AdsV2Module,
-        MongooseModule.forFeature([{ name: Reportuser.name, schema: ReportuserSchema }], 'SERVER_FULL')
+        PosttaskModule, MongooseModule.forFeature([{ name: Reportuser.name, schema: ReportuserSchema }], 'SERVER_FULL')
     ],
     controllers: [ReportuserController],
     providers: [ReportuserService],

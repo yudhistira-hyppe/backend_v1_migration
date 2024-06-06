@@ -31,6 +31,8 @@ import { CreateuserbasicnewDto } from '../userbasicnew/dto/Createuserbasicnew-dt
 import { TempPOSTService } from 'src/content/new_post/temp_post.service';
 import { tempposts } from 'src/content/new_post/schemas/tempPost.schema';
 import { AdsService as AdsV2Service } from '../adsv2/ads/ads.service';
+import { Posttask } from '../../content/posttask/schemas/posttask.schema';
+import { PosttaskService } from '../../content/posttask/posttask.service';
 @Controller('api/reportuser')
 export class ReportuserController {
 
@@ -55,7 +57,8 @@ export class ReportuserController {
         private readonly basic2SS: UserbasicnewService,
         private readonly post2SS: NewPostService,
         private readonly temppost2SS: TempPOSTService,
-        private readonly ads2SS: AdsV2Service
+        private readonly ads2SS: AdsV2Service,
+        private readonly PosttaskService: PosttaskService
     ) { }
     @UseGuards(JwtAuthGuard)
     @Get('all')
