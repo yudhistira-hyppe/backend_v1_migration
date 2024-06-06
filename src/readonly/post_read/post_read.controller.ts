@@ -927,26 +927,6 @@ export class PostsReadController {
         //     data.forEach(v => { v.following = getFollowing; });
         // }
 
-        var getuseremail = await this.basic2SS.findBymail(email);
-        let checkfollower = null;
-        try
-        {
-            checkfollower = getuseremail.follower.filter((emaildata) => emaildata == emailLogin);
-        }
-        catch(e)
-        {
-            checkfollower = []; 
-        }
-
-        if(checkfollower.length == 1)
-        {
-            data.forEach(v => { v.following = true });
-        }
-        else
-        {
-            data.forEach(v => { v.following = false });
-        }
-
         var tempapsaraMusicThumbId = [];
         var tempapsaraId = [];
         var tempapsaraThumbId = [];
