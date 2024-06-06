@@ -2527,6 +2527,7 @@ export class TransactionsController {
         var postType = null;
         var arrDiskon = [];
         var detailtrv2 = null;
+        var PostTask_=new Posttask();
         const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
@@ -3453,6 +3454,14 @@ export class TransactionsController {
 
                     }
 
+                        PostTask_.email=email.toString();
+                        PostTask_.updatedAt=timedate;
+                        try{
+                            this.posttaskUpdate(postIds,PostTask_)
+                        }catch(e){
+            
+                        }
+
                     try {
                         await this.posts2SS.noneActiveAllDiscusnew(postIds);
                     } catch (e) {
@@ -3495,11 +3504,6 @@ export class TransactionsController {
             else {
                 throw new BadRequestException("Cannot insert transaction");
             }
-
-
-
-
-
 
 
         }
