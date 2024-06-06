@@ -4,6 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { AppGateway } from 'src/content/socket/socket.gateway';
 import { NewPostService } from './new_post.service';
+import { Posttask } from '../../content/posttask/schemas/posttask.schema';
+import { PosttaskService } from '../../content/posttask/posttask.service';
 
 @Injectable()
 export class NewPostModService {
@@ -14,6 +16,7 @@ export class NewPostModService {
     private utilService: UtilsService,
     private gtw: AppGateway,
     private readonly configService: ConfigService,
+    private PosttaskService: PosttaskService,
   ) { }
 
   async cmodImage(postId: string, url: string) {
@@ -282,6 +285,14 @@ export class NewPostModService {
 
 
   async cmodResponse(body: any) {
+    var dt = new Date(Date.now());
+    dt.setHours(dt.getHours() + 7); // timestamp
+    dt = new Date(dt);
+    var strdate = dt.toISOString();
+    var repdate = strdate.replace('T', ' ');
+    var splitdate = repdate.split('.');
+    var timedate = splitdate[0];
+    var PostTask_= new Posttask();
     if (body.content == undefined) {
       this.logger.error('cmodResponse >>> body content is undefined');
       return;
@@ -327,6 +338,14 @@ export class NewPostModService {
       pd.contentModeration = true;
       pd.reportedStatus = 'OWNED';
 
+      PostTask_.contentModeration=true;
+      PostTask_.updatedAt=timedate;
+      try{
+          this.posttaskUpdate(pid,PostTask_)
+      }catch(e){
+
+      }
+
       if (pold != true) {
         this.logger.log('cmodResponse >>> trying to sendFCmMod: ');
         await this.utilService.sendFcmCMod(String(pd.email), "CONTENTMOD", "CONTENTMOD", String(pd.postID), String(pd.postType));
@@ -335,6 +354,14 @@ export class NewPostModService {
     } else {
       pd.contentModeration = false;
       pd.reportedStatus = 'ALL';
+
+      PostTask_.contentModeration=false;
+      PostTask_.updatedAt=timedate;
+      try{
+          this.posttaskUpdate(pid,PostTask_)
+      }catch(e){
+
+      }
     }
     let today = new Date();
     pd.contentModerationDate = await this.utilService.getDateTimeString();
@@ -431,4 +458,31 @@ export class NewPostModService {
       return highest['scene']
     }
   }
+  async posttaskUpdate(postID: string,Posttask_:Posttask) {
+    var dataposttask=null;
+
+    try{
+     dataposttask= await this.PosttaskService.findBypostID(postID);
+    }catch(e){
+     dataposttask=null;
+    }
+
+    if(dataposttask !==null){
+     let id=null;
+
+     try{
+         id=dataposttask._id.toString();
+     }catch(e){
+         id=null;
+     }
+   
+     try {
+         await this.PosttaskService.update(id,Posttask_);
+     } catch (e) {
+
+     }
+    }
+    
+    
+ }
 }
