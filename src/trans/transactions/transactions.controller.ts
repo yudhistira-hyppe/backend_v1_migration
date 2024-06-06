@@ -99,6 +99,9 @@ export class TransactionsController {
         private readonly TransactionsV2Service: TransactionsV2Service,
         private readonly transBalanceSS: TransactionsBalancedsService,
         private readonly transProdSS: TransactionsProductsService,
+        private readonly PosttaskService: PosttaskService,
+        private readonly transCoinSS: transactionCoinService,
+        private readonly transCreditSS: TransactionsCreditsService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
