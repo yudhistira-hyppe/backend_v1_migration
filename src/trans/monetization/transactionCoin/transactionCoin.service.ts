@@ -34,10 +34,26 @@ export class transactionCoinService {
         return data;
     }
 
+    async create(data: transactionCoin) {
+        return this.trans.create(data);
+    }
+
     async updateOne(id: string, data: transactionCoin) {
         var setid = new mongoose.Types.ObjectId(id);
         return this.trans.findByIdAndUpdate(setid, data, { new: true });
     }
+
+    async updateByIdTrans(id:string, data:transactionCoin) {
+        var setid = new mongoose.Types.ObjectId(id);
+        return this.trans.updateOne(
+            {
+                idTransaction:setid
+            },
+            {
+                "$set":data
+            }
+        )
+    } 
 
     async createTransaction(header: any, body: any) {
         var timestamps_start = await this.utilsService.getDateTimeString();
