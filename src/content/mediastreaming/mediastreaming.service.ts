@@ -379,7 +379,7 @@ export class MediastreamingService {
                 input: "$user",
                 as: "users",
                 cond: {
-                  $eq: ["$$users.email", email]
+                  $eq: ["$$users.email", email,]
                 }
               }
             },
@@ -393,7 +393,7 @@ export class MediastreamingService {
                 input: "$user",
                 as: "users",
                 cond: {
-                  $ne: ["$$users.email", email]
+                  $ne: ["$$users.email", email,]
                 }
               }
             },
@@ -430,7 +430,7 @@ export class MediastreamingService {
             interest: {
               $subtract: [
                 {
-                  $size: "$ints"
+                  $size: { $ifNull: ["$ints", []] }
                 },
                 {
                   $size: {
@@ -462,7 +462,7 @@ export class MediastreamingService {
           $set: {
             totalView:
             {
-              $size: "$views"
+              $size: { $ifNull: ["$views", []] }
             }
           }
         },
@@ -470,7 +470,7 @@ export class MediastreamingService {
           $set: {
             totalLike:
             {
-              $size: "$like"
+              $size: { $ifNull: ["$like", []] }
             }
           }
         },
@@ -502,7 +502,7 @@ export class MediastreamingService {
           $set: {
             totalFollower:
             {
-              $size: "$follower"
+              $size: { $ifNull: ["$follower", []] }
             }
           }
         },
@@ -530,6 +530,7 @@ export class MediastreamingService {
 
               }
             },
+
           }
         },
         {
@@ -556,13 +557,14 @@ export class MediastreamingService {
 
               }
             },
+
           }
         },
         {
           $set: {
             totalFriend:
             {
-              $size: "$friend"
+              $size: { $ifNull: ["$friend", []] }
             }
           }
         },
@@ -570,7 +572,7 @@ export class MediastreamingService {
           $set: {
             totalShare:
             {
-              $size: "$share"
+              $size: { $ifNull: ["$share", []] }
             }
           }
         },
@@ -590,12 +592,11 @@ export class MediastreamingService {
             }
           }
         },
-
         {
           $set: {
             totalFollowing:
             {
-              $size: "$following"
+              $size: { $ifNull: ["$following", []] }
             }
           }
         },
@@ -686,7 +687,6 @@ export class MediastreamingService {
             totalGift: - 1,
             //totalFollower: - 1,
             //startLive: - 1,
-
           }
         },
         //{
@@ -753,7 +753,6 @@ export class MediastreamingService {
             }
           }
         },
-
       ]
     );
     return DataList;

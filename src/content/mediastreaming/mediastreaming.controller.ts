@@ -1426,16 +1426,16 @@ export class MediastreamingController {
   @Post('/list')
   @HttpCode(HttpStatus.ACCEPTED)
   async listStreamingAgora(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
