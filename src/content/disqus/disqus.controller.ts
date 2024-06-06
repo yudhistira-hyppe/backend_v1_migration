@@ -1654,6 +1654,7 @@ export class DisqusController {
 
                 var setdetailgift = [
                     {
+                        "postID": inDto.postID,
                         "id": getgiftdata._id,
                         "category": "CONTENT",
                         "tabelName": "gift",
@@ -1809,6 +1810,7 @@ export class DisqusController {
 
                 var setdetailgift = [
                     {
+                        "postID": inDto.postID,
                         "id": getgiftdata._id,
                         "category": "CONTENT",
                         "tabelName": "gift",
