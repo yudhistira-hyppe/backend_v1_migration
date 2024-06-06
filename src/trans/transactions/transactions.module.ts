@@ -37,9 +37,11 @@ import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { MonetizenewModule } from 'src/trans/transactions/monetizenew/monetizenew.module';
 import { MonetizationModule } from '../monetization/monetization.module';
 import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
+import { PosttaskModule } from '../../content/posttask/posttask.module';
 @Module({
 
     imports: [
+        PosttaskModule,
         TransactionsV2Module,
         MonetizenewModule,
         UserbasicnewModule,

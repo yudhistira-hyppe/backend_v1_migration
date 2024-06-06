@@ -54,6 +54,8 @@ import { TransactionsProductsService } from '../transactionsv2/products/transact
 import { transactionsV2 } from 'src/trans/transactionsv2/schema/transactionsv2.schema';
 
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
+import { Posttask } from '../../content/posttask/schemas/posttask.schema';
+import { PosttaskService } from '../../content/posttask/posttask.service';
 
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
@@ -93,6 +95,7 @@ export class TransactionsController {
         private readonly TransactionsV2Service: TransactionsV2Service,
         private readonly transBalanceSS: TransactionsBalancedsService,
         private readonly transProdSS: TransactionsProductsService,
+        private readonly PosttaskService: PosttaskService,
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -21681,5 +21684,33 @@ export class TransactionsController {
             throw new BadRequestException("Process error: " + e);
         }
     }
+
+    async posttaskUpdate(postID: string,Posttask_:Posttask) {
+        var dataposttask=null;
+ 
+        try{
+         dataposttask= await this.PosttaskService.findBypostID(postID);
+        }catch(e){
+         dataposttask=null;
+        }
+ 
+        if(dataposttask !==null){
+         let id=null;
+ 
+         try{
+             id=dataposttask._id.toString();
+         }catch(e){
+             id=null;
+         }
+       
+         try {
+             await this.PosttaskService.update(id,Posttask_);
+         } catch (e) {
+ 
+         }
+        }
+        
+        
+     }
 }
 
