@@ -616,6 +616,8 @@ export class UtilsService {
         } else {
           if (postID != null && postID != undefined) {
             data_send['postID'] = postID
+          }
+          if (postType != null && postType != undefined) {
             data_send['postType'] = postType
           }
         }
@@ -636,12 +638,14 @@ export class UtilsService {
           body_save_en = body_save_en_get.toString().replace("${rewards}", customText)
         } else if (eventType == "NOTIFY_LIVE") {
           if (typeTemplate == "RECEIVE_GIFT") {
+            if (postType != null && postType != undefined) {
+              data_send['postType'] = postType
+            }
             body_save_id = body_save_id_get.toString().replace("${nominal}", await this.numberFormatString(customText))
             body_save_en = body_save_en_get.toString().replace("${nominal}", await this.numberFormatString(customText))
           } else if (typeTemplate == "LIVE_START") {
             data_send['postID'] = postID
             data_send['postType'] = postType
-            console.log("customText", customText);
             if (customText != "") {
               body_save_id = body_save_id_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", customText);
               body_save_en = body_save_en_get.toString().split("#")[0].replace("${user_name}", get_username_senderParty).replace("${title}", customText);
@@ -650,9 +654,15 @@ export class UtilsService {
               body_save_en = body_save_en_get.toString().split("#")[1].replace("${user_name}", get_username_senderParty);
             }
           } else if (typeTemplate == "LIVE_REPORT") {
+            if (postType != null && postType != undefined) {
+              data_send['postType'] = postType
+            }
             body_save_id = body_save_id_get.toString().replace("${user_name}", get_username_senderParty).replace("${pelanggaran}", customText)
             body_save_en = body_save_en_get.toString().replace("${user_name}", get_username_senderParty).replace("${pelanggaran}", customText)
           } else {
+            if (postType != null && postType != undefined) {
+              data_send['postType'] = postType
+            }
             body_save_id = body_save_id_get.toString()
             body_save_en = body_save_en_get.toString()
           }
