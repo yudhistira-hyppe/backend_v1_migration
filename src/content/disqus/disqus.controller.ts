@@ -1654,7 +1654,7 @@ export class DisqusController {
 
                 var setdetailgift = [
                     {
-                        "id": "660f7d83c306d245ed2c2067",
+                        "id": getgiftdata._id,
                         "category": "CONTENT",
                         "tabelName": "gift",
                         "qty": 1,
@@ -1809,7 +1809,7 @@ export class DisqusController {
 
                 var setdetailgift = [
                     {
-                        "id": "660f7d83c306d245ed2c2067",
+                        "id": getgiftdata._id,
                         "category": "CONTENT",
                         "tabelName": "gift",
                         "qty": 1,
