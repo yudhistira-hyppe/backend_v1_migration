@@ -2214,6 +2214,20 @@ export class TransactionsV2Service {
             },
             {
                 $lookup: {
+                    from: "newUserBasics",
+                    let: { local_id: { $last: "$withdrawdata.tracking.approved_by" } },
+                    pipeline: [{
+                        $match: {
+                            $expr: {
+                                $eq: ["$_id", "$$local_id"]
+                            }
+                        }
+                    }],
+                    as: "approverdata"
+                }
+            },
+            {
+                $lookup: {
                     from: "userbankaccounts",
                     localField: "withdrawdata.idAccountBank",
                     foreignField: "_id",
@@ -2267,7 +2281,8 @@ export class TransactionsV2Service {
                     status: {
                         $last: "$withdrawdata.tracking.status"
                     },
-                    tracking: { $reverseArray: "$withdrawdata.tracking" }
+                    tracking: { $reverseArray: "$withdrawdata.tracking" },
+                    approvedBy: { $arrayElemAt: ["$approverdata.fullName", 0] }
                 }
             }
         ]);
@@ -2290,7 +2305,7 @@ export class TransactionsV2Service {
         return await this.disquslogsService.updateDataStreamSpecificUser(streamID, status, email, view);
     }
 
-    async getCurency(){
+    async getCurency() {
         const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
         const currencyCoinId = (await this.transactionsCoinSettingsService.findStatusActive())._id;
         return {
