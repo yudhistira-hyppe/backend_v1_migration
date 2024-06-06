@@ -1054,7 +1054,7 @@ export class WithdrawsService {
             {
                 $lookup: {
                     from: "newUserBasics",
-                    let: { local_id: { $last: "$tracking.approvedBy" } },
+                    let: { local_id: { $last: "$tracking.approved_by" } },
                     pipeline: [{
                         $match: {
                             $expr: {
