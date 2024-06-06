@@ -296,6 +296,7 @@ export class NewPostController {
         var visibility=null;
         var activeContent=null;
         var emailContent=null;
+        var current_date = await this.utilsService.getDateTimeString();
         var PostTask_= new Posttask();
 
         if(body.postID !==undefined){
@@ -360,6 +361,8 @@ export class NewPostController {
             }
             
             PostTask_.active=false;
+            PostTask_.activeContent=false;
+            PostTask_.updatedAt=current_date;
             try{
                 this.posttaskUpdate(postID,PostTask_)
             }catch(e){
@@ -603,6 +606,7 @@ export class NewPostController {
 
             if(visibility !==undefined){
                 PostTask_.visibility=visibility;
+                PostTask_.updatedAt=current_date;
                 try{
                     this.posttaskUpdate(postID,PostTask_)
                 }catch(e){
