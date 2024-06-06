@@ -1831,6 +1831,9 @@ export class TransactionsV2Service {
                     "emailbuyer": {
                         $arrayElemAt: ['$databasic.email', 0]
                     },
+                    "usernamebuyer": {
+                        $arrayElemAt: ['$databasic.username', 0]
+                    },
                     "va_number": {
                         $arrayElemAt: ['$detail.payload.va_number', 0]
                     },
@@ -1851,6 +1854,9 @@ export class TransactionsV2Service {
                     },
                     "post_id": {
                         $arrayElemAt: ['$detail.postID', 0]
+                    },
+                    "gift_id": {
+                        $arrayElemAt: ['$detail.id', 0]
                     }
                 }
             },
@@ -1882,9 +1888,13 @@ export class TransactionsV2Service {
                 $project: {
                     "type": 1,
                     "emailbuyer": 1,
+                    "usernamebuyer": 1,
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "category": 1,
+                    "content_id":{
+                        "$arrayElemAt":['$datapost._id', 0]
+                    },
                     "product": 1,
                     "voucherDiskon": 1,
                     "idUser": 1,
@@ -1903,6 +1913,7 @@ export class TransactionsV2Service {
                     "biayPG": 1,
                     "code": 1,
                     "namePaket": 1,
+                    "gift_id":1,
                     "amount": {
                         $arrayElemAt: ['$datatr.amount', 0]
                     },
@@ -1985,12 +1996,56 @@ export class TransactionsV2Service {
                     as: "datamethod"
                 }
             },
+            // {
+            //     $lookup: {
+            //         from: "monetize",
+            //         localField: "product_id",
+            //         foreignField: "package_id",
+            //         as: "monetdata"
+            //     }
+            // },
             {
-                $lookup: {
-                    from: "monetize",
-                    localField: "product_id",
-                    foreignField: "package_id",
-                    as: "monetdata"
+                "$lookup":
+                {
+                    from:"monetize",
+                    let:
+                    {
+                        "product_id":"$product_id",
+                        "gift_id":"$gift_id"
+                    },
+                    as:"monetdata",
+                    pipeline:
+                    [
+                        {
+                            "$match":
+                            {
+                                "$or":
+                                [
+                                    {
+                                        "$expr":
+                                        {
+                                            "$eq":
+                                            [
+                                                "$$product_id", "$package_id",
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "$expr":
+                                        {
+                                            "$eq":
+                                            [
+                                                "$$gift_id", "$_id",
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "$limit":1
+                        }
+                    ]
                 }
             },
             {
@@ -2015,7 +2070,9 @@ export class TransactionsV2Service {
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "emailbuyer": 1,
+                    "usernamebuyer": 1,
                     "category": 1,
+                    "content_id": 1,
                     "product": 1,
                     "voucherDiskon": 1,
                     "idUser": 1,
@@ -2103,8 +2160,10 @@ export class TransactionsV2Service {
                     "type": 1,
                     "idTransaction": 1,
                     "noInvoice": 1,
+                    "content_id": 1,
                     "category": 1,
                     "emailbuyer": 1,
+                    "usernamebuyer": 1,
                     "product": 1,
                     "voucherDiskon": 1,
                     "idUser": 1,
@@ -2170,6 +2229,9 @@ export class TransactionsV2Service {
             },
 
         );
+
+        // let util = require('util');
+        // console.log(util.inspect(pipeline, { depth:null, showHidden:false }));
         let query = await this.transactionsModel.aggregate(pipeline);
         return query[0];
     }
