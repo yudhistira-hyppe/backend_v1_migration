@@ -2124,6 +2124,8 @@ export class ReportuserController {
         var fullurl = request.get("Host") + request.originalUrl;
         var token = headers['x-auth-token'];
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var PostTask_= new Posttask();
+        var current_date = await this.utilsService.getDateTimeString();
         var email = auth.email;
 
         var postID = null;
