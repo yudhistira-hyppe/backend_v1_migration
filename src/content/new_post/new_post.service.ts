@@ -48928,7 +48928,31 @@ export class NewPostService {
                 "then": false,
                 "else": true
               }
-            }
+            },
+            "following": 
+            {
+                $cond: 
+                {
+                    if : {
+                        $eq: ["$userBasic.follower", []]
+                    },
+                    then: false,
+                    else : 
+                        {
+                        $cond: 
+                        {
+                            if : {
+                                $in: [emailLogin, {
+                                    $arrayElemAt: ["$userBasic.follower", 0]
+                                }]
+                            },
+                            then: true,
+                            else : false
+                        }
+                    },
+                    
+                }
+            },
           }
         }
       ]);
@@ -49442,7 +49466,31 @@ export class NewPostService {
                 then: false,
                 else: true
               }
-            }
+            },
+            following: 
+            {
+                $cond: 
+                {
+                    if : {
+                        $eq: ["$userBasic.follower", []]
+                    },
+                    then: false,
+                    else : 
+                        {
+                        $cond: 
+                        {
+                            if : {
+                                $in: [emailLogin, {
+                                    $arrayElemAt: ["$userBasic.follower", 0]
+                                }]
+                            },
+                            then: true,
+                            else : false
+                        }
+                    },
+                    
+                }
+            },
           }
         }
       ]);
@@ -50353,7 +50401,31 @@ export class NewPostService {
                 "then": false,
                 "else": true
               }
-            }
+            },
+            "following": 
+            {
+                $cond: 
+                {
+                    if : {
+                        $eq: ["$userBasic.follower", []]
+                    },
+                    then: false,
+                    else : 
+                        {
+                        $cond: 
+                        {
+                            if : {
+                                $in: [emailLogin, {
+                                    $arrayElemAt: ["$userBasic.follower", 0]
+                                }]
+                            },
+                            then: true,
+                            else : false
+                        }
+                    },
+                    
+                }
+            },
           }
         }
       ]);
@@ -51507,6 +51579,199 @@ export class NewPostService {
             ]
           }
         },
+        // {
+        //   "$lookup": {
+        //     from: "newUserBasics",
+        //     as: "userTag",
+        //     let: {
+        //       localID:
+        //       {
+        //         "$ifNull":
+        //           [
+        //             '$tagPeople.$id',
+        //             []
+        //           ]
+        //       },
+        //       localID2:
+        //       {
+        //         "$ifNull":
+        //           [
+        //             '$tagPeople',
+        //             []
+        //           ]
+        //       }
+        //     },
+        //     pipeline: [
+        //       {
+        //         $match:
+        //         {
+        //           $or: [
+        //             {
+        //               $expr: {
+        //                 $in: ['$_id', "$$localID2"]
+        //               }
+        //             },
+        //             // {
+        //             //   $expr: {
+        //             //     $in: ['$_id', "$$localID"]
+        //             //   }
+        //             // },
+        //             // {
+        //             //   $expr: {
+        //             //     $in: ['$_idAuth', "$$localID"]
+        //             //   }
+        //             // },
+  
+        //           ]
+        //         },
+  
+        //       },
+        //       {
+        //         $match:
+        //         {
+        //           $or: [
+        //             // {
+        //             //   $expr: {
+        //             //     $in: ['$_id', "$$localID2"]
+        //             //   }
+        //             // },
+        //             {
+        //               $expr: {
+        //                 $in: ['$_id', "$$localID"]
+        //               }
+        //             },
+        //             // {
+        //             //   $expr: {
+        //             //     $in: ['$_idAuth', "$$localID"]
+        //             //   }
+        //             // },
+  
+        //           ]
+        //         },
+  
+        //       },
+        //       {
+        //         $match:
+        //         {
+        //           $or: [
+        //             // {
+        //             //   $expr: {
+        //             //     $in: ['$_id', "$$localID2"]
+        //             //   }
+        //             // },
+        //             // {
+        //             //   $expr: {
+        //             //     $in: ['$_id', "$$localID"]
+        //             //   }
+        //             // },
+        //             {
+        //               $expr: {
+        //                 $in: ['$_idAuth', "$$localID"]
+        //               }
+        //             },
+  
+        //           ]
+        //         },
+  
+        //       },
+        //       {
+        //         $project: {
+        //           "_id": 1,
+        //           "username": 1,
+        //           "email": 1,
+        //           "avatar":
+        //           {
+        //             "$ifNull":
+        //               [
+        //                 {
+        //                   "mediaBasePath": "$mediaBasePath",
+        //                   "mediaUri": "$mediaUri",
+        //                   "originalName": "$originalName",
+        //                   "fsSourceUri": "$fsSourceUri",
+        //                   "fsSourceName": "$fsSourceName",
+        //                   "fsTargetUri": "$fsTargetUri",
+        //                   "mediaType": "$mediaType",
+        //                   "mediaEndpoint": "$mediaEndpoint",
+        //                 },
+        //                 null
+        //               ]
+        //           },
+        //           "urluserBadge":
+        //           {
+        //             "$ifNull":
+        //               [
+        //                 {
+        //                   "$arrayElemAt":
+        //                     [
+        //                       {
+        //                         "$filter":
+        //                         {
+        //                           input: "$userBadge",
+        //                           as: "listbadge",
+        //                           cond:
+        //                           {
+        //                             "$and":
+        //                               [
+        //                                 {
+        //                                   "$eq":
+        //                                     [
+        //                                       "$$listbadge.isActive", true
+        //                                     ]
+        //                                 },
+        //                                 {
+        //                                   "$lte":
+        //                                     [
+        //                                       {
+        //                                         "$dateToString": {
+        //                                           "format": "%Y-%m-%d %H:%M:%S",
+        //                                           "date": {
+        //                                             "$add": [
+        //                                               new Date(),
+        //                                               25200000
+        //                                             ]
+        //                                           }
+        //                                         }
+        //                                       },
+        //                                       "$$listbadge.endDatetime"
+        //                                     ]
+        //                                 }
+        //                               ]
+        //                           }
+        //                         }
+        //                       }, 0
+        //                     ]
+        //                 },
+        //                 []
+        //               ]
+        //           },
+        //         }
+        //       },
+        //       {
+        //         "$project":
+        //         {
+        //           "_id": 1,
+        //           "username": 1,
+        //           "email": 1,
+        //           "avatar": 1,
+        //           "urluserBadge":
+        //           {
+        //             "$ifNull":
+        //               [
+        //                 {
+        //                   "$arrayElemAt":
+        //                     [
+        //                       "$urluserBadge", 0
+        //                     ]
+        //                 },
+        //                 null
+        //               ]
+        //           }
+        //         }
+        //       }
+        //     ],
+  
+        //   }
+        // },
         {
           '$lookup': {
             from: 'interests_repo',
