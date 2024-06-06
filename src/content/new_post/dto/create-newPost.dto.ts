@@ -187,6 +187,7 @@ export class PostData {
   text: any[];
   urlLink: string;
   judulLink: string;
+  contentModeration: boolean;
 }
 
 export class Messages {
