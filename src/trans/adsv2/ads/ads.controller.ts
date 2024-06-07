@@ -2790,15 +2790,11 @@ export class AdsController {
                 data_Update_Ads["isActive"] = false;
             }
 
-
-            
-
-
             //Ads Rewatch Transaction
             let getDatacurency = await this.transactionsV2Service.getCurency();
             let cointReward = Number(dataRewards.rewardPrice) / Number(getDatacurency.coin);
             
-            var dataTransaction = await this.transactionsV2Service.insertTransaction("APP", "AD", "ADS", cointReward, 0, 0, 0, undefined, data_userbasic._id.toString(), undefined, [dataAds], "SUCCESS");
+            var dataTransaction = await this.transactionsV2Service.insertTransaction("APP", "AD", "CLICKED", cointReward, 0, 0, 0, undefined, data_userbasic._id.toString(), undefined, [dataAds], "SUCCESS");
             if (dataTransaction != false) {
                 let arrayDataTransaction = dataTransaction.data;
                 arrayDataTransaction.filter((bd) => {

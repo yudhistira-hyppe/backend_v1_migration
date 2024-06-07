@@ -606,6 +606,7 @@ export class TransactionsV2Service {
 
                 //For Balanced
                 let idUser = null;
+                let typeUser = "";
                 let coinDiscount = 0;
                 let coin = 0;
                 let totalCoin = 0;
@@ -698,6 +699,7 @@ export class TransactionsV2Service {
 
                 //Set User Hyppe, coin
                 if (categoryTransaction.user == "HYPPE") {
+                    typeUser = "USER_HYPPE";
                     idUser = getDataUserHyppe._id;
 
                     //For Coa
@@ -1060,7 +1062,8 @@ export class TransactionsV2Service {
                         }
                     }
 
-                    if (transactionProductCode != "AD") {
+                    console.log((transactionProductCode != "AD" && category != "CREATE"));
+                    if (transactionProductCode != "AD" && category != "CREATE") {
                         //Insert Coa Table
                         let TransactionsCoa_ = new TransactionsCoa();
                         TransactionsCoa_._id = new mongoose.Types.ObjectId();
@@ -1140,9 +1143,11 @@ export class TransactionsV2Service {
                 //Set User, coin
                 if (categoryTransaction.user == "USER") {
                     if (categoryTransaction.code == "PNC") {
+                        typeUser = "USER_SELL";
                         idUser = getDataUserSell._id;
                         coinDiscount = 0;
                     } else if (categoryTransaction.code == "PCM") {
+                        typeUser = "USER_BUY";
                         idUser = getDataUserBuy._id;
                         coinDiscount = 0;
                     } else {
@@ -1277,6 +1282,7 @@ export class TransactionsV2Service {
                 transactionsV2_.price = price;
                 transactionsV2_.credit = credit;
                 transactionsV2_.totalPrice = totalPrice;
+                transactionsV2_.typeUser = typeUser;
                 await this.transactionsModel.create(transactionsV2_);
 
                 outputdatatransaction.push(transactionsV2_);
@@ -1289,7 +1295,8 @@ export class TransactionsV2Service {
                     }
                 }
 
-                if (transactionProductCode != "AD") {
+                console.log((transactionProductCode != "AD" && category != "CREATE"));
+                if (transactionProductCode != "AD" && category != "CREATE") {
                     if (status == "SUCCESS") {
                         //Insert Balanceds
                         let Balanceds_ = new TransactionsBalanceds();
