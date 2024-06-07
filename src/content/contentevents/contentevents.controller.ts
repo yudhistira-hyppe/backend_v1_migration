@@ -10293,6 +10293,39 @@ export class ContenteventsController {
     // var checkexisttemppost = false;
     var uniqEvent = null;
     var postType=null;
+    var createdAt=null;
+    var saleAmount=0;
+    var userView=null;
+    var userLike=null;
+    var mediaSource=null;
+
+    if(request.body.postType !==undefined){
+      postType=request.body.postType ;
+    }
+
+    if(request.body.createAt !==undefined){
+      createdAt=request.body.createAt ;
+    }
+    if(request.body.saleAmount !==undefined){
+      saleAmount=request.body.saleAmount ;
+    }else{
+      saleAmount=0;
+    }
+    if(request.body.userView !==undefined){
+      userView=request.body.userView ;
+    }else{
+      userView=[];
+    }
+    if(request.body.userLike !==undefined){
+      userLike=request.body.userLike ;
+    }else{
+      userLike=[];
+    }
+    if(request.body.mediaSource !==undefined){
+      mediaSource=request.body.mediaSource ;
+    }else{
+      mediaSource=[];
+    }
     try {
       listchallenge = request.body.listchallenge;
     } catch (e) {
@@ -10527,7 +10560,7 @@ export class ContenteventsController {
         // var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
         // var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
        // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW ceck_data_DONE && ceck_data_ACCEPT = TRUE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
+          //console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW ceck_data_DONE && ceck_data_ACCEPT = TRUE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
           var _id_1 = (await this.utilsService.generateId());
           var _id_2 = (await this.utilsService.generateId());
           var CreateContenteventsDto1 = new CreateContenteventsDto();
@@ -10545,9 +10578,9 @@ export class ContenteventsController {
           CreateContenteventsDto1.receiverParty = email_receiverParty
           CreateContenteventsDto1.postID = request.body.postID
 
-          let uniq = null;
-          uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,null);
-          CreateContenteventsDto1.uniqEvent = uniq;
+          // let uniq = null;
+          // uniq = await this.addUniqEvent(email_user, "VIEW", "true", "DONE", email_receiverParty, request.body.postID,null);
+          // CreateContenteventsDto1.uniqEvent = uniq;
 
           var CreateContenteventsDto2 = new CreateContenteventsDto();
           CreateContenteventsDto2._id = _id_2
@@ -10564,9 +10597,9 @@ export class ContenteventsController {
           CreateContenteventsDto2.senderParty = email_user
           CreateContenteventsDto2.postID = request.body.postID
 
-          let uniq2 = null;
-          uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,null);
-          CreateContenteventsDto2.uniqEvent = uniq2;
+          // let uniq2 = null;
+          // uniq2 = await this.addUniqEvent(email_receiverParty, "VIEW", "true", "ACCEPT", email_user, request.body.postID,null);
+          // CreateContenteventsDto2.uniqEvent = uniq2;
 
           if (await this.utilsService.ceckData(Insight_receiver)) {
             var _id_receiver = (await this.utilsService.generateId());
@@ -10608,7 +10641,11 @@ export class ContenteventsController {
             var updatetemp = new tempposts2();
             updatetemp.userView = listarray;
 
+            try{
             await this.postDisqusSS.update(request.body.postID, updatepost);
+            }catch(e){
+
+            }
             try
             {
               await this.tempostSS.update(request.body.postID, updatetemp);
@@ -10712,7 +10749,7 @@ export class ContenteventsController {
                 try {
                   // this.userChallengeViewv3(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty);
                   // this.scoreviewrequest(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty, listchallenge)
-                  this.scoreviewrequest(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty, listchallenge)
+                  this.scoreviewrequestnew(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty, listchallenge,postType,createdAt,saleAmount)
                   console.log("sukses hitung score")
                 } catch (e) {
                   console.log("gagal ngitung skor" + e)
