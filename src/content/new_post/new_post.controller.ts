@@ -45,6 +45,8 @@ import { TransactionsProductsService } from 'src/trans/transactionsv2/products/t
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
 import { BoostintervalService } from '../boostinterval/boostinterval.service';
 import { BoostsessionService } from '../boostsession/boostsession.service';
+import { transactionCoin } from 'src/trans/monetization/transactionCoin/schemas/transactionCoin.schema';
+import { transactionCoinService } from 'src/trans/monetization/transactionCoin/transactionCoin.service';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -79,7 +81,8 @@ export class NewPostController {
         private readonly transCategoryService: TransactionsCategorysService,
         private readonly transProductsService: TransactionsProductsService,
         private readonly boostIntervalService: BoostintervalService,
-        private readonly boostSessionService: BoostsessionService
+        private readonly boostSessionService: BoostsessionService,
+        private readonly transactionCoinServices: transactionCoinService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -5332,6 +5335,20 @@ export class NewPostController {
                     response = resultArray[i];
                 }
             }
+            
+            if(response != false)
+            {
+                var insertcoin = new transactionCoin();
+                insertcoin._id = new mongoose.Types.ObjectId();
+                insertcoin.idTransaction = response.idTransaction;
+                insertcoin.idUser = response.idUser;
+                insertcoin.qty = 1;
+                insertcoin.status = 'SUCCESS';
+                insertcoin.createdAt = await this.utilsService.getDateTimeString();
+                insertcoin.updatedAt = await this.utilsService.getDateTimeString();
+
+                await this.transactionCoinServices.create(insertcoin);
+            }
 
             if (discount_id != undefined && discount_id != null) {
                 await this.monetizationService.updateStock(discount_id, 1, true);
@@ -5584,19 +5601,55 @@ export class NewPostController {
                 "datedateEnd": request_json.dateEnd
             }
             var data;
-            data = await this.transV2Service.insertTransaction(
-                request_json.platform,
-                "BP",
-                undefined,
-                request_json.coin,
-                request_json.discountCoin ? request_json.discountCoin : 0,
-                0,
-                0,
-                ubasic._id.toString(),
-                undefined,
-                request_json.idVoucher ? request_json.idVoucher : undefined,
-                detail,
-                "SUCCESS");
+
+            try
+            {
+                data = await this.transV2Service.insertTransaction(
+                    request_json.platform,
+                    "BP",
+                    undefined,
+                    request_json.coin,
+                    request_json.discountCoin ? request_json.discountCoin : 0,
+                    0,
+                    0,
+                    ubasic._id.toString(),
+                    undefined,
+                    request_json.idVoucher ? request_json.idVoucher : undefined,
+                    detail,
+                    "SUCCESS");
+                    
+                var listtransaksi = [];
+                if(data != false)
+                {
+                    var responseTrans = null;
+                    var getdataresulttrans = data.data;
+                    for(var i = 0; i < getdataresulttrans.length; i++)
+                    {
+                        var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+                        if(checkexist == false && getdataresulttrans[i].idUser.toString() == ubasic._id.toString())
+                        {
+                            listtransaksi.push(getdataresulttrans[i].idTransaction);
+
+                            responseTrans = getdataresulttrans[i];
+                        }
+                    }
+
+                    var insertcoin = new transactionCoin();
+                    insertcoin._id = new mongoose.Types.ObjectId();
+                    insertcoin.idTransaction = responseTrans._id;
+                    insertcoin.idUser = ubasic._id;
+                    insertcoin.qty = 1;
+                    insertcoin.status = 'SUCCESS';
+                    insertcoin.createdAt = await this.utilsService.getDateTimeString();
+                    insertcoin.updatedAt = await this.utilsService.getDateTimeString();
+
+                    await this.transactionCoinServices.create(insertcoin);
+                }
+            }
+            catch(e)
+            {
+                console.log(e.message);
+            } 
             // console.log("data.data[0]:", data.data[0])
             // data.transactionType = "BOOST POST";
             // data.transactionUnit = "COIN";
