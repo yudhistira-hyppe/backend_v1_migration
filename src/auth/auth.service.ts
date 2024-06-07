@@ -15331,6 +15331,17 @@ export class AuthService {
                   data_update_userbasict['username'] = user_username;
                 }
               }
+              if (urlLink != null && urlLink !==undefined) {
+                data_update_userbasict['urlLink'] = urlLink;
+              }
+              if (judulLink != null && judulLink !==undefined) {
+                data_update_userbasict['judulLink'] = judulLink;
+              }else{
+                if (urlLink != null && urlLink !==undefined) {
+               
+                  data_update_userbasict['judulLink'] = urlLink;
+                }
+              }
               //data_update_userbasict['isComplete'] = true;
               //data_update_userbasict['status'] = status;
               //data_update_userbasict['event'] = event;
