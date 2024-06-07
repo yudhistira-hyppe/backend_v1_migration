@@ -10298,11 +10298,22 @@ export class ContenteventsController {
     var userView=null;
     var userLike=null;
     var mediaSource=null;
+    var description=null;
+    var active=null;
+    var postID=null;
 
     if(request.body.postType !==undefined){
       postType=request.body.postType ;
     }
-
+    if(request.body.postID !==undefined){
+      postID=request.body.postID ;
+    }
+    if(request.body.description !==undefined){
+      description=request.body.description ;
+    }
+    if(request.body.active !==undefined){
+      active=request.body.active ;
+    }
     if(request.body.createAt !==undefined){
       createdAt=request.body.createAt ;
     }
@@ -10916,7 +10927,7 @@ export class ContenteventsController {
           //this.userChallengeLike3(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
 
 
-          this.scorelikerequest(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
+          this.scorelikerequestnew(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge,postType,createdAt,saleAmount);
 
 
 
@@ -11081,7 +11092,7 @@ export class ContenteventsController {
 
           let idevent1 = request.body.postID;
 
-          this.scoreunlikerequest(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty, listchallenge);
+          this.scoreunlikerequestnew(idevent1.toString(), "contentevents", "UNLIKE", request.body.postID, email_user, email_receiverParty, listchallenge,postType,createdAt,saleAmount);
         } catch (error) {
           var fullurl = request.get("Host") + request.originalUrl;
           var timestamps_end = await this.utilsService.getDateTimeString();
@@ -11343,47 +11354,47 @@ export class ContenteventsController {
       var id_discus = "";
       var id_discus_log = "";
 
-      var post = await this.postDisqusSS.findByPostId(request.body.postID.toString());
+      //var post = await this.postDisqusSS.findByPostId(request.body.postID.toString());
       var media_ = {}
-      if (await this.utilsService.ceckData(post.mediaSource[0])) {
-        if (post.createdAt != undefined) {
-          media_["createdAt"] = post.createdAt;
+      if (mediaSource !==undefined) {
+        if (createdAt != undefined) {
+          media_["createdAt"] = createdAt;
         }
-        if (post.mediaSource[0].mediaBasePath != undefined) {
-          media_["mediaBasePath"] = post.mediaSource[0].mediaBasePath;
+        if (mediaSource[0].mediaBasePath != undefined) {
+          media_["mediaBasePath"] = mediaSource[0].mediaBasePath;
         }
-        if (post.postType != undefined) {
-          media_["postType"] = post.postType;
+        if (postType != undefined) {
+          media_["postType"] = postType;
         }
-        if (post.mediaSource[0].mediaUri != undefined) {
-          media_["mediaUri"] = post.mediaSource[0].mediaUri;
+        if (mediaSource[0].mediaUri != undefined) {
+          media_["mediaUri"] = mediaSource[0].mediaUri;
         }
-        if (post.mediaSource[0].mediaThumb != undefined) {
-          media_["mediaThumbUri"] = post.mediaSource[0].mediaThumb;
+        if (mediaSource[0].mediaThumb != undefined) {
+          media_["mediaThumbUri"] = mediaSource[0].mediaThumb;
         }
-        if (post.description != undefined) {
-          media_["description"] = post.description;
+        if (description != undefined) {
+          media_["description"] = description;
         }
-        if (post.active != undefined) {
-          media_["active"] = post.active;
+        if (active != undefined) {
+          media_["active"] = active;
         }
-        if (post.mediaSource[0].mediaType != undefined) {
-          media_["mediaType"] = post.mediaSource[0].mediaType;
+        if (mediaSource[0].mediaType != undefined) {
+          media_["mediaType"] = mediaSource[0].mediaType;
         }
-        if (post.postID != undefined) {
-          media_["mediaThumbEndpoint"] = "/thumb/" + post.postID;
+        if (postID != undefined) {
+          media_["mediaThumbEndpoint"] = "/thumb/" + postID;
         }
-        if (post.postID != undefined) {
-          media_["postID"] = post.postID;
+        if (postID != undefined) {
+          media_["postID"] = postID;
         }
-        if (post.mediaSource[0].mediaUri != undefined) {
-          media_["mediaEndpoint"] = post.mediaSource[0].mediaUri;
+        if (mediaSource[0].mediaUri != undefined) {
+          media_["mediaEndpoint"] = mediaSource[0].mediaUri;
         }
-        if (post.mediaSource[0].apsara != undefined) {
-          media_["apsara"] = post.mediaSource[0].apsara;
+        if (mediaSource[0].apsara != undefined) {
+          media_["apsara"] = mediaSource[0].apsara;
         }
-        if (post.mediaSource[0].apsaraId != undefined) {
-          media_["apsaraId"] = post.mediaSource[0].apsaraId;
+        if (mediaSource[0].apsaraId != undefined) {
+          media_["apsaraId"] = mediaSource[0].apsaraId;
         }
       }
 
