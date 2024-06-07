@@ -1835,7 +1835,7 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$databasic.username', 0]
                     },
                     "va_number": {
-                        $arrayElemAt: ['$detail.payload.va_number', 0]
+                        $ifNull: [{ $arrayElemAt: ['$detail.payload.va_number', 0] }, "-"]
                     },
                     "transactionFees": {
                         $arrayElemAt: ['$detail.transactionFees', 0]
@@ -1844,7 +1844,7 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$detail.biayPG', 0]
                     },
                     "withdrawId": {
-                        $arrayElemAt: ['$detail.withdrawId', 0]
+                        $ifNull: [{ $arrayElemAt: ['$detail.withdrawId', 0] }, "-"]
                     },
                     "code": {
                         $arrayElemAt: ['$dataproduk.code', 0]
@@ -1853,10 +1853,25 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$dataproduk.name', 0]
                     },
                     "post_id": {
-                        $arrayElemAt: ['$detail.postID', 0]
+                        $ifNull: [{ $arrayElemAt: ['$detail.postID', 0] }, "-"]
                     },
                     "gift_id": {
-                        $arrayElemAt: ['$detail.id', 0]
+                        $ifNull: [{ $arrayElemAt: ['$detail.id', 0] }, "-"]
+                    },
+                    "credit": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.credit', 0] }, "-"]
+                    },
+                    "boost_type": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.interval.type', 0] }, "-"]
+                    },
+                    "boost_interval": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.interval.value', 0] }, "-"]
+                    },
+                    "boost_unit": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.interval.remark', 0] }, "-"]
+                    },
+                    "boost_start": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.dateStart', 0] }, "-"]
                     }
                 }
             },
@@ -1892,8 +1907,8 @@ export class TransactionsV2Service {
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "category": 1,
-                    "content_id":{
-                        "$arrayElemAt":['$datapost._id', 0]
+                    "content_id": {
+                        "$arrayElemAt": ['$datapost._id', 0]
                     },
                     "product": 1,
                     "voucherDiskon": 1,
@@ -1913,7 +1928,12 @@ export class TransactionsV2Service {
                     "biayPG": 1,
                     "code": 1,
                     "namePaket": 1,
-                    "gift_id":1,
+                    "gift_id": 1,
+                    "credit": 1,
+                    "boost_type": 1,
+                    "boost_interval": 1,
+                    "boost_unit": 1,
+                    "boost_start": 1,
                     "amount": {
                         $arrayElemAt: ['$datatr.amount', 0]
                     },
@@ -1972,19 +1992,19 @@ export class TransactionsV2Service {
                         }
                     },
                     withdrawAmount: {
-                        $arrayElemAt: ['$datawithdraw.amount', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datawithdraw.amount', 0] }, 0]
                     },
                     withdrawTotal: {
-                        $arrayElemAt: ['$datawithdraw.totalamount', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datawithdraw.totalamount', 0] }, 0]
                     },
                     withdrawCost: {
-                        $subtract: [{ $arrayElemAt: ['$datawithdraw.amount', 0] }, { $arrayElemAt: ['$datawithdraw.totalamount', 0] }]
+                        $subtract: [{ $ifNull: [{ $arrayElemAt: ['$datawithdraw.amount', 0] }, 0] }, { $ifNull: [{ $arrayElemAt: ['$datawithdraw.totalamount', 0] }, 0] }]
                     },
                     recipientAccId: {
-                        $arrayElemAt: ['$datawithdraw.idAccountBank', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datawithdraw.idAccountBank', 0] }, "-"]
                     },
                     recipientUser: {
-                        $arrayElemAt: ['$datawithdraw.idUser', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datawithdraw.idUser', 0] }, "-"]
                     },
                 }
             },
@@ -2007,45 +2027,45 @@ export class TransactionsV2Service {
             {
                 "$lookup":
                 {
-                    from:"monetize",
+                    from: "monetize",
                     let:
                     {
-                        "product_id":"$product_id",
-                        "gift_id":"$gift_id"
+                        "product_id": "$product_id",
+                        "gift_id": "$gift_id"
                     },
-                    as:"monetdata",
+                    as: "monetdata",
                     pipeline:
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "$or":
-                                [
-                                    {
-                                        "$expr":
-                                        {
-                                            "$eq":
-                                            [
-                                                "$$product_id", "$package_id",
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "$expr":
-                                        {
-                                            "$eq":
-                                            [
-                                                "$$gift_id", "$_id",
-                                            ]
-                                        }
-                                    }
-                                ]
+                                "$match":
+                                {
+                                    "$or":
+                                        [
+                                            {
+                                                "$expr":
+                                                {
+                                                    "$eq":
+                                                        [
+                                                            "$$product_id", "$package_id",
+                                                        ]
+                                                }
+                                            },
+                                            {
+                                                "$expr":
+                                                {
+                                                    "$eq":
+                                                        [
+                                                            "$$gift_id", "$_id",
+                                                        ]
+                                                }
+                                            }
+                                        ]
+                                }
+                            },
+                            {
+                                "$limit": 1
                             }
-                        },
-                        {
-                            "$limit":1
-                        }
-                    ]
+                        ]
                 }
             },
             {
@@ -2106,6 +2126,11 @@ export class TransactionsV2Service {
                     },
                     "post_id": 1,
                     "post_type": 1,
+                    "credit": 1,
+                    "boost_type": 1,
+                    "boost_interval": 1,
+                    "boost_unit": 1,
+                    "boost_start": 1,
                     withdrawAmount: 1,
                     withdrawTotal: 1,
                     withdrawCost: 1,
@@ -2216,6 +2241,11 @@ export class TransactionsV2Service {
                     "jenisTransaksi": "Pembelian Coins",
                     "post_id": 1,
                     "post_type": 1,
+                    "credit": 1,
+                    "boost_type": 1,
+                    "boost_interval": 1,
+                    "boost_unit": 1,
+                    "boost_start": 1,
                     withdrawAmount: 1,
                     withdrawTotal: 1,
                     withdrawCost: 1,
