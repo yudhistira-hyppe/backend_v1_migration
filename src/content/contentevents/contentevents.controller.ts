@@ -14334,7 +14334,16 @@ export class ContenteventsController {
   async scorefollowrequest(iduser: string, idevent: string, namatabel: string, event: string, listchallenge: any[]) {
     await this.contenteventsService.scorefollowrequest(iduser, idevent, namatabel, event, listchallenge)
   }
+  async scoreunlikerequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string, listchallenge: any[], postType: string, created_At: string, saleAmount: number) {
+    await this.contenteventsService.scoreunlikerequestnew(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge,postType,created_At,saleAmount)
+  }
+  async scorelikerequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string, listchallenge: any[], postType: string, created_At: string, saleAmount: number) {
+    await this.contenteventsService.scorelikerequestnew(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge,postType,created_At,saleAmount)
+  }
 
+  async scoreviewrequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string, listchallenge: any[], postType: string, created_At: string, saleAmount: number) {
+    await this.contenteventsService.scoreviewrequestnew(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge,postType,created_At,saleAmount)
+  }
   async scoreunfollowrequest(iduser: string, idevent: string, namatabel: string, event: string, listchallenge: any[]) {
     await this.contenteventsService.scoreunfollowrequest(iduser, idevent, namatabel, event, listchallenge)
   }
