@@ -1810,6 +1810,61 @@ export class TransactionsV2Service {
                 }
             },
             {
+                "$lookup": {
+                    from: "transactionsCategorys",
+                    as: "coa",
+                    let: {
+                        localID: "$product",
+                        cat: '$category'
+                    },
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $and:
+                                    [
+                                        {
+                                            $expr: {
+                                                $eq: ['$_id', '$$cat']
+                                            }
+                                        },
+
+                                    ]
+                            }
+                        },
+                        {
+                            $set: {
+                                kecoa: {
+                                    $arrayElemAt: ['$type', {
+                                        $indexOfArray: ['$type.idProduct', '$$localID']
+                                    }]
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                index: {
+                                    $indexOfArray: ['$type.idProduct', '$$localID']
+                                },
+                                coa: {
+                                    $arrayElemAt: ['$type.name', {
+                                        $indexOfArray: ['$type.idProduct', '$$localID']
+                                    }]
+                                },
+                                coaDetailName: {
+                                    $arrayElemAt: ['$kecoa.transaction.name', 0]
+                                },
+                                coaDetailStatus: {
+                                    $arrayElemAt: ['$kecoa.transaction.status', 0]
+                                },
+                            }
+                        }
+                    ],
+
+                },
+
+            },
+            {
                 $project: {
                     "type": 1,
                     "idTransaction": 1,
@@ -1851,6 +1906,15 @@ export class TransactionsV2Service {
                     },
                     "namePaket": {
                         $arrayElemAt: ['$dataproduk.name', 0]
+                    },
+                    coa: {
+                        $arrayElemAt: ["$coa.coa", 0]
+                    },
+                    coaDetailName: {
+                        $arrayElemAt: ["$coa.coaDetailName", 0]
+                    },
+                    coaDetailStatus: {
+                        $arrayElemAt: ["$coa.coaDetailStatus", 0]
                     },
                     "post_id": {
                         $ifNull: [{ $arrayElemAt: ['$detail.postID', 0] }, "-"]
@@ -2006,6 +2070,9 @@ export class TransactionsV2Service {
                     recipientUser: {
                         $ifNull: [{ $arrayElemAt: ['$datawithdraw.idUser', 0] }, "-"]
                     },
+                    coa: 1,
+                    coaDetailName: 1,
+                    coaDetailStatus: 1
                 }
             },
             {
@@ -2146,6 +2213,9 @@ export class TransactionsV2Service {
                     recipientBankId: {
                         $arrayElemAt: ['$recipientaccdata.idBank', 0]
                     },
+                    coa: 1,
+                    coaDetailName: 1,
+                    coaDetailStatus: 1
                 }
             },
             {
@@ -2238,7 +2308,7 @@ export class TransactionsV2Service {
                     "mobileBanking": {
                         $arrayElemAt: ['$databank.mobileBanking', 0]
                     },
-                    "jenisTransaksi": "Pembelian Coins",
+                    // "jenisTransaksi": "Pembelian Coins",
                     "post_id": 1,
                     "post_type": 1,
                     "credit": 1,
@@ -2254,7 +2324,10 @@ export class TransactionsV2Service {
                     recipientUsername: 1,
                     recipientBankName: {
                         $arrayElemAt: ['$datarecipientbank.bankname', 0]
-                    }
+                    },
+                    coa: 1,
+                    coaDetailName: 1,
+                    coaDetailStatus: 1
                 }
             },
 
