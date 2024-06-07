@@ -2558,7 +2558,7 @@ export class TransactionsController {
         var datav2 = null;
         var invoicev2 = null;
 
-        if (idDiscount !== undefined) {
+        if (idDiscount !== undefined && idDiscount !==null) {
             arrDiskon = [idDiscount];
             try {
                 dataDiskon = await this.MonetizenewService.findByid(idDiscount);
@@ -2591,6 +2591,8 @@ export class TransactionsController {
                 }
 
             }
+        }else{
+            arrDiskon = [];
         }
         try {
 
@@ -2801,7 +2803,8 @@ export class TransactionsController {
                                 throw new BadRequestException("Not process..!");
 
                             }
-                            arrDiskon = [idDiscount];
+                          
+                    
                             detailtrv2 = [
                                 {
                                     "biayPG": valAdminOy,
@@ -3041,7 +3044,7 @@ export class TransactionsController {
                             throw new BadRequestException("Not process..!");
 
                         }
-                        arrDiskon = [idDiscount];
+                        
                         detailtrv2 = [
                             {
                                 "biayPG": valAdminOy,
@@ -3242,10 +3245,6 @@ export class TransactionsController {
                 else {
                     throw new BadRequestException("stock habis");
                 }
-
-
-
-
 
 
             }
