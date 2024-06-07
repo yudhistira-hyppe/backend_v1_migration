@@ -3500,7 +3500,11 @@ export class TransactionsController {
                     }
 
                         // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
+                        try{
                         await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, dUser);
+                        }catch(e){
+
+                        }
 
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                     return res.status(HttpStatus.OK).json({
