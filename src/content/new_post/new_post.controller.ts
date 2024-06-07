@@ -5137,7 +5137,7 @@ export class NewPostController {
         Posttask_.createdAt = createdAt;
         Posttask_.updatedAt = createdAt;
         Posttask_.postType = postType;
-        Posttask_.contentModeration = contentModeration;
+        Posttask_.contentModeration = false;
         Posttask_.reportedStatus = reportedStatus;
         Posttask_.visibility = visibility;
         Posttask_.activeContent = activeContent;
