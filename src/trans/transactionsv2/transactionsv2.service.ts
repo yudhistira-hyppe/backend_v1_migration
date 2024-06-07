@@ -1901,6 +1901,9 @@ export class TransactionsV2Service {
                     "withdrawId": {
                         $ifNull: [{ $arrayElemAt: ['$detail.withdrawId', 0] }, "-"]
                     },
+                    "typeAdsID": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
+                    },
                     "code": {
                         $arrayElemAt: ['$dataproduk.code', 0]
                     },
@@ -1961,6 +1964,14 @@ export class TransactionsV2Service {
                     localField: "withdrawId",
                     foreignField: "_id",
                     as: "datawithdraw"
+                }
+            },
+            {
+                $lookup: {
+                    from: "adstypes",
+                    localField: "typeAdsID",
+                    foreignField: "_id",
+                    as: "dataAdsType"
                 }
             },
             {
@@ -2072,7 +2083,10 @@ export class TransactionsV2Service {
                     },
                     coa: 1,
                     coaDetailName: 1,
-                    coaDetailStatus: 1
+                    coaDetailStatus: 1,
+                    adType: {
+                        $ifNull: [{ $arrayElemAt: ['$dataAdsType.nameType', 0] }, "-"]
+                    }
                 }
             },
             {
@@ -2215,7 +2229,8 @@ export class TransactionsV2Service {
                     },
                     coa: 1,
                     coaDetailName: 1,
-                    coaDetailStatus: 1
+                    coaDetailStatus: 1,
+                    adType: 1
                 }
             },
             {
@@ -2327,7 +2342,8 @@ export class TransactionsV2Service {
                     },
                     coa: 1,
                     coaDetailName: 1,
-                    coaDetailStatus: 1
+                    coaDetailStatus: 1,
+                    adType: 1
                 }
             },
 
