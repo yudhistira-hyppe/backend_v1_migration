@@ -3869,6 +3869,7 @@ export class TransactionsController {
         var idtransaksi = null;
         var expired = null;
         var status = null;
+        var datenow = new Date(Date.now());
         const messages = {
             "info": ["The process successful"],
         };
@@ -3877,6 +3878,24 @@ export class TransactionsController {
             noinvoice = request_json["noinvoice"];
             try {
                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+                if (data.expiredtimeva && data.status && data.idtr_lama) {
+                    let expiredtimeva = data.expiredtimeva;
+                    status = data.status;
+                    idtransaksi = data.idtr_lama;
+
+                    let expiredvanew = new Date(expiredtimeva);
+                    expiredvanew.setHours(expiredvanew.getHours() - 7);
+                    if (status == "WAITING_PAYMENT") {
+                        if (datenow > expiredvanew) {
+                            try {
+                                await this.transactionsService.updatecancel(idtransaksi);
+                                data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+                            } catch (e) {
+
+                            }
+                        }
+                    }
+                }
                 return { response_code: 202, data, messages };
             } catch (e) {
                 data = null;

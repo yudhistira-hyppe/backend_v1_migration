@@ -2023,7 +2023,7 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$datatr.paymentmethod', 0]
                     },
                     "status": {
-                        $arrayElemAt: ['$datatr.status', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datatr.status', 0] }, null]
                     },
                     "description": {
                         $arrayElemAt: ['$datatr.description', 0]
@@ -2038,7 +2038,10 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$datatr.product_id', 0]
                     },
                     "expiredtimeva": {
-                        $arrayElemAt: ['$datatr.expiredtimeva', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datatr.expiredtimeva', 0] }, null]
+                    },
+                    "idtr_lama": {
+                        $ifNull: [{ $arrayElemAt: ['$datatr._id', 0] }, null]
                     },
                     "post_id": 1,
                     "post_type": {
@@ -2218,6 +2221,7 @@ export class TransactionsV2Service {
                     "totalamount": 1,
                     "product_id": 1,
                     "expiredtimeva": 1,
+                    "idtr_lama": 1,
                     "methodename": {
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
@@ -2312,6 +2316,7 @@ export class TransactionsV2Service {
                     "updatedAt": 1,
                     "va_number": 1,
                     "expiredtimeva": 1,
+                    "idtr_lama": 1,
                     "transactionFees": 1,
                     "biayPG": 1,
                     "code": 1,
