@@ -2557,6 +2557,10 @@ export class TransactionsController {
         var arrDiskon = [];
         var datav2 = null;
         var invoicev2 = null;
+        var languages = null;
+        var idlanguages = null;
+        var datalanguage =null;
+        var langIso = null;
 
         if (idDiscount !== undefined && idDiscount !==null) {
             arrDiskon = [idDiscount];
@@ -3261,6 +3265,19 @@ export class TransactionsController {
             var datainsight = null;
             dUser = await this.basic2SS.findBymail(email);
 
+            try {
+                languages = dUser.languages;
+                idlanguages = languages.oid.toString();
+                datalanguage = await this.languagesService.findOne(idlanguages)
+                langIso = datalanguage.langIso;
+            } catch (e) {
+                languages = null;
+                idlanguages = "";
+                datalanguage = null;
+                langIso = "";
+            }
+
+
             if (dUser !== null) {
                 idbuyer = dUser._id;
             }
@@ -3481,6 +3498,9 @@ export class TransactionsController {
                         var totalview = view + viewinsigh;
                         await this.insightsService.updatesaleview(idinsight, totalview);
                     }
+
+                        // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
+                        await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, dUser);
 
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                     return res.status(HttpStatus.OK).json({
