@@ -25,23 +25,31 @@ export class temppostDISCUSS {
     }
 
     async updateView(email: string, email_target: string, postID: string) {
-        var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
-        var setinput = {};
-        setinput['$inc'] = {
-            views: 1
-        };
-        var setCEViewer = getdata.userView;
-        setCEViewer.push(email_target);
-        setinput["$set"] = {
-            "userView": setCEViewer
-        }
-
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
+        // var setCEViewer = getdata.userView;
+        // setCEViewer.push(email_target);
+        // setinput["$set"] = {
+        //     "userView": setCEViewer
+        // }
         this.PostsModel.updateOne(
             {
                 email: email,
                 postID: postID,
             },
-            setinput,
+            {
+                "$inc":
+                {
+                    views:1
+                },
+                "$push":
+                {
+                    userView:email_target
+                }
+            },
             function (err, docs) {
                 if (err) {
                     console.log(err);
@@ -53,23 +61,32 @@ export class temppostDISCUSS {
     }
 
     async updateLike(email: string, email_target: string, postID: string) {
-        var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
-        var setinput = {};
-        setinput['$inc'] = {
-            likes: 1
-        };
-        var setCELike = getdata.userLike;
-        setCELike.push(email_target);
-        setinput["$set"] = {
-            "userLike": setCELike
-        }
-
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
+        // var setCEViewer = getdata.userView;
+        // setCEViewer.push(email_target);
+        // setinput["$set"] = {
+        //     "userView": setCEViewer
+        // }
+        
         this.PostsModel.updateOne(
             {
                 email: email,
                 postID: postID,
             },
-            setinput,
+            {
+                "$inc":
+                {
+                    likes:1
+                },
+                "$push":
+                {
+                    userLike:email_target
+                }
+            },
             function (err, docs) {
                 if (err) {
                     console.log(err);
@@ -97,24 +114,33 @@ export class temppostDISCUSS {
         );
     }
 
-    async updateUnLike(email: string, email_target: string, postID: string) {
-        var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
-        var setinput = {};
-        setinput['$inc'] = {
-            likes: -1
-        };
-        var setCELike = getdata.userLike;
-        var filterdata = setCELike.filter(emaildata => emaildata != email_target);
-        setinput["$set"] = {
-            "userLike": filterdata
-        }
+    async updateUnLike(email: string, email_target: string, postID: string, array:any[]) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     likes: -1
+        // };
+        // var setCELike = getdata.userLike;
+        // var filterdata = setCELike.filter(emaildata => emaildata != email_target);
+        // setinput["$set"] = {
+        //     "userLike": filterdata
+        // }
 
         this.PostsModel.updateOne(
             {
                 email: email,
                 postID: postID,
             },
-            setinput,
+            {
+                "$inc":
+                {
+                    likes: -1
+                },
+                "$set":
+                {
+                    userLike:array
+                }
+            },
             function (err, docs) {
                 if (err) {
                     console.log(err);
@@ -124,7 +150,7 @@ export class temppostDISCUSS {
             },
         );
     }
-    
+
     async update(id: string, update: tempposts2): Promise<tempposts2> {
         let data = await this.PostsModel.findByIdAndUpdate(id, update, { new: true });
         if (!data) {
