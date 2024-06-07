@@ -2527,7 +2527,7 @@ export class TransactionsController {
         var postType = null;
         var arrDiskon = [];
         var detailtrv2 = null;
-        var PostTask_=new Posttask();
+        var PostTask_ = new Posttask();
         const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
@@ -2849,8 +2849,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.product_id = product_id;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
-                                    try
-                                    {
+                                    try {
                                         let getdata = await this.transactionsService.findOne(no);
                                         var inserttransaksi = new transactionCoin();
                                         inserttransaksi._id = new mongoose.Types.ObjectId();
@@ -2865,8 +2864,7 @@ export class TransactionsController {
 
                                         this.transCoinSS.create(inserttransaksi);
                                     }
-                                    catch(e)
-                                    {
+                                    catch (e) {
                                         console.log(e.message);
                                     }
 
@@ -3089,8 +3087,7 @@ export class TransactionsController {
                                 CreateTransactionsDto.product_id = product_id;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
 
-                                try
-                                {
+                                try {
                                     let getdata = await this.transactionsService.findOne(no);
                                     var inserttransaksi = new transactionCoin();
                                     inserttransaksi._id = new mongoose.Types.ObjectId();
@@ -3105,8 +3102,7 @@ export class TransactionsController {
 
                                     this.transCoinSS.create(inserttransaksi);
                                 }
-                                catch(e)
-                                {
+                                catch (e) {
                                     console.log(e.message);
                                 }
 
@@ -3373,18 +3369,15 @@ export class TransactionsController {
 
                 var listtransaksi = [];
                 var recordTransCOIN = null;
-                if(dttr != false)
-                {
+                if (dttr != false) {
                     var getdataresulttrans = dttr.data;
-                    for(var i = 0; i < getdataresulttrans.length; i++)
-                    {
+                    for (var i = 0; i < getdataresulttrans.length; i++) {
                         var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-                        if(checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString())
-                        {
+                        if (checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString()) {
                             recordTransCOIN = getdataresulttrans[i];
                         }
                     }
-                    
+
                     var inserttransaksi = new transactionCoin();
                     inserttransaksi._id = new mongoose.Types.ObjectId();
                     inserttransaksi.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
@@ -3454,13 +3447,13 @@ export class TransactionsController {
 
                     }
 
-                        PostTask_.email=email.toString();
-                        PostTask_.updatedAt=timedate;
-                        try{
-                            this.posttaskUpdate(postIds,PostTask_)
-                        }catch(e){
-            
-                        }
+                    PostTask_.email = email.toString();
+                    PostTask_.updatedAt = timedate;
+                    try {
+                        this.posttaskUpdate(postIds, PostTask_)
+                    } catch (e) {
+
+                    }
 
                     try {
                         await this.posts2SS.noneActiveAllDiscusnew(postIds);
@@ -3636,18 +3629,15 @@ export class TransactionsController {
 
                     var listtransaksi = [];
                     var recordTransCOIN = null;
-                    if(dttr != false)
-                    {
+                    if (dttr != false) {
                         var getdataresulttrans = dttr.data;
-                        for(var i = 0; i < getdataresulttrans.length; i++)
-                        {
+                        for (var i = 0; i < getdataresulttrans.length; i++) {
                             var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-                            if(checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString())
-                            {
+                            if (checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString()) {
                                 recordTransCOIN = getdataresulttrans[i];
                             }
                         }
-                        
+
                         var inserttransaksi = new transactionCoin();
                         inserttransaksi._id = new mongoose.Types.ObjectId();
                         inserttransaksi.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
@@ -3656,7 +3646,7 @@ export class TransactionsController {
                         inserttransaksi.status = "SUCCESS";
                         inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
                         inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
-    
+
                         this.transCoinSS.create(inserttransaksi);
 
                         var inserttransaksi2 = new TransactionsCredits();
@@ -5116,15 +5106,13 @@ export class TransactionsController {
                             }
 
                             // update transaction coin
-                            try
-                            {
+                            try {
                                 var updateTrans = new transactionCoin();
                                 updateTrans.status = "SUCCESS";
                                 updateTrans.updatedAt = await this.utilsService.getDateTimeString();
                                 await this.transCoinSS.updateByIdTrans(idtransaction.toString(), updateTrans);
                             }
-                            catch(e)
-                            {
+                            catch (e) {
                                 console.log(e.message);
                             }
                         }
@@ -21147,6 +21135,7 @@ export class TransactionsController {
             let updateTrans = null;
             let dataTrans = await this.TransactionsV2Service.findOneByIdTransAndType(request_json.idTransaction, "USER");
             let detailTrans = dataTrans.detail[0];
+            let latestDetail = dataTrans.detail[dataTrans.detail.length - 1];
             // console.log("detailTrans:", detailTrans);
             let withdrawId = detailTrans.withdrawId;
             // console.log("withdrawId:", withdrawId.toString());
@@ -21156,7 +21145,7 @@ export class TransactionsController {
             // console.log("userBankAccData:", userBankAccData);
             let bankData = await this.banksService.findOne(userBankAccData.idBank.toString());
             let userBasicData = await this.basic2SS.findOne(userBankAccData.userId.toString());
-            if (detailTrans.response && detailTrans.response.status.code == "101") {
+            if (latestDetail.response && (latestDetail.response.status.code == "101" || latestDetail.response.status.code == "102" || latestDetail.response.status.code == "301")) {
                 let partnerTrxid = withdrawData.partnerTrxid;
                 let reqinfo = new OyDisbursementStatus2();
                 reqinfo.partner_trx_id = partnerTrxid;
@@ -21228,6 +21217,7 @@ export class TransactionsController {
                     //     "description": `Penukaran coin sedang diproses`
                     // });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "IN PROGRESS", detail: detailTrans });
+                    updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "PENDING", detailTrans);
                     let data = {
                         "idUser": withdrawData.idUser,
                         "amount": withdrawData.amount,
@@ -21262,6 +21252,7 @@ export class TransactionsController {
                     let dtb = dtburs.toISOString();
 
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "PENDING", detail: detailTrans });
+                    updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "PENDING", detailTrans);
                     let data = {
                         "idUser": withdrawData.idUser,
                         "amount": withdrawData.amount,
@@ -21422,6 +21413,7 @@ export class TransactionsController {
                         //     "description": `Penukaran coin sedang diproses`
                         // });
                         // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "IN PROGRESS", detail: detailTrans });
+                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "PENDING", detailTrans);
                         let data = {
                             "idUser": withdrawData.idUser,
                             "amount": withdrawData.amount,
@@ -21456,6 +21448,7 @@ export class TransactionsController {
                         let dtb = dtburs.toISOString();
 
                         // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "PENDING", detail: detailTrans });
+                        updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "PENDING", detailTrans);
                         let data = {
                             "idUser": withdrawData.idUser,
                             "amount": withdrawData.amount,
@@ -21823,32 +21816,32 @@ export class TransactionsController {
         }
     }
 
-    async posttaskUpdate(postID: string,Posttask_:Posttask) {
-        var dataposttask=null;
- 
-        try{
-         dataposttask= await this.PosttaskService.findBypostID(postID);
-        }catch(e){
-         dataposttask=null;
+    async posttaskUpdate(postID: string, Posttask_: Posttask) {
+        var dataposttask = null;
+
+        try {
+            dataposttask = await this.PosttaskService.findBypostID(postID);
+        } catch (e) {
+            dataposttask = null;
         }
- 
-        if(dataposttask !==null){
-         let id=null;
- 
-         try{
-             id=dataposttask._id.toString();
-         }catch(e){
-             id=null;
-         }
-       
-         try {
-             await this.PosttaskService.update(id,Posttask_);
-         } catch (e) {
- 
-         }
+
+        if (dataposttask !== null) {
+            let id = null;
+
+            try {
+                id = dataposttask._id.toString();
+            } catch (e) {
+                id = null;
+            }
+
+            try {
+                await this.PosttaskService.update(id, Posttask_);
+            } catch (e) {
+
+            }
         }
-        
-        
-     }
+
+
+    }
 }
 

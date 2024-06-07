@@ -10292,7 +10292,7 @@ export class ContenteventsController {
     var listchallenge = null;
     // var checkexisttemppost = false;
     var uniqEvent = null;
-
+    var postType=null;
     try {
       listchallenge = request.body.listchallenge;
     } catch (e) {
@@ -10516,179 +10516,16 @@ export class ContenteventsController {
         await this.checkFriendbasedString2(userbasic1, userbasic2, "create");
       }
     }
-    //  else if (eventType == "VIEW") {
-
-    //   if (email_user !== email_receiverParty) {
-    //     var idevent1 = null;
-    //     console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW Email Not Same >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
-    //     var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
-    //     var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
-    //     if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
-    //       console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW ceck_data_DONE && ceck_data_ACCEPT = TRUE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
-    //       var _id_1 = (await this.utilsService.generateId());
-    //       var _id_2 = (await this.utilsService.generateId());
-    //       var CreateContenteventsDto1 = new CreateContenteventsDto();
-    //       CreateContenteventsDto1._id = _id_1
-    //       CreateContenteventsDto1.contentEventID = _id_1
-    //       CreateContenteventsDto1.email = email_user
-    //       CreateContenteventsDto1.eventType = "VIEW"
-    //       CreateContenteventsDto1.active = true
-    //       CreateContenteventsDto1.event = "DONE"
-    //       CreateContenteventsDto1.createdAt = current_date
-    //       CreateContenteventsDto1.updatedAt = current_date
-    //       CreateContenteventsDto1.sequenceNumber = 1
-    //       CreateContenteventsDto1.flowIsDone = true
-    //       CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
-    //       CreateContenteventsDto1.receiverParty = email_receiverParty
-    //       CreateContenteventsDto1.postID = request.body.postID
-
-    //       var CreateContenteventsDto2 = new CreateContenteventsDto();
-    //       CreateContenteventsDto2._id = _id_2
-    //       CreateContenteventsDto2.contentEventID = _id_2
-    //       CreateContenteventsDto2.email = email_receiverParty
-    //       CreateContenteventsDto2.eventType = "VIEW"
-    //       CreateContenteventsDto2.active = true
-    //       CreateContenteventsDto2.event = "ACCEPT"
-    //       CreateContenteventsDto2.createdAt = current_date
-    //       CreateContenteventsDto2.updatedAt = current_date
-    //       CreateContenteventsDto2.sequenceNumber = 1
-    //       CreateContenteventsDto2.flowIsDone = true
-    //       CreateContenteventsDto2._class = "io.melody.hyppe.content.domain.ContentEvent"
-    //       CreateContenteventsDto2.senderParty = email_user
-    //       CreateContenteventsDto2.postID = request.body.postID
-
-
-
-    //       if (await this.utilsService.ceckData(Insight_receiver)) {
-    //         var _id_receiver = (await this.utilsService.generateId());
-    //         var CreateInsightlogsDto_receiver = new CreateInsightlogsDto()
-    //         CreateInsightlogsDto_receiver._id = _id_receiver;
-    //         CreateInsightlogsDto_receiver.insightID = Insight_receiver._id;
-    //         CreateInsightlogsDto_receiver.createdAt = current_date;
-    //         CreateInsightlogsDto_receiver.updatedAt = current_date;
-    //         CreateInsightlogsDto_receiver.mate = email_user
-    //         CreateInsightlogsDto_receiver.postID = request.body.postID
-    //         CreateInsightlogsDto_receiver.eventInsight = "VIEW"
-    //         CreateInsightlogsDto_receiver._class = "io.melody.hyppe.content.domain.InsightLog"
-    //         await this.insightlogsService.create(CreateInsightlogsDto_receiver);
-
-    //         var LogInsught_receiver = Insight_receiver.insightLogs;
-    //         LogInsught_receiver.push({
-    //           $ref: 'insightlogs',
-    //           $id: _id_receiver,
-    //           $db: 'hyppe_content_db',
-    //         });
-
-    //         var CreateInsightsDto_receiver = new CreateInsightsDto()
-    //         CreateInsightsDto_receiver.insightLogs = LogInsught_receiver;
-    //         await this.insightsService.updateone(email_receiverParty, CreateInsightsDto_receiver)
-
-
-    //       }
-
-    //       try {
-    //         const resultdata1 = await this.contenteventsService.create(CreateContenteventsDto1);
-    //         idevent1 = resultdata1._id;
-    //         let event1 = resultdata1.eventType.toString();
-    //         //await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, event1, userbasic1._id);
-    //         var dataconten = await this.contenteventsService.create(CreateContenteventsDto2);
-
-    //         await this.postsService.updateView(email_receiverParty, request.body.postID);
-    //         await this.insightsService.updateViews(email_receiverParty);
-
-
-    //       } catch (error) {
-    //         var fullurl = request.get("Host") + request.originalUrl;
-    //         var timestamps_end = await this.utilsService.getDateTimeString();
-    //         var reqbody = JSON.parse(JSON.stringify(request.body));
-    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
-
-    //         await this.errorHandler.generateNotAcceptableException(
-    //           'Unabled to proceed, ' +
-    //           error,
-    //         );
-    //       }
-    //     }
-    //     else {
-
-    //       let ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEWCHALLENGE", "DONE", email_receiverParty, "", request.body.postID);
-    //       let ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEWCHALLENGE", "ACCEPT", "", email_user, request.body.postID);
-    //       if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
-
-    //         var _id_1 = (await this.utilsService.generateId());
-    //         var _id_2 = (await this.utilsService.generateId());
-    //         var CreateContenteventsDto1 = new CreateContenteventsDto();
-    //         CreateContenteventsDto1._id = _id_1
-    //         CreateContenteventsDto1.contentEventID = _id_1
-    //         CreateContenteventsDto1.email = email_user
-    //         CreateContenteventsDto1.eventType = "VIEWCHALLENGE"
-    //         CreateContenteventsDto1.active = true
-    //         CreateContenteventsDto1.event = "DONE"
-    //         CreateContenteventsDto1.createdAt = current_date
-    //         CreateContenteventsDto1.updatedAt = current_date
-    //         CreateContenteventsDto1.sequenceNumber = 1
-    //         CreateContenteventsDto1.flowIsDone = true
-    //         CreateContenteventsDto1._class = "io.melody.hyppe.content.domain.ContentEvent"
-    //         CreateContenteventsDto1.receiverParty = email_receiverParty
-    //         CreateContenteventsDto1.postID = request.body.postID
-
-    //         var CreateContenteventsDto2 = new CreateContenteventsDto();
-    //         CreateContenteventsDto2._id = _id_2
-    //         CreateContenteventsDto2.contentEventID = _id_2
-    //         CreateContenteventsDto2.email = email_receiverParty
-    //         CreateContenteventsDto2.eventType = "VIEWCHALLENGE"
-    //         CreateContenteventsDto2.active = true
-    //         CreateContenteventsDto2.event = "ACCEPT"
-    //         CreateContenteventsDto2.createdAt = current_date
-    //         CreateContenteventsDto2.updatedAt = current_date
-    //         CreateContenteventsDto2.sequenceNumber = 1
-    //         CreateContenteventsDto2.flowIsDone = true
-    //         CreateContenteventsDto2._class = "io.melody.hyppe.content.domain.ContentEvent"
-    //         CreateContenteventsDto2.senderParty = email_user
-    //         CreateContenteventsDto2.postID = request.body.postID
-
-    //         try {
-    //           var resultdata1 = await this.contenteventsService.create(CreateContenteventsDto1);
-    //           idevent1 = resultdata1._id;
-    //           var dataconten = await this.contenteventsService.create(CreateContenteventsDto2);
-
-
-    //         } catch (error) {
-    //           var fullurl = request.get("Host") + request.originalUrl;
-    //           var timestamps_end = await this.utilsService.getDateTimeString();
-    //           var reqbody = JSON.parse(JSON.stringify(request.body));
-    //           this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
-
-    //           await this.errorHandler.generateNotAcceptableException(
-    //             'Unabled to proceed, ' +
-    //             error,
-    //           );
-    //         }
-
-    //       }
-
-    //     }
-    //     if (idevent1 != null) {
-    //       try {
-    //         this.userChallengeViewv3(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty);
-    //         console.log("sukses hitung score")
-    //       } catch (e) {
-    //         console.log("gagal ngitung skor" + e)
-    //       }
-
-    //     }
-    //   }
-    //   var datapost = await this.NewpostsService.updatePostviewer(request.body.postID, email_user);
-    // } 
+   
     else if (eventType == "VIEW") {
       var prosesdata = false;
       if (email_user !== email_receiverParty) {
         var idevent1 = null;
         var idevent2 = null;
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW Email Not Same >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
-        var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
-        var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
-        if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+        // var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
+        // var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
+       // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
           console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW ceck_data_DONE && ceck_data_ACCEPT = TRUE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
           var _id_1 = (await this.utilsService.generateId());
           var _id_2 = (await this.utilsService.generateId());
@@ -10809,7 +10646,7 @@ export class ContenteventsController {
               error,
             );
           }
-        }
+        //}
 
 
         var datacek = null;
@@ -10821,9 +10658,9 @@ export class ContenteventsController {
         }
 
         if (datacek !== null) {
-          let ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEWCHALLENGE", "DONE", email_receiverParty, "", request.body.postID);
-          let ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEWCHALLENGE", "ACCEPT", "", email_user, request.body.postID);
-          if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+          // let ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEWCHALLENGE", "DONE", email_receiverParty, "", request.body.postID);
+          // let ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEWCHALLENGE", "ACCEPT", "", email_user, request.body.postID);
+         // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
             var _id_1 = (await this.utilsService.generateId());
             var _id_2 = (await this.utilsService.generateId());
             var CreateContenteventsDto1 = new CreateContenteventsDto();
@@ -10841,9 +10678,9 @@ export class ContenteventsController {
             CreateContenteventsDto1.receiverParty = email_receiverParty
             CreateContenteventsDto1.postID = request.body.postID
 
-            let uniq = null;
-            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
-            CreateContenteventsDto1.uniqEvent = uniq;
+            // let uniq = null;
+            // uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
+            // CreateContenteventsDto1.uniqEvent = uniq;
 
             var CreateContenteventsDto2 = new CreateContenteventsDto();
             CreateContenteventsDto2._id = _id_2
@@ -10860,9 +10697,9 @@ export class ContenteventsController {
             CreateContenteventsDto2.senderParty = email_user
             CreateContenteventsDto2.postID = request.body.postID
 
-            let uniq2 = null;
-            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
-            CreateContenteventsDto2.uniqEvent = uniq2;
+            // let uniq2 = null;
+            // uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
+            // CreateContenteventsDto2.uniqEvent = uniq2;
 
 
             try {
@@ -10873,6 +10710,7 @@ export class ContenteventsController {
               if (idevent1 !== null) {
                 try {
                   // this.userChallengeViewv3(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty);
+                  // this.scoreviewrequest(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty, listchallenge)
                   this.scoreviewrequest(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty, listchallenge)
                   console.log("sukses hitung score")
                 } catch (e) {
@@ -10895,7 +10733,7 @@ export class ContenteventsController {
               );
             }
 
-          }
+          //}
         }
 
 
@@ -14497,7 +14335,16 @@ export class ContenteventsController {
   async scorefollowrequest(iduser: string, idevent: string, namatabel: string, event: string, listchallenge: any[]) {
     await this.contenteventsService.scorefollowrequest(iduser, idevent, namatabel, event, listchallenge)
   }
+  async scoreunlikerequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string, listchallenge: any[], postType: string, created_At: string, saleAmount: number) {
+    await this.contenteventsService.scoreunlikerequestnew(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge,postType,created_At,saleAmount)
+  }
+  async scorelikerequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string, listchallenge: any[], postType: string, created_At: string, saleAmount: number) {
+    await this.contenteventsService.scorelikerequestnew(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge,postType,created_At,saleAmount)
+  }
 
+  async scoreviewrequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string, listchallenge: any[], postType: string, created_At: string, saleAmount: number) {
+    await this.contenteventsService.scoreviewrequestnew(idevent, namatabel, event, postID, email_user, email_receiverParty, listchallenge,postType,created_At,saleAmount)
+  }
   async scoreunfollowrequest(iduser: string, idevent: string, namatabel: string, event: string, listchallenge: any[]) {
     await this.contenteventsService.scoreunfollowrequest(iduser, idevent, namatabel, event, listchallenge)
   }

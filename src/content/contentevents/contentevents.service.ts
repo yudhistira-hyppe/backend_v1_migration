@@ -6393,7 +6393,30 @@ export class ContenteventsService {
     const data = res.data;
     return data;
   }
-
+  async scoreviewrequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string,listchallenge:any[],postType: string, createdAt: string, saleAmount: number) {
+    if(listchallenge !==undefined && listchallenge !==null){
+      listchallenge=listchallenge;
+    }else{
+      listchallenge=[];
+    }
+    var call = {
+      "idevent": idevent,
+      "namatabel": namatabel,
+      "event": event,
+      "postID": postID,
+      "email_user": email_user,
+      "email_receiverParty": email_receiverParty,
+      "listchallenge":listchallenge,
+      "postType":postType,
+      "createdAt":createdAt,
+      "saleAmount":saleAmount
+    };
+    console.log(JSON.stringify(call))
+    let config = { headers: { "Content-Type": "application/json" } };
+    const res = await this.httpService.post(this.configService.get("URL_CHALLENGE") + "api/scoreviewchallenge", call, config).toPromise();
+    const data = res.data;
+    return data;
+  }
   async scorelikerequest(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string,listchallenge:any[]) {
 
     if(listchallenge !==undefined && listchallenge !==null){
@@ -6417,6 +6440,32 @@ export class ContenteventsService {
     return data;
   }
 
+  async scorelikerequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string,listchallenge:any[],postType: string, createdAt: string, saleAmount: number) {
+
+    if(listchallenge !==undefined && listchallenge !==null){
+      listchallenge=listchallenge;
+    }else{
+      listchallenge=[];
+    }
+    var call = {
+      "idevent": idevent,
+      "namatabel": namatabel,
+      "event": event,
+      "postID": postID,
+      "email_user": email_user,
+      "email_receiverParty": email_receiverParty,
+      "listchallenge":listchallenge,
+      "postType":postType,
+      "createdAt":createdAt,
+      "saleAmount":saleAmount
+    };
+    console.log(JSON.stringify(call))
+    let config = { headers: { "Content-Type": "application/json" } };
+    const res = await this.httpService.post(this.configService.get("URL_CHALLENGE") + "api/scorelikechallenge", call, config).toPromise();
+    const data = res.data;
+    return data;
+  }
+
   async scoreunlikerequest(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string,listchallenge:any[]) {
     if(listchallenge !==undefined && listchallenge !==null){
       listchallenge=listchallenge;
@@ -6430,7 +6479,31 @@ export class ContenteventsService {
       "postID": postID,
       "email_user": email_user,
       "email_receiverParty": email_receiverParty,
-      "listchallenge":listchallenge
+      "listchallenge":listchallenge,
+    };
+    console.log(JSON.stringify(call))
+    let config = { headers: { "Content-Type": "application/json" } };
+    const res = await this.httpService.post(this.configService.get("URL_CHALLENGE") + "api/scoreunlikechallenge", call, config).toPromise();
+    const data = res.data;
+    return data;
+  }
+  async scoreunlikerequestnew(idevent: string, namatabel: string, event: string, postID: string, email_user: string, email_receiverParty: string,listchallenge:any[],postType: string, createdAt: string, saleAmount: number) {
+    if(listchallenge !==undefined && listchallenge !==null){
+      listchallenge=listchallenge;
+    }else{
+      listchallenge=[];
+    }
+    var call = {
+      "idevent": idevent,
+      "namatabel": namatabel,
+      "event": event,
+      "postID": postID,
+      "email_user": email_user,
+      "email_receiverParty": email_receiverParty,
+      "listchallenge":listchallenge,
+      "postType":postType,
+      "createdAt":createdAt,
+      "saleAmount":saleAmount
     };
     console.log(JSON.stringify(call))
     let config = { headers: { "Content-Type": "application/json" } };
