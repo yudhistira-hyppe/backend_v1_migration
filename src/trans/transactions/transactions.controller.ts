@@ -4988,7 +4988,7 @@ export class TransactionsController {
         var useridHyppe = null;
         var dataV2 = null;
         var idTransactionv2 = null;
-
+        var noInvoice2=null;
         try {
 
             datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
@@ -5116,6 +5116,7 @@ export class TransactionsController {
 
                         if (dataV2 !== null) {
                             idTransactionv2 = dataV2.idTransaction
+                            noInvoice2=dataV2.noInvoice;
                             // let Trv2 = new transactionsV2();
                             // Trv2.status = "SUCCESS";
                             try {
@@ -5151,7 +5152,7 @@ export class TransactionsController {
 
                         // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);E
 
-                        this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", idtransaction.toString(), noinvoice);
+                        this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", noInvoice2.toString(), noInvoice2);
                         return res.status(HttpStatus.OK).json({
                             response_code: 202,
                             "message": messages
