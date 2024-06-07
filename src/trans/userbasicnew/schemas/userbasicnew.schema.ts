@@ -252,6 +252,8 @@ export class Userbasicnew {
     @Prop()
     urlLink: string;
     @Prop()
+    judulLink: string;
+    @Prop()
     GiftActivation: boolean;
     @Prop()
     streamReportUser: any[];
