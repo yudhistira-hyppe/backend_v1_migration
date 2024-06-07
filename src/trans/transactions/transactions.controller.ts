@@ -2806,7 +2806,7 @@ export class TransactionsController {
                                 {
                                     "biayPG": valAdminOy,
                                     "transactionFees": valAdmin,
-                                    "amount": amount,
+                                    "amount": priceAmount,
                                     "totalDiskon": diskon,
                                     "totalAmount": amountTotal,
                                     "payload": { "va_number": nova },
@@ -3046,7 +3046,7 @@ export class TransactionsController {
                             {
                                 "biayPG": valAdminOy,
                                 "transactionFees": valAdmin,
-                                "amount": amount,
+                                "amount": priceAmount,
                                 "totalDiskon": diskon,
                                 "totalAmount": amountTotal,
                                 "payload": { "va_number": nova },
