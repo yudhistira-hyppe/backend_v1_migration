@@ -5449,6 +5449,8 @@ export class NewPostController {
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                 throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
             }
+            let total = price - (request_json.discount ? request_json.discount : 0);
+            total = (total >= 0) ? total : 0;
             let data = {
                 posttype: request_json.posttype,
                 typeBoost: request_json.type,
@@ -5456,7 +5458,7 @@ export class NewPostController {
                 dateEnd: request_json.dateEnd,
                 price: price,
                 discount: request_json.discount ? request_json.discount : 0,
-                total: price - (request_json.discount ? request_json.discount : 0),
+                total: total,
                 session: session,
                 interval: interval
             }
