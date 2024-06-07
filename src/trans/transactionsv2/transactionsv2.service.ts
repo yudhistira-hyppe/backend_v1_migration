@@ -1946,7 +1946,9 @@ export class TransactionsV2Service {
                     },
                     "boost_start": {
                         $ifNull: [{ $arrayElemAt: ['$detail.dateStart', 0] }, "-"]
-                    }
+                    },
+                    typeCategory: 1,
+                    typeUser: 1
                 }
             },
             {
@@ -2100,6 +2102,7 @@ export class TransactionsV2Service {
                     adType: {
                         $ifNull: [{ $arrayElemAt: ['$dataAdsType.nameType', 0] }, "-"]
                     },
+                    typeCategory: 1,
                     typeUser: 1
                 }
             },
@@ -2257,6 +2260,7 @@ export class TransactionsV2Service {
                     coaDetailName: 1,
                     coaDetailStatus: 1,
                     adType: 1,
+                    typeCategory: 1,
                     typeUser: 1
                 }
             },
@@ -2373,6 +2377,7 @@ export class TransactionsV2Service {
                     coaDetailName: 1,
                     coaDetailStatus: 1,
                     adType: 1,
+                    typeCategory: 1,
                     typeUser: 1
                 }
             },
