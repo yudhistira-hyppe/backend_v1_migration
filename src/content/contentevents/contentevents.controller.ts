@@ -10292,7 +10292,7 @@ export class ContenteventsController {
     var listchallenge = null;
     // var checkexisttemppost = false;
     var uniqEvent = null;
-
+    var postType=null;
     try {
       listchallenge = request.body.listchallenge;
     } catch (e) {
@@ -10523,9 +10523,9 @@ export class ContenteventsController {
         var idevent1 = null;
         var idevent2 = null;
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW Email Not Same >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
-        var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
-        var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
-        if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+        // var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEW", "DONE", email_receiverParty, "", request.body.postID);
+        // var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEW", "ACCEPT", "", email_user, request.body.postID);
+       // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
           console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive VIEW ceck_data_DONE && ceck_data_ACCEPT = TRUE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify({ postID: request.body.postID, email_user: email_user, email_receiverParty: email_receiverParty }));
           var _id_1 = (await this.utilsService.generateId());
           var _id_2 = (await this.utilsService.generateId());
@@ -10646,7 +10646,7 @@ export class ContenteventsController {
               error,
             );
           }
-        }
+        //}
 
 
         var datacek = null;
@@ -10658,9 +10658,9 @@ export class ContenteventsController {
         }
 
         if (datacek !== null) {
-          let ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEWCHALLENGE", "DONE", email_receiverParty, "", request.body.postID);
-          let ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEWCHALLENGE", "ACCEPT", "", email_user, request.body.postID);
-          if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
+          // let ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "VIEWCHALLENGE", "DONE", email_receiverParty, "", request.body.postID);
+          // let ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "VIEWCHALLENGE", "ACCEPT", "", email_user, request.body.postID);
+         // if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
             var _id_1 = (await this.utilsService.generateId());
             var _id_2 = (await this.utilsService.generateId());
             var CreateContenteventsDto1 = new CreateContenteventsDto();
@@ -10678,9 +10678,9 @@ export class ContenteventsController {
             CreateContenteventsDto1.receiverParty = email_receiverParty
             CreateContenteventsDto1.postID = request.body.postID
 
-            let uniq = null;
-            uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
-            CreateContenteventsDto1.uniqEvent = uniq;
+            // let uniq = null;
+            // uniq = await this.addUniqEvent(email_user, "VIEWCHALLENGE", "true", "DONE", email_receiverParty, request.body.postID,null);
+            // CreateContenteventsDto1.uniqEvent = uniq;
 
             var CreateContenteventsDto2 = new CreateContenteventsDto();
             CreateContenteventsDto2._id = _id_2
@@ -10697,9 +10697,9 @@ export class ContenteventsController {
             CreateContenteventsDto2.senderParty = email_user
             CreateContenteventsDto2.postID = request.body.postID
 
-            let uniq2 = null;
-            uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
-            CreateContenteventsDto2.uniqEvent = uniq2;
+            // let uniq2 = null;
+            // uniq2 = await this.addUniqEvent(email_receiverParty, "VIEWCHALLENGE", "true", "ACCEPT", email_user, request.body.postID,null);
+            // CreateContenteventsDto2.uniqEvent = uniq2;
 
 
             try {
@@ -10710,6 +10710,7 @@ export class ContenteventsController {
               if (idevent1 !== null) {
                 try {
                   // this.userChallengeViewv3(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty);
+                  // this.scoreviewrequest(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty, listchallenge)
                   this.scoreviewrequest(idevent1.toString(), "contentevents", "VIEW", request.body.postID, email_user, email_receiverParty, listchallenge)
                   console.log("sukses hitung score")
                 } catch (e) {
@@ -10732,7 +10733,7 @@ export class ContenteventsController {
               );
             }
 
-          }
+          //}
         }
 
 
