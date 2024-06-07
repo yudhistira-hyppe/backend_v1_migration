@@ -2070,8 +2070,11 @@ export class TransactionsV2Service {
                                 },
 
                             ],
-                            default: ''
+                            default: '-'
                         }
+                    },
+                    "post_owner_email": {
+                        $ifNull: [{ $arrayElemAt: ['$datapost.email', 0] }, "-"]
                     },
                     withdrawAmount: {
                         $ifNull: [{ $arrayElemAt: ['$datawithdraw.amount', 0] }, 0]
@@ -2093,7 +2096,8 @@ export class TransactionsV2Service {
                     coaDetailStatus: 1,
                     adType: {
                         $ifNull: [{ $arrayElemAt: ['$dataAdsType.nameType', 0] }, "-"]
-                    }
+                    },
+                    typeUser: 1
                 }
             },
             {
@@ -2102,6 +2106,14 @@ export class TransactionsV2Service {
                     localField: "paymentmethod",
                     foreignField: "_id",
                     as: "datamethod"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "post_owner_email",
+                    foreignField: "email",
+                    as: "datapostowner"
                 }
             },
             // {
@@ -2214,6 +2226,9 @@ export class TransactionsV2Service {
                     },
                     "post_id": 1,
                     "post_type": 1,
+                    "post_owner": {
+                        $arrayElemAt: ['$datapostowner.username', 0]
+                    },
                     "credit": 1,
                     "boost_type": 1,
                     "boost_interval": 1,
@@ -2237,7 +2252,8 @@ export class TransactionsV2Service {
                     coa: 1,
                     coaDetailName: 1,
                     coaDetailStatus: 1,
-                    adType: 1
+                    adType: 1,
+                    typeUser: 1
                 }
             },
             {
@@ -2333,6 +2349,7 @@ export class TransactionsV2Service {
                     // "jenisTransaksi": "Pembelian Coins",
                     "post_id": 1,
                     "post_type": 1,
+                    "post_owner": 1,
                     "credit": 1,
                     "boost_type": 1,
                     "boost_interval": 1,
@@ -2350,7 +2367,8 @@ export class TransactionsV2Service {
                     coa: 1,
                     coaDetailName: 1,
                     coaDetailStatus: 1,
-                    adType: 1
+                    adType: 1,
+                    typeUser: 1
                 }
             },
 
