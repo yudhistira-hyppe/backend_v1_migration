@@ -1809,14 +1809,6 @@ export class TransactionsV2Service {
                 }
             },
             {
-                $lookup: {
-                    from: "newUserBasics",
-                    localField: "idUser",
-                    foreignField: "_id",
-                    as: "databasic"
-                }
-            },
-            {
                 "$lookup": {
                     from: "transactionsCategorys",
                     as: "coa",
@@ -1969,6 +1961,47 @@ export class TransactionsV2Service {
             },
             {
                 $lookup: {
+                    from: "newUserBasics",
+                    localField: "idUser",
+                    foreignField: "_id",
+                    as: "databasic"
+                }
+            },
+            {
+                $lookup:
+                {
+
+                    from: "newUserBasics",
+                    as: "datapembeli",
+                    let: {
+                        idLocal: {
+                            "$arrayElemAt":
+                            [
+                                "$detail.pembeli", 0
+                            ]
+                        }
+                    },
+                    pipeline: [
+                        {
+                            "$match":
+                            {
+                                "$expr":
+                                {
+                                    "$eq":
+                                    [
+                                        "$$idLocal", "$_id"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$limit":1
+                        }
+                    ]
+                }
+            },
+            {
+                $lookup: {
                     from: "withdraws",
                     localField: "withdrawId",
                     foreignField: "_id",
@@ -1986,8 +2019,82 @@ export class TransactionsV2Service {
             {
                 $project: {
                     "type": 1,
-                    "emailbuyer": 1,
-                    "usernamebuyer": 1,
+                    "emailbuyer": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "usernamebuyer": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "emailseller": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "usernameseller": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            }
+                        }
+                    },
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "category": 1,
@@ -2197,6 +2304,8 @@ export class TransactionsV2Service {
                     "noInvoice": 1,
                     "emailbuyer": 1,
                     "usernamebuyer": 1,
+                    "emailseller": 1,
+                    "usernameseller": 1,
                     "category": 1,
                     "content_id": 1,
                     "product": 1,
@@ -2305,6 +2414,8 @@ export class TransactionsV2Service {
                     "category": 1,
                     "emailbuyer": 1,
                     "usernamebuyer": 1,
+                    "emailseller": 1,
+                    "usernameseller": 1,
                     "product": 1,
                     "voucherDiskon": 1,
                     "idUser": 1,

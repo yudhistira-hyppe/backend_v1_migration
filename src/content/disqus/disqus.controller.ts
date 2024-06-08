@@ -1659,7 +1659,8 @@ export class DisqusController {
                         "category": "CONTENT",
                         "tabelName": "gift",
                         "qty": 1,
-                        "amount": 0
+                        "amount": 0,
+                        "pembeli": getdatapembeli._id
                     }
                 ]
 
@@ -1709,7 +1710,6 @@ export class DisqusController {
             disqusLog = disqusLog_new;
           }
         } else {
-          console.log('masuk ke sini');
           console.log("not undefined parentID");
           var disqusLog_new = new CreateDisquslogsDto();
           disqusLog_new._id = await this.utilsService.generateId();
@@ -1817,14 +1817,14 @@ export class DisqusController {
                       "category": "CONTENT",
                       "tabelName": "gift",
                       "qty": 1,
-                      "amount": 0
+                      "amount": 0,
+                      "pembeli": getdatapembeli._id
                   }
               ]
 
               try
               {
                 var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
-                console.log(resultdata);
                 var listtransaksi = [];
                 if(resultdata != false)
                 {
