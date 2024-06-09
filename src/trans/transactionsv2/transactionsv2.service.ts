@@ -1777,14 +1777,6 @@ export class TransactionsV2Service {
                 }
             },
             {
-                $lookup: {
-                    from: "newUserBasics",
-                    localField: "idUser",
-                    foreignField: "_id",
-                    as: "databasic"
-                }
-            },
-            {
                 "$lookup": {
                     from: "transactionsCategorys",
                     as: "coa",
@@ -1914,7 +1906,9 @@ export class TransactionsV2Service {
                     },
                     "boost_start": {
                         $ifNull: [{ $arrayElemAt: ['$detail.dateStart', 0] }, "-"]
-                    }
+                    },
+                    typeCategory: 1,
+                    typeUser: 1
                 }
             },
             {
@@ -1931,6 +1925,47 @@ export class TransactionsV2Service {
                     localField: "post_id",
                     foreignField: "postID",
                     as: "datapost"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "idUser",
+                    foreignField: "_id",
+                    as: "databasic"
+                }
+            },
+            {
+                $lookup:
+                {
+
+                    from: "newUserBasics",
+                    as: "datapembeli",
+                    let: {
+                        idLocal: {
+                            "$arrayElemAt":
+                            [
+                                "$detail.pembeli", 0
+                            ]
+                        }
+                    },
+                    pipeline: [
+                        {
+                            "$match":
+                            {
+                                "$expr":
+                                {
+                                    "$eq":
+                                    [
+                                        "$$idLocal", "$_id"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$limit":1
+                        }
+                    ]
                 }
             },
             {
@@ -1952,8 +1987,82 @@ export class TransactionsV2Service {
             {
                 $project: {
                     "type": 1,
-                    "emailbuyer": 1,
-                    "usernamebuyer": 1,
+                    "emailbuyer": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "usernamebuyer": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "emailseller": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "usernameseller": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            }
+                        }
+                    },
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "category": 1,
@@ -1991,7 +2100,7 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$datatr.paymentmethod', 0]
                     },
                     "status": {
-                        $arrayElemAt: ['$datatr.status', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datatr.status', 0] }, null]
                     },
                     "description": {
                         $arrayElemAt: ['$datatr.description', 0]
@@ -2006,7 +2115,10 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$datatr.product_id', 0]
                     },
                     "expiredtimeva": {
-                        $arrayElemAt: ['$datatr.expiredtimeva', 0]
+                        $ifNull: [{ $arrayElemAt: ['$datatr.expiredtimeva', 0] }, null]
+                    },
+                    "idtr_lama": {
+                        $ifNull: [{ $arrayElemAt: ['$datatr._id', 0] }, null]
                     },
                     "post_id": 1,
                     "post_type": {
@@ -2038,8 +2150,11 @@ export class TransactionsV2Service {
                                 },
 
                             ],
-                            default: ''
+                            default: '-'
                         }
+                    },
+                    "post_owner_email": {
+                        $ifNull: [{ $arrayElemAt: ['$datapost.email', 0] }, "-"]
                     },
                     withdrawAmount: {
                         $ifNull: [{ $arrayElemAt: ['$datawithdraw.amount', 0] }, 0]
@@ -2061,7 +2176,9 @@ export class TransactionsV2Service {
                     coaDetailStatus: 1,
                     adType: {
                         $ifNull: [{ $arrayElemAt: ['$dataAdsType.nameType', 0] }, "-"]
-                    }
+                    },
+                    typeCategory: 1,
+                    typeUser: 1
                 }
             },
             {
@@ -2070,6 +2187,14 @@ export class TransactionsV2Service {
                     localField: "paymentmethod",
                     foreignField: "_id",
                     as: "datamethod"
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "post_owner_email",
+                    foreignField: "email",
+                    as: "datapostowner"
                 }
             },
             // {
@@ -2147,6 +2272,8 @@ export class TransactionsV2Service {
                     "noInvoice": 1,
                     "emailbuyer": 1,
                     "usernamebuyer": 1,
+                    "emailseller": 1,
+                    "usernameseller": 1,
                     "category": 1,
                     "content_id": 1,
                     "product": 1,
@@ -2174,6 +2301,7 @@ export class TransactionsV2Service {
                     "totalamount": 1,
                     "product_id": 1,
                     "expiredtimeva": 1,
+                    "idtr_lama": 1,
                     "methodename": {
                         $arrayElemAt: ['$datamethod.methodename', 0]
                     },
@@ -2182,6 +2310,9 @@ export class TransactionsV2Service {
                     },
                     "post_id": 1,
                     "post_type": 1,
+                    "post_owner": {
+                        $arrayElemAt: ['$datapostowner.username', 0]
+                    },
                     "credit": 1,
                     "boost_type": 1,
                     "boost_interval": 1,
@@ -2205,7 +2336,9 @@ export class TransactionsV2Service {
                     coa: 1,
                     coaDetailName: 1,
                     coaDetailStatus: 1,
-                    adType: 1
+                    adType: 1,
+                    typeCategory: 1,
+                    typeUser: 1
                 }
             },
             {
@@ -2249,6 +2382,8 @@ export class TransactionsV2Service {
                     "category": 1,
                     "emailbuyer": 1,
                     "usernamebuyer": 1,
+                    "emailseller": 1,
+                    "usernameseller": 1,
                     "product": 1,
                     "voucherDiskon": 1,
                     "idUser": 1,
@@ -2264,6 +2399,7 @@ export class TransactionsV2Service {
                     "updatedAt": 1,
                     "va_number": 1,
                     "expiredtimeva": 1,
+                    "idtr_lama": 1,
                     "transactionFees": 1,
                     "biayPG": 1,
                     "code": 1,
@@ -2301,6 +2437,7 @@ export class TransactionsV2Service {
                     // "jenisTransaksi": "Pembelian Coins",
                     "post_id": 1,
                     "post_type": 1,
+                    "post_owner": 1,
                     "credit": 1,
                     "boost_type": 1,
                     "boost_interval": 1,
@@ -2318,7 +2455,9 @@ export class TransactionsV2Service {
                     coa: 1,
                     coaDetailName: 1,
                     coaDetailStatus: 1,
-                    adType: 1
+                    adType: 1,
+                    typeCategory: 1,
+                    typeUser: 1
                 }
             },
 

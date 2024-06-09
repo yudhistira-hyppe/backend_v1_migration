@@ -2557,8 +2557,12 @@ export class TransactionsController {
         var arrDiskon = [];
         var datav2 = null;
         var invoicev2 = null;
+        var languages = null;
+        var idlanguages = null;
+        var datalanguage =null;
+        var langIso = null;
 
-        if (idDiscount !== undefined) {
+        if (idDiscount !== undefined && idDiscount !==null) {
             arrDiskon = [idDiscount];
             try {
                 dataDiskon = await this.MonetizenewService.findByid(idDiscount);
@@ -2591,6 +2595,8 @@ export class TransactionsController {
                 }
 
             }
+        }else{
+            arrDiskon = [];
         }
         try {
 
@@ -2801,12 +2807,13 @@ export class TransactionsController {
                                 throw new BadRequestException("Not process..!");
 
                             }
-                            arrDiskon = [idDiscount];
+                          
+                    
                             detailtrv2 = [
                                 {
                                     "biayPG": valAdminOy,
                                     "transactionFees": valAdmin,
-                                    "amount": amount,
+                                    "amount": priceAmount,
                                     "totalDiskon": diskon,
                                     "totalAmount": amountTotal,
                                     "payload": { "va_number": nova },
@@ -3041,12 +3048,12 @@ export class TransactionsController {
                             throw new BadRequestException("Not process..!");
 
                         }
-                        arrDiskon = [idDiscount];
+                        
                         detailtrv2 = [
                             {
                                 "biayPG": valAdminOy,
                                 "transactionFees": valAdmin,
-                                "amount": amount,
+                                "amount": priceAmount,
                                 "totalDiskon": diskon,
                                 "totalAmount": amountTotal,
                                 "payload": { "va_number": nova },
@@ -3244,10 +3251,6 @@ export class TransactionsController {
                 }
 
 
-
-
-
-
             }
         }
         else if (type === "CONTENT") {
@@ -3261,6 +3264,19 @@ export class TransactionsController {
             var view = 0;
             var datainsight = null;
             dUser = await this.basic2SS.findBymail(email);
+
+            try {
+                languages = dUser.languages;
+                idlanguages = languages.oid.toString();
+                datalanguage = await this.languagesService.findOne(idlanguages)
+                langIso = datalanguage.langIso;
+            } catch (e) {
+                languages = null;
+                idlanguages = "";
+                datalanguage = null;
+                langIso = "";
+            }
+
 
             if (dUser !== null) {
                 idbuyer = dUser._id;
@@ -3482,6 +3498,13 @@ export class TransactionsController {
                         var totalview = view + viewinsigh;
                         await this.insightsService.updatesaleview(idinsight, totalview);
                     }
+
+                        // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
+                        try{
+                        await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, dUser);
+                        }catch(e){
+
+                        }
 
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                     return res.status(HttpStatus.OK).json({
@@ -3869,6 +3892,7 @@ export class TransactionsController {
         var idtransaksi = null;
         var expired = null;
         var status = null;
+        var datenow = new Date(Date.now());
         const messages = {
             "info": ["The process successful"],
         };
@@ -3877,6 +3901,24 @@ export class TransactionsController {
             noinvoice = request_json["noinvoice"];
             try {
                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+                if (data.expiredtimeva && data.status && data.idtr_lama) {
+                    let expiredtimeva = data.expiredtimeva;
+                    status = data.status;
+                    idtransaksi = data.idtr_lama;
+
+                    let expiredvanew = new Date(expiredtimeva);
+                    expiredvanew.setHours(expiredvanew.getHours() - 7);
+                    if (status == "WAITING_PAYMENT") {
+                        if (datenow > expiredvanew) {
+                            try {
+                                await this.transactionsService.updatecancel(idtransaksi);
+                                data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+                            } catch (e) {
+
+                            }
+                        }
+                    }
+                }
                 return { response_code: 202, data, messages };
             } catch (e) {
                 data = null;
@@ -4969,7 +5011,7 @@ export class TransactionsController {
         var useridHyppe = null;
         var dataV2 = null;
         var idTransactionv2 = null;
-
+        var noInvoice2=null;
         try {
 
             datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
@@ -5097,6 +5139,7 @@ export class TransactionsController {
 
                         if (dataV2 !== null) {
                             idTransactionv2 = dataV2.idTransaction
+                            noInvoice2=dataV2.noInvoice;
                             // let Trv2 = new transactionsV2();
                             // Trv2.status = "SUCCESS";
                             try {
@@ -5132,7 +5175,7 @@ export class TransactionsController {
 
                         // this.notifseller(userseller.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, event, postid, noinvoice);E
 
-                        this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", idtransaction.toString(), noinvoice);
+                        this.notifbuyerCoin(emailbuyer.toString(), titlein, titleen, bodyin, bodyen, eventType, "TOPUP_COIN", noInvoice2.toString(), noInvoice2);
                         return res.status(HttpStatus.OK).json({
                             response_code: 202,
                             "message": messages

@@ -5137,7 +5137,7 @@ export class NewPostController {
         Posttask_.createdAt = createdAt;
         Posttask_.updatedAt = createdAt;
         Posttask_.postType = postType;
-        Posttask_.contentModeration = contentModeration;
+        Posttask_.contentModeration = false;
         Posttask_.reportedStatus = reportedStatus;
         Posttask_.visibility = visibility;
         Posttask_.activeContent = activeContent;
@@ -5335,9 +5335,8 @@ export class NewPostController {
                     response = resultArray[i];
                 }
             }
-            
-            if(response != false)
-            {
+
+            if (response != false) {
                 var insertcoin = new transactionCoin();
                 insertcoin._id = new mongoose.Types.ObjectId();
                 insertcoin.idTransaction = response.idTransaction;
@@ -5450,6 +5449,8 @@ export class NewPostController {
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                 throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
             }
+            let total = price - (request_json.discount ? request_json.discount : 0);
+            total = (total >= 0) ? total : 0;
             let data = {
                 posttype: request_json.posttype,
                 typeBoost: request_json.type,
@@ -5457,7 +5458,7 @@ export class NewPostController {
                 dateEnd: request_json.dateEnd,
                 price: price,
                 discount: request_json.discount ? request_json.discount : 0,
-                total: price - (request_json.discount ? request_json.discount : 0),
+                total: total,
                 session: session,
                 interval: interval
             }
@@ -5484,6 +5485,7 @@ export class NewPostController {
         var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
         var email = auth.email;
         var request_json = JSON.parse(JSON.stringify(request.body));
+        var detail;
         const messages = {
             "info": ["The process was successful"],
         };
@@ -5516,7 +5518,6 @@ export class NewPostController {
         }
         try {
             //Generate detail
-            var detail;
             // var interval;
             // var session;
             // if (request_json.type == "automatic") {
@@ -5551,7 +5552,7 @@ export class NewPostController {
             //             'Unable to proceed: interval is required',
             //         );
             //     }
-            //     if (request_json.session.toLowerCase() == undefined) {
+            //     if (request_json.session == undefined) {
             //         var timestamps_end = await this.utilsService.getDateTimeString();
             //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
 
@@ -5561,7 +5562,7 @@ export class NewPostController {
             //     }
 
             //     //CHECK INTERVAL
-            //     interval = await this.boostIntervalService.findById(request_json.interval);
+            //     interval = await this.boostIntervalService.findById(request_json.interval._id);
             //     if (!(await this.utilsService.ceckData(interval))) {
             //         var timestamps_end = await this.utilsService.getDateTimeString();
             //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
@@ -5572,7 +5573,7 @@ export class NewPostController {
             //     }
 
             //     //CHECK SESSION
-            //     session = await this.boostSessionService.findById(request_json.session);
+            //     session = await this.boostSessionService.findById(request_json.session._id);
             //     if (!(await this.utilsService.ceckData(session))) {
             //         var timestamps_end = await this.utilsService.getDateTimeString();
             //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
@@ -5586,7 +5587,7 @@ export class NewPostController {
             //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             //     throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
             // }
-            detail = {
+            detail = [{
                 "postID": request_json.postId,
                 "typeData": "POST",
                 "discont": "0",
@@ -5599,11 +5600,10 @@ export class NewPostController {
                 "type": request_json.type,
                 "dateStart": request_json.dateStart,
                 "datedateEnd": request_json.dateEnd
-            }
+            }]
             var data;
 
-            try
-            {
+            try {
                 data = await this.transV2Service.insertTransaction(
                     request_json.platform,
                     "BP",
@@ -5617,17 +5617,14 @@ export class NewPostController {
                     request_json.idVoucher ? request_json.idVoucher : undefined,
                     detail,
                     "SUCCESS");
-                    
+
                 var listtransaksi = [];
-                if(data != false)
-                {
+                if (data != false) {
                     var responseTrans = null;
                     var getdataresulttrans = data.data;
-                    for(var i = 0; i < getdataresulttrans.length; i++)
-                    {
+                    for (var i = 0; i < getdataresulttrans.length; i++) {
                         var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-                        if(checkexist == false && getdataresulttrans[i].idUser.toString() == ubasic._id.toString())
-                        {
+                        if (checkexist == false && getdataresulttrans[i].idUser.toString() == ubasic._id.toString()) {
                             listtransaksi.push(getdataresulttrans[i].idTransaction);
 
                             responseTrans = getdataresulttrans[i];
@@ -5646,10 +5643,9 @@ export class NewPostController {
                     await this.transactionCoinServices.create(insertcoin);
                 }
             }
-            catch(e)
-            {
+            catch (e) {
                 console.log(e.message);
-            } 
+            }
             // console.log("data.data[0]:", data.data[0])
             // data.transactionType = "BOOST POST";
             // data.transactionUnit = "COIN";
@@ -5708,60 +5704,65 @@ export class NewPostController {
         //         });
         //     }
         // }
+        // console.log("detail:", detail);
 
-        var GetMaxBoost = await this.utilsService.getSetting_("636212526f07000023005ce3");
-        let ContInterval = Number(detail[0].interval.value.toString()) * Number(GetMaxBoost.toString());
-        // let ContInterval = Number(databoost[0].interval.value.toString()) * Number(GetMaxBoost.toString());
+        try {
+            var GetMaxBoost = await this.utilsService.getSetting_("636212526f07000023005ce3");
+            let ContInterval = Number(detail[0].interval.value.toString()) * Number(GetMaxBoost.toString());
+            // let ContInterval = Number(databoost[0].interval.value.toString()) * Number(GetMaxBoost.toString());
 
-        var boost = [];
-        var dateStartString = (detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")
-        // var dateStartString = (databoost[0].dateStart.toString() + "T" + databoost[0].session.start.toString() + ".000Z")
-        // var dateStartDate = new Date(dateStartString)
-        // var dateStartAdd = new Date(dateStartDate.getTime() + ContInterval * 60000)
-        // var dateStartGetTime = dateStartAdd.toISOString().split('T')[1].split(".")[0]
+            var boost = [];
+            var dateStartString = (detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")
+            // var dateStartString = (databoost[0].dateStart.toString() + "T" + databoost[0].session.start.toString() + ".000Z")
+            // var dateStartDate = new Date(dateStartString)
+            // var dateStartAdd = new Date(dateStartDate.getTime() + ContInterval * 60000)
+            // var dateStartGetTime = dateStartAdd.toISOString().split('T')[1].split(".")[0]
 
-        // console.log("date String", dateStartString);
-        // console.log("date Date", new Date(dateStartString));
-        // console.log("date Add", dateStartAdd);
-        // console.log("date GetTime", dateStartGetTime);
+            // console.log("date String", dateStartString);
+            // console.log("date Date", new Date(dateStartString));
+            // console.log("date Add", dateStartAdd);
+            // console.log("date GetTime", dateStartGetTime);
 
-        var dataBoost = {
-            type: detail[0].type.toString(),
-            // type: databoost[0].type.toString(),
-            boostDate: new Date(detail[0].dateStart.toString()),
-            // boostDate: new Date(databoost[0].dateStart.toString()),
-            boostInterval: {
-                id: new mongoose.Types.ObjectId(detail[0].interval._id.toString()),
-                // id: new mongoose.Types.ObjectId(databoost[0].interval._id.toString()),
-                value: detail[0].interval.value.toString(),
-                // value: databoost[0].interval.value.toString(),
-                remark: detail[0].interval.remark.toString(),
-                // remark: databoost[0].interval.remark.toString(),
-            },
-            boostSession: {
-                id: new mongoose.Types.ObjectId(detail[0].session._id.toString()),
-                // id: new mongoose.Types.ObjectId(databoost[0].session._id.toString()),
-                //start: new Date((detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")),
-                //end: new Date((detail[0].datedateEnd.toString() + "T" + detail[0].session.end.toString() + ".000Z")),
+            var dataBoost = {
+                type: detail[0].type.toString(),
+                // type: databoost[0].type.toString(),
+                boostDate: new Date(detail[0].dateStart.toString()),
+                // boostDate: new Date(databoost[0].dateStart.toString()),
+                boostInterval: {
+                    id: new mongoose.Types.ObjectId(detail[0].interval._id.toString()),
+                    // id: new mongoose.Types.ObjectId(databoost[0].interval._id.toString()),
+                    value: detail[0].interval.value.toString(),
+                    // value: databoost[0].interval.value.toString(),
+                    remark: detail[0].interval.remark.toString(),
+                    // remark: databoost[0].interval.remark.toString(),
+                },
+                boostSession: {
+                    id: new mongoose.Types.ObjectId(detail[0].session._id.toString()),
+                    // id: new mongoose.Types.ObjectId(databoost[0].session._id.toString()),
+                    //start: new Date((detail[0].dateStart.toString() + "T" + detail[0].session.start.toString() + ".000Z")),
+                    //end: new Date((detail[0].datedateEnd.toString() + "T" + detail[0].session.end.toString() + ".000Z")),
 
-                start: (detail[0].dateStart.toString() + " " + detail[0].session.start.toString()),
-                // start: (databoost[0].dateStart.toString() + " " + databoost[0].session.start.toString()),
-                end: (detail[0].datedateEnd.toString() + " " + detail[0].session.end.toString()),
-                // end: (databoost[0].datedateEnd.toString() + " " + dateStartGetTime),
-                timeStart: detail[0].session.start,
-                // timeStart: databoost[0].session.start,
-                timeEnd: detail[0].session.end,
-                name: detail[0].session.name,
-                // name: databoost[0].session.name,
-            },
-            boostViewer: [],
+                    start: (detail[0].dateStart.toString() + " " + detail[0].session.start.toString()),
+                    // start: (databoost[0].dateStart.toString() + " " + databoost[0].session.start.toString()),
+                    end: (detail[0].datedateEnd.toString() + " " + detail[0].session.end.toString()),
+                    // end: (databoost[0].datedateEnd.toString() + " " + dateStartGetTime),
+                    timeStart: detail[0].session.start,
+                    // timeStart: databoost[0].session.start,
+                    timeEnd: detail[0].session.end,
+                    name: detail[0].session.name,
+                    // name: databoost[0].session.name,
+                },
+                boostViewer: [],
+            }
+            boost.push(dataBoost);
+            var CreateNewPostDTO_ = new CreateNewPostDTO();
+            CreateNewPostDTO_.boostCount = 0;
+            CreateNewPostDTO_.isBoost = 5;
+            CreateNewPostDTO_.boosted = boost;
+            await this.newPostService.updateByPostId(postid, CreateNewPostDTO_)
+        } catch (e) {
+            console.log(e);
         }
-        boost.push(dataBoost);
-        var CreateNewPostDTO_ = new CreateNewPostDTO();
-        CreateNewPostDTO_.boostCount = 0;
-        CreateNewPostDTO_.isBoost = 5;
-        CreateNewPostDTO_.boosted = boost;
-        await this.newPostService.updateByPostId(postid, CreateNewPostDTO_)
     }
 
 }
