@@ -60,6 +60,8 @@ export class NotificationsRead {
   statusDevices: any[]
   @Prop()
   sendNotifChallenge: string
+  @Prop([])
+  data: any[]
 }
 
 export const NotificationsReadSchema = SchemaFactory.createForClass(NotificationsRead);

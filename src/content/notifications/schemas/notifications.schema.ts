@@ -64,6 +64,8 @@ export class Notifications {
   streamId: mongoose.Types.ObjectId;
   @Prop()
   postType: String
+  @Prop([])
+  data: any[]
 }
 
 export const NotificationsSchema = SchemaFactory.createForClass(Notifications);

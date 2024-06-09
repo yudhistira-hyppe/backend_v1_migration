@@ -448,7 +448,7 @@ export class UtilsService {
   //   }
   // }
 
-  async sendFcmV2(receiverParty: string, senderParty: string, eventType: string, event: string, typeTemplate: string, postID?: string, postType?: string, idtransaction?: string, customText?: any, amount?: string, account_name?: string, trx_fee?: string) {
+  async sendFcmV2(receiverParty: string, senderParty: string, eventType: string, event: string, typeTemplate: string, postID?: string, postType?: string, idtransaction?: string, customText?: any, amount?: string, account_name?: string, trx_fee?: string, data?: any[]) {
     try {
 
       //GET DATE

@@ -884,9 +884,9 @@ export class MediastreamingController {
 
             //SET DATA USER STREAM
             let Userbasicnew_ = new Userbasicnew();
-            let _update_streamReportUser = (getUser.streamReportUser != undefined) ? getUser.streamReportUser : [];
-            _update_streamReportUser.push(dataReport)
-            Userbasicnew_.streamReportUser = _update_streamReportUser;
+            let _update_stream_report_user_history = (getUser.streamReportUserHistory != undefined) ? getUser.streamReportUserHistory : [];
+            _update_stream_report_user_history.push(dataReport)
+            Userbasicnew_.streamReportUserHistory = _update_stream_report_user_history;
 
             if (await this.utilsService.ceckData(getDataStream)) {
               if (getDataStream[0].report != undefined) {
@@ -919,22 +919,40 @@ export class MediastreamingController {
                   };
 
                   //SET DATA USER STREAM
-                  let _update_streamHystoryWarning = (getUser.streamHystoryWarning != undefined) ? getUser.streamHystoryWarning : [];
-                  _update_streamHystoryWarning.push(dataWarning)
-                  Userbasicnew_.streamHystoryWarning = _update_streamHystoryWarning;
+                  let _update_stream_warning_history = (getUser.streamWarningHistory != undefined) ? getUser.streamWarningHistory : [];
+                  _update_stream_warning_history.push(dataWarning)
+                  Userbasicnew_.streamWarningHistory = _update_stream_warning_history;
 
                   //SET DATA USER STREAM
-                  let _update_streamWarning = (getUser.streamWarning != undefined) ? getUser.streamWarning : [];
-                  _update_streamWarning.push(dataWarning)
-                  Userbasicnew_.streamWarning = _update_streamWarning;
+                  let _update_stream_warning = (getUser.streamWarning != undefined) ? getUser.streamWarning : [];
+                  _update_stream_warning.push(dataWarning)
+                  Userbasicnew_.streamWarning = _update_stream_warning;
 
                   //GET ID SETTING MAX BANNED
                   const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
                   const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
 
                   //CECK WARNING LENGTH
-                  if (_update_streamWarning.length == Number(GET_ID_SETTING_MAX_BANNED)) {
-                    this.utilsService.sendFcmV2(getUser.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_BENNED', 'LIVE_BENNED', MediastreamingDto_._id.toString(), 'LIVE_BENNED', null, null);
+                  if (_update_stream_warning.length == Number(GET_ID_SETTING_MAX_BANNED)) {
+                    let idBanned = new mongoose.Types.ObjectId();
+                    this.utilsService.sendFcmV2(getUser.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_BENNED', 'LIVE_BENNED', MediastreamingDto_._id.toString(), 'LIVE_BENNED', null, null, null, null, null, [{
+                      idBanned: idBanned,
+                      bannedDate: currentDate,
+                      userWarning: _update_stream_warning,
+                      userWarningCount: _update_stream_warning.length,
+                    }]);
+                    let dataBanned = {
+                      idBanned: idBanned,
+                      bannedDate: currentDate,
+                      userWarning: _update_stream_warning,
+                      userWarningCount: _update_stream_warning.length,
+                      status: true,
+                      appeal:[]
+                    }
+                    let _update_stream_banned_hystory = (getUser.streamBannedHistory != undefined) ? getUser.streamBannedHistory : [];
+                    _update_stream_banned_hystory.push(dataBanned)
+                    Userbasicnew_.streamBannedHistory = _update_stream_banned_hystory;
+                    
                     UserBanned = true;
                     Userbasicnew_.streamBanned = UserBanned;
                     Userbasicnew_.streamBannedDate = currentDate;
@@ -964,7 +982,7 @@ export class MediastreamingController {
                           "mediaEndpoint": getUser.mediaEndpoint
                         },
                       },
-                      totalPelanggaran: _update_streamWarning.length,
+                      totalPelanggaran: _update_stream_warning.length,
                       datePelanggaran: currentDate,
                       totalViews: getDataStream[0].view_unique.length,
                       totalShare: getDataStream[0].shareCount,
@@ -1218,12 +1236,38 @@ export class MediastreamingController {
       let _update_streamBanding = (profile.streamBanding != undefined) ? profile.streamBanding : [];
       _update_streamBanding.push(dataAppeal)
       Userbasicnew_.streamBanding = _update_streamBanding;
-      //UPDATE DATA USER STREAM
-      this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_SUBMIT', 'LIVE_APPEAL_SUBMIT', null, 'LIVE_APPEAL_SUBMIT', null, null);
-      await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
-      return await this.errorHandler.generateAcceptResponseCode(
-        "Succesfully",
-      );
+
+
+      let _update_stream_banned_history = (profile.streamBannedHistory != undefined) ? profile.streamBannedHistory : [];
+      let _update_stream_banned_history_ = _update_stream_banned_history.filter(function (el) {
+        return el.status == true;
+      });
+      let objIndex = _update_stream_banned_history.findIndex(obj => obj.status == true);
+
+      if (_update_stream_banned_history_.length==1){
+        const dataBanned = _update_stream_banned_history_[0];
+
+        let currentHistoryAppeal = [];
+        if (dataBanned.appeal!=undefined){
+          currentHistoryAppeal = _update_stream_banned_history_[0].appeal;
+        }
+        currentHistoryAppeal.push(dataAppeal)
+        dataBanned.appeal = currentHistoryAppeal;
+        _update_stream_banned_history[objIndex] = dataBanned
+
+        Userbasicnew_.streamBannedHistory = _update_stream_banned_history;
+        Userbasicnew_.streamBanding = _update_streamBanding;
+        //UPDATE DATA USER STREAM
+        this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_SUBMIT', 'LIVE_APPEAL_SUBMIT', null, 'LIVE_APPEAL_SUBMIT', null, null);
+        await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
+        return await this.errorHandler.generateAcceptResponseCode(
+          "Succesfully",
+        );
+      } else {
+        await this.errorHandler.generateNotAcceptableException(
+          'Unabled to proceed',
+        );
+      }
     } catch(e){
       await this.errorHandler.generateNotAcceptableException(
         'Unabled to proceed',
