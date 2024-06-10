@@ -715,6 +715,7 @@ export class NewpostService {
                     "stiker": 1,
                     "email": 1,
                     "postType": 1,
+                    mediaSource:1,
                     "description": 1,
                     "active": 1,
                     "createdAt": 1,
@@ -814,6 +815,7 @@ export class NewpostService {
                         {
                             "mediaEndpoint": "$mediaEndpoint",
                             "postID": "$postID",
+                            mediaSource:"$mediaSource",
                             "stiker": "$stiker",
                             "musicTitle": "$musicTitle",
                             "artistName": "$artistName",

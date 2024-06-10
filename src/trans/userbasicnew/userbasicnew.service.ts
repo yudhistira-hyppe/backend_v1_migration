@@ -8224,7 +8224,7 @@ export class UserbasicnewService {
         return getDataUser;
     }
 
-    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string) {
+    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string, productName?: string, order_by?: boolean) {
         let matchAnd = [];
         matchAnd.push(
             {
@@ -8518,11 +8518,49 @@ export class UserbasicnewService {
                     path: "$trans"
                 }
             },
-            {
-                $sort: {
-                    createdAt: - 1
+        )
+        if (productName && productName !== undefined) {
+            pipeline.push({
+                "$match": {
+                    "trans.transOld.packageName": {
+                        "$regex": productName,
+                        "$options": "i"
+                    }
                 }
-            },
+            })
+        }
+
+        if (order_by && order_by !== undefined) {
+            if (order_by == true) {
+                pipeline.push(
+                    {
+                        $sort: {
+                            "trans.createdAt": - 1
+                        }
+                    }
+                );
+            }
+            else {
+                pipeline.push(
+                    {
+                        $sort: {
+                            "trans.createdAt": 1
+                        }
+                    }
+                );
+            }
+        }
+        else {
+            pipeline.push(
+                {
+                    $sort: {
+                        "trans.createdAt": - 1
+                    }
+                }
+            );
+        }
+
+        pipeline.push(
             {
                 $project: {
                     email: 1,
@@ -8537,16 +8575,19 @@ export class UserbasicnewService {
                     createdAt: "$trans.createdAt",
                     updatedAt: "$trans.updatedAt",
                     status: "$trans.status",
+                    idTransLama: "$trans.transOld._id",
                     package: "$trans.transOld.packageName",
                     noInvoiceLama: "$trans.transOld.noinvoice",
+                    expiredtimeva: "$trans.transOld.expiredtimeva",
                     coa: "$trans.coa.coa",
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
+                    vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] }
                     // tracking: "$trans.withdrawData.tracking"
                 }
             }
-        )
+        );
         switch (activitytype) {
             case "Coins Ditambahkan":
                 pipeline.push({

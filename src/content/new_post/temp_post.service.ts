@@ -1230,6 +1230,7 @@ export class TempPOSTService {
             {
                 '$project': {
                     _id: 1,
+                    mediaSource:1,
                     streamer: {
                         $cond: {
                             if: {
@@ -2319,6 +2320,7 @@ export class TempPOSTService {
                                             ]
                                     },
                                     "postID": 1,
+                                    mediaSource: 1,
                                     urlLink: 1,
                                     judulLink: 1,
                                     "mediaEndpoint": {
@@ -3070,6 +3072,12 @@ export class TempPOSTService {
                         },
                         "musicTitle": "$musicNih.musicTitle",
                         "postID": 1,
+                        mediaSource: {
+                            "$arrayElemAt": [
+                                "$all.mediaSource",
+                                "$index"
+                            ]
+                        },
                         "urlLink": {
                             "$arrayElemAt": [
                                 "$all.urlLink",
@@ -3642,6 +3650,7 @@ export class TempPOSTService {
                         "following": 1,
                         "musicTitle": 1,
                         "postID": 1,
+                        mediaSource:1,
                         urlLink: 1,
                         judulLink: 1,
                         "artistName": 1,
@@ -4412,6 +4421,7 @@ export class TempPOSTService {
                                             ]
                                     },
                                     "postID": 1,
+                                    mediaSource:1,
                                     "urlLink": 1,
                                     "judulLink": 1,
                                     "mediaEndpoint": {
@@ -5169,6 +5179,12 @@ export class TempPOSTService {
                                 "$index"
                             ]
                         },
+                        mediaSource:{
+                            "$arrayElemAt": [
+                                "$all.mediaSource",
+                                "$index"
+                            ]
+                        },
                         "judulLink": {
                             "$arrayElemAt": [
                                 "$all.judulLink",
@@ -5736,6 +5752,7 @@ export class TempPOSTService {
                         "following": 1,
                         "musicTitle": 1,
                         "postID": 1,
+                        mediaSource:1,
                         "urlLink": 1,
                         "judulLink": 1,
                         "artistName": 1,
@@ -6500,6 +6517,7 @@ export class TempPOSTService {
                                             ]
                                     },
                                     "postID": 1,
+                                    mediaSource:1,
                                     "urlLink": 1,
                                     "judulLink": 1,
                                     "mediaEndpoint": {
@@ -7251,6 +7269,12 @@ export class TempPOSTService {
                         },
                         "musicTitle": "$musicNih.musicTitle",
                         "postID": 1,
+                        mediaSource:{
+                            "$arrayElemAt": [
+                                "$all.mediaSource",
+                                "$index"
+                            ]
+                        },
                         "urlLink": {
                             "$arrayElemAt": [
                                 "$all.urlLink",
@@ -7823,6 +7847,7 @@ export class TempPOSTService {
                         "following": 1,
                         "musicTitle": 1,
                         "postID": 1,
+                        mediaSource:1,
                         "artistName": 1,
                         "albumName": 1,
                         "apsaraMusic": 1,

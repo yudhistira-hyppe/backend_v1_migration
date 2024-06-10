@@ -48405,6 +48405,7 @@ export class NewPostService {
                 0
               ]
             },
+            mediaSource:1,
             "urlLink": 1,
             "judulLink": 1,
             "postID": 1,
@@ -49216,6 +49217,7 @@ export class NewPostService {
             urlLink: 1,
             judulLink: 1,
             postID: 1,
+            mediaSource:1,
             postType: 1,
             description: 1,
             active: 1,
@@ -49878,6 +49880,7 @@ export class NewPostService {
                 0
               ]
             },
+            mediaSource:1,
             "urlLink": 1,
             "judulLink": 1,
             "postID": 1,
@@ -50682,6 +50685,7 @@ export class NewPostService {
         {
           '$project': {
             version: { '$arrayElemAt': [ '$setting.value', 0 ] },
+            mediaSource:1,
             urlLink: 1,
             judulLink: 1,
             postID: 1,
@@ -51193,6 +51197,7 @@ export class NewPostService {
         },
         {
           '$project': {
+            mediaSource:1,
             version: { '$arrayElemAt': [ '$setting.value', 0 ] },
             urlLink: 1,
             judulLink: 1,
@@ -51894,6 +51899,7 @@ export class NewPostService {
           '$project': {
             version: { '$arrayElemAt': [ '$setting.value', 0 ] },
             urlLink: 1,
+            mediaSource:1,
             judulLink: 1,
             postID: 1,
             postType: 1,
