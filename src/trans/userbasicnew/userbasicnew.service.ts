@@ -8224,7 +8224,7 @@ export class UserbasicnewService {
         return getDataUser;
     }
 
-    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string, productName?: string, order_by?:boolean) {
+    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string, productName?: string, order_by?: boolean) {
         let matchAnd = [];
         matchAnd.push(
             {
@@ -8519,44 +8519,42 @@ export class UserbasicnewService {
                 }
             },
         )
-        if(productName && productName !== undefined) {
+        if (productName && productName !== undefined) {
             pipeline.push({
                 "$match": {
-                    "trans.transOld.packageName":{
-                        "$regex":productName,
-                        "$options":"i"
+                    "trans.transOld.packageName": {
+                        "$regex": productName,
+                        "$options": "i"
                     }
                 }
             })
         }
 
-        if(order_by && order_by !== undefined) {
-            if(order_by == true)
-            {
+        if (order_by && order_by !== undefined) {
+            if (order_by == true) {
                 pipeline.push(
                     {
                         $sort: {
-                            createdAt: - 1
+                            "trans.createdAt": - 1
                         }
                     }
                 );
             }
-            else
-            {
+            else {
                 pipeline.push(
                     {
                         $sort: {
-                            createdAt: 1
+                            "trans.createdAt": 1
                         }
                     }
                 );
             }
         }
-        else { 
+        else {
             pipeline.push(
                 {
                     $sort: {
-                        createdAt: - 1
+                        "trans.createdAt": - 1
                     }
                 }
             );
