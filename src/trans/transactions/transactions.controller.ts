@@ -21621,7 +21621,7 @@ export class TransactionsController {
                 "description_en": `Coin withdrawal request rejected with the following reason: ${request_json.remark}`,
                 "approved_by": user_data._id
             });
-            updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "FAILED", detailTrans);
+            updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "REJECTED", detailTrans);
             let data = {
                 "idUser": withdrawData.idUser,
                 "amount": withdrawData.amount,
