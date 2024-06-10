@@ -595,7 +595,7 @@ export class UserbasicnewController {
         //     throw new BadRequestException("Unabled to proceed");
         // }
 
-        var data = await this.UserbasicnewService.transaksiHistory2(email, namaproduk, startdate, enddate, tipetransaksi, true, skip);
+        var data = await this.UserbasicnewService.transaksiHistory2(email, namaproduk, startdate, enddate, tipetransaksi, true, skip, null);
 
         var setdate = new Date();
         var DateTime = new Date(setdate.getTime() - (setdate.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
@@ -630,6 +630,7 @@ export class UserbasicnewController {
         var tipetransaksi = null;
         var skip = null;
         var limit = null;
+        var orderby = null;
         var request_json = JSON.parse(JSON.stringify(request.body));
         if(request_json.namaproduk != null && request_json.namaproduk != undefined)
         {
@@ -655,7 +656,18 @@ export class UserbasicnewController {
             var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
 
-            throw new BadRequestException("Unabled to proceed");
+            throw new BadRequestException("Unabled to proceed. skip field is required");
+        }
+
+        if (request_json["descending"] !== undefined) {
+            orderby = request_json["descending"];
+        } else {
+            var setdate = new Date();
+            var DateTime = new Date(setdate.getTime() - (setdate.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+            var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+            throw new BadRequestException("Unabled to proceed. descending field is required");
         }
         // if (request_json["limit"] !== undefined) {
         //     limit = request_json["limit"];
@@ -666,7 +678,7 @@ export class UserbasicnewController {
         //     throw new BadRequestException("Unabled to proceed");
         // }
 
-        var data = await this.UserbasicnewService.transaksiHistory2(email, namaproduk, startdate, enddate, tipetransaksi, false, skip);
+        var data = await this.UserbasicnewService.transaksiHistory2(email, namaproduk, startdate, enddate, tipetransaksi, false, skip, orderby);
 
         var setdate = new Date();
         var DateTime = new Date(setdate.getTime() - (setdate.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');

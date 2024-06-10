@@ -8639,7 +8639,7 @@ export class UserbasicnewService {
         return result;
     }
 
-    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number) {
+    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number, descending:boolean) {
         var pipeline = [];
 
         pipeline.push(
@@ -8729,7 +8729,7 @@ export class UserbasicnewService {
                                 "$category",
                                 [
                                     new mongoose.Types.ObjectId("660f9095c306d245ed2c207f"),
-                                    new mongoose.Types.ObjectId("6627309656375e3a6b223091")
+                                    new mongoose.Types.ObjectId("662b16b3dc3e000022007e13")
                                 ]
                             ]
                     }
@@ -8874,13 +8874,41 @@ export class UserbasicnewService {
                     path: "$trans"
                 }
             },
-            {
-                $sort: {
-                    createdAt: - 1
-                }
-            },
         );
 
+        if(descending != null) {
+            if(descending == true)
+            {
+                pipeline.push(
+                    {
+                        $sort: {
+                            'trans.createdAt': - 1
+                        }
+                    }
+                );
+            }
+            else
+            {
+                pipeline.push(
+                    {
+                        $sort: {
+                            'trans.createdAt': 1
+                        }
+                    }
+                );
+            }
+        }        
+        else
+        {
+            pipeline.push(
+                {
+                    $sort: {
+                        'trans.createdAt': 1
+                    }
+                }
+            );
+        }
+        
         if (showtrueonly == true) {
             pipeline.push(
                 {
