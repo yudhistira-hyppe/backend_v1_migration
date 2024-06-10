@@ -2531,6 +2531,7 @@ export class TransactionsController {
         const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
         const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
+        const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
         var idppn = "62bbbe43a7520000050077a3";
         //  var idmdradmin = "62bd413ff37a00001a004369";
         var idbankvacharge = "62bd40e0f37a00001a004366";
@@ -2561,7 +2562,10 @@ export class TransactionsController {
         var idlanguages = null;
         var datalanguage = null;
         var langIso = null;
-
+        var datamaxmin=null;
+        var max=0;
+        var min=0;
+        
         if (idDiscount !== undefined && idDiscount !== null) {
             arrDiskon = [idDiscount];
             try {
@@ -2625,6 +2629,18 @@ export class TransactionsController {
         } catch (e) {
             dataadminoy = null;
             valAdminOy = null;
+        }
+
+        try {
+
+            datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
+            max = datamaxmin._doc.Max;
+            min = datamaxmin._doc.Min;
+
+        } catch (e) {
+            datamaxmin = null;
+            max = 0;
+            min=0;
         }
 
         var idmethode = null;
@@ -2755,30 +2771,273 @@ export class TransactionsController {
                     } catch (e) {
                         jmlcoin = 0;
                     }
+                    var formatmax= new Intl.NumberFormat('en-DE').format(max);
+                    var formatmin= new Intl.NumberFormat('en-DE').format(min);
+                    if(amountTotal >= min && amountTotal <= max){
+                        if (datatrpending !== null) {
 
-                    if (datatrpending !== null) {
-
-                        let cekstatusva = await this.oyPgService.staticVaInfo(datatrpending.idva);
-                        var expiredva = cekstatusva.trx_expiration_time;
-                        var dex = new Date(expiredva);
-                        dex.setHours(dex.getHours() + 7); // timestamp
-                        dex = new Date(dex);
-
-                        if (cekstatusva.va_status === "WAITING_PAYMENT") {
-                            var timestamps_end = await this.utilsService.getDateTimeString();
-                            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                            throw new BadRequestException("Tidak dapat melanjutkan. Konten ini sedang dalam proses pembelian");
+                            let cekstatusva = await this.oyPgService.staticVaInfo(datatrpending.idva);
+                            var expiredva = cekstatusva.trx_expiration_time;
+                            var dex = new Date(expiredva);
+                            dex.setHours(dex.getHours() + 7); // timestamp
+                            dex = new Date(dex);
+    
+                            if (cekstatusva.va_status === "WAITING_PAYMENT") {
+                                var timestamps_end = await this.utilsService.getDateTimeString();
+                                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    
+                                throw new BadRequestException("Tidak dapat melanjutkan. Konten ini sedang dalam proses pembelian");
+                            }
+                            else if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
+    
+                                var idtransaction = datatrpending._id;
+    
+                                // if (datenow > dateVa) {
+    
+                                var datava = {
+                                    "partner_user_id": userbuy.toString() + stringId,
+                                    "amount": amountTotal,
+                                    "bank_code": bankcode,
+                                    "is_open": false,
+                                    "is_single_use": true,
+                                    "is_lifetime": false,
+                                    "username_display": email,
+                                    "email": email,
+                                    "trx_expiration_time": valueexpiredva,
+                                }
+    
+                                try {
+                                    var datareqva = await this.oyPgService.generateStaticVa(datava);
+                                    var idva = datareqva.id;
+                                    var statuscodeva = datareqva.status.code;
+                                    var statusmessage = datareqva.status.message;
+                                    var nova = datareqva.va_number;
+                                    var expiredva = datareqva.trx_expiration_time;
+                                    var d1 = new Date(expiredva);
+                                    d1.setHours(d1.getHours() + 7); // timestamp
+                                    d1 = new Date(d1);
+    
+    
+                                } catch (e) {
+                                    var timestamps_end = await this.utilsService.getDateTimeString();
+                                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    
+                                    throw new BadRequestException("Not process..!");
+    
+                                }
+    
+    
+                                detailtrv2 = [
+                                    {
+                                        "biayPG": valAdminOy,
+                                        "transactionFees": valAdmin,
+                                        "amount": priceAmount,
+                                        "totalDiskon": diskon,
+                                        "totalAmount": amountTotal,
+                                        "payload": { "va_number": nova },
+                                        // "response": respon
+                                    }]
+    
+    
+                                if (statuscodeva == "000") {
+    
+                                    try {
+    
+                                        let cekstatusva = await this.oyPgService.staticVaInfo(idva);
+    
+                                        CreateTransactionsDto.iduserbuyer = iduser;
+                                        CreateTransactionsDto.idusersell = useridHyppe;
+                                        CreateTransactionsDto.timestamp = dt.toISOString();
+                                        CreateTransactionsDto.updatedAt = dt.toISOString();
+                                        CreateTransactionsDto.noinvoice = no;
+                                        CreateTransactionsDto.amount = priceAmount;
+                                        CreateTransactionsDto.status = cekstatusva.va_status;
+                                        CreateTransactionsDto.bank = idbank;
+                                        CreateTransactionsDto.idva = idva;
+                                        CreateTransactionsDto.nova = nova;
+                                        CreateTransactionsDto.accountbalance = null;
+                                        CreateTransactionsDto.paymentmethod = idmethode;
+                                        // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
+                                        CreateTransactionsDto.ppn = null;
+                                        CreateTransactionsDto.totalamount = amountTotal;
+                                        CreateTransactionsDto.description = "buy " + type + " pending";
+                                        CreateTransactionsDto.payload = null;
+                                        CreateTransactionsDto.expiredtimeva = d1.toISOString();
+                                        CreateTransactionsDto.detail = arrayDetail;
+                                        CreateTransactionsDto.postid = postidTR;
+                                        CreateTransactionsDto.response = datareqva;
+                                        CreateTransactionsDto.productCode = productCode;
+                                        CreateTransactionsDto.platform = platform;
+                                        CreateTransactionsDto.idDiskon = idDiscount;
+                                        CreateTransactionsDto.diskon = diskon;
+                                        CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+                                        CreateTransactionsDto.product_id = product_id;
+                                        let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
+    
+                                        try {
+                                            let getdata = await this.transactionsService.findOne(no);
+                                            var inserttransaksi = new transactionCoin();
+                                            inserttransaksi._id = new mongoose.Types.ObjectId();
+                                            inserttransaksi.idTransaction = new mongoose.Types.ObjectId(getdata._id.toString());
+                                            inserttransaksi.idUser = iduser;
+                                            let getdetail = JSON.parse(JSON.stringify(datatr.detail));
+                                            inserttransaksi.idPackage = new mongoose.Types.ObjectId(getdetail[0].id);
+                                            inserttransaksi.qty = 1;
+                                            inserttransaksi.status = "PENDING";
+                                            inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+                                            inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+    
+                                            this.transCoinSS.create(inserttransaksi);
+                                        }
+                                        catch (e) {
+                                            console.log(e.message);
+                                        }
+    
+                                        try {
+    
+                                            await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+                                        } catch (e) {
+    
+                                        }
+    
+                                        try {
+    
+                                            await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                                        } catch (e) {
+    
+                                        }
+                                        let id = null;
+                                        try {
+                                            id = datatr._id.toString();
+                                        } catch (e) {
+                                            id = null;
+                                        }
+    
+                                        try {
+                                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
+                                        } catch (e) {
+    
+                                        }
+    
+                                        try {
+                                            datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
+    
+                                        } catch (e) {
+                                            datav2 = null;
+    
+                                        }
+    
+                                        if (datav2 !== null) {
+                                            invoicev2 = datav2.noInvoice;
+                                        }
+    
+                                        try {
+                                            this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
+                                        } catch (e) {
+    
+                                        }
+                                        await this.transactionsService.updatestatuscancel(idtransaction);
+    
+    
+                                        var data = {
+                                            "noinvoice": invoicev2,
+                                            "postid": postidTR,
+                                            "idusersell": datatr.idusersell,
+                                            "NamaPenjual": namapenjual,
+                                            "iduserbuyer": datatr.iduserbuyer,
+                                            "NamaPembeli": namapembeli,
+                                            "amount": datatr.amount,
+                                            "paymentmethod": namamethode,
+                                            "status": datatr.status,
+                                            "description": datatr.description,
+                                            "idva": datatr.idva,
+                                            "nova": datatr.nova,
+                                            "expiredtimeva": datatr.expiredtimeva,
+                                            "salelike": datatr.saleview,
+                                            "saleview": datatr.salelike,
+                                            "bank": namabank,
+                                            "productCode": productCode,
+                                            "detail": arrayDetail,
+                                            "totalamount": datatr.totalamount,
+                                            "accountbalance": datatr.accountbalance,
+                                            "timestamp": datatr.timestamp,
+                                            "diskon": diskon,
+                                            "platform": platform,
+                                            "product_id": product_id,
+                                            "_id": datatr._id
+                                        };
+    
+    
+                                    } catch (e) {
+                                        var timestamps_end = await this.utilsService.getDateTimeString();
+                                        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    
+                                        return res.status(HttpStatus.BAD_REQUEST).json({
+    
+                                            "message": messagesEror + " " + e.toString()
+                                        });
+                                    }
+    
+                                    var timestamps_end = await this.utilsService.getDateTimeString();
+                                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    
+                                    return res.status(HttpStatus.OK).json({
+                                        response_code: 202,
+                                        "data": data,
+                                        "message": messages
+                                    });
+    
+                                }
+                                else {
+    
+                                    CreateTransactionsDto.iduserbuyer = iduser;
+                                    CreateTransactionsDto.idusersell = useridHyppe;
+                                    CreateTransactionsDto.timestamp = dt.toISOString();
+                                    CreateTransactionsDto.updatedAt = dt.toISOString();
+                                    CreateTransactionsDto.noinvoice = no;
+                                    CreateTransactionsDto.amount = priceAmount;
+                                    CreateTransactionsDto.status = statusmessage;
+                                    CreateTransactionsDto.bank = idbank;
+                                    CreateTransactionsDto.idva = idva;
+                                    CreateTransactionsDto.nova = nova;
+                                    CreateTransactionsDto.accountbalance = null;
+                                    CreateTransactionsDto.paymentmethod = idmethode;
+                                    CreateTransactionsDto.ppn = null;
+                                    CreateTransactionsDto.totalamount = amountTotal;
+                                    CreateTransactionsDto.description = statusmessage;
+                                    CreateTransactionsDto.payload = null;
+                                    CreateTransactionsDto.expiredtimeva = d1.toISOString();
+                                    CreateTransactionsDto.detail = arrayDetail;
+                                    CreateTransactionsDto.postid = postidTR;
+                                    CreateTransactionsDto.response = datareqva;
+                                    CreateTransactionsDto.productCode = productCode;
+                                    CreateTransactionsDto.platform = platform;
+                                    CreateTransactionsDto.idDiskon = idDiscount;
+                                    CreateTransactionsDto.diskon = diskon;
+                                    CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+                                    CreateTransactionsDto.product_id = product_id;
+                                    let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
+    
+                                    var timestamps_end = await this.utilsService.getDateTimeString();
+                                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    
+                                    return res.status(HttpStatus.BAD_REQUEST).json({
+                                        response_code: statuscodeva,
+                                        message: statusmessage
+                                    });
+    
+                                }
+    
+                            }
+    
+    
+    
                         }
-                        else if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
-
-                            var idtransaction = datatrpending._id;
-
-                            // if (datenow > dateVa) {
-
+                        else {
+    
                             var datava = {
                                 "partner_user_id": userbuy.toString() + stringId,
-                                "amount": amountTotal,
+                                "amount": totalamount,
                                 "bank_code": bankcode,
                                 "is_open": false,
                                 "is_single_use": true,
@@ -2787,7 +3046,7 @@ export class TransactionsController {
                                 "email": email,
                                 "trx_expiration_time": valueexpiredva,
                             }
-
+    
                             try {
                                 var datareqva = await this.oyPgService.generateStaticVa(datava);
                                 var idva = datareqva.id;
@@ -2798,17 +3057,16 @@ export class TransactionsController {
                                 var d1 = new Date(expiredva);
                                 d1.setHours(d1.getHours() + 7); // timestamp
                                 d1 = new Date(d1);
-
-
+    
+    
                             } catch (e) {
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
+    
                                 throw new BadRequestException("Not process..!");
-
+    
                             }
-
-
+    
                             detailtrv2 = [
                                 {
                                     "biayPG": valAdminOy,
@@ -2819,14 +3077,13 @@ export class TransactionsController {
                                     "payload": { "va_number": nova },
                                     // "response": respon
                                 }]
-
-
+    
                             if (statuscodeva == "000") {
-
+    
                                 try {
-
+    
                                     let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-
+    
                                     CreateTransactionsDto.iduserbuyer = iduser;
                                     CreateTransactionsDto.idusersell = useridHyppe;
                                     CreateTransactionsDto.timestamp = dt.toISOString();
@@ -2839,7 +3096,6 @@ export class TransactionsController {
                                     CreateTransactionsDto.nova = nova;
                                     CreateTransactionsDto.accountbalance = null;
                                     CreateTransactionsDto.paymentmethod = idmethode;
-                                    // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
                                     CreateTransactionsDto.ppn = null;
                                     CreateTransactionsDto.totalamount = amountTotal;
                                     CreateTransactionsDto.description = "buy " + type + " pending";
@@ -2855,7 +3111,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                     CreateTransactionsDto.product_id = product_id;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-
+    
                                     try {
                                         let getdata = await this.transactionsService.findOne(no);
                                         var inserttransaksi = new transactionCoin();
@@ -2868,59 +3124,59 @@ export class TransactionsController {
                                         inserttransaksi.status = "PENDING";
                                         inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
                                         inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
-
+    
                                         this.transCoinSS.create(inserttransaksi);
                                     }
                                     catch (e) {
                                         console.log(e.message);
                                     }
-
+    
                                     try {
-
+    
                                         await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
                                     } catch (e) {
-
+    
                                     }
-
+    
                                     try {
-
+    
                                         await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
                                     } catch (e) {
-
+    
                                     }
+    
                                     let id = null;
                                     try {
                                         id = datatr._id.toString();
                                     } catch (e) {
                                         id = null;
                                     }
-
+    
                                     try {
                                         await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
                                     } catch (e) {
-
+    
                                     }
-
+    
                                     try {
                                         datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
-
+    
                                     } catch (e) {
                                         datav2 = null;
-
+    
                                     }
-
+    
                                     if (datav2 !== null) {
                                         invoicev2 = datav2.noInvoice;
                                     }
-
+    
                                     try {
                                         this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
                                     } catch (e) {
-
+    
                                     }
-                                    await this.transactionsService.updatestatuscancel(idtransaction);
-
-
+    
+    
                                     var data = {
                                         "noinvoice": invoicev2,
                                         "postid": postidTR,
@@ -2948,30 +3204,26 @@ export class TransactionsController {
                                         "product_id": product_id,
                                         "_id": datatr._id
                                     };
-
-
                                 } catch (e) {
                                     var timestamps_end = await this.utilsService.getDateTimeString();
                                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
+    
                                     return res.status(HttpStatus.BAD_REQUEST).json({
-
+    
                                         "message": messagesEror + " " + e.toString()
                                     });
                                 }
-
+    
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
+    
                                 return res.status(HttpStatus.OK).json({
                                     response_code: 202,
                                     "data": data,
                                     "message": messages
                                 });
-
                             }
                             else {
-
                                 CreateTransactionsDto.iduserbuyer = iduser;
                                 CreateTransactionsDto.idusersell = useridHyppe;
                                 CreateTransactionsDto.timestamp = dt.toISOString();
@@ -2999,251 +3251,22 @@ export class TransactionsController {
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                 CreateTransactionsDto.product_id = product_id;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-
+    
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
+    
                                 return res.status(HttpStatus.BAD_REQUEST).json({
                                     response_code: statuscodeva,
                                     message: statusmessage
                                 });
-
                             }
-
+    
                         }
-
-
-
+                    }else{
+                        throw new BadRequestException("Pembayaran harus lebih dari sama dengan Rp "+formatmin+" dan kurang dari sama dengan Rp "+formatmax);
                     }
-                    else {
 
-                        var datava = {
-                            "partner_user_id": userbuy.toString() + stringId,
-                            "amount": totalamount,
-                            "bank_code": bankcode,
-                            "is_open": false,
-                            "is_single_use": true,
-                            "is_lifetime": false,
-                            "username_display": email,
-                            "email": email,
-                            "trx_expiration_time": valueexpiredva,
-                        }
-
-                        try {
-                            var datareqva = await this.oyPgService.generateStaticVa(datava);
-                            var idva = datareqva.id;
-                            var statuscodeva = datareqva.status.code;
-                            var statusmessage = datareqva.status.message;
-                            var nova = datareqva.va_number;
-                            var expiredva = datareqva.trx_expiration_time;
-                            var d1 = new Date(expiredva);
-                            d1.setHours(d1.getHours() + 7); // timestamp
-                            d1 = new Date(d1);
-
-
-                        } catch (e) {
-                            var timestamps_end = await this.utilsService.getDateTimeString();
-                            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                            throw new BadRequestException("Not process..!");
-
-                        }
-
-                        detailtrv2 = [
-                            {
-                                "biayPG": valAdminOy,
-                                "transactionFees": valAdmin,
-                                "amount": priceAmount,
-                                "totalDiskon": diskon,
-                                "totalAmount": amountTotal,
-                                "payload": { "va_number": nova },
-                                // "response": respon
-                            }]
-
-                        if (statuscodeva == "000") {
-
-                            try {
-
-                                let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-
-                                CreateTransactionsDto.iduserbuyer = iduser;
-                                CreateTransactionsDto.idusersell = useridHyppe;
-                                CreateTransactionsDto.timestamp = dt.toISOString();
-                                CreateTransactionsDto.updatedAt = dt.toISOString();
-                                CreateTransactionsDto.noinvoice = no;
-                                CreateTransactionsDto.amount = priceAmount;
-                                CreateTransactionsDto.status = cekstatusva.va_status;
-                                CreateTransactionsDto.bank = idbank;
-                                CreateTransactionsDto.idva = idva;
-                                CreateTransactionsDto.nova = nova;
-                                CreateTransactionsDto.accountbalance = null;
-                                CreateTransactionsDto.paymentmethod = idmethode;
-                                CreateTransactionsDto.ppn = null;
-                                CreateTransactionsDto.totalamount = amountTotal;
-                                CreateTransactionsDto.description = "buy " + type + " pending";
-                                CreateTransactionsDto.payload = null;
-                                CreateTransactionsDto.expiredtimeva = d1.toISOString();
-                                CreateTransactionsDto.detail = arrayDetail;
-                                CreateTransactionsDto.postid = postidTR;
-                                CreateTransactionsDto.response = datareqva;
-                                CreateTransactionsDto.productCode = productCode;
-                                CreateTransactionsDto.platform = platform;
-                                CreateTransactionsDto.idDiskon = idDiscount;
-                                CreateTransactionsDto.diskon = diskon;
-                                CreateTransactionsDto.jmlCoin = Number(jmlcoin);
-                                CreateTransactionsDto.product_id = product_id;
-                                let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-
-                                try {
-                                    let getdata = await this.transactionsService.findOne(no);
-                                    var inserttransaksi = new transactionCoin();
-                                    inserttransaksi._id = new mongoose.Types.ObjectId();
-                                    inserttransaksi.idTransaction = new mongoose.Types.ObjectId(getdata._id.toString());
-                                    inserttransaksi.idUser = iduser;
-                                    let getdetail = JSON.parse(JSON.stringify(datatr.detail));
-                                    inserttransaksi.idPackage = new mongoose.Types.ObjectId(getdetail[0].id);
-                                    inserttransaksi.qty = 1;
-                                    inserttransaksi.status = "PENDING";
-                                    inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
-                                    inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
-
-                                    this.transCoinSS.create(inserttransaksi);
-                                }
-                                catch (e) {
-                                    console.log(e.message);
-                                }
-
-                                try {
-
-                                    await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
-                                } catch (e) {
-
-                                }
-
-                                try {
-
-                                    await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                                } catch (e) {
-
-                                }
-
-                                let id = null;
-                                try {
-                                    id = datatr._id.toString();
-                                } catch (e) {
-                                    id = null;
-                                }
-
-                                try {
-                                    await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
-                                } catch (e) {
-
-                                }
-
-                                try {
-                                    datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
-
-                                } catch (e) {
-                                    datav2 = null;
-
-                                }
-
-                                if (datav2 !== null) {
-                                    invoicev2 = datav2.noInvoice;
-                                }
-
-                                try {
-                                    this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
-                                } catch (e) {
-
-                                }
-
-
-                                var data = {
-                                    "noinvoice": invoicev2,
-                                    "postid": postidTR,
-                                    "idusersell": datatr.idusersell,
-                                    "NamaPenjual": namapenjual,
-                                    "iduserbuyer": datatr.iduserbuyer,
-                                    "NamaPembeli": namapembeli,
-                                    "amount": datatr.amount,
-                                    "paymentmethod": namamethode,
-                                    "status": datatr.status,
-                                    "description": datatr.description,
-                                    "idva": datatr.idva,
-                                    "nova": datatr.nova,
-                                    "expiredtimeva": datatr.expiredtimeva,
-                                    "salelike": datatr.saleview,
-                                    "saleview": datatr.salelike,
-                                    "bank": namabank,
-                                    "productCode": productCode,
-                                    "detail": arrayDetail,
-                                    "totalamount": datatr.totalamount,
-                                    "accountbalance": datatr.accountbalance,
-                                    "timestamp": datatr.timestamp,
-                                    "diskon": diskon,
-                                    "platform": platform,
-                                    "product_id": product_id,
-                                    "_id": datatr._id
-                                };
-                            } catch (e) {
-                                var timestamps_end = await this.utilsService.getDateTimeString();
-                                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                                return res.status(HttpStatus.BAD_REQUEST).json({
-
-                                    "message": messagesEror + " " + e.toString()
-                                });
-                            }
-
-                            var timestamps_end = await this.utilsService.getDateTimeString();
-                            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                            return res.status(HttpStatus.OK).json({
-                                response_code: 202,
-                                "data": data,
-                                "message": messages
-                            });
-                        }
-                        else {
-                            CreateTransactionsDto.iduserbuyer = iduser;
-                            CreateTransactionsDto.idusersell = useridHyppe;
-                            CreateTransactionsDto.timestamp = dt.toISOString();
-                            CreateTransactionsDto.updatedAt = dt.toISOString();
-                            CreateTransactionsDto.noinvoice = no;
-                            CreateTransactionsDto.amount = priceAmount;
-                            CreateTransactionsDto.status = statusmessage;
-                            CreateTransactionsDto.bank = idbank;
-                            CreateTransactionsDto.idva = idva;
-                            CreateTransactionsDto.nova = nova;
-                            CreateTransactionsDto.accountbalance = null;
-                            CreateTransactionsDto.paymentmethod = idmethode;
-                            CreateTransactionsDto.ppn = null;
-                            CreateTransactionsDto.totalamount = amountTotal;
-                            CreateTransactionsDto.description = statusmessage;
-                            CreateTransactionsDto.payload = null;
-                            CreateTransactionsDto.expiredtimeva = d1.toISOString();
-                            CreateTransactionsDto.detail = arrayDetail;
-                            CreateTransactionsDto.postid = postidTR;
-                            CreateTransactionsDto.response = datareqva;
-                            CreateTransactionsDto.productCode = productCode;
-                            CreateTransactionsDto.platform = platform;
-                            CreateTransactionsDto.idDiskon = idDiscount;
-                            CreateTransactionsDto.diskon = diskon;
-                            CreateTransactionsDto.jmlCoin = Number(jmlcoin);
-                            CreateTransactionsDto.product_id = product_id;
-                            let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-
-                            var timestamps_end = await this.utilsService.getDateTimeString();
-                            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-
-                            return res.status(HttpStatus.BAD_REQUEST).json({
-                                response_code: statuscodeva,
-                                message: statusmessage
-                            });
-                        }
-
-                    }
+               
 
                 }
                 else {
