@@ -49,6 +49,14 @@ export class TransactionsV2Service {
         ).exec();
     }
 
+    async findWDPending(): Promise<transactionsV2[]> {
+        return this.transactionsModel.find({
+            "type": "USER",
+            "typeCategory": "WD",
+            'status': "PENDING"
+        }).exec();
+    }
+
     async findByOne(iduser: string, postid: string): Promise<transactionsV2> {
         return this.transactionsModel.findOne({
             "type": "USER",
@@ -1250,7 +1258,7 @@ export class TransactionsV2Service {
                                                                         AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(idUser);
                                                                         AdsBalaceCredit_.debet = 0;
                                                                         AdsBalaceCredit_.type = "TOPUP";
-                                                                        AdsBalaceCredit_.kredit = dataGrandTotalCredit; 
+                                                                        AdsBalaceCredit_.kredit = dataGrandTotalCredit;
                                                                         AdsBalaceCredit_.idtrans = transactionsV2_id;
                                                                         AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
                                                                         AdsBalaceCredit_.description = "BUY PAKET CREDIT";
@@ -1811,7 +1819,7 @@ export class TransactionsV2Service {
         return query[0];
     }
 
-    async getdetailtransaksinewinvoiceonly(noinvoice: string) {
+    async getdetailtransaksinewinvoiceonly(noinvoice: string, profitsharingpercent?: number) {
 
         var pipeline = [];
 
@@ -2278,6 +2286,30 @@ export class TransactionsV2Service {
                     coa: 1,
                     coaDetailName: 1,
                     coaDetailStatus: 1,
+                    "coinadminfee": {
+                        "$cond": {
+                            "if": {
+                                "$or": [
+                                    {
+                                        "$eq": [
+                                            "$coa", "Pembelian Konten"
+                                        ]
+                                    },
+                                    {
+                                        "$eq": [
+                                            "$coa", "Penjualan Konten"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "then": {
+                                "$multiply": [
+                                    "$coin", profitsharingpercent / 100
+                                ]
+                            },
+                            "else": 0
+                        }
+                    },
                     adType: {
                         $ifNull: [{ $arrayElemAt: ['$dataAdsType.nameType', 0] }, "-"]
                     },
@@ -2389,6 +2421,7 @@ export class TransactionsV2Service {
                     "idUser": 1,
                     "coinDiscount": 1,
                     "coin": 1,
+                    "coinadminfee": 1,
                     "totalCoin": 1,
                     "priceDiscont": 1,
                     "price": 1,
@@ -2502,6 +2535,7 @@ export class TransactionsV2Service {
                     "idUser": 1,
                     "coinDiscount": 1,
                     "coin": 1,
+                    "coinadminfee": 1,
                     "totalCoin": 1,
                     "priceDiscont": 1,
                     "price": 1,
