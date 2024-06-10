@@ -3419,6 +3419,19 @@ export class MediastreamingService {
     return data;
   }
 
+  async updateManyByUserId(userId: string) {
+    const currentDate = await this.utilsService.getDateTimeString();
+    const data = await this.MediastreamingModel.updateMany(
+      {
+        userId: new mongoose.Types.ObjectId(userId), 
+      },
+      {
+        $set: { status: false, endLive: currentDate }
+      }
+    );
+    return data;
+  }
+
   async updateCommentPinned(_id: string, idComment: string, pinned: boolean, updateAt: string) {
     const data = await this.MediastreamingModel.findOneAndUpdate({
       _id: new mongoose.Types.ObjectId(_id),

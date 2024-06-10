@@ -187,11 +187,6 @@ export class TransactionsV2Service {
                     }
                 }
                 if (dataTransaction.type == "HYPPE") {
-                    // let kas = 0;
-                    // let biayaPaymentGateway = 0;
-                    // let hutangSaldoCoin = 0;
-                    // let pendapatanBiayaTransaction = 0;
-                    // let pendapatanPenukaranCoin = 0;
                     idHyppe = dataTransaction.idUser;
                     if (categoryTransaction.type != undefined) {
                         if (categoryTransaction.type.length > 0) {
@@ -2088,19 +2083,19 @@ export class TransactionsV2Service {
                                     },
                                     "then": {
                                         "$arrayElemAt": [
-                                            "$datapembeli.email", 0
+                                            "$datapembeli.username", 0
                                         ]
                                     },
                                     "else": {
                                         "$arrayElemAt": [
-                                            "$databasic.email", 0
+                                            "$databasic.username", 0
                                         ]
                                     }
                                 }
                             },
                             {
                                 "$arrayElemAt": [
-                                    "$databasic.email", 0
+                                    "$databasic.username", 0
                                 ]
                             }
                         ]
@@ -2144,19 +2139,19 @@ export class TransactionsV2Service {
                                     },
                                     "then": {
                                         "$arrayElemAt": [
-                                            "$databasic.email", 0
+                                            "$databasic.username", 0
                                         ]
                                     },
                                     "else": {
                                         "$arrayElemAt": [
-                                            "$datapembeli.email", 0
+                                            "$datapembeli.username", 0
                                         ]
                                     }
                                 }
                             },
                             {
                                 "$arrayElemAt": [
-                                    "$databasic.email", 0
+                                    "$databasic.username", 0
                                 ]
                             }
                         ]
@@ -2410,6 +2405,9 @@ export class TransactionsV2Service {
                     "productName": {
                         $arrayElemAt: ['$monetdata.name', 0]
                     },
+                    "package_id": {
+                        $arrayElemAt: ['$monetdata.package_id', 0]
+                    },
                     "post_id": 1,
                     "post_type": 1,
                     "post_owner": {
@@ -2516,6 +2514,7 @@ export class TransactionsV2Service {
                     "product_id": 1,
                     "methodename": 1,
                     "productName": 1,
+                    "package_id": 1,
                     "timenow": 1,
                     "bankname": {
                         $arrayElemAt: ['$databank.bankname', 0]

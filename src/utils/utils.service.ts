@@ -806,6 +806,7 @@ export class UtilsService {
       createNotificationsDto.actionButtons = null;
       createNotificationsDto.contentEventID = null;
       createNotificationsDto.senderOrReceiverInfo = senderOrReceiverInfo;
+      createNotificationsDto.data = data;
       if (postID != undefined) {
         if (eventType == "NOTIFY_LIVE") {
           createNotificationsDto.streamId = new mongoose.Types.ObjectId(postID);

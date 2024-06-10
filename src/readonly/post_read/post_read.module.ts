@@ -13,9 +13,11 @@ import { NotificationReadService } from './notification_read.service';
 import { NotificationsRead, NotificationsReadSchema } from './schema/notifications_read.schema';
 import { NewPostModule } from 'src/content/new_post/new_post.module';
 import { UserbasicnewModule } from 'src/trans/userbasicnew/userbasicnew.module';
+import { MediastreamingModule } from 'src/content/mediastreaming/mediastreaming.module';
 
 @Module({
     imports: [
+        MediastreamingModule,
         UserbasicnewModule, 
         SettingsReadModule,
         PostsModule,
