@@ -21154,7 +21154,7 @@ export class TransactionsController {
                     "data": usertrxdata,
                     "message": messages
                 });
-            } 
+            }
             else {
                 await this.userbankaccountsService.updateonefalse(idbankaccount, "failed inquiry");
                 var timestamps_end = await this.utilsService.getDateTimeString();
@@ -21752,6 +21752,9 @@ export class TransactionsController {
             let foundExpired = false;
             var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype, request_json.productName, request_json.descending);
             for (let x of data) {
+                if (x.detail && x.detail.length > 0 && typeof x.detail[0].amount == 'string') {
+                    x.detail[0].amount = Number(x.detail[0].amount);
+                }
                 let expiredvanew = new Date(x.expiredtimeva);
                 expiredvanew.setHours(expiredvanew.getHours() - 7);
                 if (x.status == "WAITING_PAYMENT" || x.status == "PENDING") {
