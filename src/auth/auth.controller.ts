@@ -5251,7 +5251,7 @@ export class AuthController {
     }
   }
   
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
   @Post('api/user/pin/')
   async createorupdatdePin(@Body() body_, @Headers() headers, @Req() request) {
@@ -5267,16 +5267,16 @@ export class AuthController {
         'Unabled to proceed, email header is required',
       );
     }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      var fullurl = request.get("Host") + request.originalUrl;
-      var timestamps_end = await this.utilsService.getDateTimeString();
-      var reqbody = JSON.parse(JSON.stringify(body_));
-      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   var fullurl = request.get("Host") + request.originalUrl;
+    //   var timestamps_end = await this.utilsService.getDateTimeString();
+    //   var reqbody = JSON.parse(JSON.stringify(body_));
+    //   this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
 
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed, token email header not match',
-      );
-    }
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed, token email header not match',
+    //   );
+    // }
     if (body_.type == undefined) {
       var fullurl = request.get("Host") + request.originalUrl;
       var timestamps_end = await this.utilsService.getDateTimeString();
@@ -5896,7 +5896,8 @@ export class AuthController {
         } else {
           let last;
           if (user_activityevents.transitions.length > 0) {
-            last = await this.activityeventsService.findbyactivityEventID(user_email, user_activityevents[0].transitions[0].oid, type, false,);
+            console.log(user_activityevents)
+            last = await this.activityeventsService.findbyactivityEventID(user_email, user_activityevents.transitions[0].oid, type, false,);
           } else {
             last = [user_activityevents];
           }

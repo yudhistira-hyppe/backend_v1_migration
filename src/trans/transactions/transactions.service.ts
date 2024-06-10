@@ -21,6 +21,8 @@ import { Withdraws } from '../withdraws/schemas/withdraws.schema';
 import { CreateAccountbalancesDto } from '../accountbalances/dto/create-accountbalances.dto';
 import { AccountbalancesService } from '../accountbalances/accountbalances.service';
 import { timestamp } from 'rxjs';
+import { TransactionsV2Service } from '../transactionsv2/transactionsv2.service';
+import { transactionsV2 } from '../transactionsv2/schema/transactionsv2.schema';
 
 @Injectable()
 export class TransactionsService {
@@ -38,6 +40,7 @@ export class TransactionsService {
         private readonly utilsService: UtilsService,
         private readonly oyPgService: OyPgService,
         private readonly accountbalancesService: AccountbalancesService,
+        private readonly transactionsV2Service: TransactionsV2Service,
 
     ) { }
 
@@ -11163,4 +11166,93 @@ export class TransactionsService {
         const data = res.data;
         return data;
     }
+
+    // async ceckStatusDisbursementV3() {
+    //     let getwithdraws: transactionsV2[] = await this.transactionsV2Service.findWDPending();
+    //     console.log(getwithdraws);
+        
+    //     if (await this.utilsService.ceckData(getwithdraws)) {
+    //         for (let i = 0; i < getwithdraws.length; i++) {
+    //             console.log("==================================== START CECK STATUS " + getwithdraws[i].partnerTrxid + "====================================");
+    //             let OyDisbursementStatus_ = new OyDisbursementStatus();
+    //             OyDisbursementStatus_.partner_trx_id = getwithdraws[i].partnerTrxid;
+    //             console.log("PARTNER_TRX_ID " + getwithdraws[i].partnerTrxid);
+
+    //             let OyDisbursementStatusResponse_: OyDisbursementStatusResponse = await this.oyPgService.disbursementStatus(OyDisbursementStatus_);
+    //             console.log("RESPONSE " + JSON.stringify(OyDisbursementStatusResponse_));
+
+    //             let currentStatusCode = getwithdraws[i].statusCode;
+    //             let responseStatusCode = OyDisbursementStatusResponse_.status.code.toString();
+    //             console.log("CURRENT STATUS CODE ", currentStatusCode);
+    //             console.log("RESPONSE STATUS CODE ", responseStatusCode);
+    //             try {
+    //                 if (currentStatusCode != responseStatusCode) {
+    //                     console.log("STAUS ", "NOT THE SAME");
+    //                     let CreateWithdrawsDto_ = new CreateWithdrawsDto();
+    //                     CreateWithdrawsDto_.statusCode = responseStatusCode;
+    //                     if (responseStatusCode == "000") {
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                         CreateWithdrawsDto_.verified = true
+    //                         CreateWithdrawsDto_.description = "Transaction has been completed(success)";
+    //                     } else if (responseStatusCode == "300") {
+    //                         CreateWithdrawsDto_.verified = false
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                         CreateWithdrawsDto_.description = "Transaction is FAILED";
+
+    //                         let CreateAccountbalancesDto_1 = new CreateAccountbalancesDto();
+    //                         CreateAccountbalancesDto_1.iduser = getwithdraws[i].idUser;
+    //                         CreateAccountbalancesDto_1.debet = 0;
+    //                         CreateAccountbalancesDto_1.kredit = getwithdraws[i].totalamount;
+    //                         CreateAccountbalancesDto_1.type = "withdraw";
+    //                         CreateAccountbalancesDto_1.timestamp = await this.utilsService.getDateTimeISOString();
+    //                         CreateAccountbalancesDto_1.description = "FAILED TRANSACTION";
+    //                         await this.accountbalancesService.create(CreateAccountbalancesDto_1);
+
+    //                         let CreateAccountbalancesDto_2 = new CreateAccountbalancesDto();
+    //                         CreateAccountbalancesDto_2.iduser = getwithdraws[i].idUser;
+    //                         CreateAccountbalancesDto_2.debet = 0;
+    //                         CreateAccountbalancesDto_2.kredit = 6000;
+    //                         CreateAccountbalancesDto_2.type = "disbursement";
+    //                         CreateAccountbalancesDto_2.timestamp = await this.utilsService.getDateTimeISOString();
+    //                         CreateAccountbalancesDto_2.description = "FAILED TRANSACTION";
+    //                         await this.accountbalancesService.create(CreateAccountbalancesDto_2);
+    //                     } else if (responseStatusCode == "101") {
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                         CreateWithdrawsDto_.verified = false
+    //                         CreateWithdrawsDto_.description = "Transaction is Processed";
+    //                     } else if (responseStatusCode == "102") {
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                         CreateWithdrawsDto_.verified = false
+    //                         CreateWithdrawsDto_.description = "Transaction is In Progress";
+    //                     } else if (responseStatusCode == "204") {
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                         CreateWithdrawsDto_.verified = false
+    //                         CreateWithdrawsDto_.description = "Transaction do not exist(Partner Tx ID is Not Found)";
+    //                     } else if (responseStatusCode == "206") {
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                         CreateWithdrawsDto_.verified = false
+    //                         CreateWithdrawsDto_.description = "Transaction is FAILED(Partner Deposit Balance is Not Enough)";
+    //                     } else if (responseStatusCode == "301") {
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                         CreateWithdrawsDto_.verified = false
+    //                         CreateWithdrawsDto_.description = "Pending (When there is an unclear answer from Banks Network)";
+    //                     } else {
+
+    //                         CreateWithdrawsDto_.verified = false
+    //                         CreateWithdrawsDto_.description = OyDisbursementStatusResponse_.tx_status_description;
+    //                         CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+    //                     }
+    //                     await this.withdrawsService.updateoneData(getwithdraws[i]._id.toString(), CreateWithdrawsDto_, OyDisbursementStatusResponse_);
+    //                 } else {
+    //                     console.log("STATUS ", "THE SAME");
+    //                 }
+    //             } catch (e) {
+    //                 console.log("------------- ERROR " + e + " -------------");
+    //             }
+    //             console.log("==================================== END CECK STATUS ====================================");
+    //             console.log("");
+    //             console.log("");
+    //         }
+    //     }
+    // }
 }
