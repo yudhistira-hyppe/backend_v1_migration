@@ -3920,7 +3920,8 @@ export class TransactionsController {
     @UseGuards(JwtAuthGuard)
     async profiv2(@Req() request: Request): Promise<any> {
         var request_json = JSON.parse(JSON.stringify(request.body));
-
+        const profitsharingcontentmarketplacedata = await this.settingsService.findOne(process.env.ID_SETTING_PROFIT_SHARING_CONTENT_MARKETPLACE);
+        const profitsharingpercent = Number(profitsharingcontentmarketplacedata.value);
         var datatr = null;
         var noinvoice = null;
         var data = null;
@@ -3953,6 +3954,17 @@ export class TransactionsController {
                             } catch (e) {
 
                             }
+                        }
+                    }
+                    if (data.coa == "Pembelian Konten" || data.coa == "Penjualan Konten") {
+                        data.coinadminfee = data.coin * profitsharingpercent / 100;
+                        switch (data.coa) {
+                            case "Pembelian Konten":
+                                data.totalcoin = data.coin + data.coinadminfee;
+                                break;
+                            case "Penjualan Konten":
+                                data.totalcoin = data.coin - data.coinadminfee;
+                                break;
                         }
                     }
                 }
