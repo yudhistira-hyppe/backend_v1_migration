@@ -3361,7 +3361,8 @@ export class TransactionsController {
                 "discountCoin": diskon,
                 "totalAmount": amountTotal,
                 "like": salelike,
-                "view": saleview
+                "view": saleview,
+                "pembeli":idbuyer
             };
 
             arrDt.push(detailTr)
