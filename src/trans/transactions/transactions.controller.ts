@@ -2491,10 +2491,20 @@ export class TransactionsController {
         var robulan = this.romawi(numbulan);
         var rotanggal = this.romawi(numtanggal);
         var no = "INV/" + (await rotahun).toString() + "/" + (await robulan).toString() + "/" + (await rotanggal).toString() + "/" + leng;
+        var ubasic=null;
+        var iduser =null;
+        try{
+         ubasic = await this.basic2SS.findBymail(email);
+        }catch(e){
+         ubasic = null;
+        }
 
-        var ubasic = await this.basic2SS.findBymail(email);
-
-        var iduser = ubasic._id;
+        if(ubasic !==null){
+            iduser = ubasic._id;
+        }else{
+            throw new BadRequestException("User is not found...!");
+        }
+        
 
         var userbuyer = mongoose.Types.ObjectId(iduser);
 
@@ -3279,17 +3289,16 @@ export class TransactionsController {
         else if (type === "CONTENT") {
 
             let saleAmount = 0;
-            var dUser = null;
+           // var dUser = null;
             var idbuyer = null;
             let postType = null;
             var dataTr = null;
             var like = 0;
             var view = 0;
             var datainsight = null;
-            dUser = await this.basic2SS.findBymail(email);
-
+        
             try {
-                languages = dUser.languages;
+                languages = ubasic.languages;
                 idlanguages = languages.oid.toString();
                 datalanguage = await this.languagesService.findOne(idlanguages)
                 langIso = datalanguage.langIso;
@@ -3301,8 +3310,8 @@ export class TransactionsController {
             }
 
 
-            if (dUser !== null) {
-                idbuyer = dUser._id;
+            if (ubasic !== null) {
+                idbuyer = ubasic._id;
             }
 
             const messages = {
@@ -3525,7 +3534,7 @@ export class TransactionsController {
 
                     // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
                     try {
-                        await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, dUser);
+                        await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, ubasic);
                     } catch (e) {
 
                     }
@@ -3549,18 +3558,18 @@ export class TransactionsController {
         }
         else if (type === "CREDIT") {
 
-            let dUser = null;
+           
             let idbuyer = null;
             var dataTr = null;
             let datavoucher = null;
             let namapembeli = null
             let jmlcoin = 0;
 
-            dUser = await this.basic2SS.findBymail(email);
+           
 
-            if (dUser !== null) {
-                idbuyer = dUser._id;
-                namapembeli = dUser.username;
+            if (ubasic !== null) {
+                idbuyer = ubasic._id;
+                namapembeli = ubasic.username;
             }
 
             const messages = {
