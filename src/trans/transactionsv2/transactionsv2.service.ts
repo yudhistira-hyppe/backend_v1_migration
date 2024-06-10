@@ -91,7 +91,7 @@ export class TransactionsV2Service {
         const currencyCoinId = (await this.transactionsCoinSettingsService.findStatusActive())._id;
 
         //Product Id
-        let productId = null; 
+        let productId = null;
 
 
         let cost_verification = 0;
@@ -111,7 +111,7 @@ export class TransactionsV2Service {
 
         //Get Coin
         let coin = 0;
-        
+
         //Type Category
         let typeCategory = null;
 
@@ -120,11 +120,11 @@ export class TransactionsV2Service {
 
         //User Hyppe
         let idHyppe = null;
-        
+
         if (getDataTransaction.length > 0) {
             for (let uh = 0; uh < getDataTransaction.length; uh++) {
                 let debet = 0;
-                let kredit = 0; 
+                let kredit = 0;
                 let saldo = 0;
                 let insertBalanced = false;
 
@@ -174,7 +174,7 @@ export class TransactionsV2Service {
                                                                 debet = dataTransaction.coin;
                                                                 kredit = 0;
                                                                 insertBalanced = true;
-                                                            } 
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -1922,6 +1922,9 @@ export class TransactionsV2Service {
                     "typeAdsID": {
                         $ifNull: [{ $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
                     },
+                    "idStream": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.idStream', 0] }, "-"]
+                    },
                     "code": {
                         $arrayElemAt: ['$dataproduk.code', 0]
                     },
@@ -1995,9 +1998,9 @@ export class TransactionsV2Service {
                     let: {
                         idLocal: {
                             "$arrayElemAt":
-                            [
-                                "$detail.pembeli", 0
-                            ]
+                                [
+                                    "$detail.pembeli", 0
+                                ]
                         }
                     },
                     pipeline: [
@@ -2007,14 +2010,14 @@ export class TransactionsV2Service {
                                 "$expr":
                                 {
                                     "$eq":
-                                    [
-                                        "$$idLocal", "$_id"
-                                    ]
+                                        [
+                                            "$$idLocal", "$_id"
+                                        ]
                                 }
                             }
                         },
                         {
-                            "$limit":1
+                            "$limit": 1
                         }
                     ]
                 }
@@ -2033,6 +2036,14 @@ export class TransactionsV2Service {
                     localField: "typeAdsID",
                     foreignField: "_id",
                     as: "dataAdsType"
+                }
+            },
+            {
+                $lookup: {
+                    from: "mediastreaming",
+                    localField: "idStream",
+                    foreignField: "_id",
+                    as: "dataStream"
                 }
             },
             {
@@ -2264,6 +2275,10 @@ export class TransactionsV2Service {
                     adType: {
                         $ifNull: [{ $arrayElemAt: ['$dataAdsType.nameType', 0] }, "-"]
                     },
+                    idStream: 1,
+                    titleStream: {
+                        $ifNull: [{ $arrayElemAt: ['$dataStream.title', 0] }, "-"]
+                    },
                     typeCategory: 1,
                     typeUser: 1
                 }
@@ -2424,6 +2439,8 @@ export class TransactionsV2Service {
                     coaDetailName: 1,
                     coaDetailStatus: 1,
                     adType: 1,
+                    idStream: 1,
+                    titleStream: 1,
                     typeCategory: 1,
                     typeUser: 1
                 }
@@ -2543,6 +2560,8 @@ export class TransactionsV2Service {
                     coaDetailName: 1,
                     coaDetailStatus: 1,
                     adType: 1,
+                    idStream: 1,
+                    titleStream: 1,
                     typeCategory: 1,
                     typeUser: 1
                 }

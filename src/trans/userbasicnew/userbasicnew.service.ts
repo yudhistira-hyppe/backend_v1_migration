@@ -8224,7 +8224,7 @@ export class UserbasicnewService {
         return getDataUser;
     }
 
-    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string) {
+    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string, productName?: string) {
         let matchAnd = [];
         matchAnd.push(
             {
@@ -8518,6 +8518,19 @@ export class UserbasicnewService {
                     path: "$trans"
                 }
             },
+        )
+        if(productName && productName !== undefined) {
+            pipeline.push({
+                "$match": {
+                    "trans.transOld.packageName":{
+                        "$regex":productName,
+                        "$options":"i"
+                    }
+                }
+            })
+        }
+
+        pipeline.push(
             {
                 $sort: {
                     createdAt: - 1
@@ -8537,16 +8550,19 @@ export class UserbasicnewService {
                     createdAt: "$trans.createdAt",
                     updatedAt: "$trans.updatedAt",
                     status: "$trans.status",
+                    idTransLama: "$trans.transOld._id",
                     package: "$trans.transOld.packageName",
                     noInvoiceLama: "$trans.transOld.noinvoice",
+                    expiredtimeva: "$trans.transOld.expiredtimeva",
                     coa: "$trans.coa.coa",
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
+                    vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] }
                     // tracking: "$trans.withdrawData.tracking"
                 }
             }
-        )
+        );
         switch (activitytype) {
             case "Coins Ditambahkan":
                 pipeline.push({
