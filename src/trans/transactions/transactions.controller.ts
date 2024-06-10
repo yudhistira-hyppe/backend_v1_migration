@@ -3936,7 +3936,7 @@ export class TransactionsController {
         if (request_json["noinvoice"] !== undefined) {
             noinvoice = request_json["noinvoice"];
             try {
-                data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+                data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice, profitsharingpercent);
                 if (data.expiredtimeva && data.status && data.idtr_lama) {
                     let expiredtimeva = data.expiredtimeva;
                     status = data.status;
@@ -3956,17 +3956,9 @@ export class TransactionsController {
                             }
                         }
                     }
-                    if (data.coa == "Pembelian Konten" || data.coa == "Penjualan Konten") {
-                        data.coinadminfee = data.coin * profitsharingpercent / 100;
-                        // switch (data.coa) {
-                        //     case "Pembelian Konten":
-                        //         data.totalcoin = data.coin + data.coinadminfee;
-                        //         break;
-                        //     case "Penjualan Konten":
-                        //         data.totalcoin = data.coin - data.coinadminfee;
-                        //         break;
-                        // }
-                    }
+                    // if (data.coa == "Pembelian Konten" || data.coa == "Penjualan Konten") {
+                    //     data.coinadminfee = data.coin * profitsharingpercent / 100;
+                    // }
                 }
                 return { response_code: 202, data, messages };
             } catch (e) {
@@ -21302,13 +21294,16 @@ export class TransactionsController {
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
-                    // let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "In Progress", infodisbursemen, statuscode, {
-                    //     "title": "Penukaran Coins Sedang Berlangsung",
-                    //     "status": "IN PROGRESS",
-                    //     "action": "APPROVAL",
-                    //     "timestamp": dtb,
-                    //     "description": `Penukaran coin sedang diproses`
-                    // });
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "In Progress", infodisbursemen, statuscode, {
+                        "title_id": "Penukaran Coins Sedang Berlangsung",
+                        "title_en": "Coin Withdrawal Is In Progress",
+                        "status": "IN PROGRESS",
+                        "action": "APPROVAL",
+                        "timestamp": dtb,
+                        "description_id": `Penukaran coin sedang diproses oleh partner transaksi kami`,
+                        "description_en": `Coin withdrawal is being processed by our transaction partner`,
+                        "approved_by": user_data._id
+                    });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "IN PROGRESS", detail: detailTrans });
                     updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "PENDING", detailTrans);
                     let data = {
@@ -21498,13 +21493,16 @@ export class TransactionsController {
                         dtburs.setHours(dtburs.getHours() + 7); // timestamp
                         dtburs = new Date(dtburs);
                         let dtb = dtburs.toISOString();
-                        // let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "In Progress", infodisbursemen, statuscode, {
-                        //     "title": "Penukaran Coins Sedang Berlangsung",
-                        //     "status": "IN PROGRESS",
-                        //     "action": "APPROVAL",
-                        //     "timestamp": dtb,
-                        //     "description": `Penukaran coin sedang diproses`
-                        // });
+                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "In Progress", infodisbursemen, statuscode, {
+                            "title_id": "Penukaran Coins Sedang Berlangsung",
+                            "title_en": "Coin Withdrawal Is In Progress",
+                            "status": "IN PROGRESS",
+                            "action": "APPROVAL",
+                            "timestamp": dtb,
+                            "description_id": `Penukaran coin sedang diproses oleh partner transaksi kami`,
+                            "description_en": `Coin withdrawal is being processed by our transaction partner`,
+                            "approved_by": user_data._id
+                        });
                         // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "IN PROGRESS", detail: detailTrans });
                         updateTrans = await this.TransactionsV2Service.updateTransaction(request_json.idTransaction, "PENDING", detailTrans);
                         let data = {
