@@ -50,7 +50,7 @@ export class AdsBalaceCreditService {
         return await this.adsbalaceCreditModel.find({ iduser: Object(iduser) }).exec();
     }
 
-    async findsaldoKreditBackup(iduser: object) {
+    async findsaldoKredit(iduser: object) {
         const query = await this.adsbalaceCreditModel.aggregate([
             {
                 $match: {
@@ -70,7 +70,7 @@ export class AdsBalaceCreditService {
         return query;
     }
 
-    async findsaldoKredit(iduser: object) {
+    async findsaldoKreditBackup(iduser: object) {
         const query = await this.adsbalaceCreditModel.aggregate([
             {
                 $match: {
