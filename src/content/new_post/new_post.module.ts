@@ -40,8 +40,10 @@ import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.mo
 import { MonetizationModule } from 'src/trans/monetization/monetization.module';
 import { BoostintervalModule } from '../boostinterval/boostinterval.module';
 import { BoostsessionModule } from '../boostsession/boostsession.module';
+import { MediastreamingModule } from '../mediastreaming/mediastreaming.module';
 @Module({
   imports: [
+    MediastreamingModule,
     ScheduleinjectModule,
     PosttaskModule,
     SocketModule,
