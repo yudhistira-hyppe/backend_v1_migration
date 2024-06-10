@@ -3958,14 +3958,14 @@ export class TransactionsController {
                     }
                     if (data.coa == "Pembelian Konten" || data.coa == "Penjualan Konten") {
                         data.coinadminfee = data.coin * profitsharingpercent / 100;
-                        switch (data.coa) {
-                            case "Pembelian Konten":
-                                data.totalcoin = data.coin + data.coinadminfee;
-                                break;
-                            case "Penjualan Konten":
-                                data.totalcoin = data.coin - data.coinadminfee;
-                                break;
-                        }
+                        // switch (data.coa) {
+                        //     case "Pembelian Konten":
+                        //         data.totalcoin = data.coin + data.coinadminfee;
+                        //         break;
+                        //     case "Penjualan Konten":
+                        //         data.totalcoin = data.coin - data.coinadminfee;
+                        //         break;
+                        // }
                     }
                 }
                 return { response_code: 202, data, messages };
