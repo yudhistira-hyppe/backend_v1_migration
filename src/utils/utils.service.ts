@@ -498,9 +498,12 @@ export class UtilsService {
 
       let body_save_id = "";
       let body_save_id2="";
+      let body_save_id3="";
+      let body_save_id4="";
       let body_save_en = "";
       let body_save_en2 = "";
-
+      let body_save_en3 = "";
+      let body_save_en4 = "";
       let body_save_id_get = "";
       let body_save_en_get = "";
 
@@ -625,13 +628,20 @@ export class UtilsService {
         }
 
         if (eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN") {
-          body_save_id = body_save_id_get.toString().replace("${amount}", await this.numberFormatString(amount))
-          body_save_en = body_save_en_get.toString().replace("${amount}", await this.numberFormatString(amount))
-          body_save_id = body_save_id_get.toString().replace("${account_name}", account_name)
-          body_save_en = body_save_en_get.toString().replace("${account_name}", account_name)
+          body_save_id4 = body_save_id_get.toString().replace("${amount}", await this.numberFormatString(amount))
+          body_save_id3 = body_save_id4.toString().replace("${account_name}", account_name)
+          body_save_id2 = body_save_id3.toString().replace("${user_name}", get_username_senderParty)
+
+          body_save_en4 = body_save_en_get.toString().replace("${amount}", await this.numberFormatString(amount))
+          body_save_en3 = body_save_en4.toString().replace("${account_name}", account_name)
+          body_save_en2 = body_save_en3.toString().replace("${user_name}", get_username_senderParty)
+
           if (eventType == "SUCCESS_WITHDRAW_COIN") {
-            body_save_id = body_save_id_get.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
-            body_save_en = body_save_en_get.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
+            body_save_id = body_save_id2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
+            body_save_en = body_save_en2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
+          }else{
+            body_save_id = body_save_id2.toString();
+            body_save_en = body_save_en2.toString();
           }
         }
 
