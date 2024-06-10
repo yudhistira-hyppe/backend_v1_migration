@@ -8224,7 +8224,7 @@ export class UserbasicnewService {
         return getDataUser;
     }
 
-    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string, productName?: string) {
+    async getUserCoinTransactionHistory(email: string, skip: number, status?: string[], type?: string[], startdate?: string, enddate?: string, activitytype?: string, productName?: string, order_by?:boolean) {
         let matchAnd = [];
         matchAnd.push(
             {
@@ -8530,12 +8530,39 @@ export class UserbasicnewService {
             })
         }
 
-        pipeline.push(
+        if(order_by && order_by !== undefined) {
+            if(order_by == true)
             {
-                $sort: {
-                    createdAt: - 1
+                pipeline.push(
+                    {
+                        $sort: {
+                            createdAt: - 1
+                        }
+                    }
+                );
+            }
+            else
+            {
+                pipeline.push(
+                    {
+                        $sort: {
+                            createdAt: 1
+                        }
+                    }
+                );
+            }
+        }
+        else { 
+            pipeline.push(
+                {
+                    $sort: {
+                        createdAt: - 1
+                    }
                 }
-            },
+            );
+        }
+
+        pipeline.push(
             {
                 $project: {
                     email: 1,
