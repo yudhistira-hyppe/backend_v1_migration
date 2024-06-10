@@ -123,6 +123,11 @@ export class TransactionsV2Service {
         
         if (getDataTransaction.length > 0) {
             for (let uh = 0; uh < getDataTransaction.length; uh++) {
+                let debet = 0;
+                let kredit = 0; 
+                let saldo = 0;
+                let insertBalanced = false;
+                
                 let dataTransaction = getDataTransaction[uh];
                 productId = dataTransaction.product;
                 typeCategory = dataTransaction.typeCategory;
@@ -152,6 +157,25 @@ export class TransactionsV2Service {
                                                     AdsBalaceCredit_.description = "ADS REJECTED";
                                                     AdsBalaceCredit_.idAdspricecredits = adsService_.idAdspricecredits;
                                                     await this.adsBalaceCreditService.create(AdsBalaceCredit_);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (transactionTypeCategory == "BUY") {
+                                    if (categoryTransaction.type[j].transaction != undefined) {
+                                        let transactionTypetransaction = categoryTransaction.type[j].transaction;
+                                        for (let tr = 0; tr < transactionTypetransaction.length; tr++) {
+                                            if (transactionTypetransaction[tr].name != undefined) {
+                                                if (transactionTypetransaction[tr].name == "BalacedCoin") {
+                                                    if (transactionTypetransaction[tr].status != undefined) {
+                                                        if (transactionTypetransaction[tr].status == "debit") {
+                                                            if (status == "SUCCESS") {
+                                                                debet = dataTransaction.coin;
+                                                                kredit = 0;
+                                                            } 
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -199,6 +223,32 @@ export class TransactionsV2Service {
                             }
                         }
                     }
+                }
+
+                if (insertBalanced) {
+                    //Get Saldo
+                    let balancedUser = await this.transactionsBalancedsService.findsaldo(dataTransaction.idUser.toString());
+                    if (await this.utilsService.ceckData(balancedUser)) {
+                        if (balancedUser.length > 0) {
+                            saldo = balancedUser[0].totalSaldo;
+                        }
+                    }
+
+                    //Insert Balanceds
+                    let Balanceds_ = new TransactionsBalanceds();
+                    Balanceds_._id = new mongoose.Types.ObjectId();
+                    Balanceds_.idTransaction = new mongoose.Types.ObjectId(dataTransaction._id.toString());
+                    Balanceds_.idUser = dataTransaction.idUser;
+                    Balanceds_.debit = debet;
+                    Balanceds_.credit = kredit;
+                    Balanceds_.saldo = saldo - kredit + debet;
+                    Balanceds_.noInvoice = dataTransaction.noInvoice;
+                    Balanceds_.createdAt = currentDate;
+                    Balanceds_.updatedAt = currentDate;
+                    Balanceds_.userType = categoryTransaction.user;
+                    Balanceds_.coa = [];
+                    Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
+                    await this.transactionsBalancedsService.create(Balanceds_);
                 }
 
                 let dataDetail = dataTransaction.detail;

@@ -3558,6 +3558,7 @@ export class MediastreamingService {
     let detail = [];
     let dataDetail = {};
     dataDetail["id"] = new mongoose.Types.ObjectId(idGift);
+    dataDetail["idStream"] = new mongoose.Types.ObjectId(idStream);
     dataDetail["category"] = "LIVE";
     dataDetail["typeData"] = "gift";
     dataDetail["amount"] = getDataGift.price;
