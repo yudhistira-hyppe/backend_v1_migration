@@ -2083,19 +2083,19 @@ export class TransactionsV2Service {
                                     },
                                     "then": {
                                         "$arrayElemAt": [
-                                            "$datapembeli.email", 0
+                                            "$datapembeli.username", 0
                                         ]
                                     },
                                     "else": {
                                         "$arrayElemAt": [
-                                            "$databasic.email", 0
+                                            "$databasic.username", 0
                                         ]
                                     }
                                 }
                             },
                             {
                                 "$arrayElemAt": [
-                                    "$databasic.email", 0
+                                    "$databasic.username", 0
                                 ]
                             }
                         ]
@@ -2139,19 +2139,19 @@ export class TransactionsV2Service {
                                     },
                                     "then": {
                                         "$arrayElemAt": [
-                                            "$databasic.email", 0
+                                            "$databasic.username", 0
                                         ]
                                     },
                                     "else": {
                                         "$arrayElemAt": [
-                                            "$datapembeli.email", 0
+                                            "$datapembeli.username", 0
                                         ]
                                     }
                                 }
                             },
                             {
                                 "$arrayElemAt": [
-                                    "$databasic.email", 0
+                                    "$databasic.username", 0
                                 ]
                             }
                         ]
