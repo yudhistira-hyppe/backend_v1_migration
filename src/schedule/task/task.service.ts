@@ -32,7 +32,7 @@ export class TaskService {
   @Cron('0 */10 * * * *')
   ceckStatus() {
     this.logger.debug('----------DISBURSEMENT JOB START----------');
-    //this.transactionsService.ceckStatusDisbursement();
+    this.transactionsService.ceckStatusDisbursementV3();
   }
 
   @Cron('0 0 0 * * *')
