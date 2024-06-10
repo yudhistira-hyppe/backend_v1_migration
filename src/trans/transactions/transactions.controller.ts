@@ -21704,7 +21704,7 @@ export class TransactionsController {
 
         try {
             let foundExpired = false;
-            var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype);
+            var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype, request_json.productName);
             for (let x of data) {
                 let expiredvanew = new Date(x.expiredtimeva);
                 expiredvanew.setHours(expiredvanew.getHours() - 7);
