@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { PostsRead, PostsReadDocument } from './schema/post_read.schema';
 import { SettingsReadService } from '../setting_read/setting_read.service';
+import { MediastreamingAgoraService } from 'src/content/mediastreaming/mediastreamingagora.service';
 
 
 @Injectable()
@@ -13,6 +14,7 @@ export class PostsReadService {
     @InjectModel(PostsRead.name, 'SERVER_FULL')
     private readonly PostsReadModel: Model<PostsReadDocument>,
     private readonly settingsReadService: SettingsReadService,
+    private readonly mediastreamingAgoraService: MediastreamingAgoraService,
   ) { }
 
   async updateBoostCount(id: string, countBoost: number) {
@@ -25525,6 +25527,14 @@ export class PostsReadService {
 
 
   async landingpage7(email: string, type: string, skip: number, limit: number) {
+    const dataStream = await this.mediastreamingAgoraService.getChannelList();
+    let statusSream = false;
+    if (dataStream != null) {
+      let dataChannel = dataStream.data.channels;
+      if (dataChannel.length > 0) {
+        statusSream = true;
+      }
+    }
     var pipeline = [];
     var dataseting = null;
     var sortObject = null;
@@ -25557,6 +25567,11 @@ export class PostsReadService {
       }
 
       pipeline.push(
+        {
+          '$set': {
+            statusSream: statusSream
+          }
+        },
         {
           "$set": {
             "timeStart": {
@@ -26269,16 +26284,17 @@ export class PostsReadService {
         {
           $project: {
             _id: 1,
-            mediaSource:1,
-            streamer: {
-              $cond: {
-                if: {
-                  $eq: [{ $ifNull: ["$stream", []] }, []]
-                },
-                then: false,
-                else: true
-              }
-            },
+            mediaSource: 1,
+            streamer: "$statusSream",
+            // streamer: {
+            //   $cond: {
+            //     if: {
+            //       $eq: [{ $ifNull: ["$stream", []] }, []]
+            //     },
+            //     then: false,
+            //     else: true
+            //   }
+            // },
             version: {
               $arrayElemAt: ["$setting.value", 0]
             },
