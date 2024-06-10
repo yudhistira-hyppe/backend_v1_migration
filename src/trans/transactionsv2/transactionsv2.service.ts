@@ -187,11 +187,6 @@ export class TransactionsV2Service {
                     }
                 }
                 if (dataTransaction.type == "HYPPE") {
-                    // let kas = 0;
-                    // let biayaPaymentGateway = 0;
-                    // let hutangSaldoCoin = 0;
-                    // let pendapatanBiayaTransaction = 0;
-                    // let pendapatanPenukaranCoin = 0;
                     idHyppe = dataTransaction.idUser;
                     if (categoryTransaction.type != undefined) {
                         if (categoryTransaction.type.length > 0) {

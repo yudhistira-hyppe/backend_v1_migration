@@ -201,7 +201,8 @@ export class MediastreamingController {
   @UseGuards(JwtAuthGuard)
   @Get('/ceck')
   @HttpCode(HttpStatus.ACCEPTED)
-  async getStatusStream(@Headers() headers) {
+  async getStatusStream(
+    @Query('idBanned') idBanned: string, @Headers() headers) {
     if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
       await this.errorHandler.generateNotAcceptableException(
         'Unauthorized',
@@ -226,6 +227,14 @@ export class MediastreamingController {
           'Unabled to proceed user is not verified',
         );
       }
+    }
+
+    let dataBanned_ = [];
+    if (idBanned!=undefined){
+      let dataBanned = profile.streamBannedHistory;
+      dataBanned_ = dataBanned.filter(function (el) {
+        return el.idBanned == idBanned;
+      });
     }
 
     let statusAppeal = false;
@@ -277,6 +286,7 @@ export class MediastreamingController {
             response_code: 202,
             statusStream: false,
             data: dataStream,
+            dataBannded: dataBanned_,
             messages: {
               info: [
                 "User is Banned"
@@ -306,6 +316,7 @@ export class MediastreamingController {
           const Response = {
             response_code: 202,
             statusStream: false,
+            dataBannded: dataBanned_,
             data: dataStream,
             messages: {
               info: [
@@ -319,6 +330,7 @@ export class MediastreamingController {
         const Response = {
           response_code: 202,
           statusStream: true,
+          dataBannded: dataBanned_,
           messages: {
             info: [
               "Succesfully"
@@ -331,6 +343,7 @@ export class MediastreamingController {
       const Response = {
         response_code: 202,
         statusStream: true,
+        dataBannded: dataBanned_,
         messages: {
           info: [
             "Succesfully"
@@ -1313,35 +1326,71 @@ export class MediastreamingController {
     }
 
     try {
-      let streamBanding = profile.streamBanding;
-      let objIndex = streamBanding.findIndex(obj => obj.status == true && obj.idAppeal == RequestAppealStream_.idAppeal);
-      
-      if (RequestAppealStream_.notes != undefined) {
-        streamBanding[objIndex].notes = RequestAppealStream_.notes;
-      }
-      if (RequestAppealStream_.approve) {
-        streamBanding[objIndex].status = false;
-        streamBanding[objIndex].approveText = "APPROVE";
-      } else {
-        streamBanding[objIndex].status = true;
-        streamBanding[objIndex].approveText = "REJECT";
-      }
-      streamBanding[objIndex].approve = RequestAppealStream_.approve;
       let Userbasicnew_ = new Userbasicnew();
+      //Update streamBanding
+      let streamBanding = profile.streamBanding;
+      let objIndex_streamBanding = streamBanding.findIndex(obj => obj.status == true && obj.idAppeal == RequestAppealStream_.idAppeal);
+      if (objIndex_streamBanding>=0){
+        if (RequestAppealStream_.notes != undefined) {
+          streamBanding[objIndex_streamBanding].notes = RequestAppealStream_.notes;
+        }
+        if (RequestAppealStream_.approve) {
+          streamBanding[objIndex_streamBanding].status = false;
+          streamBanding[objIndex_streamBanding].approveText = "APPROVE";
+        } else {
+          streamBanding[objIndex_streamBanding].status = true;
+          streamBanding[objIndex_streamBanding].approveText = "REJECT";
+        }
+        streamBanding[objIndex_streamBanding].approve = RequestAppealStream_.approve;
+        Userbasicnew_.streamBanding = streamBanding;
+      }
+      
+      //Update streamBannedHistory
+      let streamBannedHistory_Data = profile.streamBannedHistory;
+      let streamBannedHistory_index = streamBannedHistory_Data.findIndex(obj => obj.status == true);
+      if (streamBannedHistory_index >= 0) {
+        let streamBannedHistory_Data_appeal = streamBannedHistory_Data[streamBannedHistory_index].appeal;
+        let streamBannedHistory_Data_appeal_index = streamBannedHistory_Data_appeal.findIndex(obj => obj.idAppeal == RequestAppealStream_.idAppeal);
+        if (streamBannedHistory_Data_appeal_index >= 0) {
+          let streamBannedHistory_Data_appeal_update = streamBannedHistory_Data_appeal[streamBannedHistory_Data_appeal_index];
+          if (RequestAppealStream_.notes != undefined) {
+            streamBannedHistory_Data_appeal_update.notes = RequestAppealStream_.notes;
+            //streamBannedHistory_Data_appeal[streamBannedHistory_Data_appeal_index].notes = RequestAppealStream_.notes;
+          }
+          if (RequestAppealStream_.approve) {
+            streamBannedHistory_Data[streamBannedHistory_index].status = false;
+            streamBannedHistory_Data_appeal_update.status = false;
+            streamBannedHistory_Data_appeal_update.approve = true;
+            streamBannedHistory_Data_appeal_update.approveText = "APPROVE";
+            // streamBannedHistory_Data_appeal[streamBannedHistory_Data_appeal_index].status = false;
+            // streamBannedHistory_Data_appeal[streamBannedHistory_Data_appeal_index].approveText = "APPROVE";
+          } else {
+            streamBannedHistory_Data[streamBannedHistory_index].status = true;
+            streamBannedHistory_Data_appeal_update.status = true;
+            streamBannedHistory_Data_appeal_update.approve = false;
+            streamBannedHistory_Data_appeal_update.approveText = "REJECT";
+            // streamBannedHistory_Data_appeal[streamBannedHistory_Data_appeal_index].status = true;
+            // streamBannedHistory_Data_appeal[streamBannedHistory_Data_appeal_index].approveText = "REJECT";
+          }
+          streamBannedHistory_Data[streamBannedHistory_index].appeal[streamBannedHistory_Data_appeal_index] = streamBannedHistory_Data_appeal_update;
+          Userbasicnew_.streamBannedHistory = streamBannedHistory_Data;
+        }
+      }
+
       if (RequestAppealStream_.approve) {
         Userbasicnew_.streamWarning = [];
         Userbasicnew_.streamBanned = false;
-        this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_SUCCESS', 'LIVE_APPEAL_SUCCESS', null, 'LIVE_APPEAL_SUCCESS', null, null);
+        //this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_SUCCESS', 'LIVE_APPEAL_SUCCESS', null, 'LIVE_APPEAL_SUCCESS', null, null);
       }else{
-        this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_REJECT', 'LIVE_APPEAL_REJECT', null, 'LIVE_APPEAL_REJECT', null, null);
+        //this.utilsService.sendFcmV2(profile.email.toString(), profile.email.toString(), 'NOTIFY_LIVE', 'LIVE_APPEAL_REJECT', 'LIVE_APPEAL_REJECT', null, 'LIVE_APPEAL_REJECT', null, null);
       }
-      Userbasicnew_.streamBanding = streamBanding;
       //UPDATE DATA USER STREAM
       await await this.userbasicnewService.update2(profile._id.toString(), Userbasicnew_);
       return await this.errorHandler.generateAcceptResponseCode(
         "Succesfully",
       );
     } catch (e) {
+      console.log(e);
       await this.errorHandler.generateNotAcceptableException(
         'Unabled to proceed',
       );
