@@ -291,6 +291,7 @@ export class MediastreamingController {
               fullName: profile.fullName,
               email: profile.email,
               username: profile.username,
+              statusBanned: statusBanned,
               avatar: {
                 "mediaBasePath": profile.mediaBasePath,
                 "mediaUri": profile.mediaUri,
@@ -303,7 +304,6 @@ export class MediastreamingController {
             response_code: 202,
             statusStream: false,
             data: dataStream,
-            statusBanned: statusBanned,
             messages: {
               info: [
                 "User is Banned"
@@ -316,6 +316,7 @@ export class MediastreamingController {
             streamBannedDate: profile.streamBannedDate,
             streamBannedMax: Number(GET_ID_SETTING_MAX_BANNED),
             statusAppeal: statusAppeal,
+            statusBanned: statusBanned,
             statusApprove: statusApprove,
             user: {
               _id: profile._id._id.toString(),
@@ -333,7 +334,6 @@ export class MediastreamingController {
           const Response = {
             response_code: 202,
             statusStream: false,
-            statusBanned: statusBanned,
             data: dataStream,
             messages: {
               info: [
@@ -347,7 +347,9 @@ export class MediastreamingController {
         const Response = {
           response_code: 202,
           statusStream: true,
-          statusBanned: statusBanned,
+          data: {
+            statusBanned: statusBanned,
+          },
           messages: {
             info: [
               "Succesfully"
@@ -360,7 +362,9 @@ export class MediastreamingController {
       const Response = {
         response_code: 202,
         statusStream: true,
-        statusBanned: statusBanned,
+        data: {
+          statusBanned: statusBanned,
+        },
         messages: {
           info: [
             "Succesfully"
