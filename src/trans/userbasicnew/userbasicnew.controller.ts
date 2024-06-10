@@ -3,6 +3,7 @@ import { UserbasicnewService } from './userbasicnew.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { Userbasicnew } from './schemas/userbasicnew.schema';
 import { LogapisService } from '../logapis/logapis.service';
+import mongoose from 'mongoose';
 
 @Controller('api/')
 export class UserbasicnewController {
@@ -646,6 +647,10 @@ export class UserbasicnewController {
         if(request_json.type != null && request_json.type != undefined)
         {
             tipetransaksi = request_json.type;   
+        }
+        else
+        {
+            tipetransaksi = ["662b16b3dc3e000022007e13", "660f9095c306d245ed2c207f"];
         }
 
         if (request_json["skip"] !== undefined) {
