@@ -2823,13 +2823,13 @@ export class AdsController {
             //Send Fcm
             var eventType = "TRANSACTION";
             var event = "ADS CLICK";
-            this.utilsService.sendFcmV2(data_userbasic.email.toString(), data_userbasic.email.toString(), eventType, event, "REWARDS", null, null, null, dataRewards.rewardPrice.toString());
+            this.utilsService.sendFcmV2(data_userbasic.email.toString(), data_userbasic.email.toString(), eventType, event, "REWARDS", null, null, null, cointReward.toString());
 
             //Set Response
             var response = {
                 response_code: 202,
                 data: {
-                    nominal: Number(dataRewards.rewardPrice),
+                    nominal: Number(cointReward),
                     rewards: true,
                 },
                 messages: {
