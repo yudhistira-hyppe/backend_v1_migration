@@ -2039,80 +2039,116 @@ export class TransactionsV2Service {
                 $project: {
                     "type": 1,
                     "emailbuyer": {
-                        "$cond": {
-                            "if": {
-                                "$eq": [
-                                    "$typeUser", "USER_SELL"
-                                ]
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": {
+                                        "$arrayElemAt": [
+                                            "$datapembeli.email", 0
+                                        ]
+                                    },
+                                    "else": {
+                                        "$arrayElemAt": [
+                                            "$databasic.email", 0
+                                        ]
+                                    }
+                                }
                             },
-                            "then": {
-                                "$arrayElemAt": [
-                                    "$datapembeli.email", 0
-                                ]
-                            },
-                            "else": {
+                            {
                                 "$arrayElemAt": [
                                     "$databasic.email", 0
                                 ]
                             }
-                        }
+                        ]
                     },
                     "usernamebuyer": {
-                        "$cond": {
-                            "if": {
-                                "$eq": [
-                                    "$typeUser", "USER_SELL"
-                                ]
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": {
+                                        "$arrayElemAt": [
+                                            "$datapembeli.email", 0
+                                        ]
+                                    },
+                                    "else": {
+                                        "$arrayElemAt": [
+                                            "$databasic.email", 0
+                                        ]
+                                    }
+                                }
                             },
-                            "then": {
-                                "$arrayElemAt": [
-                                    "$datapembeli.email", 0
-                                ]
-                            },
-                            "else": {
+                            {
                                 "$arrayElemAt": [
                                     "$databasic.email", 0
                                 ]
                             }
-                        }
+                        ]
                     },
                     "emailseller": {
-                        "$cond": {
-                            "if": {
-                                "$eq": [
-                                    "$typeUser", "USER_SELL"
-                                ]
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": {
+                                        "$arrayElemAt": [
+                                            "$databasic.email", 0
+                                        ]
+                                    },
+                                    "else": {
+                                        "$arrayElemAt": [
+                                            "$datapembeli.email", 0
+                                        ]
+                                    }
+                                }
                             },
-                            "then": {
+                            {
                                 "$arrayElemAt": [
                                     "$databasic.email", 0
                                 ]
-                            },
-                            "else": {
-                                "$arrayElemAt": [
-                                    "$datapembeli.email", 0
-                                ]
                             }
-                        }
+                        ]
                     },
                     "usernameseller": {
-                        "$cond": {
-                            "if": {
-                                "$eq": [
-                                    "$typeUser", "USER_SELL"
-                                ]
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": {
+                                        "$arrayElemAt": [
+                                            "$databasic.email", 0
+                                        ]
+                                    },
+                                    "else": {
+                                        "$arrayElemAt": [
+                                            "$datapembeli.email", 0
+                                        ]
+                                    }
+                                }
                             },
-                            "then": {
+                            {
                                 "$arrayElemAt": [
                                     "$databasic.email", 0
                                 ]
-                            },
-                            "else": {
-                                "$arrayElemAt": [
-                                    "$datapembeli.email", 0
-                                ]
                             }
-                        }
+                        ]
                     },
                     "idTransaction": 1,
                     "noInvoice": 1,
