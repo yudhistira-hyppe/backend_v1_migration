@@ -12037,6 +12037,7 @@ export class ContenteventsController {
     //   var datapost = await this.NewpostsService.updatePostviewer(request.body.postID, email_user);
     // } 
     else if (eventType == "VIEW") {
+      var getpost = await this.postDisqusSS.findid(request.body.postID);
       var prosesdata = false;
       if (email_user !== email_receiverParty) {
         var idevent1 = null;
@@ -12119,21 +12120,18 @@ export class ContenteventsController {
             var dataconten = await this.contenteventsService.create(CreateContenteventsDto2);
 
             prosesdata = true;
-            var listarray = request.body.userView;
-            listarray.push(email_user);
-            var updatepost = new Newpost();
-            updatepost.userView = listarray;
-            var updatetemp = new tempposts2();
-            updatetemp.userView = listarray;
+            var result = getpost.userView.filter((email) => email === email_user);
+            if (result.length == 0) {
+              await this.postDisqusSS.updateView(email_receiverParty, email_user, request.body.postID);
 
-            await this.postDisqusSS.update(request.body.postID, updatepost);
-            try
-            {
-              await this.tempostSS.update(request.body.postID, updatetemp);
-            }
-            catch(e)
-            {
-              // skip
+              try
+              {
+                await this.tempostSS.updateView(email_receiverParty, email_user, request.body.postID);
+              }
+              catch(e)
+              {
+                //skip
+              }
             }
             // var getpost = await this.postDisqusSS.findid(request.body.postID);
             // var result = getpost.userView.filter((email) => email === email_user);
@@ -12257,32 +12255,12 @@ export class ContenteventsController {
 
       }
 
-      // var datapost = await this.postDisqusSS.updatePostviewer(request.body.postID, email_user);
+      var datapost = await this.postDisqusSS.updatePostviewer(request.body.postID, email_user);
 
-      // if (checkexisttemppost == true) {
-      //   await this.tempostSS.updatePostviewer(request.body.postID, email_user);
-      // }
-      if(prosesdata == false)
-      {
-        var listarray = request.body.userView;
-        listarray.push(email_user);
-        var updatepost = new Newpost();
-        updatepost.userView = listarray;
-        var updatetemp = new tempposts2();
-        updatetemp.userView = listarray;
-
-        await this.postDisqusSS.update(request.body.postID, updatepost);
-        try
-        {
-          await this.tempostSS.update(request.body.postID, updatetemp);
-        }
-        catch(e)
-        {
-          // skip
-        }  
-      }
+      await this.tempostSS.updatePostviewer(request.body.postID, email_user);
     }
     else if (eventType == "LIKE") {
+      var getpost = await this.postDisqusSS.findid(request.body.postID);
       var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "LIKE", "DONE", email_receiverParty, "", request.body.postID);
       var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "LIKE", "ACCEPT", "", email_user, request.body.postID);
       if (!(await this.utilsService.ceckData(ceck_data_DONE)) && !(await this.utilsService.ceckData(ceck_data_ACCEPT))) {
@@ -12357,23 +12335,19 @@ export class ContenteventsController {
           let event1 = resultdata1.eventType.toString();
           // await this.utilsService.counscore("CE", "prodAll", "contentevents", idevent1, event1, userbasic1._id);
           await this.contenteventsService.create(CreateContenteventsDto2);
-          var listarray = request.body.userLike;
-          listarray.push(email_user);
-          var updatepost = new Newpost();
-          updatepost.userLike = listarray;
-          var updatetemp = new tempposts2();
-          updatetemp.userLike = listarray;
+          var result = getpost.userLike.filter((email) => email === email_user);
+          if (result.length == 0) {
+            await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
 
-          await this.postDisqusSS.update(request.body.postID, updatepost);
-          try
-          {
-            await this.tempostSS.update(request.body.postID, updatetemp);
-          }
-          catch(e)
-          {
-            // skip
-          }
+            try
+            {
+              await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
+            }
+            catch(e)
+            {
 
+            }
+          }
           // var getpost = await this.postDisqusSS.findid(request.body.postID);
           // var result = getpost.userLike.filter((email) => email === email_user);
           // if (result.length == 0) {
@@ -12422,17 +12396,12 @@ export class ContenteventsController {
             await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, false);
             await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, false);
             await this.insightsService.updateUnlikeByID(insightID2);
-            var listarray = request.body.userLike;
-            var filterbuanguser = listarray.filter((email) => email != email_user);
-            var updatepost = new Newpost();
-            updatepost.userLike = filterbuanguser;
-            var updatetemp = new tempposts2();
-            updatetemp.userLike = filterbuanguser;
+            var buanguser = getpost.userLike.filter((email) => email != email_user);
+            await this.postDisqusSS.updateUnLike(email_receiverParty, email_user, request.body.postID, buanguser);
 
-            await this.postDisqusSS.update(request.body.postID, updatepost);
             try
             {
-              await this.tempostSS.update(request.body.postID, updatetemp);
+              await this.tempostSS.updateUnLike(email_receiverParty, email_user, request.body.postID, buanguser);
             }
             catch(e)
             {
@@ -12477,23 +12446,12 @@ export class ContenteventsController {
             await this.contenteventsService.updateUnlike(email_user, "LIKE", "DONE", request.body.postID, true);
             await this.contenteventsService.updateUnlike(email_receiverParty, "LIKE", "ACCEPT", request.body.postID, true);
             await this.insightsService.updateLikeByID(insightID2);
-            // await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
+            await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
 
-            // if (checkexisttemppost == true) {
-            //   await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
-            // }
-
-            var listarray = request.body.userLike;
-            listarray.push(email_user);
-            var updatepost = new Newpost();
-            updatepost.userLike = listarray;
-            var updatetemp = new tempposts2();
-            updatetemp.userLike = listarray;
-
-            await this.postDisqusSS.update(request.body.postID, updatepost);
             try
             {
-              await this.tempostSS.update(request.body.postID, updatetemp);
+              await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
+
             }
             catch(e)
             {
@@ -12527,6 +12485,7 @@ export class ContenteventsController {
       }
     }
     else if (eventType == "UNLIKE") {
+      var getpost = await this.postDisqusSS.findid(request.body.postID);
       var ceck_data_DONE = await this.contenteventsService.ceckData(email_user, "LIKE", "DONE", email_receiverParty, "", request.body.postID);
       var ceck_data_ACCEPT = await this.contenteventsService.ceckData(email_receiverParty, "LIKE", "ACCEPT", "", email_user, request.body.postID);
       if ((await this.utilsService.ceckData(ceck_data_DONE)) && (await this.utilsService.ceckData(ceck_data_ACCEPT))) {
@@ -12540,17 +12499,12 @@ export class ContenteventsController {
           //   await this.tempostSS.updateUnLike(email_receiverParty, email_user, request.body.postID);
           // }
 
-          var listarray = request.body.userLike;
-          var filterbuanguser = listarray.filter((email) => email != email_user);
-          var updatepost = new Newpost();
-          updatepost.userLike = filterbuanguser;
-          var updatetemp = new tempposts2();
-          updatetemp.userLike = filterbuanguser;
+          var buanguser = getpost.userLike.filter((email) => email != email_user);
+          await this.postDisqusSS.updateUnLike(email_receiverParty, email_user, request.body.postID, buanguser);
 
-          await this.postDisqusSS.update(request.body.postID, updatepost);
           try
           {
-            await this.tempostSS.update(request.body.postID, updatetemp);
+            await this.tempostSS.updateUnLike(email_receiverParty, email_user, request.body.postID, buanguser);
           }
           catch(e)
           {
@@ -12598,17 +12552,12 @@ export class ContenteventsController {
               //   await this.tempostSS.updateUnLike(email_receiverParty, email_user, request.body.postID);
               // }
 
-              var listarray = request.body.userLike;
-              var filterbuanguser = listarray.filter((email) => email != email_user);
-              var updatepost = new Newpost();
-              updatepost.userLike = filterbuanguser;
-              var updatetemp = new tempposts2();
-              updatetemp.userLike = filterbuanguser;
+              var buanguser = getpost.userLike.filter((email) => email != email_user);
+              await this.postDisqusSS.updateUnLike(email_receiverParty, email_user, request.body.postID, buanguser);
 
-              await this.postDisqusSS.update(request.body.postID, updatepost);
               try
               {
-                await this.tempostSS.update(request.body.postID, updatetemp);
+                await this.tempostSS.updateUnLike(email_receiverParty, email_user, request.body.postID, buanguser);
               }
               catch(e)
               {
@@ -12653,17 +12602,11 @@ export class ContenteventsController {
               //   await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
               // }
 
-              var listarray = request.body.userLike;
-              listarray.push(email_user);
-              var updatepost = new Newpost();
-              updatepost.userLike = listarray;
-              var updatetemp = new tempposts2();
-              updatetemp.userLike = listarray;
+              await this.postDisqusSS.updateLike(email_receiverParty, email_user, request.body.postID);
 
-              await this.postDisqusSS.update(request.body.postID, updatepost);
               try
               {
-                await this.tempostSS.update(request.body.postID, updatetemp);
+                await this.tempostSS.updateLike(email_receiverParty, email_user, request.body.postID);
               }
               catch(e)
               {
