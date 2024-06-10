@@ -5587,13 +5587,15 @@ export class NewPostController {
             //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             //     throw new BadRequestException("Unable to proceed: type must be 'automatic' or 'manual'");
             // }
+            let total = request_json.coin - (request_json.discountCoin ? request_json.discountCoin : 0);
+            total = (total >= 0) ? total : 0;
             detail = [{
                 "postID": request_json.postId,
                 "typeData": "POST",
                 "discont": "0",
                 "amount": request_json.coin,
                 "discountCoin": request_json.discountCoin ? request_json.discountCoin : 0,
-                "totalAmount": request_json.coin - (request_json.discountCoin ? request_json.discountCoin : 0),
+                "totalAmount": total,
                 "qty": 1,
                 "interval": request_json.interval,
                 "session": request_json.session,
