@@ -2410,6 +2410,9 @@ export class TransactionsV2Service {
                     "productName": {
                         $arrayElemAt: ['$monetdata.name', 0]
                     },
+                    "package_id": {
+                        $arrayElemAt: ['$monetdata._id', 0]
+                    },
                     "post_id": 1,
                     "post_type": 1,
                     "post_owner": {
@@ -2516,6 +2519,7 @@ export class TransactionsV2Service {
                     "product_id": 1,
                     "methodename": 1,
                     "productName": 1,
+                    "package_id": 1,
                     "timenow": 1,
                     "bankname": {
                         $arrayElemAt: ['$databank.bankname', 0]
