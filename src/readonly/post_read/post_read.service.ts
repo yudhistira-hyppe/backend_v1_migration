@@ -26269,6 +26269,7 @@ export class PostsReadService {
         {
           $project: {
             _id: 1,
+            mediaSource:1,
             streamer: {
               $cond: {
                 if: {
@@ -28438,6 +28439,7 @@ export class PostsReadService {
         {
           $project: {
             _id: 1,
+            mediaSource:1,
             version: {
               $arrayElemAt: ["$setting.value", 0]
             },
@@ -29537,6 +29539,7 @@ export class PostsReadService {
         {
           $project: {
             _id: 1,
+            mediaSource:1,
             version: {
               $arrayElemAt: ["$setting.value", 0]
             },

@@ -1230,6 +1230,7 @@ export class TempPOSTService {
             {
                 '$project': {
                     _id: 1,
+                    mediaSource:1,
                     streamer: {
                         $cond: {
                             if: {
