@@ -2304,7 +2304,7 @@ export class TransactionsV2Service {
                             },
                             "then": {
                                 "$multiply": [
-                                    "$coin", profitsharingpercent / 100
+                                    { $arrayElemAt: ['$detail.amount', 0] }, profitsharingpercent / 100
                                 ]
                             },
                             "else": 0
@@ -2623,497 +2623,497 @@ export class TransactionsV2Service {
         var data = await this.transactionsModel.aggregate([
             { '$match': { type: 'USER', idTransaction: idtransaction } },
             {
-              '$lookup': {
-                from: 'transactionsProducts',
-                localField: 'product',
-                foreignField: '_id',
-                as: 'dataproduk'
-              }
+                '$lookup': {
+                    from: 'transactionsProducts',
+                    localField: 'product',
+                    foreignField: '_id',
+                    as: 'dataproduk'
+                }
             },
             {
-              '$lookup': {
-                from: 'transactionsCategorys',
-                as: 'coa',
-                let: { localID: '$product', cat: '$category' },
-                pipeline: [
-                  {
-                    '$match': {
-                      '$and': [
-                        { '$expr': { '$eq': [ '$_id', '$$cat' ] } }
-                      ]
-                    }
-                  },
-                  {
-                    '$set': {
-                      kecoa: {
-                        '$arrayElemAt': [
-                          '$type',
-                          { '$indexOfArray': [ '$type.idProduct', '$$localID' ] }
+                '$lookup': {
+                    from: 'transactionsCategorys',
+                    as: 'coa',
+                    let: { localID: '$product', cat: '$category' },
+                    pipeline: [
+                        {
+                            '$match': {
+                                '$and': [
+                                    { '$expr': { '$eq': ['$_id', '$$cat'] } }
+                                ]
+                            }
+                        },
+                        {
+                            '$set': {
+                                kecoa: {
+                                    '$arrayElemAt': [
+                                        '$type',
+                                        { '$indexOfArray': ['$type.idProduct', '$$localID'] }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            '$project': {
+                                index: { '$indexOfArray': ['$type.idProduct', '$$localID'] },
+                                coa: {
+                                    '$arrayElemAt': [
+                                        '$type.name',
+                                        { '$indexOfArray': ['$type.idProduct', '$$localID'] }
+                                    ]
+                                },
+                                coaDetailName: { '$arrayElemAt': ['$kecoa.transaction.name', 0] },
+                                coaDetailStatus: { '$arrayElemAt': ['$kecoa.transaction.status', 0] }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                '$project': {
+                    type: 1,
+                    idTransaction: 1,
+                    noInvoice: 1,
+                    category: 1,
+                    product: 1,
+                    voucherDiskon: 1,
+                    idUser: 1,
+                    coinDiscount: 1,
+                    coin: 1,
+                    totalCoin: 1,
+                    priceDiscont: 1,
+                    price: 1,
+                    totalPrice: 1,
+                    status: 1,
+                    detail: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    emailbuyer: { '$arrayElemAt': ['$databasic.email', 0] },
+                    usernamebuyer: { '$arrayElemAt': ['$databasic.username', 0] },
+                    va_number: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.payload.va_number', 0] }, '-']
+                    },
+                    transactionFees: { '$arrayElemAt': ['$detail.transactionFees', 0] },
+                    biayPG: { '$arrayElemAt': ['$detail.biayPG', 0] },
+                    withdrawId: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.withdrawId', 0] }, '-']
+                    },
+                    typeAdsID: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.typeAdsID', 0] }, '-']
+                    },
+                    idStream: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.idStream', 0] }, '-']
+                    },
+                    code: { '$arrayElemAt': ['$dataproduk.code', 0] },
+                    namePaket: { '$arrayElemAt': ['$dataproduk.name', 0] },
+                    coa: { '$arrayElemAt': ['$coa.coa', 0] },
+                    coaDetailName: { '$arrayElemAt': ['$coa.coaDetailName', 0] },
+                    coaDetailStatus: { '$arrayElemAt': ['$coa.coaDetailStatus', 0] },
+                    post_id: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.postID', 0] }, '-']
+                    },
+                    gift_id: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.id', 0] }, '-']
+                    },
+                    credit: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.credit', 0] }, '-']
+                    },
+                    boost_type: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.interval.type', 0] }, '-']
+                    },
+                    boost_interval: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.interval.value', 0] }, '-']
+                    },
+                    boost_unit: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.interval.remark', 0] }, '-']
+                    },
+                    boost_start: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.dateStart', 0] }, '-']
+                    },
+                    boost_end: {
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.datedateEnd', 0] }, '-']
+                    },
+                    typeCategory: 1,
+                    typeUser: 1
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'transactions',
+                    localField: 'va_number',
+                    foreignField: 'nova',
+                    as: 'datatr'
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'newPosts',
+                    localField: 'post_id',
+                    foreignField: 'postID',
+                    as: 'datapost'
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'newUserBasics',
+                    localField: 'idUser',
+                    foreignField: '_id',
+                    as: 'databasic'
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'newUserBasics',
+                    as: 'datapembeli',
+                    let: { idLocal: { '$arrayElemAt': ['$detail.pembeli', 0] } },
+                    pipeline: [
+                        {
+                            '$match': { '$expr': { '$eq': ['$$idLocal', '$_id'] } }
+                        },
+                        { '$limit': 1 }
+                    ]
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'withdraws',
+                    localField: 'withdrawId',
+                    foreignField: '_id',
+                    as: 'datawithdraw'
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'adstypes',
+                    localField: 'typeAdsID',
+                    foreignField: '_id',
+                    as: 'dataAdsType'
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'mediastreaming',
+                    localField: 'idStream',
+                    foreignField: '_id',
+                    as: 'dataStream'
+                }
+            },
+            {
+                '$project': {
+                    type: 1,
+                    emailbuyer: {
+                        '$ifNull': [
+                            {
+                                '$cond': {
+                                    if: { '$eq': ['$typeUser', 'USER_SELL'] },
+                                    then: { '$arrayElemAt': ['$datapembeli.email', 0] },
+                                    else: { '$arrayElemAt': ['$databasic.email', 0] }
+                                }
+                            },
+                            { '$arrayElemAt': ['$databasic.email', 0] }
                         ]
-                      }
-                    }
-                  },
-                  {
-                    '$project': {
-                      index: { '$indexOfArray': [ '$type.idProduct', '$$localID' ] },
-                      coa: {
-                        '$arrayElemAt': [
-                          '$type.name',
-                          { '$indexOfArray': [ '$type.idProduct', '$$localID' ] }
+                    },
+                    usernamebuyer: {
+                        '$ifNull': [
+                            {
+                                '$cond': {
+                                    if: { '$eq': ['$typeUser', 'USER_SELL'] },
+                                    then: { '$arrayElemAt': ['$datapembeli.username', 0] },
+                                    else: { '$arrayElemAt': ['$databasic.username', 0] }
+                                }
+                            },
+                            { '$arrayElemAt': ['$databasic.username', 0] }
                         ]
-                      },
-                      coaDetailName: { '$arrayElemAt': [ '$kecoa.transaction.name', 0 ] },
-                      coaDetailStatus: { '$arrayElemAt': [ '$kecoa.transaction.status', 0 ] }
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              '$project': {
-                type: 1,
-                idTransaction: 1,
-                noInvoice: 1,
-                category: 1,
-                product: 1,
-                voucherDiskon: 1,
-                idUser: 1,
-                coinDiscount: 1,
-                coin: 1,
-                totalCoin: 1,
-                priceDiscont: 1,
-                price: 1,
-                totalPrice: 1,
-                status: 1,
-                detail: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                emailbuyer: { '$arrayElemAt': [ '$databasic.email', 0 ] },
-                usernamebuyer: { '$arrayElemAt': [ '$databasic.username', 0 ] },
-                va_number: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.payload.va_number', 0 ] }, '-' ]
-                },
-                transactionFees: { '$arrayElemAt': [ '$detail.transactionFees', 0 ] },
-                biayPG: { '$arrayElemAt': [ '$detail.biayPG', 0 ] },
-                withdrawId: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.withdrawId', 0 ] }, '-' ]
-                },
-                typeAdsID: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.typeAdsID', 0 ] }, '-' ]
-                },
-                idStream: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.idStream', 0 ] }, '-' ]
-                },
-                code: { '$arrayElemAt': [ '$dataproduk.code', 0 ] },
-                namePaket: { '$arrayElemAt': [ '$dataproduk.name', 0 ] },
-                coa: { '$arrayElemAt': [ '$coa.coa', 0 ] },
-                coaDetailName: { '$arrayElemAt': [ '$coa.coaDetailName', 0 ] },
-                coaDetailStatus: { '$arrayElemAt': [ '$coa.coaDetailStatus', 0 ] },
-                post_id: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.postID', 0 ] }, '-' ]
-                },
-                gift_id: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.id', 0 ] }, '-' ]
-                },
-                credit: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.credit', 0 ] }, '-' ]
-                },
-                boost_type: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.interval.type', 0 ] }, '-' ]
-                },
-                boost_interval: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.interval.value', 0 ] }, '-' ]
-                },
-                boost_unit: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.interval.remark', 0 ] }, '-' ]
-                },
-                boost_start: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.dateStart', 0 ] }, '-' ]
-                },
-                boost_end: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$detail.datedateEnd', 0 ] }, '-' ]
-                },
-                typeCategory: 1,
-                typeUser: 1
-              }
-            },
-            {
-              '$lookup': {
-                from: 'transactions',
-                localField: 'va_number',
-                foreignField: 'nova',
-                as: 'datatr'
-              }
-            },
-            {
-              '$lookup': {
-                from: 'newPosts',
-                localField: 'post_id',
-                foreignField: 'postID',
-                as: 'datapost'
-              }
-            },
-            {
-              '$lookup': {
-                from: 'newUserBasics',
-                localField: 'idUser',
-                foreignField: '_id',
-                as: 'databasic'
-              }
-            },
-            {
-              '$lookup': {
-                from: 'newUserBasics',
-                as: 'datapembeli',
-                let: { idLocal: { '$arrayElemAt': [ '$detail.pembeli', 0 ] } },
-                pipeline: [
-                  {
-                    '$match': { '$expr': { '$eq': [ '$$idLocal', '$_id' ] } }
-                  },
-                  { '$limit': 1 }
-                ]
-              }
-            },
-            {
-              '$lookup': {
-                from: 'withdraws',
-                localField: 'withdrawId',
-                foreignField: '_id',
-                as: 'datawithdraw'
-              }
-            },
-            {
-              '$lookup': {
-                from: 'adstypes',
-                localField: 'typeAdsID',
-                foreignField: '_id',
-                as: 'dataAdsType'
-              }
-            },
-            {
-              '$lookup': {
-                from: 'mediastreaming',
-                localField: 'idStream',
-                foreignField: '_id',
-                as: 'dataStream'
-              }
-            },
-            {
-              '$project': {
-                type: 1,
-                emailbuyer: {
-                  '$ifNull': [
-                    {
-                      '$cond': {
-                        if: { '$eq': [ '$typeUser', 'USER_SELL' ] },
-                        then: { '$arrayElemAt': [ '$datapembeli.email', 0 ] },
-                        else: { '$arrayElemAt': [ '$databasic.email', 0 ] }
-                      }
                     },
-                    { '$arrayElemAt': [ '$databasic.email', 0 ] }
-                  ]
-                },
-                usernamebuyer: {
-                  '$ifNull': [
-                    {
-                      '$cond': {
-                        if: { '$eq': [ '$typeUser', 'USER_SELL' ] },
-                        then: { '$arrayElemAt': [ '$datapembeli.username', 0 ] },
-                        else: { '$arrayElemAt': [ '$databasic.username', 0 ] }
-                      }
+                    emailseller: {
+                        '$ifNull': [
+                            {
+                                '$cond': {
+                                    if: { '$eq': ['$typeUser', 'USER_SELL'] },
+                                    then: { '$arrayElemAt': ['$databasic.email', 0] },
+                                    else: { '$arrayElemAt': ['$datapembeli.email', 0] }
+                                }
+                            },
+                            { '$arrayElemAt': ['$databasic.email', 0] }
+                        ]
                     },
-                    { '$arrayElemAt': [ '$databasic.username', 0 ] }
-                  ]
-                },
-                emailseller: {
-                  '$ifNull': [
-                    {
-                      '$cond': {
-                        if: { '$eq': [ '$typeUser', 'USER_SELL' ] },
-                        then: { '$arrayElemAt': [ '$databasic.email', 0 ] },
-                        else: { '$arrayElemAt': [ '$datapembeli.email', 0 ] }
-                      }
+                    usernameseller: {
+                        '$ifNull': [
+                            {
+                                '$cond': {
+                                    if: { '$eq': ['$typeUser', 'USER_SELL'] },
+                                    then: { '$arrayElemAt': ['$databasic.username', 0] },
+                                    else: { '$arrayElemAt': ['$datapembeli.username', 0] }
+                                }
+                            },
+                            { '$arrayElemAt': ['$databasic.username', 0] }
+                        ]
                     },
-                    { '$arrayElemAt': [ '$databasic.email', 0 ] }
-                  ]
-                },
-                usernameseller: {
-                  '$ifNull': [
-                    {
-                      '$cond': {
-                        if: { '$eq': [ '$typeUser', 'USER_SELL' ] },
-                        then: { '$arrayElemAt': [ '$databasic.username', 0 ] },
-                        else: { '$arrayElemAt': [ '$datapembeli.username', 0 ] }
-                      }
+                    idTransaction: 1,
+                    noInvoice: 1,
+                    category: 1,
+                    content_id: { '$arrayElemAt': ['$datapost._id', 0] },
+                    product: 1,
+                    voucherDiskon: 1,
+                    idUser: 1,
+                    coinDiscount: 1,
+                    coin: 1,
+                    totalCoin: 1,
+                    priceDiscont: 1,
+                    price: 1,
+                    totalPrice: 1,
+                    detail: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    va_number: 1,
+                    transactionFees: 1,
+                    biayPG: 1,
+                    code: 1,
+                    namePaket: 1,
+                    gift_id: 1,
+                    credit: 1,
+                    boost_type: 1,
+                    boost_interval: 1,
+                    boost_unit: 1,
+                    boost_start: 1,
+                    amount: { '$arrayElemAt': ['$datatr.amount', 0] },
+                    paymentmethod: { '$arrayElemAt': ['$datatr.paymentmethod', 0] },
+                    status: {
+                        '$ifNull': [{ '$arrayElemAt': ['$datatr.status', 0] }, null]
                     },
-                    { '$arrayElemAt': [ '$databasic.username', 0 ] }
-                  ]
-                },
-                idTransaction: 1,
-                noInvoice: 1,
-                category: 1,
-                content_id: { '$arrayElemAt': [ '$datapost._id', 0 ] },
-                product: 1,
-                voucherDiskon: 1,
-                idUser: 1,
-                coinDiscount: 1,
-                coin: 1,
-                totalCoin: 1,
-                priceDiscont: 1,
-                price: 1,
-                totalPrice: 1,
-                detail: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                va_number: 1,
-                transactionFees: 1,
-                biayPG: 1,
-                code: 1,
-                namePaket: 1,
-                gift_id: 1,
-                credit: 1,
-                boost_type: 1,
-                boost_interval: 1,
-                boost_unit: 1,
-                boost_start: 1,
-                amount: { '$arrayElemAt': [ '$datatr.amount', 0 ] },
-                paymentmethod: { '$arrayElemAt': [ '$datatr.paymentmethod', 0 ] },
-                status: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$datatr.status', 0 ] }, null ]
-                },
-                description: { '$arrayElemAt': [ '$datatr.description', 0 ] },
-                bank: { '$arrayElemAt': [ '$datatr.bank', 0 ] },
-                totalamount: { '$arrayElemAt': [ '$datatr.totalamount', 0 ] },
-                product_id: { '$arrayElemAt': [ '$datatr.product_id', 0 ] },
-                expiredtimeva: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$datatr.expiredtimeva', 0 ] }, null ]
-                },
-                idtr_lama: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$datatr._id', 0 ] }, null ]
-                },
-                post_id: 1,
-                post_type: {
-                  '$switch': {
-                    branches: [
-                      {
-                        case: {
-                          '$eq': [
-                            { '$arrayElemAt': [ '$datapost.postType', 0 ] },
-                            'pict'
-                          ]
+                    description: { '$arrayElemAt': ['$datatr.description', 0] },
+                    bank: { '$arrayElemAt': ['$datatr.bank', 0] },
+                    totalamount: { '$arrayElemAt': ['$datatr.totalamount', 0] },
+                    product_id: { '$arrayElemAt': ['$datatr.product_id', 0] },
+                    expiredtimeva: {
+                        '$ifNull': [{ '$arrayElemAt': ['$datatr.expiredtimeva', 0] }, null]
+                    },
+                    idtr_lama: {
+                        '$ifNull': [{ '$arrayElemAt': ['$datatr._id', 0] }, null]
+                    },
+                    post_id: 1,
+                    post_type: {
+                        '$switch': {
+                            branches: [
+                                {
+                                    case: {
+                                        '$eq': [
+                                            { '$arrayElemAt': ['$datapost.postType', 0] },
+                                            'pict'
+                                        ]
+                                    },
+                                    then: 'HyppePic'
+                                },
+                                {
+                                    case: {
+                                        '$eq': [
+                                            { '$arrayElemAt': ['$datapost.postType', 0] },
+                                            'vid'
+                                        ]
+                                    },
+                                    then: 'HyppeVid'
+                                },
+                                {
+                                    case: {
+                                        '$eq': [
+                                            { '$arrayElemAt': ['$datapost.postType', 0] },
+                                            'diary'
+                                        ]
+                                    },
+                                    then: 'HyppeVid'
+                                },
+                                {
+                                    case: {
+                                        '$eq': [
+                                            { '$arrayElemAt': ['$datapost.postType', 0] },
+                                            'story'
+                                        ]
+                                    },
+                                    then: 'HyppeStory'
+                                }
+                            ],
+                            default: '-'
+                        }
+                    },
+                    post_owner_email: {
+                        '$ifNull': [{ '$arrayElemAt': ['$datapost.email', 0] }, '-']
+                    },
+                    withdrawAmount: {
+                        '$ifNull': [{ '$arrayElemAt': ['$datawithdraw.amount', 0] }, 0]
+                    },
+                    withdrawTotal: {
+                        '$ifNull': [{ '$arrayElemAt': ['$datawithdraw.totalamount', 0] }, 0]
+                    },
+                    withdrawCost: {
+                        '$subtract': [
+                            {
+                                '$ifNull': [{ '$arrayElemAt': ['$datawithdraw.amount', 0] }, 0]
+                            },
+                            {
+                                '$ifNull': [
+                                    { '$arrayElemAt': ['$datawithdraw.totalamount', 0] },
+                                    0
+                                ]
+                            }
+                        ]
+                    },
+                    recipientAccId: {
+                        '$ifNull': [
+                            { '$arrayElemAt': ['$datawithdraw.idAccountBank', 0] },
+                            '-'
+                        ]
+                    },
+                    recipientUser: {
+                        '$ifNull': [{ '$arrayElemAt': ['$datawithdraw.idUser', 0] }, '-']
+                    },
+                    coa: 1,
+                    coaDetailName: 1,
+                    coaDetailStatus: 1,
+                    adType: {
+                        '$ifNull': [{ '$arrayElemAt': ['$dataAdsType.nameType', 0] }, '-']
+                    },
+                    idStream: 1,
+                    titleStream: {
+                        '$ifNull': [{ '$arrayElemAt': ['$dataStream.title', 0] }, '-']
+                    },
+                    typeCategory: 1,
+                    typeUser: 1
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'methodepayments',
+                    localField: 'paymentmethod',
+                    foreignField: '_id',
+                    as: 'datamethod'
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'newUserBasics',
+                    localField: 'post_owner_email',
+                    foreignField: 'email',
+                    as: 'datapostowner'
+                }
+            },
+            {
+                '$lookup': {
+                    from: 'monetize',
+                    let: { product_id: '$product_id', gift_id: '$gift_id' },
+                    as: 'monetdata',
+                    pipeline: [
+                        {
+                            '$match': {
+                                '$or': [
+                                    { '$expr': { '$eq': ['$$product_id', '$package_id'] } },
+                                    { '$expr': { '$eq': ['$$gift_id', '$_id'] } }
+                                ]
+                            }
                         },
-                        then: 'HyppePic'
-                      },
-                      {
-                        case: {
-                          '$eq': [
-                            { '$arrayElemAt': [ '$datapost.postType', 0 ] },
-                            'vid'
-                          ]
-                        },
-                        then: 'HyppeVid'
-                      },
-                      {
-                        case: {
-                          '$eq': [
-                            { '$arrayElemAt': [ '$datapost.postType', 0 ] },
-                            'diary'
-                          ]
-                        },
-                        then: 'HyppeVid'
-                      },
-                      {
-                        case: {
-                          '$eq': [
-                            { '$arrayElemAt': [ '$datapost.postType', 0 ] },
-                            'story'
-                          ]
-                        },
-                        then: 'HyppeStory'
-                      }
-                    ],
-                    default: '-'
-                  }
-                },
-                post_owner_email: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$datapost.email', 0 ] }, '-' ]
-                },
-                withdrawAmount: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$datawithdraw.amount', 0 ] }, 0 ]
-                },
-                withdrawTotal: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$datawithdraw.totalamount', 0 ] }, 0 ]
-                },
-                withdrawCost: {
-                  '$subtract': [
-                    {
-                      '$ifNull': [ { '$arrayElemAt': [ '$datawithdraw.amount', 0 ] }, 0 ]
-                    },
-                    {
-                      '$ifNull': [
-                        { '$arrayElemAt': [ '$datawithdraw.totalamount', 0 ] },
-                        0
-                      ]
-                    }
-                  ]
-                },
-                recipientAccId: {
-                  '$ifNull': [
-                    { '$arrayElemAt': [ '$datawithdraw.idAccountBank', 0 ] },
-                    '-'
-                  ]
-                },
-                recipientUser: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$datawithdraw.idUser', 0 ] }, '-' ]
-                },
-                coa: 1,
-                coaDetailName: 1,
-                coaDetailStatus: 1,
-                adType: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$dataAdsType.nameType', 0 ] }, '-' ]
-                },
-                idStream: 1,
-                titleStream: {
-                  '$ifNull': [ { '$arrayElemAt': [ '$dataStream.title', 0 ] }, '-' ]
-                },
-                typeCategory: 1,
-                typeUser: 1
-              }
+                        { '$limit': 1 }
+                    ]
+                }
             },
             {
-              '$lookup': {
-                from: 'methodepayments',
-                localField: 'paymentmethod',
-                foreignField: '_id',
-                as: 'datamethod'
-              }
+                '$lookup': {
+                    from: 'userbankaccounts',
+                    localField: 'recipientAccId',
+                    foreignField: '_id',
+                    as: 'recipientaccdata'
+                }
             },
             {
-              '$lookup': {
-                from: 'newUserBasics',
-                localField: 'post_owner_email',
-                foreignField: 'email',
-                as: 'datapostowner'
-              }
+                '$lookup': {
+                    from: 'newUserBasics',
+                    localField: 'recipientUser',
+                    foreignField: '_id',
+                    as: 'recipientuserdata'
+                }
             },
             {
-              '$lookup': {
-                from: 'monetize',
-                let: { product_id: '$product_id', gift_id: '$gift_id' },
-                as: 'monetdata',
-                pipeline: [
-                  {
-                    '$match': {
-                      '$or': [
-                        { '$expr': { '$eq': [ '$$product_id', '$package_id' ] } },
-                        { '$expr': { '$eq': [ '$$gift_id', '$_id' ] } }
-                      ]
-                    }
-                  },
-                  { '$limit': 1 }
-                ]
-              }
+                '$project': {
+                    type: 1,
+                    idTransaction: 1,
+                    noInvoice: 1,
+                    emailbuyer: 1,
+                    usernamebuyer: 1,
+                    emailseller: 1,
+                    usernameseller: 1,
+                    category: 1,
+                    content_id: 1,
+                    product: 1,
+                    voucherDiskon: 1,
+                    idUser: 1,
+                    coinDiscount: 1,
+                    coin: 1,
+                    totalCoin: 1,
+                    priceDiscont: 1,
+                    price: 1,
+                    totalPrice: 1,
+                    status: 1,
+                    detail: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    va_number: 1,
+                    transactionFees: 1,
+                    biayPG: 1,
+                    code: 1,
+                    namePaket: 1,
+                    amount: 1,
+                    paymentmethod: 1,
+                    description: 1,
+                    bank: 1,
+                    totalamount: 1,
+                    product_id: 1,
+                    expiredtimeva: 1,
+                    idtr_lama: 1,
+                    methodename: { '$arrayElemAt': ['$datamethod.methodename', 0] },
+                    productName: { '$arrayElemAt': ['$monetdata.name', 0] },
+                    package_id: { '$arrayElemAt': ['$monetdata.package_id', 0] },
+                    post_id: 1,
+                    post_type: 1,
+                    post_owner: { '$arrayElemAt': ['$datapostowner.username', 0] },
+                    credit: 1,
+                    boost_type: 1,
+                    boost_interval: 1,
+                    boost_unit: 1,
+                    boost_start: 1,
+                    withdrawAmount: 1,
+                    withdrawTotal: 1,
+                    withdrawCost: 1,
+                    recipientNoRek: { '$arrayElemAt': ['$recipientaccdata.noRek', 0] },
+                    recipientName: { '$arrayElemAt': ['$recipientaccdata.nama', 0] },
+                    recipientUsername: { '$arrayElemAt': ['$recipientuserdata.username', 0] },
+                    recipientBankId: { '$arrayElemAt': ['$recipientaccdata.idBank', 0] },
+                    coa: 1,
+                    coaDetailName: 1,
+                    coaDetailStatus: 1,
+                    adType: 1,
+                    idStream: 1,
+                    titleStream: 1,
+                    typeCategory: 1,
+                    typeUser: 1
+                }
             },
             {
-              '$lookup': {
-                from: 'userbankaccounts',
-                localField: 'recipientAccId',
-                foreignField: '_id',
-                as: 'recipientaccdata'
-              }
+                '$lookup': {
+                    from: 'banks',
+                    localField: 'bank',
+                    foreignField: '_id',
+                    as: 'databank'
+                }
             },
             {
-              '$lookup': {
-                from: 'newUserBasics',
-                localField: 'recipientUser',
-                foreignField: '_id',
-                as: 'recipientuserdata'
-              }
+                '$lookup': {
+                    from: 'banks',
+                    localField: 'recipientBankId',
+                    foreignField: '_id',
+                    as: 'datarecipientbank'
+                }
             },
             {
-              '$project': {
-                type: 1,
-                idTransaction: 1,
-                noInvoice: 1,
-                emailbuyer: 1,
-                usernamebuyer: 1,
-                emailseller: 1,
-                usernameseller: 1,
-                category: 1,
-                content_id: 1,
-                product: 1,
-                voucherDiskon: 1,
-                idUser: 1,
-                coinDiscount: 1,
-                coin: 1,
-                totalCoin: 1,
-                priceDiscont: 1,
-                price: 1,
-                totalPrice: 1,
-                status: 1,
-                detail: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                va_number: 1,
-                transactionFees: 1,
-                biayPG: 1,
-                code: 1,
-                namePaket: 1,
-                amount: 1,
-                paymentmethod: 1,
-                description: 1,
-                bank: 1,
-                totalamount: 1,
-                product_id: 1,
-                expiredtimeva: 1,
-                idtr_lama: 1,
-                methodename: { '$arrayElemAt': [ '$datamethod.methodename', 0 ] },
-                productName: { '$arrayElemAt': [ '$monetdata.name', 0 ] },
-                package_id: { '$arrayElemAt': [ '$monetdata.package_id', 0 ] },
-                post_id: 1,
-                post_type: 1,
-                post_owner: { '$arrayElemAt': [ '$datapostowner.username', 0 ] },
-                credit: 1,
-                boost_type: 1,
-                boost_interval: 1,
-                boost_unit: 1,
-                boost_start: 1,
-                withdrawAmount: 1,
-                withdrawTotal: 1,
-                withdrawCost: 1,
-                recipientNoRek: { '$arrayElemAt': [ '$recipientaccdata.noRek', 0 ] },
-                recipientName: { '$arrayElemAt': [ '$recipientaccdata.nama', 0 ] },
-                recipientUsername: { '$arrayElemAt': [ '$recipientuserdata.username', 0 ] },
-                recipientBankId: { '$arrayElemAt': [ '$recipientaccdata.idBank', 0 ] },
-                coa: 1,
-                coaDetailName: 1,
-                coaDetailStatus: 1,
-                adType: 1,
-                idStream: 1,
-                titleStream: 1,
-                typeCategory: 1,
-                typeUser: 1
-              }
-            },
-            {
-              '$lookup': {
-                from: 'banks',
-                localField: 'bank',
-                foreignField: '_id',
-                as: 'databank'
-              }
-            },
-            {
-              '$lookup': {
-                from: 'banks',
-                localField: 'recipientBankId',
-                foreignField: '_id',
-                as: 'datarecipientbank'
-              }
-            },
-            {
-              '$set': {
-                timenow: {
+                '$set': {
+                    timenow: {
                         "$dateToString": {
                             "format": "%Y-%m-%d %H:%M:%S",
                             "date": {
@@ -3121,79 +3121,79 @@ export class TransactionsV2Service {
                             }
                         }
                     }
-              }
+                }
             },
             {
-              '$project': {
-                type: 1,
-                idTransaction: 1,
-                noInvoice: 1,
-                content_id: 1,
-                category: 1,
-                emailbuyer: 1,
-                usernamebuyer: 1,
-                emailseller: 1,
-                usernameseller: 1,
-                product: 1,
-                voucherDiskon: 1,
-                idUser: 1,
-                coinDiscount: 1,
-                coin: 1,
-                totalCoin: 1,
-                priceDiscont: 1,
-                price: 1,
-                totalPrice: 1,
-                status: 1,
-                createdAt: 1,
-                updatedAt: 1,
-                va_number: 1,
-                expiredtimeva: 1,
-                idtr_lama: 1,
-                transactionFees: 1,
-                biayPG: 1,
-                code: 1,
-                namePaket: 1,
-                amount: 1,
-                paymentmethod: 1,
-                description: 1,
-                bank: 1,
-                totalamount: 1,
-                product_id: 1,
-                methodename: 1,
-                productName: 1,
-                package_id: 1,
-                timenow: 1,
-                bankname: { '$arrayElemAt': [ '$databank.bankname', 0 ] },
-                bankcode: { '$arrayElemAt': [ '$databank.bankcode', 0 ] },
-                urlEbanking: { '$arrayElemAt': [ '$databank.urlEbanking', 0 ] },
-                bankIcon: { '$arrayElemAt': [ '$databank.bankIcon', 0 ] },
-                atm: { '$arrayElemAt': [ '$databank.atm', 0 ] },
-                internetBanking: { '$arrayElemAt': [ '$databank.internetBanking', 0 ] },
-                mobileBanking: { '$arrayElemAt': [ '$databank.mobileBanking', 0 ] },
-                post_id: 1,
-                post_type: 1,
-                post_owner: 1,
-                credit: 1,
-                boost_type: 1,
-                boost_interval: 1,
-                boost_unit: 1,
-                boost_start: 1,
-                withdrawAmount: 1,
-                withdrawTotal: 1,
-                withdrawCost: 1,
-                recipientNoRek: 1,
-                recipientName: 1,
-                recipientUsername: 1,
-                recipientBankName: { '$arrayElemAt': [ '$datarecipientbank.bankname', 0 ] },
-                coa: 1,
-                coaDetailName: 1,
-                coaDetailStatus: 1,
-                adType: 1,
-                idStream: 1,
-                titleStream: 1,
-                typeCategory: 1,
-                typeUser: 1
-              }
+                '$project': {
+                    type: 1,
+                    idTransaction: 1,
+                    noInvoice: 1,
+                    content_id: 1,
+                    category: 1,
+                    emailbuyer: 1,
+                    usernamebuyer: 1,
+                    emailseller: 1,
+                    usernameseller: 1,
+                    product: 1,
+                    voucherDiskon: 1,
+                    idUser: 1,
+                    coinDiscount: 1,
+                    coin: 1,
+                    totalCoin: 1,
+                    priceDiscont: 1,
+                    price: 1,
+                    totalPrice: 1,
+                    status: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    va_number: 1,
+                    expiredtimeva: 1,
+                    idtr_lama: 1,
+                    transactionFees: 1,
+                    biayPG: 1,
+                    code: 1,
+                    namePaket: 1,
+                    amount: 1,
+                    paymentmethod: 1,
+                    description: 1,
+                    bank: 1,
+                    totalamount: 1,
+                    product_id: 1,
+                    methodename: 1,
+                    productName: 1,
+                    package_id: 1,
+                    timenow: 1,
+                    bankname: { '$arrayElemAt': ['$databank.bankname', 0] },
+                    bankcode: { '$arrayElemAt': ['$databank.bankcode', 0] },
+                    urlEbanking: { '$arrayElemAt': ['$databank.urlEbanking', 0] },
+                    bankIcon: { '$arrayElemAt': ['$databank.bankIcon', 0] },
+                    atm: { '$arrayElemAt': ['$databank.atm', 0] },
+                    internetBanking: { '$arrayElemAt': ['$databank.internetBanking', 0] },
+                    mobileBanking: { '$arrayElemAt': ['$databank.mobileBanking', 0] },
+                    post_id: 1,
+                    post_type: 1,
+                    post_owner: 1,
+                    credit: 1,
+                    boost_type: 1,
+                    boost_interval: 1,
+                    boost_unit: 1,
+                    boost_start: 1,
+                    withdrawAmount: 1,
+                    withdrawTotal: 1,
+                    withdrawCost: 1,
+                    recipientNoRek: 1,
+                    recipientName: 1,
+                    recipientUsername: 1,
+                    recipientBankName: { '$arrayElemAt': ['$datarecipientbank.bankname', 0] },
+                    coa: 1,
+                    coaDetailName: 1,
+                    coaDetailStatus: 1,
+                    adType: 1,
+                    idStream: 1,
+                    titleStream: 1,
+                    typeCategory: 1,
+                    typeUser: 1
+                }
             }
         ]);
 
@@ -3242,17 +3242,14 @@ export class TransactionsV2Service {
             timenow: data[0].timenow
         };
 
-        for(var i = 0; i < data.length; i++)
-        {
+        for (var i = 0; i < data.length; i++) {
             var gettempdata = data[i];
-            if(gettempdata.typeUser == "USER_SELL")
-            {
-                setoutput['emailseller'] = gettempdata.emailseller;   
-                setoutput['usernameseller'] = gettempdata.usernameseller;   
+            if (gettempdata.typeUser == "USER_SELL") {
+                setoutput['emailseller'] = gettempdata.emailseller;
+                setoutput['usernameseller'] = gettempdata.usernameseller;
             }
-            else
-            {
-                setoutput['emailbuyer'] = gettempdata.emailbuyer;   
+            else {
+                setoutput['emailbuyer'] = gettempdata.emailbuyer;
                 setoutput['usernamebuyer'] = gettempdata.usernamebuyer;
             }
         }
@@ -3262,7 +3259,7 @@ export class TransactionsV2Service {
 
     async findOneByNoInvoice(noinvoice: string) {
         return this.transactionsModel.findOne({
-            "noInvoice":noinvoice
+            "noInvoice": noinvoice
         }).exec();
     }
 
