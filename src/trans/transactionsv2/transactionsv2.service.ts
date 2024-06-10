@@ -2411,7 +2411,7 @@ export class TransactionsV2Service {
                         $arrayElemAt: ['$monetdata.name', 0]
                     },
                     "package_id": {
-                        $arrayElemAt: ['$monetdata._id', 0]
+                        $arrayElemAt: ['$monetdata.package_id', 0]
                     },
                     "post_id": 1,
                     "post_type": 1,
