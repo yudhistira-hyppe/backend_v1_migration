@@ -8537,12 +8537,15 @@ export class UserbasicnewService {
                     createdAt: "$trans.createdAt",
                     updatedAt: "$trans.updatedAt",
                     status: "$trans.status",
+                    idTransLama: "$trans.transOld._id",
                     package: "$trans.transOld.packageName",
                     noInvoiceLama: "$trans.transOld.noinvoice",
+                    expiredtimeva: "$trans.transOld.expiredtimeva",
                     coa: "$trans.coa.coa",
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
+                    vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] }
                     // tracking: "$trans.withdrawData.tracking"
                 }
             }

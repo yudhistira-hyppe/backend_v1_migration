@@ -3362,7 +3362,7 @@ export class TransactionsController {
                 "totalAmount": amountTotal,
                 "like": salelike,
                 "view": saleview,
-                "pembeli":idbuyer
+                "pembeli": idbuyer
             };
 
             arrDt.push(detailTr)
@@ -21674,7 +21674,7 @@ export class TransactionsController {
         const messages = {
             "info": ["The process was successful"],
         };
-
+        var datenow = new Date(Date.now());
         var request_json = JSON.parse(JSON.stringify(request.body));
         var user_data = await this.basic2SS.findBymail(setemail);
         if (!user_data) {
@@ -21703,8 +21703,23 @@ export class TransactionsController {
         // }
 
         try {
+            let updated = false;
             var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype);
             for (let x of data) {
+                let expiredvanew = new Date(x.expiredtimeva);
+                expiredvanew.setHours(expiredvanew.getHours() - 7);
+                if (x.status == "WAITING_PAYMENT" || x.status == "PENDING") {
+                    if (datenow > expiredvanew) {
+                        try {
+                            await this.transactionsService.updatecancel(x.idTransLama.toString());
+                            await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
+                            x.status = "FAILED";
+                            // if (!updated) updated = true;
+                        } catch (e) {
+
+                        }
+                    }
+                }
                 switch (x.coa) {
                     case "Paket Coin":
                         x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
@@ -21719,8 +21734,8 @@ export class TransactionsController {
                             x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
                             x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
                         } else {
-                            x.desc_title_id = `Pembelian Gift untuk Live`;
-                            x.desc_title_en = `Gift Purchase for Live`;
+                            x.desc_title_id = `Pengiriman Gift untuk Live`;
+                            x.desc_title_en = `Gift Sent to Live`;
                             x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
                             x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
                         }
@@ -21732,8 +21747,8 @@ export class TransactionsController {
                             x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Konten`;
                             x.desc_content_en = `Gift worth ${x.coin} Coins received from Content`;
                         } else {
-                            x.desc_title_id = `Pembelian Gift untuk Content`;
-                            x.desc_title_en = `Gift Purchase for Content`;
+                            x.desc_title_id = `Pengiriman Gift untuk Content`;
+                            x.desc_title_en = `Gift Sent to Content`;
                             x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
                             x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
                         }
@@ -21782,6 +21797,87 @@ export class TransactionsController {
                         break;
                 }
             }
+            // if (updated) {
+            //     data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype);
+            //     for (let x of data) {
+            //         switch (x.coa) {
+            //             case "Paket Coin":
+            //                 x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
+            //                 x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
+            //                 x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
+            //                 x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
+            //                 break;
+            //             case "Live Gift":
+            //                 if (x.coaDetailStatus == "debit") {
+            //                     x.desc_title_id = `Penerimaan Gift dari Live`;
+            //                     x.desc_title_en = `Gift received from Live`;
+            //                     x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
+            //                     x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
+            //                 } else {
+            //                     x.desc_title_id = `Pembelian Gift untuk Live`;
+            //                     x.desc_title_en = `Gift Purchase for Live`;
+            //                     x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
+            //                     x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+            //                 }
+            //                 break;
+            //             case "Content Gift":
+            //                 if (x.coaDetailStatus == "debit") {
+            //                     x.desc_title_id = `Penerimaan Gift dari Konten`;
+            //                     x.desc_title_en = `Gift received from Content`;
+            //                     x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Konten`;
+            //                     x.desc_content_en = `Gift worth ${x.coin} Coins received from Content`;
+            //                 } else {
+            //                     x.desc_title_id = `Pembelian Gift untuk Content`;
+            //                     x.desc_title_en = `Gift Purchase for Content`;
+            //                     x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
+            //                     x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+            //                 }
+            //                 break;
+            //             case "Penjualan Konten":
+            //                 x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
+            //                 x.desc_title_en = `Content Sales Proceeds`;
+            //                 x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
+            //                 x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
+            //                 break;
+            //             case "Ads":
+            //                 x.desc_title_id = `Menonton Iklan`;
+            //                 x.desc_title_en = `Ads Watched`;
+            //                 x.desc_content_id = `Dari menonton iklan`;
+            //                 x.desc_content_en = `From watching ads`;
+            //                 break;
+            //             case "Pembelian Konten":
+            //                 x.desc_title_id = `Pembelian Konten`;
+            //                 x.desc_title_en = `Content Purchase`;
+            //                 x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
+            //                 x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
+            //                 break;
+            //             case "Conten Ownership":
+            //                 x.desc_title_id = `Kepemilikan Konten`;
+            //                 x.desc_title_en = `Content Ownership`;
+            //                 x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
+            //                 x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
+            //                 break;
+            //             case "Paket Kredit":
+            //                 x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
+            //                 x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
+            //                 x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
+            //                 x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
+            //                 break;
+            //             case "Boost Post":
+            //                 x.desc_title_id = `Boost Postingan`;
+            //                 x.desc_title_en = `Boost Post`;
+            //                 x.desc_content_id = `Boost Postingan seharga ${x.coin} Coins`;
+            //                 x.desc_content_en = `Post Boosted for ${x.coin} Coins`;
+            //                 break;
+            //             case "WD":
+            //                 x.desc_title_id = `Penukaran Coins`;
+            //                 x.desc_title_en = `Coins Exchanged`;
+            //                 x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
+            //                 x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
+            //                 break;
+            //         }
+            //     }
+            // }
             var timestamps_end = await this.utilsService.getDateTimeString();
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
             return {
