@@ -8318,6 +8318,12 @@ export class UserbasicnewService {
                             $set: {
                                 vaNumber: {
                                     $ifNull: [{ $arrayElemAt: ['$detail.payload.va_number', 0] }, 0]
+                                },
+                                idPembeli: {
+                                    $ifNull: [{ $arrayElemAt: ['$detail.pembeli', 0] }, 0]
+                                },
+                                idPost: {
+                                    $ifNull: [{ $arrayElemAt: ['$detail.postID', 0] }, "-"]
                                 }
                             }
                         },
@@ -8391,6 +8397,77 @@ export class UserbasicnewService {
 
                             },
 
+                        },
+                        {
+                            $lookup:
+                            {
+
+                                from: "newUserBasics",
+                                as: "datapembeli",
+                                let: {
+                                    idLocal: "$idPembeli"
+                                },
+                                pipeline: [
+                                    {
+                                        "$match":
+                                        {
+                                            "$expr":
+                                            {
+                                                "$eq":
+                                                    [
+                                                        "$$idLocal", "$_id"
+                                                    ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "$limit": 1
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            $lookup:
+                            {
+
+                                from: "newPosts",
+                                as: "datapost",
+                                let: {
+                                    idLocal: "$idPost"
+                                },
+                                pipeline: [
+                                    {
+                                        "$match":
+                                        {
+                                            "$expr":
+                                            {
+                                                "$eq":
+                                                    [
+                                                        "$$idLocal", "$postID"
+                                                    ]
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "$limit": 1
+                                    },
+                                    {
+                                        "$lookup": {
+                                            from: "newUserBasics",
+                                            localField: "email",
+                                            foreignField: "email",
+                                            as: "postOwnerData"
+                                        }
+                                    },
+                                    {
+                                        "$project": {
+                                            "postID": 1,
+                                            "postType": 1,
+                                            "postOwner": { $arrayElemAt: ["$postOwnerData.username", 0] }
+                                        }
+                                    }
+                                ]
+                            }
                         },
                         {
                             "$lookup": {
@@ -8566,8 +8643,94 @@ export class UserbasicnewService {
                     email: 1,
                     idUser: 1,
                     userName: 1,
+                    "emailbuyer": {
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$trans.typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": {
+                                        "$arrayElemAt": [
+                                            "$trans.datapembeli.email", 0
+                                        ]
+                                    },
+                                    "else": "$email"
+                                }
+                            },
+                            "-"
+                        ]
+                    },
+                    "usernamebuyer": {
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$trans.typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": {
+                                        "$arrayElemAt": [
+                                            "$trans.datapembeli.username", 0
+                                        ]
+                                    },
+                                    "else": "$userName"
+                                }
+                            },
+                            "-"
+                        ]
+                    },
+                    "emailseller": {
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$trans.typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": "$email",
+                                    "else": {
+                                        "$arrayElemAt": [
+                                            "$trans.datapembeli.email", 0
+                                        ]
+                                    }
+                                }
+                            },
+                            "-"
+                        ]
+                    },
+                    "usernameseller": {
+                        "$ifNull": [
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$trans.typeUser", "USER_SELL"
+                                        ]
+                                    },
+                                    "then": "$userName",
+                                    "else": {
+                                        "$arrayElemAt": [
+                                            "$trans.datapembeli.username", 0
+                                        ]
+                                    }
+                                }
+                            },
+                            "-"
+                        ]
+                    },
+                    // idPembeli: "$trans.idPembeli",
+                    // datapembeli: "$trans.datapembeli",
+                    "postID": { $arrayElemAt: ['$trans.datapost.postID', 0] },
+                    "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
+                    "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
                     idTrans: "$trans.idTransaction",
                     type: "$trans.type",
+                    typeUser: "$trans.typeUser",
                     noInvoice: "$trans.noInvoice",
                     coin: "$trans.coin",
                     coinDiscount: { $ifNull: ["$trans.coinDiscount", 0] },

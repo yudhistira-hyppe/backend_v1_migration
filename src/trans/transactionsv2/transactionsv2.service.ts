@@ -1956,6 +1956,9 @@ export class TransactionsV2Service {
                     "boost_start": {
                         $ifNull: [{ $arrayElemAt: ['$detail.dateStart', 0] }, "-"]
                     },
+                    "boost_end": {
+                        $ifNull: [{ $arrayElemAt: ['$detail.datedateEnd', 0] }, "-"]
+                    },
                     typeCategory: 1,
                     typeUser: 1
                 }

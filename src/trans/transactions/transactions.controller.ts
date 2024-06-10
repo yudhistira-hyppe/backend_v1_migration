@@ -2562,10 +2562,10 @@ export class TransactionsController {
         var idlanguages = null;
         var datalanguage = null;
         var langIso = null;
-        var datamaxmin=null;
-        var max=0;
-        var min=0;
-        
+        var datamaxmin = null;
+        var max = 0;
+        var min = 0;
+
         if (idDiscount !== undefined && idDiscount !== null) {
             arrDiskon = [idDiscount];
             try {
@@ -2640,7 +2640,7 @@ export class TransactionsController {
         } catch (e) {
             datamaxmin = null;
             max = 0;
-            min=0;
+            min = 0;
         }
 
         var idmethode = null;
@@ -2771,9 +2771,9 @@ export class TransactionsController {
                     } catch (e) {
                         jmlcoin = 0;
                     }
-                    var formatmax= new Intl.NumberFormat('en-DE').format(max);
-                    var formatmin= new Intl.NumberFormat('en-DE').format(min);
-                    if(amountTotal >= min && amountTotal <= max){
+                    var formatmax = new Intl.NumberFormat('en-DE').format(max);
+                    var formatmin = new Intl.NumberFormat('en-DE').format(min);
+                    if (amountTotal >= min && amountTotal <= max) {
                         if (datatrpending !== null) {
 
                             let cekstatusva = await this.oyPgService.staticVaInfo(datatrpending.idva);
@@ -2781,19 +2781,19 @@ export class TransactionsController {
                             var dex = new Date(expiredva);
                             dex.setHours(dex.getHours() + 7); // timestamp
                             dex = new Date(dex);
-    
+
                             if (cekstatusva.va_status === "WAITING_PAYMENT") {
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 throw new BadRequestException("Tidak dapat melanjutkan. Konten ini sedang dalam proses pembelian");
                             }
                             else if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
-    
+
                                 var idtransaction = datatrpending._id;
-    
+
                                 // if (datenow > dateVa) {
-    
+
                                 var datava = {
                                     "partner_user_id": userbuy.toString() + stringId,
                                     "amount": amountTotal,
@@ -2805,7 +2805,7 @@ export class TransactionsController {
                                     "email": email,
                                     "trx_expiration_time": valueexpiredva,
                                 }
-    
+
                                 try {
                                     var datareqva = await this.oyPgService.generateStaticVa(datava);
                                     var idva = datareqva.id;
@@ -2816,17 +2816,17 @@ export class TransactionsController {
                                     var d1 = new Date(expiredva);
                                     d1.setHours(d1.getHours() + 7); // timestamp
                                     d1 = new Date(d1);
-    
-    
+
+
                                 } catch (e) {
                                     var timestamps_end = await this.utilsService.getDateTimeString();
                                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                     throw new BadRequestException("Not process..!");
-    
+
                                 }
-    
-    
+
+
                                 detailtrv2 = [
                                     {
                                         "biayPG": valAdminOy,
@@ -2837,14 +2837,14 @@ export class TransactionsController {
                                         "payload": { "va_number": nova },
                                         // "response": respon
                                     }]
-    
-    
+
+
                                 if (statuscodeva == "000") {
-    
+
                                     try {
-    
+
                                         let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-    
+
                                         CreateTransactionsDto.iduserbuyer = iduser;
                                         CreateTransactionsDto.idusersell = useridHyppe;
                                         CreateTransactionsDto.timestamp = dt.toISOString();
@@ -2873,7 +2873,7 @@ export class TransactionsController {
                                         CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                         CreateTransactionsDto.product_id = product_id;
                                         let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-    
+
                                         try {
                                             let getdata = await this.transactionsService.findOne(no);
                                             var inserttransaksi = new transactionCoin();
@@ -2886,25 +2886,25 @@ export class TransactionsController {
                                             inserttransaksi.status = "PENDING";
                                             inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
                                             inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
-    
+
                                             this.transCoinSS.create(inserttransaksi);
                                         }
                                         catch (e) {
                                             console.log(e.message);
                                         }
-    
+
                                         try {
-    
+
                                             await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
                                         } catch (e) {
-    
+
                                         }
-    
+
                                         try {
-    
+
                                             await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
                                         } catch (e) {
-    
+
                                         }
                                         let id = null;
                                         try {
@@ -2912,33 +2912,33 @@ export class TransactionsController {
                                         } catch (e) {
                                             id = null;
                                         }
-    
+
                                         try {
                                             await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
                                         } catch (e) {
-    
+
                                         }
-    
+
                                         try {
                                             datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
-    
+
                                         } catch (e) {
                                             datav2 = null;
-    
+
                                         }
-    
+
                                         if (datav2 !== null) {
                                             invoicev2 = datav2.noInvoice;
                                         }
-    
+
                                         try {
                                             this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
                                         } catch (e) {
-    
+
                                         }
                                         await this.transactionsService.updatestatuscancel(idtransaction);
-    
-    
+
+
                                         var data = {
                                             "noinvoice": invoicev2,
                                             "postid": postidTR,
@@ -2966,30 +2966,30 @@ export class TransactionsController {
                                             "product_id": product_id,
                                             "_id": datatr._id
                                         };
-    
-    
+
+
                                     } catch (e) {
                                         var timestamps_end = await this.utilsService.getDateTimeString();
                                         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                         return res.status(HttpStatus.BAD_REQUEST).json({
-    
+
                                             "message": messagesEror + " " + e.toString()
                                         });
                                     }
-    
+
                                     var timestamps_end = await this.utilsService.getDateTimeString();
                                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                     return res.status(HttpStatus.OK).json({
                                         response_code: 202,
                                         "data": data,
                                         "message": messages
                                     });
-    
+
                                 }
                                 else {
-    
+
                                     CreateTransactionsDto.iduserbuyer = iduser;
                                     CreateTransactionsDto.idusersell = useridHyppe;
                                     CreateTransactionsDto.timestamp = dt.toISOString();
@@ -3017,24 +3017,24 @@ export class TransactionsController {
                                     CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                     CreateTransactionsDto.product_id = product_id;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-    
+
                                     var timestamps_end = await this.utilsService.getDateTimeString();
                                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                     return res.status(HttpStatus.BAD_REQUEST).json({
                                         response_code: statuscodeva,
                                         message: statusmessage
                                     });
-    
+
                                 }
-    
+
                             }
-    
-    
-    
+
+
+
                         }
                         else {
-    
+
                             var datava = {
                                 "partner_user_id": userbuy.toString() + stringId,
                                 "amount": totalamount,
@@ -3046,7 +3046,7 @@ export class TransactionsController {
                                 "email": email,
                                 "trx_expiration_time": valueexpiredva,
                             }
-    
+
                             try {
                                 var datareqva = await this.oyPgService.generateStaticVa(datava);
                                 var idva = datareqva.id;
@@ -3057,16 +3057,16 @@ export class TransactionsController {
                                 var d1 = new Date(expiredva);
                                 d1.setHours(d1.getHours() + 7); // timestamp
                                 d1 = new Date(d1);
-    
-    
+
+
                             } catch (e) {
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 throw new BadRequestException("Not process..!");
-    
+
                             }
-    
+
                             detailtrv2 = [
                                 {
                                     "biayPG": valAdminOy,
@@ -3077,13 +3077,13 @@ export class TransactionsController {
                                     "payload": { "va_number": nova },
                                     // "response": respon
                                 }]
-    
+
                             if (statuscodeva == "000") {
-    
+
                                 try {
-    
+
                                     let cekstatusva = await this.oyPgService.staticVaInfo(idva);
-    
+
                                     CreateTransactionsDto.iduserbuyer = iduser;
                                     CreateTransactionsDto.idusersell = useridHyppe;
                                     CreateTransactionsDto.timestamp = dt.toISOString();
@@ -3111,7 +3111,7 @@ export class TransactionsController {
                                     CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                     CreateTransactionsDto.product_id = product_id;
                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-    
+
                                     try {
                                         let getdata = await this.transactionsService.findOne(no);
                                         var inserttransaksi = new transactionCoin();
@@ -3124,59 +3124,59 @@ export class TransactionsController {
                                         inserttransaksi.status = "PENDING";
                                         inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
                                         inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
-    
+
                                         this.transCoinSS.create(inserttransaksi);
                                     }
                                     catch (e) {
                                         console.log(e.message);
                                     }
-    
+
                                     try {
-    
+
                                         await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
                                     } catch (e) {
-    
+
                                     }
-    
+
                                     try {
-    
+
                                         await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
                                     } catch (e) {
-    
+
                                     }
-    
+
                                     let id = null;
                                     try {
                                         id = datatr._id.toString();
                                     } catch (e) {
                                         id = null;
                                     }
-    
+
                                     try {
                                         await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
                                     } catch (e) {
-    
+
                                     }
-    
+
                                     try {
                                         datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
-    
+
                                     } catch (e) {
                                         datav2 = null;
-    
+
                                     }
-    
+
                                     if (datav2 !== null) {
                                         invoicev2 = datav2.noInvoice;
                                     }
-    
+
                                     try {
                                         this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
                                     } catch (e) {
-    
+
                                     }
-    
-    
+
+
                                     var data = {
                                         "noinvoice": invoicev2,
                                         "postid": postidTR,
@@ -3207,16 +3207,16 @@ export class TransactionsController {
                                 } catch (e) {
                                     var timestamps_end = await this.utilsService.getDateTimeString();
                                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                     return res.status(HttpStatus.BAD_REQUEST).json({
-    
+
                                         "message": messagesEror + " " + e.toString()
                                     });
                                 }
-    
+
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 return res.status(HttpStatus.OK).json({
                                     response_code: 202,
                                     "data": data,
@@ -3251,22 +3251,22 @@ export class TransactionsController {
                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
                                 CreateTransactionsDto.product_id = product_id;
                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
-    
+
                                 var timestamps_end = await this.utilsService.getDateTimeString();
                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
-    
+
                                 return res.status(HttpStatus.BAD_REQUEST).json({
                                     response_code: statuscodeva,
                                     message: statusmessage
                                 });
                             }
-    
+
                         }
-                    }else{
-                        throw new BadRequestException("Pembayaran harus lebih dari sama dengan Rp "+formatmin+" dan kurang dari sama dengan Rp "+formatmax);
+                    } else {
+                        throw new BadRequestException("Pembayaran harus lebih dari sama dengan Rp " + formatmin + " dan kurang dari sama dengan Rp " + formatmax);
                     }
 
-               
+
 
                 }
                 else {
@@ -21745,6 +21745,88 @@ export class TransactionsController {
                 } else {
 
                 }
+                switch (x.coa) {
+                    case "Paket Coin":
+                        x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
+                        x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
+                        x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
+                        x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
+                        break;
+                    case "Live Gift":
+                        if (x.coaDetailStatus == "debit") {
+                            x.desc_title_id = `Penerimaan Gift dari Live`;
+                            x.desc_title_en = `Gift received from Live`;
+                            x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
+                            x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
+                        } else {
+                            x.desc_title_id = `Pembelian Gift untuk Live`;
+                            x.desc_title_en = `Gift Purchase for Live`;
+                            x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
+                            x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                        }
+                        break;
+                    case "Content Gift":
+                        if (x.coaDetailStatus == "debit") {
+                            x.desc_title_id = `Penerimaan Gift dari Konten`;
+                            x.desc_title_en = `Gift received from Content`;
+                            x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari ${x.postType}`;
+                            x.desc_content_en = `Gift worth ${x.coin} Coins received from ${x.postType}`;
+                        } else {
+                            x.desc_title_id = `Memberikan Gift Konten`;
+                            x.desc_title_en = `Gift Sent to Content`;
+                            x.desc_content_id = `untuk @${x.postOwner} - pada ${x.postType}`;
+                            x.desc_content_en = `for @${x.postOwner} - on ${x.postType}`;
+                        }
+                        break;
+                    case "Penjualan Konten":
+                        x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
+                        x.desc_title_en = `Content Sales Proceeds`;
+                        x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
+                        x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
+                        break;
+                    case "Ads":
+                        x.desc_title_id = `Menonton Iklan`;
+                        x.desc_title_en = `Ads Watched`;
+                        x.desc_content_id = `Dari menonton iklan`;
+                        x.desc_content_en = `From watching ads`;
+                        break;
+                    case "Pembelian Konten":
+                        x.desc_title_id = `Pembelian Konten`;
+                        x.desc_title_en = `Content Purchase`;
+                        x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
+                        x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
+                        break;
+                    case "Conten Ownership":
+                        x.desc_title_id = `Kepemilikan Konten`;
+                        x.desc_title_en = `Content Ownership`;
+                        x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
+                        x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
+                        break;
+                    case "Paket Kredit":
+                        x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
+                        x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
+                        x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
+                        x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
+                        break;
+                    case "Boost Post":
+                        x.desc_title_id = `Boost Postingan`;
+                        x.desc_title_en = `Boost Post`;
+                        x.desc_content_id = `Boost Postingan sampai ${x.detail[0].datedateEnd}`;
+                        x.desc_content_en = `Post Boosted until ${x.detail[0].datedateEnd}`;
+                        break;
+                    case "WD":
+                        x.desc_title_id = `Penukaran Coins`;
+                        x.desc_title_en = `Coins Exchanged`;
+                        x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
+                        x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
+                        break;
+                    case "REFUND":
+                        x.desc_title_id = `Pengembalian Coins`;
+                        x.desc_title_en = `Coins Refunded`;
+                        x.desc_content_id = `${x.coin} Coins dikembalikan`;
+                        x.desc_content_en = `${x.coin} Coins refunded`;
+                        break;
+                }
             }
             while (foundExpired) {
                 foundExpired = false;
@@ -21764,82 +21846,82 @@ export class TransactionsController {
                             }
                         }
                     }
-                    // switch (x.coa) {
-                    //     case "Paket Coin":
-                    //         x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
-                    //         x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
-                    //         x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
-                    //         x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
-                    //         break;
-                    //     case "Live Gift":
-                    //         if (x.coaDetailStatus == "debit") {
-                    //             x.desc_title_id = `Penerimaan Gift dari Live`;
-                    //             x.desc_title_en = `Gift received from Live`;
-                    //             x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
-                    //             x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
-                    //         } else {
-                    //             x.desc_title_id = `Pembelian Gift untuk Live`;
-                    //             x.desc_title_en = `Gift Purchase for Live`;
-                    //             x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
-                    //             x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
-                    //         }
-                    //         break;
-                    //     case "Content Gift":
-                    //         if (x.coaDetailStatus == "debit") {
-                    //             x.desc_title_id = `Penerimaan Gift dari Konten`;
-                    //             x.desc_title_en = `Gift received from Content`;
-                    //             x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Konten`;
-                    //             x.desc_content_en = `Gift worth ${x.coin} Coins received from Content`;
-                    //         } else {
-                    //             x.desc_title_id = `Pembelian Gift untuk Content`;
-                    //             x.desc_title_en = `Gift Purchase for Content`;
-                    //             x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
-                    //             x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
-                    //         }
-                    //         break;
-                    //     case "Penjualan Konten":
-                    //         x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
-                    //         x.desc_title_en = `Content Sales Proceeds`;
-                    //         x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
-                    //         x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
-                    //         break;
-                    //     case "Ads":
-                    //         x.desc_title_id = `Menonton Iklan`;
-                    //         x.desc_title_en = `Ads Watched`;
-                    //         x.desc_content_id = `Dari menonton iklan`;
-                    //         x.desc_content_en = `From watching ads`;
-                    //         break;
-                    //     case "Pembelian Konten":
-                    //         x.desc_title_id = `Pembelian Konten`;
-                    //         x.desc_title_en = `Content Purchase`;
-                    //         x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
-                    //         x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
-                    //         break;
-                    //     case "Conten Ownership":
-                    //         x.desc_title_id = `Kepemilikan Konten`;
-                    //         x.desc_title_en = `Content Ownership`;
-                    //         x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
-                    //         x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
-                    //         break;
-                    //     case "Paket Kredit":
-                    //         x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
-                    //         x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                    //         x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
-                    //         x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
-                    //         break;
-                    //     case "Boost Post":
-                    //         x.desc_title_id = `Boost Postingan`;
-                    //         x.desc_title_en = `Boost Post`;
-                    //         x.desc_content_id = `Boost Postingan seharga ${x.coin} Coins`;
-                    //         x.desc_content_en = `Post Boosted for ${x.coin} Coins`;
-                    //         break;
-                    //     case "WD":
-                    //         x.desc_title_id = `Penukaran Coins`;
-                    //         x.desc_title_en = `Coins Exchanged`;
-                    //         x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
-                    //         x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
-                    //         break;
-                    // }
+                    switch (x.coa) {
+                        case "Paket Coin":
+                            x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
+                            x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
+                            x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
+                            x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
+                            break;
+                        case "Live Gift":
+                            if (x.coaDetailStatus == "debit") {
+                                x.desc_title_id = `Penerimaan Gift dari Live`;
+                                x.desc_title_en = `Gift received from Live`;
+                                x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
+                                x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
+                            } else {
+                                x.desc_title_id = `Pembelian Gift untuk Live`;
+                                x.desc_title_en = `Gift Purchase for Live`;
+                                x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
+                                x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                            }
+                            break;
+                        case "Content Gift":
+                            if (x.coaDetailStatus == "debit") {
+                                x.desc_title_id = `Penerimaan Gift dari Konten`;
+                                x.desc_title_en = `Gift received from Content`;
+                                x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Konten`;
+                                x.desc_content_en = `Gift worth ${x.coin} Coins received from Content`;
+                            } else {
+                                x.desc_title_id = `Pembelian Gift untuk Content`;
+                                x.desc_title_en = `Gift Purchase for Content`;
+                                x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
+                                x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                            }
+                            break;
+                        case "Penjualan Konten":
+                            x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
+                            x.desc_title_en = `Content Sales Proceeds`;
+                            x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
+                            x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
+                            break;
+                        case "Ads":
+                            x.desc_title_id = `Menonton Iklan`;
+                            x.desc_title_en = `Ads Watched`;
+                            x.desc_content_id = `Dari menonton iklan`;
+                            x.desc_content_en = `From watching ads`;
+                            break;
+                        case "Pembelian Konten":
+                            x.desc_title_id = `Pembelian Konten`;
+                            x.desc_title_en = `Content Purchase`;
+                            x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
+                            x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
+                            break;
+                        case "Conten Ownership":
+                            x.desc_title_id = `Kepemilikan Konten`;
+                            x.desc_title_en = `Content Ownership`;
+                            x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
+                            x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
+                            break;
+                        case "Paket Kredit":
+                            x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
+                            x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
+                            x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
+                            x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
+                            break;
+                        case "Boost Post":
+                            x.desc_title_id = `Boost Postingan`;
+                            x.desc_title_en = `Boost Post`;
+                            x.desc_content_id = `Boost Postingan seharga ${x.coin} Coins`;
+                            x.desc_content_en = `Post Boosted for ${x.coin} Coins`;
+                            break;
+                        case "WD":
+                            x.desc_title_id = `Penukaran Coins`;
+                            x.desc_title_en = `Coins Exchanged`;
+                            x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
+                            x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
+                            break;
+                    }
                 }
             }
             var timestamps_end = await this.utilsService.getDateTimeString();
