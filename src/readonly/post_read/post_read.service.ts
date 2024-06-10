@@ -26250,7 +26250,7 @@ export class PostsReadService {
           $project: {
             _id: 1,
             mediaSource:1,
-            streamer: statusSream,
+            //streamer: statusSream,
             version: {
               $arrayElemAt: ["$setting.value", 0]
             },
