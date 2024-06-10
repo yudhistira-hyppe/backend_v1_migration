@@ -21,7 +21,6 @@ import { DisquslogsService } from '../disquslogs/disquslogs.service';
 import { pipeline } from 'stream';
 import { CreateUserplaylistDto } from 'src/trans/userplaylist/dto/create-userplaylist.dto';
 import { NewPostService } from './new_post.service';
-import { MediastreamingAgoraService } from '../mediastreaming/mediastreamingagora.service';
 
 @Injectable()
 export class TempPOSTService {
@@ -44,7 +43,6 @@ export class TempPOSTService {
         private readonly utilsService: UtilsService,
         private readonly disquslogsService: DisquslogsService,
         private readonly disqusService: DisqusService,
-        private readonly mediastreamingAgoraService: MediastreamingAgoraService,
     ) { }
 
     async create(CreatePostsDto: tempposts): Promise<tempposts> {
@@ -445,15 +443,6 @@ export class TempPOSTService {
     }
 
     async landingPagebaru(email: string, type: string, skip: number, limit: number) {
-        const dataStream = await this.mediastreamingAgoraService.getChannelList();
-        let statusSream = false;
-        if (dataStream != null) {
-            let dataChannel = dataStream.data.channels;
-            if (dataChannel.length > 0) {
-                statusSream = true;
-            }
-        }
-
         var pipeline = [];
 
         pipeline.push(
@@ -1211,10 +1200,46 @@ export class TempPOSTService {
                 }
             },
             {
+                "$lookup": {
+                    from: "mediastreaming",
+                    as: "stream",
+                    let: {
+                        localID: true
+                    },
+                    pipeline: [
+                        {
+                            $match:
+                            {
+                                $expr: {
+                                    $eq: ['$status', '$$localID']
+                                }
+                            }
+                        },
+                        {
+                            $limit: 1,
+                        },
+                        {
+                            $project: {
+                                status: 1,
+                            }
+                        },
+
+                    ]
+                }
+            },
+            {
                 '$project': {
                     _id: 1,
                     mediaSource:1,
-                    streamer: statusSream,
+                    streamer: {
+                        $cond: {
+                            if: {
+                                $eq: [{ $ifNull: ["$stream", []] }, []]
+                            },
+                            then: false,
+                            else: true
+                        }
+                    },
                     version: {
                         '$arrayElemAt': ['$setting.value', 0]
                     },
