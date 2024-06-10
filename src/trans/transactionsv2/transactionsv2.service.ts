@@ -259,7 +259,7 @@ export class TransactionsV2Service {
         }
 
         if (typeCategory == "WD") {
-            if (status == "FAILED" || status == "REJECT") {
+            if (status == "FAILED" || status == "REJECTED") {
                 //Get Transaction Count
                 let TransactionCount = 1;
                 try {
@@ -481,7 +481,7 @@ export class TransactionsV2Service {
                                                                                 debet = coin - coin_wd_failed;
                                                                                 kredit = coin_wd_failed;
                                                                             }
-                                                                            if (status == "REJECT") {
+                                                                            if (status == "REJECTED") {
                                                                                 debet = coin;
                                                                                 kredit = 0;
                                                                             }
