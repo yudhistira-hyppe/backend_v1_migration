@@ -3153,7 +3153,7 @@ export class TransactionsController {
                                 }
 
                                 try {
-                                    this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", id, no);
+                                    this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
                                 } catch (e) {
 
                                 }
