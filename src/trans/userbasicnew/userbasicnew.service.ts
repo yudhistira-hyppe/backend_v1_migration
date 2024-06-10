@@ -8729,6 +8729,7 @@ export class UserbasicnewService {
                     "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
                     "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
                     idTrans: "$trans.idTransaction",
+                    voucherDiskon: "$trans.voucherDiskon",
                     type: "$trans.type",
                     typeUser: "$trans.typeUser",
                     noInvoice: "$trans.noInvoice",
@@ -8802,7 +8803,7 @@ export class UserbasicnewService {
         return result;
     }
 
-    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number, descending:boolean) {
+    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number, descending: boolean) {
         var pipeline = [];
 
         pipeline.push(
@@ -9039,9 +9040,8 @@ export class UserbasicnewService {
             },
         );
 
-        if(descending != null) {
-            if(descending == true)
-            {
+        if (descending != null) {
+            if (descending == true) {
                 pipeline.push(
                     {
                         $sort: {
@@ -9050,8 +9050,7 @@ export class UserbasicnewService {
                     }
                 );
             }
-            else
-            {
+            else {
                 pipeline.push(
                     {
                         $sort: {
@@ -9060,9 +9059,8 @@ export class UserbasicnewService {
                     }
                 );
             }
-        }        
-        else
-        {
+        }
+        else {
             pipeline.push(
                 {
                     $sort: {
@@ -9071,7 +9069,7 @@ export class UserbasicnewService {
                 }
             );
         }
-        
+
         if (showtrueonly == true) {
             pipeline.push(
                 {
@@ -9091,29 +9089,29 @@ export class UserbasicnewService {
                 $limit: 5
             },
             {
-                $project:{
-                       email:1,
-                       idUser:1,
-                       userName:1,
-                       idTrans:"$trans.idTransaction",
-                       type:"$trans.type",
-                       noInvoice:"$trans.noInvoice",
-                       discount:"$trans.diskon",
-                       price:
-                       {
-                           "$arrayElemAt":
-                           [
-                               "$trans.transOld.detail.totalAmount", 0
-                           ]
-                       },
-                       totalPrice:"$trans.transold.totalamount",
-                       coin:"$trans.coin",
-                       totalCoin:"$trans.totalCoin",
-                       createdAt:"$trans.createdAt",
-                       updatedAt:"$trans.updatedAt",
-                       status:"$trans.status",
-                       package:"$trans.transOld.packageName",
-                       
+                $project: {
+                    email: 1,
+                    idUser: 1,
+                    userName: 1,
+                    idTrans: "$trans.idTransaction",
+                    type: "$trans.type",
+                    noInvoice: "$trans.noInvoice",
+                    discount: "$trans.diskon",
+                    price:
+                    {
+                        "$arrayElemAt":
+                            [
+                                "$trans.transOld.detail.totalAmount", 0
+                            ]
+                    },
+                    totalPrice: "$trans.transold.totalamount",
+                    coin: "$trans.coin",
+                    totalCoin: "$trans.totalCoin",
+                    createdAt: "$trans.createdAt",
+                    updatedAt: "$trans.updatedAt",
+                    status: "$trans.status",
+                    package: "$trans.transOld.packageName",
+
                 }
             }
         );

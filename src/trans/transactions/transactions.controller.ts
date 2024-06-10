@@ -60,6 +60,7 @@ import { transactionCoin } from '../monetization/transactionCoin/schemas/transac
 import { TransactionsCredits } from '../transactionsv2/credit/schema/transactionscredits.schema';
 import { transactionCoinService } from '../monetization/transactionCoin/transactionCoin.service';
 import { TransactionsCreditsService } from '../transactionsv2/credit/transactionscredits.service';
+import { MonetizationService } from '../monetization/monetization.service';
 
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
@@ -102,6 +103,7 @@ export class TransactionsController {
         private readonly PosttaskService: PosttaskService,
         private readonly transCoinSS: transactionCoinService,
         private readonly transCreditSS: TransactionsCreditsService,
+        private readonly monetizationService: MonetizationService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -2491,20 +2493,20 @@ export class TransactionsController {
         var robulan = this.romawi(numbulan);
         var rotanggal = this.romawi(numtanggal);
         var no = "INV/" + (await rotahun).toString() + "/" + (await robulan).toString() + "/" + (await rotanggal).toString() + "/" + leng;
-        var ubasic=null;
-        var iduser =null;
-        try{
-         ubasic = await this.basic2SS.findBymail(email);
-        }catch(e){
-         ubasic = null;
+        var ubasic = null;
+        var iduser = null;
+        try {
+            ubasic = await this.basic2SS.findBymail(email);
+        } catch (e) {
+            ubasic = null;
         }
 
-        if(ubasic !==null){
+        if (ubasic !== null) {
             iduser = ubasic._id;
-        }else{
+        } else {
             throw new BadRequestException("User is not found...!");
         }
-        
+
 
         var userbuyer = mongoose.Types.ObjectId(iduser);
 
@@ -3289,14 +3291,14 @@ export class TransactionsController {
         else if (type === "CONTENT") {
 
             let saleAmount = 0;
-           // var dUser = null;
+            // var dUser = null;
             var idbuyer = null;
             let postType = null;
             var dataTr = null;
             var like = 0;
             var view = 0;
             var datainsight = null;
-        
+
             try {
                 languages = ubasic.languages;
                 idlanguages = languages.oid.toString();
@@ -3558,14 +3560,14 @@ export class TransactionsController {
         }
         else if (type === "CREDIT") {
 
-           
+
             let idbuyer = null;
             var dataTr = null;
             let datavoucher = null;
             let namapembeli = null
             let jmlcoin = 0;
 
-           
+
 
             if (ubasic !== null) {
                 idbuyer = ubasic._id;
@@ -3946,6 +3948,7 @@ export class TransactionsController {
                             try {
                                 await this.transactionsService.updatecancel(idtransaksi);
                                 await this.TransactionsV2Service.updateTransaction(data.idTransaction, "FAILED", null);
+                                if (data.voucherDiskon.length > 0) await this.monetizationService.updateStock(data.voucherDiskon[0].toString(), 1, false);
                                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
                             } catch (e) {
 
@@ -21745,6 +21748,7 @@ export class TransactionsController {
                         try {
                             await this.transactionsService.updatecancel(x.idTransLama.toString());
                             await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
+                            if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
                             // x.status = "FAILED";
                             if (!foundExpired) foundExpired = true;
                         } catch (e) {
@@ -21848,6 +21852,7 @@ export class TransactionsController {
                             try {
                                 await this.transactionsService.updatecancel(x.idTransLama.toString());
                                 await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
+                                if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
                                 // x.status = "FAILED";
                                 if (!foundExpired) foundExpired = true;
                             } catch (e) {
