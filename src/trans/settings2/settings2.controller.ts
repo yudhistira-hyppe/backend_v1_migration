@@ -302,4 +302,43 @@ export class Settings2Controller {
     
     // return this.settings2Service.update(id, updatedata);
   }
+  @Post('/list/gettransaction')
+  @UseGuards(JwtAuthGuard)
+  async profileuser2(@Req() request: Request, @Headers() headers): Promise<any> {
+      var date = new Date();
+      var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+      var timestamps_start = DateTime.substring(0, DateTime.lastIndexOf('.'));
+      var fullurl = headers.host + '/api/settings/list/gettransaction';
+      var token = headers['x-auth-token'];
+      var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      var email = auth.email;
+
+      var request_json = JSON.parse(JSON.stringify(request.body));
+      var jenis = null;
+      var data = null;
+      const messages = {
+          "info": ["The process successful"],
+      };
+
+      jenis = request_json["jenis"];
+
+      try {
+          data = await this.settings2Service.getsettintransaction();
+
+      } catch (e) {
+          data = [];
+
+      }
+
+      var date = new Date();
+      var DateTime = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().replace('T', ' ');
+      var timestamps_end = DateTime.substring(0, DateTime.lastIndexOf('.'));
+      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+      return { response_code: 202, data, messages };
+
+
+  }
+
+  
 }

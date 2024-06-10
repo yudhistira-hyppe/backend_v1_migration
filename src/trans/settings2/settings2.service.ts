@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
 import { CreateSettings2Dto } from './dto/create-settings2.dto';
 import { SettingsMixed, SettingsDocument } from './schemas/settings2.schema';
 
@@ -57,5 +57,26 @@ export class Settings2Service {
             throw new Error('Todo is not found!');
         }
         return data;
+    }
+
+    async getsettintransaction() {
+        const query = await this.settingsModel.aggregate([
+            {
+                "$match": {
+                    "$or": [
+                        {
+                            "_id":new mongoose.Types. ObjectId("6666b73422d8ff98690f7373")
+                        },
+                        {
+                            "_id": new mongoose.Types. ObjectId("662b4681dc3e000022007e14")
+                        },
+        //                 {
+        //                     "_id":ObjectId("662784aa934e00005f007cd4")
+        //                 }
+                    ]
+                }
+            }
+            ]);
+        return query;
     }
 }

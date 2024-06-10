@@ -3275,7 +3275,7 @@ export class TransactionsController {
 
                         }
                     } else {
-                        throw new BadRequestException("Pembayaran harus lebih dari sama dengan Rp " + formatmin + " dan kurang dari sama dengan Rp " + formatmax);
+                        throw new BadRequestException("Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax);
                     }
 
 
