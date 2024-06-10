@@ -127,7 +127,7 @@ export class TransactionsV2Service {
                 let kredit = 0; 
                 let saldo = 0;
                 let insertBalanced = false;
-                
+
                 let dataTransaction = getDataTransaction[uh];
                 productId = dataTransaction.product;
                 typeCategory = dataTransaction.typeCategory;
@@ -173,6 +173,7 @@ export class TransactionsV2Service {
                                                             if (status == "SUCCESS") {
                                                                 debet = dataTransaction.coin;
                                                                 kredit = 0;
+                                                                insertBalanced = true;
                                                             } 
                                                         }
                                                     }
