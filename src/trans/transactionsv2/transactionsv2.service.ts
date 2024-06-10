@@ -259,7 +259,7 @@ export class TransactionsV2Service {
         }
 
         if (typeCategory == "WD") {
-            if (status == "FAILED") {
+            if (status == "FAILED" || status == "REJECT") {
                 //Get Transaction Count
                 let TransactionCount = 1;
                 try {
@@ -342,32 +342,34 @@ export class TransactionsV2Service {
                                                     if (categoryTransactionType.transaction.length > 0) {
                                                         let transactionTypetransaction = categoryTransactionType.transaction;
                                                         for (let tr = 0; tr < categoryTransactionType.transaction.length; tr++) {
-                                                            if (transactionTypetransaction[tr].name != undefined) {
-                                                                if (transactionTypetransaction[tr].name == "Kas") {
-                                                                    if (transactionTypetransaction[tr].status != undefined) {
-                                                                        if (transactionTypetransaction[tr].status == "credit") {
-                                                                            kas = cost_verification - cost_verification_oy;
+                                                            if (status == "FAILED") {
+                                                                if (transactionTypetransaction[tr].name != undefined) {
+                                                                    if (transactionTypetransaction[tr].name == "Kas") {
+                                                                        if (transactionTypetransaction[tr].status != undefined) {
+                                                                            if (transactionTypetransaction[tr].status == "credit") {
+                                                                                kas = cost_verification - cost_verification_oy;
+                                                                            }
                                                                         }
                                                                     }
-                                                                }
-                                                                if (transactionTypetransaction[tr].name == "BiayaPG") {
-                                                                    if (transactionTypetransaction[tr].status != undefined) {
-                                                                        if (transactionTypetransaction[tr].status == "debit") {
-                                                                            biayaPaymentGateway = cost_verification_oy;
+                                                                    if (transactionTypetransaction[tr].name == "BiayaPG") {
+                                                                        if (transactionTypetransaction[tr].status != undefined) {
+                                                                            if (transactionTypetransaction[tr].status == "debit") {
+                                                                                biayaPaymentGateway = cost_verification_oy;
+                                                                            }
                                                                         }
                                                                     }
-                                                                }
-                                                                if (transactionTypetransaction[tr].name == "HutangCoin") {
-                                                                    if (transactionTypetransaction[tr].status != undefined) {
-                                                                        if (transactionTypetransaction[tr].status == "debit") {
-                                                                            hutangSaldoCoin = (Number(currencyCoin) * (coin)) - cost_verification;
+                                                                    if (transactionTypetransaction[tr].name == "HutangCoin") {
+                                                                        if (transactionTypetransaction[tr].status != undefined) {
+                                                                            if (transactionTypetransaction[tr].status == "debit") {
+                                                                                hutangSaldoCoin = (Number(currencyCoin) * (coin)) - cost_verification;
+                                                                            }
                                                                         }
                                                                     }
-                                                                }
-                                                                if (transactionTypetransaction[tr].name == "PendapatanBiayaTransaksi") {
-                                                                    if (transactionTypetransaction[tr].status != undefined) {
-                                                                        if (transactionTypetransaction[tr].status == "debit") {
-                                                                            pendapatanBiayaTransaction = cost_verification;
+                                                                    if (transactionTypetransaction[tr].name == "PendapatanBiayaTransaksi") {
+                                                                        if (transactionTypetransaction[tr].status != undefined) {
+                                                                            if (transactionTypetransaction[tr].status == "debit") {
+                                                                                pendapatanBiayaTransaction = cost_verification;
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -474,9 +476,15 @@ export class TransactionsV2Service {
                                                                 if (categoryTransactionType.transaction[tr].name == "BalacedCoin") {
                                                                     if (categoryTransactionType.transaction[tr].status != undefined) {
                                                                         if (categoryTransactionType.transaction[tr].status == "debit") {
-                                                                            let coin_wd_failed = Number(cost_verification) / Number(currencyCoin)
-                                                                            debet = coin - coin_wd_failed;
-                                                                            kredit = coin_wd_failed;
+                                                                            if (status == "FAILED") {
+                                                                                let coin_wd_failed = Number(cost_verification) / Number(currencyCoin)
+                                                                                debet = coin - coin_wd_failed;
+                                                                                kredit = coin_wd_failed;
+                                                                            }
+                                                                            if (status == "REJECT") {
+                                                                                debet = coin;
+                                                                                kredit = 0;
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
