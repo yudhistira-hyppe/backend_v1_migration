@@ -3958,14 +3958,14 @@ export class TransactionsController {
                     }
                     if (data.coa == "Pembelian Konten" || data.coa == "Penjualan Konten") {
                         data.coinadminfee = data.coin * profitsharingpercent / 100;
-                        switch (data.coa) {
-                            case "Pembelian Konten":
-                                data.totalcoin = data.coin + data.coinadminfee;
-                                break;
-                            case "Penjualan Konten":
-                                data.totalcoin = data.coin - data.coinadminfee;
-                                break;
-                        }
+                        // switch (data.coa) {
+                        //     case "Pembelian Konten":
+                        //         data.totalcoin = data.coin + data.coinadminfee;
+                        //         break;
+                        //     case "Penjualan Konten":
+                        //         data.totalcoin = data.coin - data.coinadminfee;
+                        //         break;
+                        // }
                     }
                 }
                 return { response_code: 202, data, messages };
@@ -21162,7 +21162,8 @@ export class TransactionsController {
                     "data": usertrxdata,
                     "message": messages
                 });
-            } else {
+            } 
+            else {
                 await this.userbankaccountsService.updateonefalse(idbankaccount, "failed inquiry");
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, reqbody);
