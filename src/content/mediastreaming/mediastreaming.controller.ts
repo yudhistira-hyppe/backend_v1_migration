@@ -230,12 +230,26 @@ export class MediastreamingController {
       }
     }
 
-    let dataBanned_ = [];
+    let statusBanned = "NOACTIVE";
     if (idBanned!=undefined){
       let dataBanned = profile.streamBannedHistory;
-      dataBanned_ = dataBanned.filter(function (el) {
+      let dataBanned_ = dataBanned.filter(function (el) {
         return el.idBanned == idBanned;
       });
+      if (dataBanned_.length>0){
+        let dataBanned = dataBanned_[0];
+        let dataAppeal = dataBanned.appeal
+        if (dataAppeal.length>0){
+          let dataAppeal_ = dataAppeal.filter(function (el) {
+            return el.approveText != "WAITING_RESPONSE";
+          });
+          if (dataAppeal_.length > 0){
+            statusBanned = "ACTIVE"
+          } else {
+            statusBanned = "ACTIVE_BANNED"
+          }
+        }
+      }
     }
 
     let statusAppeal = false;
@@ -287,7 +301,7 @@ export class MediastreamingController {
             response_code: 202,
             statusStream: false,
             data: dataStream,
-            dataBannded: dataBanned_,
+            statusBanned: statusBanned,
             messages: {
               info: [
                 "User is Banned"
@@ -317,7 +331,7 @@ export class MediastreamingController {
           const Response = {
             response_code: 202,
             statusStream: false,
-            dataBannded: dataBanned_,
+            statusBanned: statusBanned,
             data: dataStream,
             messages: {
               info: [
@@ -331,7 +345,7 @@ export class MediastreamingController {
         const Response = {
           response_code: 202,
           statusStream: true,
-          dataBannded: dataBanned_,
+          statusBanned: statusBanned,
           messages: {
             info: [
               "Succesfully"
@@ -344,7 +358,7 @@ export class MediastreamingController {
       const Response = {
         response_code: 202,
         statusStream: true,
-        dataBannded: dataBanned_,
+        statusBanned: statusBanned,
         messages: {
           info: [
             "Succesfully"
