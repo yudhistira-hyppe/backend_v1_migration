@@ -59,6 +59,7 @@ export class MediastreamingController {
       }
     }
 
+    await this.mediastreamingService.updateManyByUserId(profile._id.toString());
     let statusAppeal = false;
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
