@@ -2559,10 +2559,10 @@ export class TransactionsController {
         var invoicev2 = null;
         var languages = null;
         var idlanguages = null;
-        var datalanguage =null;
+        var datalanguage = null;
         var langIso = null;
 
-        if (idDiscount !== undefined && idDiscount !==null) {
+        if (idDiscount !== undefined && idDiscount !== null) {
             arrDiskon = [idDiscount];
             try {
                 dataDiskon = await this.MonetizenewService.findByid(idDiscount);
@@ -2595,7 +2595,7 @@ export class TransactionsController {
                 }
 
             }
-        }else{
+        } else {
             arrDiskon = [];
         }
         try {
@@ -2807,8 +2807,8 @@ export class TransactionsController {
                                 throw new BadRequestException("Not process..!");
 
                             }
-                          
-                    
+
+
                             detailtrv2 = [
                                 {
                                     "biayPG": valAdminOy,
@@ -3048,7 +3048,7 @@ export class TransactionsController {
                             throw new BadRequestException("Not process..!");
 
                         }
-                        
+
                         detailtrv2 = [
                             {
                                 "biayPG": valAdminOy,
@@ -3500,12 +3500,12 @@ export class TransactionsController {
                         await this.insightsService.updatesaleview(idinsight, totalview);
                     }
 
-                        // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
-                        try{
+                    // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
+                    try {
                         await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, dUser);
-                        }catch(e){
+                    } catch (e) {
 
-                        }
+                    }
 
                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                     return res.status(HttpStatus.OK).json({
@@ -3909,10 +3909,11 @@ export class TransactionsController {
 
                     let expiredvanew = new Date(expiredtimeva);
                     expiredvanew.setHours(expiredvanew.getHours() - 7);
-                    if (status == "WAITING_PAYMENT") {
+                    if (status == "WAITING_PAYMENT" || status == "PENDING") {
                         if (datenow > expiredvanew) {
                             try {
                                 await this.transactionsService.updatecancel(idtransaksi);
+                                await this.TransactionsV2Service.updateTransaction(data.idTransaction, "FAILED", null);
                                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
                             } catch (e) {
 
@@ -5012,7 +5013,7 @@ export class TransactionsController {
         var useridHyppe = null;
         var dataV2 = null;
         var idTransactionv2 = null;
-        var noInvoice2=null;
+        var noInvoice2 = null;
         try {
 
             datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
@@ -5140,7 +5141,7 @@ export class TransactionsController {
 
                         if (dataV2 !== null) {
                             idTransactionv2 = dataV2.idTransaction
-                            noInvoice2=dataV2.noInvoice;
+                            noInvoice2 = dataV2.noInvoice;
                             // let Trv2 = new transactionsV2();
                             // Trv2.status = "SUCCESS";
                             try {

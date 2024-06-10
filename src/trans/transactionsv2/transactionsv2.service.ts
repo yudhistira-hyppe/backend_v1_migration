@@ -83,347 +83,245 @@ export class TransactionsV2Service {
     async updateTransaction(idTrans: string, status: string, data: any) {
         //Get Current Date
         const currentDate = await this.utilsService.getDateTimeString();
-        let productCode = "";
-        let transactionsV2_: transactionsV2;
-
         //Get Data Transaction
         const getDataTransaction = await this.transactionsModel.find({ idTransaction: idTrans }).exec();
-        if (await this.utilsService.ceckData(getDataTransaction)) {
-            if (getDataTransaction.length > 0) {
-                for (let uh = 0; uh < getDataTransaction.length; uh++) {
-                    let dataTransaction = getDataTransaction[uh];
-                    if (dataTransaction.type == "USER") {
-                        transactionsV2_ = dataTransaction;
-                        const getProduct = await this.transactionsProductsService.findOne(dataTransaction.product.toString());
-                        if (await this.utilsService.ceckData(getProduct)) {
-                            productCode = getProduct.code;
+
+        //Currency coin 
+        const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
+        const currencyCoinId = (await this.transactionsCoinSettingsService.findStatusActive())._id;
+
+        //Product Id
+        let productId = null; 
+
+
+        let cost_verification = 0;
+        const ID_SETTING_COST_BANK_VERIFICATION = this.configService.get("ID_SETTING_COST_BANK_VERIFICATION");
+        const GET_ID_SETTING_COST_BANK_VERIFICATION = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_COST_BANK_VERIFICATION);
+        if (await this.utilsService.ceckData(GET_ID_SETTING_COST_BANK_VERIFICATION)) {
+            cost_verification = Number(GET_ID_SETTING_COST_BANK_VERIFICATION.value);
+        }
+
+        //Get Biaya verifikasi OY
+        let cost_verification_oy = 0;
+        const ID_SETTING_COST_BANK_VERIFICATION_OY = this.configService.get("ID_SETTING_COST_BANK_VERIFICATION_OY");
+        const GET_ID_SETTING_COST_BANK_VERIFICATION_OY = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_COST_BANK_VERIFICATION_OY);
+        if (await this.utilsService.ceckData(GET_ID_SETTING_COST_BANK_VERIFICATION_OY)) {
+            cost_verification_oy = Number(GET_ID_SETTING_COST_BANK_VERIFICATION_OY.value);
+        }
+
+        //Get Coin
+        let coin = 0;
+        
+        //Type Category
+        let typeCategory = null;
+
+        //User Id
+        let idUser = null;
+
+        //User Hyppe
+        let idHyppe = null;
+        
+        if (getDataTransaction.length > 0) {
+            for (let uh = 0; uh < getDataTransaction.length; uh++) {
+                let dataTransaction = getDataTransaction[uh];
+                productId = dataTransaction.product;
+                typeCategory = dataTransaction.typeCategory;
+                const categoryTransaction = await this.transactionsCategorysService.findOne(dataTransaction.category.toString());
+                if (dataTransaction.type == "USER") {
+                    idUser = dataTransaction.idUser;
+                    coin = dataTransaction.coin;
+                    if (categoryTransaction.type != undefined) {
+                        if (categoryTransaction.type.length > 0) {
+                            for (let j = 0; j < categoryTransaction.type.length; j++) {
+                                let transactionTypeCategory = categoryTransaction.type[j].category;
+                                if (transactionTypeCategory == "END") {
+                                    if (dataTransaction.detail != undefined) {
+                                        if (dataTransaction.detail.length > 0) {
+                                            if (dataTransaction.detail[0].adsID != undefined) {
+                                                let idAds = dataTransaction.detail[0].adsID.toString();
+                                                const adsService_ = await this.adsService.findOne(idAds);
+                                                if (await this.utilsService.ceckData(adsService_)) {
+                                                    let AdsBalaceCredit_ = new AdsBalaceCredit();
+                                                    AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
+                                                    AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(dataTransaction.idUser.toString());
+                                                    AdsBalaceCredit_.debet = Number(dataTransaction.credit);
+                                                    AdsBalaceCredit_.kredit = 0;
+                                                    AdsBalaceCredit_.type = "REFUND";
+                                                    AdsBalaceCredit_.idtrans = dataTransaction._id;
+                                                    AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
+                                                    AdsBalaceCredit_.description = "ADS REJECTED";
+                                                    AdsBalaceCredit_.idAdspricecredits = adsService_.idAdspricecredits;
+                                                    await this.adsBalaceCreditService.create(AdsBalaceCredit_);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+                if (dataTransaction.type == "HYPPE") {
+                    // let kas = 0;
+                    // let biayaPaymentGateway = 0;
+                    // let hutangSaldoCoin = 0;
+                    // let pendapatanBiayaTransaction = 0;
+                    // let pendapatanPenukaranCoin = 0;
+                    idHyppe = dataTransaction.idUser;
+                    if (categoryTransaction.type != undefined) {
+                        if (categoryTransaction.type.length > 0) {
+                            for (let j = 0; j < categoryTransaction.type.length; j++) {
+                                let transactionTypeCategory = categoryTransaction.type[j].category;
+
+                                let TransactionsCoaTable_Filter = new TransactionsCoaTable();
+                                let TransactionsCoaTable_Update = new TransactionsCoaTable();
+
+                                let TransactionsCoa_Filter = new TransactionsCoa();
+                                let TransactionsCoa_Update = new TransactionsCoa();
+                                if (transactionTypeCategory == "BUY") {
+                                    TransactionsCoaTable_Filter.idTransaction = dataTransaction.idTransaction;
+                                    TransactionsCoaTable_Update.status = status;
+                                    await this.transactionsCoaTableService.updateData(TransactionsCoaTable_Filter, TransactionsCoaTable_Update);
+
+                                    TransactionsCoa_Filter.idTransaction = dataTransaction.idTransaction;
+                                    TransactionsCoa_Update.status = status;
+                                    await this.transactionsCoaService.updateData(TransactionsCoa_Filter, TransactionsCoa_Update);
+                                }
+                                if (transactionTypeCategory == "WD") {
+                                    TransactionsCoaTable_Filter.idTransaction = dataTransaction.idTransaction;
+                                    TransactionsCoaTable_Update.status = status;
+                                    await this.transactionsCoaTableService.updateData(TransactionsCoaTable_Filter, TransactionsCoaTable_Update);
+
+                                    TransactionsCoa_Filter.idTransaction = dataTransaction.idTransaction;
+                                    TransactionsCoa_Update.status = status;
+                                    await this.transactionsCoaService.updateData(TransactionsCoa_Filter, TransactionsCoa_Update);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let dataDetail = dataTransaction.detail;
+                if (data != null) {
+                    dataDetail.push(data)
+                }
+                let transactionsV2_ = new transactionsV2();
+                transactionsV2_.status = status;
+                transactionsV2_.detail = dataDetail;
+                await this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
             }
         }
 
-        if (productCode == "AD") {
+        if (typeCategory == "WD") {
             if (status == "FAILED") {
-                if (transactionsV2_.detail != undefined) {
-                    if (transactionsV2_.detail.length > 0) {
-                        if (transactionsV2_.detail[0].adsID != undefined) {
-                            let idAds = transactionsV2_.detail[0].adsID.toString();
-                            const adsService_ = await this.adsService.findOne(idAds);
-                            if (await this.utilsService.ceckData(adsService_)) {
-                                let AdsBalaceCredit_ = new AdsBalaceCredit();
-                                AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
-                                AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(transactionsV2_.idUser.toString());
-                                AdsBalaceCredit_.debet = Number(transactionsV2_.credit);
-                                AdsBalaceCredit_.kredit = 0;
-                                AdsBalaceCredit_.type = "REFUND";
-                                AdsBalaceCredit_.idtrans = transactionsV2_._id;
-                                AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
-                                AdsBalaceCredit_.description = "ADS REJECTED";
-                                AdsBalaceCredit_.idAdspricecredits = adsService_.idAdspricecredits;
-                                await this.adsBalaceCreditService.create(AdsBalaceCredit_);
-                            }
-                        }
-                    }
+                //Get Transaction Count
+                let TransactionCount = 1;
+                try {
+                    const getTransactionCount = await this.transactionsModel.distinct("idTransaction");
+                    TransactionCount += getTransactionCount.length;
+                } catch (e) {
+                    return false;
                 }
-            }
-        } else {
-            //Set Variable
-            let product = "";
-            let category = "";
-            let idTransaction = "";
 
-            let coin = 0;
-            let saldo = 0;
-            let cost_verification = 0;
+                //Generate Id Transaction
+                const idTransaction = await this.generateIdTransaction();
 
-            //Get Biaya verifikasi OY
-            const ID_SETTING_COST_BANK_VERIFICATION = this.configService.get("ID_SETTING_COST_BANK_VERIFICATION");
-            const GET_ID_SETTING_COST_BANK_VERIFICATION = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_COST_BANK_VERIFICATION);
-            if (await this.utilsService.ceckData(GET_ID_SETTING_COST_BANK_VERIFICATION)) {
-                cost_verification = Number(GET_ID_SETTING_COST_BANK_VERIFICATION.value);
-            }
-
-            //Currency coin 
-            const currencyCoin = (await this.transactionsCoinSettingsService.findStatusActive()).price;
-            const currencyCoinId = (await this.transactionsCoinSettingsService.findStatusActive())._id;
-            if (getDataTransaction.length > 0) {
-                for (let uh = 0; uh < getDataTransaction.length; uh++) {
-                    let debet = 0;
-                    let kredit = 0;
-                    let dataTransaction = getDataTransaction[uh];
-                    product = dataTransaction.product.toString();
-                    const categoryTransaction = await this.transactionsCategorysService.findOne(dataTransaction.category.toString());
-                    if (dataTransaction.type == "USER") {
-                        if (categoryTransaction.type != undefined) {
-                            if (categoryTransaction.type.length > 0) {
-                                for (let j = 0; j < categoryTransaction.type.length; j++) {
-                                    if (categoryTransaction.type[j].category != undefined) {
-                                        let transactionTypeCategory = categoryTransaction.type[j].category;
-                                        category = transactionTypeCategory;
-                                        if (transactionTypeCategory == "BUY") {
-                                            if (categoryTransaction.type[j].transaction != undefined) {
-                                                let transactionTypetransaction = categoryTransaction.type[j].transaction;
-                                                for (let tr = 0; tr < transactionTypetransaction.length; tr++) {
-                                                    if (transactionTypetransaction[tr].name != undefined) {
-                                                        if (transactionTypetransaction[tr].name == "BalacedCoin") {
-                                                            if (transactionTypetransaction[tr].status != undefined) {
-                                                                if (transactionTypetransaction[tr].status == "debit") {
-                                                                    if (status == "SUCCESS") {
-                                                                        debet = dataTransaction.coin;
-                                                                        kredit = 0;
-                                                                    } else if (status == "FAILED") {
-                                                                        debet = 0;
-                                                                        kredit = dataTransaction.coin;
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        if (transactionTypeCategory == "WD") {
-                                            if (categoryTransaction.type[j].transaction != undefined) {
-                                                let transactionTypetransaction = categoryTransaction.type[j].transaction;
-                                                for (let tr = 0; tr < transactionTypetransaction.length; tr++) {
-                                                    if (transactionTypetransaction[tr].name != undefined) {
-                                                        if (transactionTypetransaction[tr].name == "BalacedCoin") {
-                                                            if (transactionTypetransaction[tr].status == "credit") {
-                                                                if (status == "FAILED") {
-                                                                    coin = dataTransaction.coin;
-                                                                    let coin_wd_failed = Number(cost_verification) / Number(currencyCoin)
-                                                                    debet = coin - coin_wd_failed;
-                                                                    kredit = 0;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (dataTransaction.type == "HYPPE") {
-                        idTransaction = dataTransaction.idTransaction;
-                        let transactionTypeCategory = "";
-                        let kas = 0;
-                        let biayaPaymentGateway = 0;
-                        let hutangSaldoCoin = 0;
-                        let pendapatanBiayaTransaction = 0;
-                        let pendapatanPenukaranCoin = 0;
-                        if (categoryTransaction.type != undefined) {
-                            if (categoryTransaction.type.length > 0) {
-                                for (let j = 0; j < categoryTransaction.type.length; j++) {
-                                    transactionTypeCategory = categoryTransaction.type[j].category;
-                                    if (transactionTypeCategory == "WD") {
-                                        if (categoryTransaction.type[j].transaction != undefined) {
-                                            let transactionTypetransaction = categoryTransaction.type[j].transaction;
-                                            for (let tr = 0; tr < transactionTypetransaction.length; tr++) {
-                                                if (transactionTypetransaction[tr].name != undefined) {
-                                                    if (transactionTypetransaction[tr].name == "Kas") {
-                                                        if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction[tr].status == "credit") {
-                                                                if (status == "FAILED") {
-                                                                    kas = cost_verification;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    if (transactionTypetransaction[tr].name == "BiayaPG") {
-                                                        if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction[tr].status == "debit") {
-                                                                if (status == "FAILED") {
-                                                                    biayaPaymentGateway = cost_verification;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    if (transactionTypetransaction[tr].name == "credit") {
-                                                        if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction[tr].status == "debit") {
-                                                                if (status == "FAILED") {
-                                                                    hutangSaldoCoin = (Number(currencyCoin) * (dataTransaction.coin)) - cost_verification;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    if (transactionTypetransaction[tr].name == "PendapatanBiayaTransaksi") {
-                                                        if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction[tr].status == "debit") {
-                                                                if (status == "FAILED") {
-                                                                    pendapatanBiayaTransaction = cost_verification;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    if (transactionTypetransaction[tr].name == "PendapatanPenukaranCoin") {
-                                                        if (transactionTypetransaction[tr].status != undefined) {
-                                                            if (transactionTypetransaction[tr].status == "credit") {
-                                                                if (status == "FAILED") {
-                                                                    pendapatanPenukaranCoin = 0;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (transactionTypeCategory == "BUY") {
-                            let TransactionsCoa_Filter = new TransactionsCoa();
-                            TransactionsCoa_Filter.coaTransaction = dataTransaction.noInvoice;
-                            let TransactionsCoa_Update = new TransactionsCoa();
-                            TransactionsCoa_Update.status = status;
-                            await this.transactionsCoaService.updateData(TransactionsCoa_Filter, TransactionsCoa_Update);
-
-                            let TransactionsCoaTable_Filter = new TransactionsCoaTable();
-                            TransactionsCoaTable_Filter.coaTransaction = dataTransaction.noInvoice;
-                            let TransactionsCoaTable_Update = new TransactionsCoaTable();
-                            TransactionsCoaTable_Update.status = status;
-                            await this.transactionsCoaTableService.updateData(TransactionsCoaTable_Filter, TransactionsCoaTable_Update);
-                        } else if (transactionTypeCategory == "WD") {
-                            let getTransactionsCoa = await this.transactionsCoaService.findOneIdTransaction(idTrans);
-                            let TransactionsCoa_Filter = new TransactionsCoa();
-                            TransactionsCoa_Filter.coaTransaction = dataTransaction.noInvoice;
-                            let TransactionsCoa_Update = new TransactionsCoa();
-
-                            let TransactionsCoaTable_Filter = new TransactionsCoaTable();
-                            TransactionsCoaTable_Filter.coaTransaction = dataTransaction.noInvoice;
-                            let TransactionsCoaTable_Update = new TransactionsCoaTable();
-                            if (status == "FAILED") {
-                                if (await this.utilsService.ceckData(getTransactionsCoa)) {
-                                    let asset = getTransactionsCoa.asset;
-                                    asset.kas = kas;
-                                    asset.biaya.biayaPaymentGateway = biayaPaymentGateway;
-                                    TransactionsCoa_Update.asset = asset;
-
-                                    let hutang = getTransactionsCoa.hutang;
-                                    hutang.hutangSaldoCoin = hutangSaldoCoin;
-                                    TransactionsCoa_Update.hutang = hutang;
-
-                                    let ekuitas = getTransactionsCoa.ekuitas;
-                                    ekuitas.saldoPendapatan.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
-                                    ekuitas.saldoPendapatan.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
-                                    TransactionsCoa_Update.ekuitas = ekuitas;
-                                }
-
-                                TransactionsCoaTable_Update.kas = kas;
-                                TransactionsCoaTable_Update.biayaPaymentGateway = biayaPaymentGateway;
-                                TransactionsCoaTable_Update.hutangSaldoCoin = hutangSaldoCoin;
-                                TransactionsCoaTable_Update.pendapatanBiayaTransaction = pendapatanBiayaTransaction;
-                                TransactionsCoaTable_Update.pendapatanPenukaranCoin = pendapatanPenukaranCoin;
-                            }
-                            TransactionsCoa_Update.status = "SUCCESS";
-                            await this.transactionsCoaService.updateData(TransactionsCoa_Filter, TransactionsCoa_Update);
-
-                            TransactionsCoaTable_Update.status = "SUCCESS";
-                            await this.transactionsCoaTableService.updateData(TransactionsCoaTable_Filter, TransactionsCoaTable_Update);
-                        }
-                    }
-
-                    //Get Saldo
-                    let balancedUser = await this.transactionsBalancedsService.findsaldo(dataTransaction.idUser.toString());
-                    if (await this.utilsService.ceckData(balancedUser)) {
-                        if (balancedUser.length > 0) {
-                            saldo = balancedUser[0].totalSaldo;
-                        }
-                    }
-
-                    //Insert Balanced
-                    if (status == "SUCCESS") {
-                        if (category == "BUY") {
-                            //Insert Balanceds
-                            let Balanceds_ = new TransactionsBalanceds();
-                            Balanceds_._id = new mongoose.Types.ObjectId();
-                            Balanceds_.idTransaction = dataTransaction._id;
-                            Balanceds_.idUser = dataTransaction.idUser;
-                            Balanceds_.debit = debet;
-                            Balanceds_.credit = kredit;
-                            Balanceds_.saldo = saldo - kredit + debet;
-                            Balanceds_.noInvoice = dataTransaction.noInvoice;
-                            Balanceds_.createdAt = currentDate;
-                            Balanceds_.updatedAt = currentDate;
-                            Balanceds_.userType = categoryTransaction.user;
-                            Balanceds_.coa = [];
-                            Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
-                            await this.transactionsBalancedsService.create(Balanceds_);
-                        }
-                    }
-
-                    let dataDetail = dataTransaction.detail;
-                    if (data != null) {
-                        dataDetail.push(data)
-                    }
-                    let transactionsV2_ = new transactionsV2();
-                    transactionsV2_.status = status;
-                    transactionsV2_.detail = dataDetail;
-                    await this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
-                }
-            }
-
-            if (status == "FAILED") {
-                let kas = 0;
-                let biayaPaymentGateway = 0;
-                let biayaDiscount = 0;
-                let biayaFreeCreator = 0;
-
-                let hutangSaldoCoin = 0;
-                let hutangSaldoCredit = 0;
-
-                let pendapatanBiayaTransaction = 0;
-                let pendapatanPenukaranCoin = 0;
-                let pendapatanContentOwnership = 0;
-                let pendapatanContentMarketPlace = 0;
-                let pendapatanBoostPost = 0;
-                let pendapatanLiveGift = 0;
-                let pendapatanContentGift = 0;
-                let pendapatanAdvertisement = 0;
-                let pendapatanDiTarik = 0;
-
-                let modalDiSetor = 0;
-                let allProductPendapatan = 0;
-                if (category == "WD") {
-                    const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(product.toString(), "REFUND");
+                //if (productId != null && idTransaction != null) {
+                if (productId != null) {
+                    const getCategoryTransaction = await this.transactionsCategorysService.findByProduct(productId.toString(), "REFUND");
                     if (getCategoryTransaction.length > 0) {
-                        for (let z = 0; z < getCategoryTransaction.length; z++) {
-                            let categoryTransaction = getCategoryTransaction[z];
+                        for (let cat = 1; cat <= getCategoryTransaction.length; cat++) {
+                            let categoryTransaction = getCategoryTransaction[cat - 1];
+
+                            //For Balanced
+                            let idUser_ = null;
+                            let typeUser = "";
+
+                            let saldo = 0;
+                            let debet = 0;
+                            let kredit = 0;
+                            let insertBalanced = false;
+
+                            //Generate Invoice Number
+                            let generateInvoice = await this.generateInvoice("APP", categoryTransaction.code, "CN", TransactionCount);
+
+                            //Insert Transaction
+                            let transactionsV2_ = new transactionsV2();
+                            let transactionsV2_id = new mongoose.Types.ObjectId();
+                            transactionsV2_._id = transactionsV2_id;
+                            transactionsV2_.type = categoryTransaction.user;
+                            transactionsV2_.idTransaction = idTransaction;
+                            transactionsV2_.noInvoice = generateInvoice;
+                            transactionsV2_.createdAt = currentDate;
+                            transactionsV2_.updatedAt = currentDate;
+                            transactionsV2_.category = categoryTransaction._id;
+                            transactionsV2_.product = productId;
+                            transactionsV2_.status = "SUCCESS";
+                            transactionsV2_.detail = [data];
+
                             if (categoryTransaction.user == "HYPPE") {
-                                //Get Transaction Count
-                                let TransactionCount = 1;
-                                try {
-                                    const getTransactionCount = await this.transactionsModel.distinct("idTransaction");
-                                    TransactionCount += getTransactionCount.length;
-                                } catch (e) {
-                                    return false;
-                                }
-                                let generateInvoice = await this.generateInvoice("APP", categoryTransaction.code, "CN", TransactionCount);
+                                typeUser = "USER_HYPPE";
+                                idUser_ = idHyppe;
+                                insertBalanced = false;
+                                transactionsV2_.coin = 0;
+                                transactionsV2_.totalCoin = 0;
+
+                                let kas = 0;
+                                let biayaPaymentGateway = 0;
+                                let biayaDiscount = 0;
+                                let biayaFreeCreator = 0;
+
+                                let hutangSaldoCoin = 0;
+                                let hutangSaldoCredit = 0;
+
+                                let pendapatanBiayaTransaction = 0;
+                                let pendapatanPenukaranCoin = 0;
+                                let pendapatanContentOwnership = 0;
+                                let pendapatanContentMarketPlace = 0;
+                                let pendapatanBoostPost = 0;
+                                let pendapatanLiveGift = 0;
+                                let pendapatanContentGift = 0;
+                                let pendapatanAdvertisement = 0;
+                                let pendapatanDiTarik = 0;
+
+                                let modalDiSetor = 0;
+                                let allProductPendapatan = 0;
+
                                 if (categoryTransaction.type != undefined) {
                                     if (categoryTransaction.type.length > 0) {
                                         for (let uh = 0; uh < categoryTransaction.type.length; uh++) {
                                             let categoryTransactionType = categoryTransaction.type[uh];
-                                            if (product.toString() == categoryTransactionType.idProduct.toString()) {
+                                            if (productId.toString() == categoryTransactionType.idProduct.toString()) {
                                                 if (categoryTransactionType.transaction != undefined) {
                                                     if (categoryTransactionType.transaction.length > 0) {
+                                                        let transactionTypetransaction = categoryTransactionType.transaction;
                                                         for (let tr = 0; tr < categoryTransactionType.transaction.length; tr++) {
-                                                            if (categoryTransactionType.transaction[tr].name != undefined) {
-                                                                if (categoryTransactionType.transaction[tr].name == "PendapatanBiayaTransaksi") {
-                                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
-                                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
-                                                                            pendapatanBiayaTransaction = cost_verification;
+                                                            if (transactionTypetransaction[tr].name != undefined) {
+                                                                if (transactionTypetransaction[tr].name == "Kas") {
+                                                                    if (transactionTypetransaction[tr].status != undefined) {
+                                                                        if (transactionTypetransaction[tr].status == "credit") {
+                                                                            kas = cost_verification - cost_verification_oy;
                                                                         }
                                                                     }
                                                                 }
-                                                                if (categoryTransactionType.transaction[tr].name == "HutangCoin") {
-                                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
-                                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                                if (transactionTypetransaction[tr].name == "BiayaPG") {
+                                                                    if (transactionTypetransaction[tr].status != undefined) {
+                                                                        if (transactionTypetransaction[tr].status == "debit") {
+                                                                            biayaPaymentGateway = cost_verification_oy;
+                                                                        }
+                                                                    }
+                                                                }
+                                                                if (transactionTypetransaction[tr].name == "HutangCoin") {
+                                                                    if (transactionTypetransaction[tr].status != undefined) {
+                                                                        if (transactionTypetransaction[tr].status == "debit") {
                                                                             hutangSaldoCoin = (Number(currencyCoin) * (coin)) - cost_verification;
+                                                                        }
+                                                                    }
+                                                                }
+                                                                if (transactionTypetransaction[tr].name == "PendapatanBiayaTransaksi") {
+                                                                    if (transactionTypetransaction[tr].status != undefined) {
+                                                                        if (transactionTypetransaction[tr].status == "debit") {
+                                                                            pendapatanBiayaTransaction = cost_verification;
                                                                         }
                                                                     }
                                                                 }
@@ -475,9 +373,9 @@ export class TransactionsV2Service {
                                 TransactionsCoa_.idCoinSettings = currencyCoinId;
                                 TransactionsCoa_.createdAt = currentDate;
                                 TransactionsCoa_.updatedAt = currentDate;
-                                TransactionsCoa_.product = new mongoose.Types.ObjectId(product.toString());
+                                TransactionsCoa_.product = new mongoose.Types.ObjectId(productId.toString());
                                 TransactionsCoa_.category = categoryTransaction._id;
-                                TransactionsCoa_.status = status;
+                                TransactionsCoa_.status = "SUCCESS";
                                 await this.transactionsCoaService.create(TransactionsCoa_);
 
                                 //Insert Coa Table
@@ -505,11 +403,82 @@ export class TransactionsV2Service {
                                 TransactionsCoaTable_.updatedAt = currentDate;
                                 TransactionsCoaTable_.idTransaction = idTransaction;
                                 TransactionsCoaTable_.idCoinSettings = currencyCoinId;
-                                TransactionsCoaTable_.product = new mongoose.Types.ObjectId(product.toString());
+                                TransactionsCoaTable_.product = new mongoose.Types.ObjectId(productId.toString());
                                 TransactionsCoaTable_.category = categoryTransaction._id;
-                                TransactionsCoaTable_.status = status;
+                                TransactionsCoaTable_.status = "SUCCESS";
                                 await this.transactionsCoaTableService.create(TransactionsCoaTable_);
                             }
+
+                            if (categoryTransaction.user == "USER") {
+                                typeUser = "USER_BUY";
+                                idUser_ = idUser;
+                                insertBalanced = true;
+                                transactionsV2_.coin = coin;
+                                transactionsV2_.totalCoin = coin;
+
+                                if (categoryTransaction.type != undefined) {
+                                    if (categoryTransaction.type.length > 0) {
+                                        for (let uh = 0; uh < categoryTransaction.type.length; uh++) {
+                                            let categoryTransactionType = categoryTransaction.type[uh];
+                                            if (productId.toString() == categoryTransactionType.idProduct.toString()) {
+                                                if (categoryTransactionType.transaction != undefined) {
+                                                    if (categoryTransactionType.transaction.length > 0) {
+                                                        for (let tr = 0; tr < categoryTransactionType.transaction.length; tr++) {
+                                                            if (categoryTransactionType.transaction[tr].name != undefined) {
+                                                                if (categoryTransactionType.transaction[tr].name == "BalacedCoin") {
+                                                                    if (categoryTransactionType.transaction[tr].status != undefined) {
+                                                                        if (categoryTransactionType.transaction[tr].status == "debit") {
+                                                                            let coin_wd_failed = Number(cost_verification) / Number(currencyCoin)
+                                                                            debet = coin - coin_wd_failed;
+                                                                            kredit = coin_wd_failed;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            transactionsV2_.typeCategory = "REFUND";
+                            transactionsV2_.idUser = idUser_;
+                            transactionsV2_.coinDiscount = 0;
+                            transactionsV2_.priceDiscont = 0;
+                            transactionsV2_.price = 0;
+                            transactionsV2_.credit = 0;
+                            transactionsV2_.totalPrice = 0;
+                            transactionsV2_.typeUser = typeUser;
+                            await this.transactionsModel.create(transactionsV2_);
+
+                            if (insertBalanced) {
+                                //Get Saldo
+                                let balancedUser = await this.transactionsBalancedsService.findsaldo(idUser_.toString());
+                                if (await this.utilsService.ceckData(balancedUser)) {
+                                    if (balancedUser.length > 0) {
+                                        saldo = balancedUser[0].totalSaldo;
+                                    }
+                                }
+
+                                //Insert Balanceds
+                                let Balanceds_ = new TransactionsBalanceds();
+                                Balanceds_._id = new mongoose.Types.ObjectId();
+                                Balanceds_.idTransaction = transactionsV2_id;
+                                Balanceds_.idUser = idUser_;
+                                Balanceds_.debit = debet;
+                                Balanceds_.credit = kredit;
+                                Balanceds_.saldo = saldo - kredit + debet;
+                                Balanceds_.noInvoice = generateInvoice;
+                                Balanceds_.createdAt = currentDate;
+                                Balanceds_.updatedAt = currentDate;
+                                Balanceds_.userType = categoryTransaction.user;
+                                Balanceds_.coa = [];
+                                Balanceds_.remark = "Insert Balanced " + categoryTransaction.user;
+                                await this.transactionsBalancedsService.create(Balanceds_);
+                            }
+
                         }
                     }
                 }
@@ -1062,8 +1031,7 @@ export class TransactionsV2Service {
                         }
                     }
 
-                    console.log((transactionProductCode != "AD" && category != "CREATE"));
-                    if (transactionProductCode != "AD" && category != "CREATE") {
+                    if (category != "CREATE") {
                         //Insert Coa Table
                         let TransactionsCoa_ = new TransactionsCoa();
                         TransactionsCoa_._id = new mongoose.Types.ObjectId();
@@ -1151,6 +1119,7 @@ export class TransactionsV2Service {
                         idUser = getDataUserBuy._id;
                         coinDiscount = 0;
                     } else {
+                        typeUser = "USER_BUY";
                         idUser = getDataUserBuy._id;
                         coinDiscount = discountCoin;
                     }
@@ -1295,8 +1264,7 @@ export class TransactionsV2Service {
                     }
                 }
 
-                console.log((transactionProductCode != "AD" && category != "CREATE"));
-                if (transactionProductCode != "AD" && category != "CREATE") {
+                if (category != "CREATE") {
                     if (status == "SUCCESS") {
                         //Insert Balanceds
                         let Balanceds_ = new TransactionsBalanceds();
@@ -1809,14 +1777,6 @@ export class TransactionsV2Service {
                 }
             },
             {
-                $lookup: {
-                    from: "newUserBasics",
-                    localField: "idUser",
-                    foreignField: "_id",
-                    as: "databasic"
-                }
-            },
-            {
                 "$lookup": {
                     from: "transactionsCategorys",
                     as: "coa",
@@ -1969,6 +1929,47 @@ export class TransactionsV2Service {
             },
             {
                 $lookup: {
+                    from: "newUserBasics",
+                    localField: "idUser",
+                    foreignField: "_id",
+                    as: "databasic"
+                }
+            },
+            {
+                $lookup:
+                {
+
+                    from: "newUserBasics",
+                    as: "datapembeli",
+                    let: {
+                        idLocal: {
+                            "$arrayElemAt":
+                            [
+                                "$detail.pembeli", 0
+                            ]
+                        }
+                    },
+                    pipeline: [
+                        {
+                            "$match":
+                            {
+                                "$expr":
+                                {
+                                    "$eq":
+                                    [
+                                        "$$idLocal", "$_id"
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$limit":1
+                        }
+                    ]
+                }
+            },
+            {
+                $lookup: {
                     from: "withdraws",
                     localField: "withdrawId",
                     foreignField: "_id",
@@ -1986,8 +1987,82 @@ export class TransactionsV2Service {
             {
                 $project: {
                     "type": 1,
-                    "emailbuyer": 1,
-                    "usernamebuyer": 1,
+                    "emailbuyer": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "usernamebuyer": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "emailseller": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            }
+                        }
+                    },
+                    "usernameseller": {
+                        "$cond": {
+                            "if": {
+                                "$eq": [
+                                    "$typeUser", "USER_SELL"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$databasic.email", 0
+                                ]
+                            },
+                            "else": {
+                                "$arrayElemAt": [
+                                    "$datapembeli.email", 0
+                                ]
+                            }
+                        }
+                    },
                     "idTransaction": 1,
                     "noInvoice": 1,
                     "category": 1,
@@ -2197,6 +2272,8 @@ export class TransactionsV2Service {
                     "noInvoice": 1,
                     "emailbuyer": 1,
                     "usernamebuyer": 1,
+                    "emailseller": 1,
+                    "usernameseller": 1,
                     "category": 1,
                     "content_id": 1,
                     "product": 1,
@@ -2305,6 +2382,8 @@ export class TransactionsV2Service {
                     "category": 1,
                     "emailbuyer": 1,
                     "usernamebuyer": 1,
+                    "emailseller": 1,
+                    "usernameseller": 1,
                     "product": 1,
                     "voucherDiskon": 1,
                     "idUser": 1,

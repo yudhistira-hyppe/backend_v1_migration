@@ -256,9 +256,11 @@ export class Userbasicnew {
     @Prop()
     GiftActivation: boolean;
     @Prop()
-    streamReportUser: any[];
+    streamReportUserHistory: any[];
     @Prop()
-    streamHystoryWarning: any[];
+    streamWarningHistory: any[];
+    @Prop()
+    streamBannedHistory: any[];
     @Prop()
     streamWarning: any[];
     @Prop()

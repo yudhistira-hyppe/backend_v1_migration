@@ -1659,7 +1659,8 @@ export class DisqusController {
                         "category": "CONTENT",
                         "tabelName": "gift",
                         "qty": 1,
-                        "amount": 0
+                        "amount": 0,
+                        "pembeli": getdatapembeli._id
                     }
                 ]
 
@@ -1786,79 +1787,80 @@ export class DisqusController {
               }
             }
             disqusLog_new.tags = Object(array_data);
+          }
 
-            //proses masukkin gift ke dalam komentar dan transaksi
-            if(inDto.giftID != undefined && inDto.giftID != null)
+          //proses masukkin gift ke dalam komentar dan transaksi
+          if(inDto.giftID != undefined && inDto.giftID != null)
+          {
+            giftExist = true;
+            var getgiftdata = await this.newMonetize.findOne(inDto.giftID.toString());
+            if(getgiftdata != undefined)
             {
-              giftExist = true;
-              var getgiftdata = await this.newMonetize.findOne(inDto.giftID.toString());
-              if(getgiftdata != undefined)
+              var setobjectgift = {};
+              setobjectgift['giftID'] = getgiftdata._id;
+              setobjectgift['giftThumbUrl'] = getgiftdata.thumbnail
+              if(getgiftdata.animation != undefined && getgiftdata.animation != null)
               {
-                var setobjectgift = {};
-                setobjectgift['giftID'] = getgiftdata._id;
-                setobjectgift['giftThumbUrl'] = getgiftdata.thumbnail
-                if(getgiftdata.animation != undefined && getgiftdata.animation != null)
-                {
-                  setobjectgift['giftAnimateUrl'] = getgiftdata.animation;
-                }
-                disqusLog_new.giftData = [
-                  setobjectgift
-                ];
+                setobjectgift['giftAnimateUrl'] = getgiftdata.animation;
+              }
+              disqusLog_new.giftData = [
+                setobjectgift
+              ];
 
-                var getdatapenjual = await this.UserbasicnewService.findbyemail(inDto.receiverParty.toString());
-                var getdatapembeli = await this.UserbasicnewService.findbyemail(inDto.email.toString());
+              var getdatapenjual = await this.UserbasicnewService.findbyemail(inDto.receiverParty.toString());
+              var getdatapembeli = await this.UserbasicnewService.findbyemail(inDto.email.toString());
 
-                var setdetailgift = [
-                    {
-                        "postID": inDto.postID,
-                        "id": getgiftdata._id,
-                        "category": "CONTENT",
-                        "tabelName": "gift",
-                        "qty": 1,
-                        "amount": 0
-                    }
-                ]
-
-                try
-                {
-                  var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
-                  var listtransaksi = [];
-                  if(resultdata != false)
+              var setdetailgift = [
                   {
-                    giftExist = true;
-                    var getdataresulttrans = resultdata.data;
-                    for(var i = 0; i < getdataresulttrans.length; i++)
-                    {
-                      var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-                      if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
-                      {
-                        var upd_last_stock = getgiftdata.last_stock - 1;
-                        var upd_used_stock = getgiftdata.used_stock + 1;
-                        var detailtransdata = getdataresulttrans[i]._id;
-                        var insertlogtransaksi = 
-                        {
-                          "idPackage" : getgiftdata._id,
-                          "idTransaction" : detailtransdata,
-                          "status" : "SUCCESS",
-                          "quantity" : 1,
-                          "last_stock": upd_last_stock,
-                          "used_stock": upd_used_stock,
-                          "idUser" : getdatapembeli._id
-                        };
-    
-                        await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
-                        
-                        listtransaksi.push(getdataresulttrans[i].idTransaction);
+                      "postID": inDto.postID,
+                      "id": getgiftdata._id,
+                      "category": "CONTENT",
+                      "tabelName": "gift",
+                      "qty": 1,
+                      "amount": 0,
+                      "pembeli": getdatapembeli._id
+                  }
+              ]
 
-                        responseTransGIFT = getdataresulttrans[i];
-                      }
+              try
+              {
+                var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
+                var listtransaksi = [];
+                if(resultdata != false)
+                {
+                  giftExist = true;
+                  var getdataresulttrans = resultdata.data;
+                  for(var i = 0; i < getdataresulttrans.length; i++)
+                  {
+                    var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+                    if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
+                    {
+                      var upd_last_stock = getgiftdata.last_stock - 1;
+                      var upd_used_stock = getgiftdata.used_stock + 1;
+                      var detailtransdata = getdataresulttrans[i]._id;
+                      var insertlogtransaksi = 
+                      {
+                        "idPackage" : getgiftdata._id,
+                        "idTransaction" : detailtransdata,
+                        "status" : "SUCCESS",
+                        "quantity" : 1,
+                        "last_stock": upd_last_stock,
+                        "used_stock": upd_used_stock,
+                        "idUser" : getdatapembeli._id
+                      };
+  
+                      await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
+                      
+                      listtransaksi.push(getdataresulttrans[i].idTransaction);
+
+                      responseTransGIFT = getdataresulttrans[i];
                     }
                   }
                 }
-                catch(e)
-                {
-                  await this.errorHandler.generateInternalServerErrorException(e.messages);
-                }
+              }
+              catch(e)
+              {
+                await this.errorHandler.generateInternalServerErrorException(e.messages);
               }
             }
           }
