@@ -230,7 +230,7 @@ export class MediastreamingController {
       }
     }
 
-    let statusBanned = "NOACTIVE";
+    let statusBanned = "NONE"; 
     if (idBanned!=undefined){
       let dataBanned = profile.streamBannedHistory;
       let dataBanned_ = dataBanned.filter(function (el) {
@@ -248,6 +248,8 @@ export class MediastreamingController {
           } else {
             statusBanned = "ACTIVE_BANNED"
           }
+        }else{
+          statusBanned = "NOACTIVE"; 
         }
       }
     }
