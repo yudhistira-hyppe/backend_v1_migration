@@ -8883,23 +8883,6 @@ export class UserbasicnewService {
                 }
             );
         }
-        else {
-            match.push(
-                {
-                    "$expr":
-                    {
-                        "$in":
-                            [
-                                "$category",
-                                [
-                                    new mongoose.Types.ObjectId("660f9095c306d245ed2c207f"),
-                                    new mongoose.Types.ObjectId("662b16b3dc3e000022007e13")
-                                ]
-                            ]
-                    }
-                }
-            )
-        }
 
         var lookup = [];
         lookup.push(
@@ -8912,7 +8895,11 @@ export class UserbasicnewService {
             {
                 $set: {
                     vaNumber: {
-                        $arrayElemAt: ['$detail.payload.va_number', 0]
+                        "$ifNull":
+                        [
+                            { '$arrayElemAt': [ '$detail.payload.va_number', 0 ] },
+                            null
+                        ]
                     }
                 }
             },
@@ -9089,29 +9076,70 @@ export class UserbasicnewService {
                 $limit: 5
             },
             {
-                $project: {
-                    email: 1,
-                    idUser: 1,
-                    userName: 1,
-                    idTrans: "$trans.idTransaction",
-                    type: "$trans.type",
-                    noInvoice: "$trans.noInvoice",
-                    discount: "$trans.diskon",
-                    price:
-                    {
-                        "$arrayElemAt":
-                            [
-                                "$trans.transOld.detail.totalAmount", 0
-                            ]
+                "$project": {
+                    "email": 1,
+                    "idUser": 1,
+                    "userName": 1,
+                    "idTrans": "$trans.idTransaction",
+                    "type": "$trans.type",
+                    "noInvoice": "$trans.noInvoice",
+                    "discount": {
+                        "$ifNull": [
+                        "$trans.diskon",
+                        {
+                            "$cond": {
+                            "if": {
+                                "$eq": [
+                                "$trans.coinDiscount",
+                                0
+                                ]
+                            },
+                            "then": "$trans.priceDiscount",
+                            "else": "$trans.coinDiscount"
+                            }
+                        }
+                        ]
                     },
-                    totalPrice: "$trans.transold.totalamount",
-                    coin: "$trans.coin",
-                    totalCoin: "$trans.totalCoin",
-                    createdAt: "$trans.createdAt",
-                    updatedAt: "$trans.updatedAt",
-                    status: "$trans.status",
-                    package: "$trans.transOld.packageName",
-
+                    "price": {
+                        "$cond": {
+                        "if": {
+                            "$eq": [
+                            "$trans.type",
+                            "Pembelian Coin"
+                            ]
+                        },
+                        "then": {
+                            "$arrayElemAt": [
+                            "$trans.detail.amount",
+                            0
+                            ]
+                        },
+                        "else": "$trans.price"
+                        }
+                    },
+                    "totalPrice": {
+                        "$cond": {
+                        "if": {
+                            "$eq": [
+                            "$trans.type",
+                            "Pembelian Coin"
+                            ]
+                        },
+                        "then": {
+                            "$arrayElemAt": [
+                            "$trans.detail.totalAmount",
+                            0
+                            ]
+                        },
+                        "else": "$trans.totalPrice"
+                        }
+                    },
+                    "coin": "$trans.coin",
+                    "totalCoin": "$trans.totalCoin",
+                    "createdAt": "$trans.createdAt",
+                    "updatedAt": "$trans.updatedAt",
+                    "status": "$trans.status",
+                    "package": "$trans.transOld.packageName"
                 }
             }
         );
