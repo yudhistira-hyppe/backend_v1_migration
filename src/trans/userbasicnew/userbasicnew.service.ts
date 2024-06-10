@@ -8802,7 +8802,7 @@ export class UserbasicnewService {
         return result;
     }
 
-    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number) {
+    async transaksiHistory2(email: string, namaproduk: string, startdate: string, enddate: string, tipetransaksi: any[], showtrueonly: boolean, skip: number, descending:boolean) {
         var pipeline = [];
 
         pipeline.push(
@@ -8892,7 +8892,7 @@ export class UserbasicnewService {
                                 "$category",
                                 [
                                     new mongoose.Types.ObjectId("660f9095c306d245ed2c207f"),
-                                    new mongoose.Types.ObjectId("6627309656375e3a6b223091")
+                                    new mongoose.Types.ObjectId("662b16b3dc3e000022007e13")
                                 ]
                             ]
                     }
@@ -9037,13 +9037,41 @@ export class UserbasicnewService {
                     path: "$trans"
                 }
             },
-            {
-                $sort: {
-                    createdAt: - 1
-                }
-            },
         );
 
+        if(descending != null) {
+            if(descending == true)
+            {
+                pipeline.push(
+                    {
+                        $sort: {
+                            'trans.createdAt': - 1
+                        }
+                    }
+                );
+            }
+            else
+            {
+                pipeline.push(
+                    {
+                        $sort: {
+                            'trans.createdAt': 1
+                        }
+                    }
+                );
+            }
+        }        
+        else
+        {
+            pipeline.push(
+                {
+                    $sort: {
+                        'trans.createdAt': 1
+                    }
+                }
+            );
+        }
+        
         if (showtrueonly == true) {
             pipeline.push(
                 {
@@ -9063,21 +9091,29 @@ export class UserbasicnewService {
                 $limit: 5
             },
             {
-                $project:
-                {
-                    email: 1,
-                    idUser: 1,
-                    userName: 1,
-                    idTrans: "$trans.idTransaction",
-                    type: "$trans.type",
-                    noInvoice: "$trans.noInvoice",
-                    price: "$trans.price",
-                    totalPrice: "$trans.totalPrice",
-                    createdAt: "$trans.createdAt",
-                    updatedAt: "$trans.updatedAt",
-                    status: "$trans.status",
-                    package: "$trans.transOld.packageName",
-
+                $project:{
+                       email:1,
+                       idUser:1,
+                       userName:1,
+                       idTrans:"$trans.idTransaction",
+                       type:"$trans.type",
+                       noInvoice:"$trans.noInvoice",
+                       discount:"$trans.diskon",
+                       price:
+                       {
+                           "$arrayElemAt":
+                           [
+                               "$trans.transOld.detail.totalAmount", 0
+                           ]
+                       },
+                       totalPrice:"$trans.transold.totalamount",
+                       coin:"$trans.coin",
+                       totalCoin:"$trans.totalCoin",
+                       createdAt:"$trans.createdAt",
+                       updatedAt:"$trans.updatedAt",
+                       status:"$trans.status",
+                       package:"$trans.transOld.packageName",
+                       
                 }
             }
         );

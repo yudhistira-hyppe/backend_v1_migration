@@ -149,8 +149,8 @@ export class TransactionsV2Service {
                                                     let AdsBalaceCredit_ = new AdsBalaceCredit();
                                                     AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
                                                     AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(dataTransaction.idUser.toString());
-                                                    AdsBalaceCredit_.debet = Number(dataTransaction.credit);
-                                                    AdsBalaceCredit_.kredit = 0;
+                                                    AdsBalaceCredit_.debet = 0;
+                                                    AdsBalaceCredit_.kredit = Number(dataTransaction.credit);
                                                     AdsBalaceCredit_.type = "REFUND";
                                                     AdsBalaceCredit_.idtrans = dataTransaction._id;
                                                     AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
@@ -1240,9 +1240,9 @@ export class TransactionsV2Service {
                                                                         let AdsBalaceCredit_ = new AdsBalaceCredit();
                                                                         AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
                                                                         AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(idUser);
-                                                                        AdsBalaceCredit_.debet = dataGrandTotalCredit;
+                                                                        AdsBalaceCredit_.debet = 0;
                                                                         AdsBalaceCredit_.type = "TOPUP";
-                                                                        AdsBalaceCredit_.kredit = 0;
+                                                                        AdsBalaceCredit_.kredit = dataGrandTotalCredit; 
                                                                         AdsBalaceCredit_.idtrans = transactionsV2_id;
                                                                         AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
                                                                         AdsBalaceCredit_.description = "BUY PAKET CREDIT";
@@ -1263,9 +1263,9 @@ export class TransactionsV2Service {
                                                                         let AdsBalaceCredit_ = new AdsBalaceCredit();
                                                                         AdsBalaceCredit_._id = new mongoose.Types.ObjectId();
                                                                         AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(idUser);
-                                                                        AdsBalaceCredit_.debet = 0;
+                                                                        AdsBalaceCredit_.debet = dataGrandTotalCredit;
                                                                         AdsBalaceCredit_.type = "USE";
-                                                                        AdsBalaceCredit_.kredit = dataGrandTotalCredit;
+                                                                        AdsBalaceCredit_.kredit = 0;
                                                                         AdsBalaceCredit_.idtrans = transactionsV2_id;
                                                                         AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
                                                                         AdsBalaceCredit_.description = "USE ADS CREATE";
