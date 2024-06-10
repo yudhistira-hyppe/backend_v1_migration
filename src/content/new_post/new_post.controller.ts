@@ -719,6 +719,33 @@ export class NewPostController {
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
                 this.TempPostService.updateByPostId(body, headers, dataUser);
+                
+                var transaction_fee = 0;
+                var discount_id = null;
+                var discount_fee = 0;
+                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
+                    transaction_fee = body.transaction_fee;
+                    if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
+                        discount_id = body.discount_id;
+                        discount_fee = body.discount_fee;
+                    }
+
+                    if (body.certified == true) {
+                        var resultTrans = await this.setTransaksiContentOwnership(body.postID, transaction_fee, discount_id, discount_fee);
+                        data['DetailTransaction'] = {
+                            invoiceID: resultTrans.noInvoice,
+                            totalPayment: resultTrans.detail[0].totalAmount,
+                            transactionID: resultTrans.idTransaction,
+                            transactionTitle : resultTrans.transactionType,
+                            packageTitle : resultTrans.productionTitle,
+                            email : resultTrans.email,
+                            paymentMethod : resultTrans.paymentMethod,
+                            date:resultTrans.createdAt.split(" ")[0],
+                            time:resultTrans.createdAt.split(" ")[1],
+                        }
+                    }
+                }
+                
                 //tags
                 if (body.tags !== undefined && body.tags.length > 0) {
                     var tag2 = body.tags;

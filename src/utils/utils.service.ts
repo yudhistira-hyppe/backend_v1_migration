@@ -497,7 +497,9 @@ export class UtilsService {
       let title_save_en = "";
 
       let body_save_id = "";
+      let body_save_id2="";
       let body_save_en = "";
+      let body_save_en2 = "";
 
       let body_save_id_get = "";
       let body_save_en_get = "";
