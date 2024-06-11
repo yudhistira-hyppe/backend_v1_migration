@@ -8615,7 +8615,7 @@ export class UserbasicnewService {
             })
         }
 
-        if (order_by && order_by !== undefined) {
+        if (order_by != undefined) {
             if (order_by == true) {
                 pipeline.push(
                     {
@@ -9207,37 +9207,38 @@ export class UserbasicnewService {
                             },
 
                         },
-                        // {
-                        //     $lookup: {
-                        //         from: "withdraws",
-                        //         as: "withdrawData",
-                        //         let: {
-                        //             localID: {
-                        //                 $arrayElemAt: ["$detail.withdrawId", 0]
-                        //             }
-                        //         },
-                        //         pipeline: [
-                        //             {
-                        //                 $match:
-                        //                 {
-                        //                     $and:
-                        //                         [
-                        //                             {
-                        //                                 $expr: {
-                        //                                     $eq: ['$_id', '$$localID']
-                        //                                 }
-                        //                             },
-                        //                         ]
-                        //                 }
-                        //             },
-                        //             {
-                        //                 $project: {
-                        //                     tracking: { $reverseArray: "$tracking" }
-                        //                 }
-                        //             }
-                        //         ]
-                        //     }
-                        // },
+                        {
+                            $lookup: {
+                                from: "withdraws",
+                                as: "withdrawData",
+                                let: {
+                                    localID: {
+                                        $arrayElemAt: ["$detail.withdrawId", 0]
+                                    }
+                                },
+                                pipeline: [
+                                    {
+                                        $match:
+                                        {
+                                            $and:
+                                                [
+                                                    {
+                                                        $expr: {
+                                                            $eq: ['$_id', '$$localID']
+                                                        }
+                                                    },
+                                                ]
+                                        }
+                                    },
+                                    {
+                                        $project: {
+                                            idAccountBank: 1,
+                                            tracking: { $reverseArray: "$tracking" }
+                                        }
+                                    }
+                                ]
+                            }
+                        },
                         {
                             $unwind: {
                                 path: "$transOld",
@@ -9250,12 +9251,12 @@ export class UserbasicnewService {
                                 preserveNullAndEmptyArrays: true
                             }
                         },
-                        // {
-                        //     $unwind: {
-                        //         path: "$withdrawData",
-                        //         preserveNullAndEmptyArrays: true
-                        //     }
-                        // },
+                        {
+                            $unwind: {
+                                path: "$withdrawData",
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
                     ],
 
                 },
@@ -9411,7 +9412,8 @@ export class UserbasicnewService {
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
-                    vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] }
+                    vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] },
+                    idAccountBank: "$trans.withdrawData.idAccountBank"
                     // tracking: "$trans.withdrawData.tracking"
                 }
             }
