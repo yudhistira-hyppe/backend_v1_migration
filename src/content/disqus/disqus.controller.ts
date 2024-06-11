@@ -60,9 +60,9 @@ export class DisqusController {
     private readonly NewpostService: NewpostService,
     private readonly configService: ConfigService,
     private readonly newMonetize: Monetizenew2Service,
-    private readonly transaction2SS:TransactionsV2Service,
-    private readonly mediastreamingService: MediastreamingService, 
-    private readonly transCategoryService: TransactionsCategorysService, 
+    private readonly transaction2SS: TransactionsV2Service,
+    private readonly mediastreamingService: MediastreamingService,
+    private readonly transCategoryService: TransactionsCategorysService,
     private readonly transProductsService: TransactionsProductsService
   ) { }
 
@@ -631,7 +631,7 @@ export class DisqusController {
           // String roomName = AppUtils.getAsStr(it, QueryEnum.ROOM_FLD.getName());
           //var roomName = retVal[retValCount].room;
           //}
-        } 
+        }
         else if ((type == "COMMENT") && (ContentDto_.postID != undefined)) {
           console.log("Payload Insert Comment >>>>>> : ", ContentDto_);
           if (ContentDto_.email == undefined) {
@@ -1195,7 +1195,7 @@ export class DisqusController {
               disqusLog_new.tags = Object(array_data);
             }
             disqusLog = disqusLog_new;
-          } 
+          }
           else {
             console.log("not '' parentID");
             var disqusLog_new = new CreateDisquslogsDto();
@@ -1553,7 +1553,7 @@ export class DisqusController {
               disqusLog_new.tags = Object(array_data);
             }
             disqusLog = disqusLog_new;
-          } 
+          }
           else {
             console.log("not '' parentID");
             var disqusLog_new = new CreateDisquslogsDto();
@@ -1633,16 +1633,13 @@ export class DisqusController {
             }
 
             //proses masukkin gift ke dalam komentar dan transaksi
-            if(inDto.giftID != undefined && inDto.giftID != null)
-            {
+            if (inDto.giftID != undefined && inDto.giftID != null) {
               var getgiftdata = await this.newMonetize.findOne(inDto.giftID.toString());
-              if(getgiftdata != undefined)
-              {
+              if (getgiftdata != undefined) {
                 var setobjectgift = {};
                 setobjectgift['giftID'] = getgiftdata._id;
                 setobjectgift['giftThumbUrl'] = getgiftdata.thumbnail
-                if(getgiftdata.animation != undefined && getgiftdata.animation != null)
-                {
+                if (getgiftdata.animation != undefined && getgiftdata.animation != null) {
                   setobjectgift['giftAnimateUrl'] = getgiftdata.animation;
                 }
                 disqusLog_new.giftData = [
@@ -1653,57 +1650,53 @@ export class DisqusController {
                 var getdatapembeli = await this.UserbasicnewService.findbyemail(inDto.email.toString());
 
                 var setdetailgift = [
-                    {
-                        "postID": inDto.postID,
-                        "id": getgiftdata._id,
-                        "category": "CONTENT",
-                        "tabelName": "gift",
-                        "qty": 1,
-                        "amount": 0,
-                        "pembeli": getdatapembeli._id
-                    }
+                  {
+                    "postID": inDto.postID,
+                    "id": getgiftdata._id,
+                    "category": "CONTENT",
+                    "tabelName": "gift",
+                    "qty": 1,
+                    "amount": 0,
+                    "pembeli": getdatapembeli._id
+                  }
                 ]
 
-                try
-                {
+                try {
                   var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
                   var listtransaksi = [];
-                  if(resultdata != false)
-                  {
+                  if (resultdata != false) {
                     giftExist = true;
                     var getdataresulttrans = resultdata.data;
-                    for(var i = 0; i < getdataresulttrans.length; i++)
-                    {
+                    for (var i = 0; i < getdataresulttrans.length; i++) {
                       var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-                      if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
-                      {
+                      if (checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString()) {
                         var upd_last_stock = getgiftdata.last_stock - 1;
                         var upd_used_stock = getgiftdata.used_stock + 1;
                         var detailtransdata = getdataresulttrans[i]._id;
-                        var insertlogtransaksi = 
+                        var insertlogtransaksi =
                         {
-                          "idPackage" : getgiftdata._id,
-                          "idTransaction" : detailtransdata,
-                          "status" : "SUCCESS",
-                          "quantity" : 1,
+                          "idPackage": getgiftdata._id,
+                          "idTransaction": detailtransdata,
+                          "status": "SUCCESS",
+                          "quantity": 1,
                           "last_stock": upd_last_stock,
                           "used_stock": upd_used_stock,
-                          "idUser" : getdatapembeli._id
+                          "idUser": getdatapembeli._id
                         };
-    
+
                         await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
-                        
+
                         listtransaksi.push(getdataresulttrans[i].idTransaction);
 
                         responseTransGIFT = getdataresulttrans[i];
+                        this.utilsService.sendFcmV2(inDto.receiverParty.toString(), inDto.email.toString(), "RECEIVED_CONTENT_GIFT", "RECEIVED_CONTENT_GIFT", "RECEIVED_CONTENT_GIFT", inDto.postContent.postID.toString(), inDto.postContent.postType.toString(), null, null, getgiftdata.price.toString());
                       }
                     }
                   }
                 }
-                catch(e)
-                {
+                catch (e) {
                   await this.errorHandler.generateInternalServerErrorException(e.messages);
-                } 
+                }
               }
             }
 
@@ -1790,17 +1783,14 @@ export class DisqusController {
           }
 
           //proses masukkin gift ke dalam komentar dan transaksi
-          if(inDto.giftID != undefined && inDto.giftID != null)
-          {
+          if (inDto.giftID != undefined && inDto.giftID != null) {
             giftExist = true;
             var getgiftdata = await this.newMonetize.findOne(inDto.giftID.toString());
-            if(getgiftdata != undefined)
-            {
+            if (getgiftdata != undefined) {
               var setobjectgift = {};
               setobjectgift['giftID'] = getgiftdata._id;
               setobjectgift['giftThumbUrl'] = getgiftdata.thumbnail
-              if(getgiftdata.animation != undefined && getgiftdata.animation != null)
-              {
+              if (getgiftdata.animation != undefined && getgiftdata.animation != null) {
                 setobjectgift['giftAnimateUrl'] = getgiftdata.animation;
               }
               disqusLog_new.giftData = [
@@ -1811,46 +1801,42 @@ export class DisqusController {
               var getdatapembeli = await this.UserbasicnewService.findbyemail(inDto.email.toString());
 
               var setdetailgift = [
-                  {
-                      "postID": inDto.postID,
-                      "id": getgiftdata._id,
-                      "category": "CONTENT",
-                      "tabelName": "gift",
-                      "qty": 1,
-                      "amount": 0,
-                      "pembeli": getdatapembeli._id
-                  }
+                {
+                  "postID": inDto.postID,
+                  "id": getgiftdata._id,
+                  "category": "CONTENT",
+                  "tabelName": "gift",
+                  "qty": 1,
+                  "amount": 0,
+                  "pembeli": getdatapembeli._id
+                }
               ]
 
-              try
-              {
+              try {
                 var resultdata = await this.transaction2SS.insertTransaction("APP", "GF", "CONTENT", getgiftdata.price, 0, 0, 0, getdatapembeli._id.toString(), getdatapenjual._id.toString(), null, setdetailgift, "SUCCESS");
                 var listtransaksi = [];
-                if(resultdata != false)
-                {
+                if (resultdata != false) {
                   giftExist = true;
                   var getdataresulttrans = resultdata.data;
-                  for(var i = 0; i < getdataresulttrans.length; i++)
-                  {
+                  for (var i = 0; i < getdataresulttrans.length; i++) {
                     var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
-                    if(checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString())
-                    {
+                    if (checkexist == false && getdataresulttrans[i].idUser.toString() == getdatapembeli._id.toString()) {
                       var upd_last_stock = getgiftdata.last_stock - 1;
                       var upd_used_stock = getgiftdata.used_stock + 1;
                       var detailtransdata = getdataresulttrans[i]._id;
-                      var insertlogtransaksi = 
+                      var insertlogtransaksi =
                       {
-                        "idPackage" : getgiftdata._id,
-                        "idTransaction" : detailtransdata,
-                        "status" : "SUCCESS",
-                        "quantity" : 1,
+                        "idPackage": getgiftdata._id,
+                        "idTransaction": detailtransdata,
+                        "status": "SUCCESS",
+                        "quantity": 1,
                         "last_stock": upd_last_stock,
                         "used_stock": upd_used_stock,
-                        "idUser" : getdatapembeli._id
+                        "idUser": getdatapembeli._id
                       };
-  
+
                       await this.newMonetize.updateStock(inDto.giftID.toString(), upd_last_stock, upd_used_stock);
-                      
+
                       listtransaksi.push(getdataresulttrans[i].idTransaction);
 
                       responseTransGIFT = getdataresulttrans[i];
@@ -1858,8 +1844,7 @@ export class DisqusController {
                   }
                 }
               }
-              catch(e)
-              {
+              catch (e) {
                 await this.errorHandler.generateInternalServerErrorException(e.messages);
               }
             }
@@ -1919,10 +1904,9 @@ export class DisqusController {
         console.log("buildComments end");
         retVal = await this.aggrDetailDisqusLogv2(disqus, disqusLog);
 
-        if(giftExist == true)
-        {
+        if (giftExist == true) {
           var outputTransaction = {};
-          
+
           var getcatdata = await this.transCategoryService.findOne(responseTransGIFT.category.toString());
           var getproddata = await this.transProductsService.findOne(responseTransGIFT.product.toString());
 
@@ -1930,9 +1914,9 @@ export class DisqusController {
           outputTransaction['packageTitle'] = getproddata.name;
           outputTransaction['email'] = getdatapembeli.email;
           outputTransaction['paymentMethod'] = 'COIN';
-          outputTransaction['invoiceID'] = responseTransGIFT.noInvoice; 
-          outputTransaction['totalPayment'] = responseTransGIFT.detail[0].totalAmount; 
-          outputTransaction['transactionID'] = responseTransGIFT.idTransaction; 
+          outputTransaction['invoiceID'] = responseTransGIFT.noInvoice;
+          outputTransaction['totalPayment'] = responseTransGIFT.detail[0].totalAmount;
+          outputTransaction['transactionID'] = responseTransGIFT.idTransaction;
           outputTransaction['date'] = responseTransGIFT.createdAt.split(" ")[0];
           outputTransaction['time'] = responseTransGIFT.createdAt.split(" ")[1];
           retVal.DetailTransaction = outputTransaction;
@@ -2045,7 +2029,7 @@ export class DisqusController {
       if (disqus.mate != "") {
         var mateInfo = {};
         // var mateProfile = await this.utilsService.generateProfile(disqus.mate.toString(), "FULL");
-        var username_mate =await this.UserbasicnewService.findBymail(disqus.mate.toString());
+        var username_mate = await this.UserbasicnewService.findBymail(disqus.mate.toString());
         var fullName_mate = await this.utilsService.getUserBasic2(disqus.mate.toString());
         var avatar_mate = await this.utilsService.getAvatarUser2(disqus.mate.toString());
         if (username_mate != null && fullName_mate != null) {
@@ -2537,7 +2521,7 @@ export class DisqusController {
         if (dataStream.userId != undefined) {
           media_["user"] = getUser[0];
         }
-        if (dataStream.kick!=undefined){
+        if (dataStream.kick != undefined) {
           if (dataStream.kick.length > 0) {
             const arrayKick = dataStream.kick;
             const idSend = profile.iduser.toString();
@@ -2549,7 +2533,7 @@ export class DisqusController {
               if (dataStream.status != undefined) {
                 media_["status"] = dataStream.status;
               }
-              if (foundSend){
+              if (foundSend) {
                 const filterSend = arrayKick.filter(el => el.userId === idSend);
                 media_["view"] = filterSend[0].view;
               }

@@ -497,9 +497,9 @@ export class UtilsService {
       let title_save_en = "";
 
       let body_save_id = "";
-      let body_save_id2="";
-      let body_save_id3="";
-      let body_save_id4="";
+      let body_save_id2 = "";
+      let body_save_id3 = "";
+      let body_save_id4 = "";
       let body_save_en = "";
       let body_save_en2 = "";
       let body_save_en3 = "";
@@ -612,7 +612,7 @@ export class UtilsService {
       }
 
       //SET BODY SAVE
-      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (eventType == "NOTIFY_LIVE" )) {
+      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (eventType == "NOTIFY_LIVE")) {
         if (event == "BOOST_SUCCES" || event == "ADS VIEW" || event == "ADS CLICK") {
           if (idtransaction != null) {
             data_send['postID'] = idtransaction
@@ -627,7 +627,7 @@ export class UtilsService {
           }
         }
 
-       
+
 
         if (event == "ADS VIEW" || event == "ADS CLICK") {
           body_save_id = body_save_id_get.toString().replace("${rewards}", customText)
@@ -674,7 +674,7 @@ export class UtilsService {
           body_save_id = body_save_id_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
           body_save_en = body_save_en_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
         }
-      } 
+      }
       else if (eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN") {
         body_save_id4 = body_save_id_get.toString().replace("${amount}", await this.numberFormatString(amount))
         body_save_id3 = body_save_id4.toString().replace("${account_name}", account_name)
@@ -687,10 +687,19 @@ export class UtilsService {
         if (eventType == "SUCCESS_WITHDRAW_COIN") {
           body_save_id = body_save_id2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
           body_save_en = body_save_en2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
-        }else{
+        } else {
           body_save_id = body_save_id2.toString();
           body_save_en = body_save_en2.toString();
         }
+      }
+      else if (eventType == "RECEIVED_CONTENT_GIFT") {
+        body_save_id4 = body_save_id_get.toString().replace("${amount}", await this.numberFormatString(amount))
+        body_save_id3 = body_save_id4.toString().replace("${user_name}", get_username_senderParty)
+        body_save_id2 = body_save_id3.toString().replace("${content_type}", postType)
+
+        body_save_en4 = body_save_en_get.toString().replace("${amount}", await this.numberFormatString(amount))
+        body_save_en3 = body_save_en4.toString().replace("${user_name}", get_username_senderParty)
+        body_save_en2 = body_save_en3.toString().replace("${content_type}", postType)
       }
       else {
         if (eventType == "FOLLOWER" || eventType == "FOLLOWING") {
@@ -846,7 +855,7 @@ export class UtilsService {
 
     }
   }
-  
+
   async numberFormatString(nominal: string) {
     return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.")
   }
@@ -1194,9 +1203,9 @@ export class UtilsService {
       datadevice = await this.userdevicesService.findActive(emailuserbasic);
       for (var i = 0; i < datadevice.length; i++) {
         var deviceid = datadevice[i].deviceID;
-        try{
-        await admin.messaging().sendToDevice(deviceid, payload, option);
-        }catch(e){
+        try {
+          await admin.messaging().sendToDevice(deviceid, payload, option);
+        } catch (e) {
 
         }
 
