@@ -3407,4 +3407,50 @@ export class TransactionsV2Service {
             id: currencyCoinId
         }
     }
+
+    async cekPembeliPenerima(idTransaksi: string,typeUser:string) {
+
+        var pipeline = [];
+
+        pipeline.push(
+            {
+                $match: {
+                    "type": "USER",
+                    "idTransaction": idTransaksi,
+                    "typeUser":typeUser
+                }
+            },
+            {
+                $lookup: {
+                    from: "newUserBasics",
+                    localField: "idUser",
+                    foreignField: "_id",
+                    as: "databasic"
+                }
+            },
+            {
+                $project: {
+                    "type": 1,
+                    
+                   
+                    "email": {
+                        "$arrayElemAt": [
+                            "$databasic.email",
+                            0
+                        ]
+                    },
+                    "username": {
+                        "$arrayElemAt": [
+                            "$databasic.username",
+                            0
+                        ]
+                    },
+                    
+                }
+            }
+        );
+
+        let query = await this.transactionsModel.aggregate(pipeline);
+        return query[0];
+    }
 }

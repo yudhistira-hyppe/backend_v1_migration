@@ -3930,8 +3930,11 @@ export class TransactionsController {
         var expired = null;
         var status = null;
         var datenow = new Date(Date.now());
-        var databytr=null;
+        var datapemberi=null;
+        var datapenerima=null;
         var idtr2=null;
+        var pemberi=null;
+        var penerima=null;
         const messages = {
             "info": ["The process successful"],
         };
@@ -3940,16 +3943,37 @@ export class TransactionsController {
             noinvoice = request_json["noinvoice"];
             try {
                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice, profitsharingpercent);
+                try{
+                    idtr2=data.idTransaction;
+                }catch(e){
+                    idtr2=null;
+                }
+
+                try{
+                    datapemberi=await this.TransactionsV2Service.cekPembeliPenerima(idtr2,"USER_BUY");
+                }catch(e){
+                    datapemberi=null;
+                }
+
+                if(datapemberi !==null){
+                    pemberi=datapemberi.username;
+                }
+
+                try{
+                    datapenerima=await this.TransactionsV2Service.cekPembeliPenerima(idtr2,"USER_SELL");
+                }catch(e){
+                    datapenerima=null;
+                }
+
+                if(datapenerima !==null){
+                    penerima=datapenerima.username;
+                }
+
                 if (data.expiredtimeva && data.status && data.idtr_lama) {
                     let expiredtimeva = data.expiredtimeva;
                     status = data.status;
                     idtransaksi = data.idtr_lama;
-                    // try{
-                    //     idtr2=data.
-                    // }catch(e){
-
-                    // }
-
+                   
                     let expiredvanew = new Date(expiredtimeva);
                     expiredvanew.setHours(expiredvanew.getHours() - 7);
                     if (status == "WAITING_PAYMENT" || status == "PENDING") {
@@ -3958,22 +3982,35 @@ export class TransactionsController {
                                 await this.transactionsService.updatecancel(idtransaksi);
                                 await this.TransactionsV2Service.updateTransaction(data.idTransaction, "FAILED", null);
                                 if (data.voucherDiskon.length > 0) await this.monetizationService.updateStock(data.voucherDiskon[0].toString(), 1, false);
+
+                                try{
                                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+                               
+                                }catch(e){
+
+                                }
+                                
                             } catch (e) {
 
                             }
                         }
                     }
+
+                   
                     // if (data.coa == "Pembelian Konten" || data.coa == "Penjualan Konten") {
                     //     data.coinadminfee = data.coin * profitsharingpercent / 100;
                     // }
+                }
+                if(data !==null){
+                    data.pemberi=pemberi;
+                    data.penerima=penerima;
                 }
                 return { response_code: 202, data, messages };
             } catch (e) {
                 data = null;
                 throw new BadRequestException("Transaction is not found..!");
             }
-        } else throw new BadRequestException("Missing param: noinvoice (string)");
+        } else {throw new BadRequestException("Missing param: noinvoice (string)")};
 
     }
     // @Post('api/pg/oy/callback/va')
