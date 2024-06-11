@@ -700,6 +700,9 @@ export class UtilsService {
         body_save_en4 = body_save_en_get.toString().replace("${amount}", await this.numberFormatString(amount))
         body_save_en3 = body_save_en4.toString().replace("${user_name}", get_username_senderParty)
         body_save_en2 = body_save_en3.toString().replace("${content_type}", postType)
+
+        body_save_id = body_save_id2.toString();
+        body_save_en = body_save_en2.toString();
       }
       else {
         if (eventType == "FOLLOWER" || eventType == "FOLLOWING") {
