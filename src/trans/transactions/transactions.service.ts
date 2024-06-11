@@ -11176,7 +11176,7 @@ export class TransactionsService {
                     let transactionv2Detail = getwithdraws[i].detail;
                     if (transactionv2Detail.length > 0) {
                         let getWidrawel = await this.withdrawsService.findOne(transactionv2Detail[0].withdrawId.toString());
-                        if (getWidrawel.status == "Success") {
+                        if (getWidrawel.status.toLowerCase() == "success") {
                             await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Success", getWidrawel.payload, getWidrawel.statusCode, {
                                 "title_id": "Penukaran Coins Berhasil",
                                 "title_en": "Coin Withdrawal Successful",
@@ -11187,6 +11187,7 @@ export class TransactionsService {
                                 "description_en": `Rp${getWidrawel.payload.amount} has been successfully transferred to the destination account`,
                             });
                             await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "SUCCESS", getWidrawel.payload);
+                        } else if (getWidrawel.status.toLowerCase() == "failed") {
                         } else {
                             console.log("==================================== START CECK STATUS " + getWidrawel.partnerTrxid + "====================================");
                             let OyDisbursementStatus_ = new OyDisbursementStatus();
@@ -11230,34 +11231,54 @@ export class TransactionsService {
                                             "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
                                         });
                                         CreateWithdrawsDto_.verified = false
-                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.status = "Failed";
                                         CreateWithdrawsDto_.description = "Transaction is FAILED";
                                         await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "FAILED", OyDisbursementStatusResponse_);
                                     } else if (responseStatusCode == "101") {
-                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.status = "Pending";
                                         CreateWithdrawsDto_.verified = false
                                         CreateWithdrawsDto_.description = "Transaction is Processed";
                                     } else if (responseStatusCode == "102") {
-                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.status = "Pending";
                                         CreateWithdrawsDto_.verified = false
                                         CreateWithdrawsDto_.description = "Transaction is In Progress";
                                     } else if (responseStatusCode == "204") {
-                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Failed", OyDisbursementStatusResponse_, responseStatusCode, {
+                                            "title_id": "Penukaran Coins Gagal",
+                                            "title_en": "Coin Withdrawal Failed",
+                                            "status": "FAILED",
+                                            "action": "APPROVAL",
+                                            "timestamp": await this.utilsService.getDateTimeISOString(),
+                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
+                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
+                                        });
                                         CreateWithdrawsDto_.verified = false
-                                        CreateWithdrawsDto_.description = "Transaction do not exist(Partner Tx ID is Not Found)";
+                                        CreateWithdrawsDto_.status = "Failed";
+                                        CreateWithdrawsDto_.description = "Transaction is FAILED";
                                     } else if (responseStatusCode == "206") {
-                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Failed", OyDisbursementStatusResponse_, responseStatusCode, {
+                                            "title_id": "Penukaran Coins Gagal",
+                                            "title_en": "Coin Withdrawal Failed",
+                                            "status": "FAILED",
+                                            "action": "APPROVAL",
+                                            "timestamp": await this.utilsService.getDateTimeISOString(),
+                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
+                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
+                                        });
                                         CreateWithdrawsDto_.verified = false
-                                        CreateWithdrawsDto_.description = "Transaction is FAILED(Partner Deposit Balance is Not Enough)";
+                                        CreateWithdrawsDto_.status = "Failed";
+                                        CreateWithdrawsDto_.description = "Transaction is FAILED";
                                     } else if (responseStatusCode == "301") {
-                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.status = "Pending";
                                         CreateWithdrawsDto_.verified = false
                                         CreateWithdrawsDto_.description = "Pending (When there is an unclear answer from Banks Network)";
                                     } else {
                                         CreateWithdrawsDto_.verified = false
                                         CreateWithdrawsDto_.description = OyDisbursementStatusResponse_.tx_status_description;
-                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.status = "Pending";
                                     }
+                                    console.log("CreateWithdrawsDto_", CreateWithdrawsDto_)
+                                    console.log("getwithdraws_id", getwithdraws[i]._id.toString())
                                     await this.withdrawsService.updateoneData(getwithdraws[i]._id.toString(), CreateWithdrawsDto_, OyDisbursementStatusResponse_);
                                 } else {
                                     console.log("STATUS ", "THE SAME");

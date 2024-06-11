@@ -3983,7 +3983,10 @@ export class MediaController {
         var iduserbasic = null;
         var url_cardPict = null;
 
-        var countfile = files1.supportFile.length;
+        var countfile = 0
+        if (files1.supportFile!=undefined){
+            countfile = files1.supportFile.length;
+        }
         //Var supportFile
         let supportFile_data = null;
         let supportFile_filename = '';

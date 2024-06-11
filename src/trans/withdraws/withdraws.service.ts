@@ -47,6 +47,7 @@ export class WithdrawsService {
     async updateoneData(id: string, CreateWithdrawsDto_: CreateWithdrawsDto, responseData: any): Promise<Object> {
         let data = await this.withdrawsModel.updateOne({ "_id": new mongoose.Types.ObjectId(id) },
             { $set: { "status": CreateWithdrawsDto_.status, "statusCode": CreateWithdrawsDto_.statusCode, "description": CreateWithdrawsDto_.description, verified: CreateWithdrawsDto_.verified }, $push: { responseData: responseData } });
+        console.log(data)
         return data;
     }
 
