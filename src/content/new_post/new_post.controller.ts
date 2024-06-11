@@ -730,7 +730,7 @@ export class NewPostController {
                         discount_fee = body.discount_fee;
                     }
 
-                    if (body.certified == true) {
+                    if (body.certified == 'true') {
                         var resultTrans = await this.setTransaksiContentOwnership(body.postID, transaction_fee, discount_id, discount_fee);
                         data['DetailTransaction'] = {
                             invoiceID: resultTrans.noInvoice,
