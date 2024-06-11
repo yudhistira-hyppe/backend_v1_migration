@@ -1057,8 +1057,12 @@ export class MediaController {
         var re = /(?:\.([^.]+))?$/;
 
         if (await this.utilsService.ceckData(datauserbasicsService)) {
-            if (datauserbasicsService.kyc.length != 0 && datauserbasicsService.kyc[0].postType != undefined) {
-                datakyc = datauserbasicsService.kyc[0];
+            if (datauserbasicsService.kyc!=undefined){
+                if (datauserbasicsService.kyc.length>0){
+                    if (datauserbasicsService.kyc[0].postType != undefined) {
+                        datakyc = datauserbasicsService.kyc[0];
+                    }
+                }
             }
             emailuserbasic = datauserbasicsService.email;
             iduserbasic = datauserbasicsService._id.toString();
