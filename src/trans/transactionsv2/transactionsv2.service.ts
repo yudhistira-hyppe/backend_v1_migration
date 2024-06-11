@@ -1071,7 +1071,7 @@ export class TransactionsV2Service {
                                                     if (categoryTransactionType.transaction[tr].name == "PendapatanAdvertisement") {
                                                         if (categoryTransactionType.transaction[tr].status != undefined) {
                                                             if (categoryTransactionType.transaction[tr].status == "debit") {
-                                                                pendapatanAdvertisement = -1*(hutangSaldoCredit + hutangSaldoCoin)
+                                                                pendapatanAdvertisement = -1 * (hutangSaldoCredit + hutangSaldoCoin)
                                                             }
                                                             if (categoryTransactionType.transaction[tr].status == "credit") {
                                                                 pendapatanAdvertisement = (hutangSaldoCredit + hutangSaldoCoin)
@@ -2203,7 +2203,7 @@ export class TransactionsV2Service {
                     "priceDiscont": 1,
                     "price": 1,
                     "totalPrice": 1,
-                    //"status": 1,
+                    "status": 1,
                     "detail": 1,
                     "createdAt": 1,
                     "updatedAt": 1,
@@ -2224,9 +2224,9 @@ export class TransactionsV2Service {
                     "paymentmethod": {
                         $arrayElemAt: ['$datatr.paymentmethod', 0]
                     },
-                    "status": {
-                        $ifNull: [{ $arrayElemAt: ['$datatr.status', 0] }, null]
-                    },
+                    // "status": {
+                    //     $ifNull: [{ $arrayElemAt: ['$datatr.status', 0] }, null]
+                    // },
                     "description": {
                         $arrayElemAt: ['$datatr.description', 0]
                     },
@@ -2554,7 +2554,7 @@ export class TransactionsV2Service {
                     "price": 1,
                     "totalPrice": 1,
                     "status": 1,
-                    // "detail": 1,
+                    "detail": 1,
                     "createdAt": 1,
                     "updatedAt": 1,
                     "va_number": 1,
@@ -3416,7 +3416,7 @@ export class TransactionsV2Service {
         }
     }
 
-    async cekPembeliPenerima(idTransaksi: string,typeUser:string) {
+    async cekPembeliPenerima(idTransaksi: string, typeUser: string) {
 
         var pipeline = [];
 
@@ -3425,7 +3425,7 @@ export class TransactionsV2Service {
                 $match: {
                     "type": "USER",
                     "idTransaction": idTransaksi,
-                    "typeUser":typeUser
+                    "typeUser": typeUser
                 }
             },
             {
@@ -3439,8 +3439,8 @@ export class TransactionsV2Service {
             {
                 $project: {
                     "type": 1,
-                    
-                   
+
+
                     "email": {
                         "$arrayElemAt": [
                             "$databasic.email",
@@ -3453,7 +3453,7 @@ export class TransactionsV2Service {
                             0
                         ]
                     },
-                    
+
                 }
             }
         );
