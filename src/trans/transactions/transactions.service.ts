@@ -11170,76 +11170,80 @@ export class TransactionsService {
     async ceckStatusDisbursementV3() {
         let getwithdraws: transactionsV2[] = await this.transactionsV2Service.findWDPending();
 
-        if (await this.utilsService.ceckData(getwithdraws)) {
-            for (let i = 0; i < getwithdraws.length; i++) {
-                let transactionv2Detail = getwithdraws[i].detail;
-                if (transactionv2Detail.length > 0) {
-                    let getWidrawel = await this.withdrawsService.findOne(transactionv2Detail[0].withdrawId.toString());
-                    if (getWidrawel.status == "Success") {
-                        await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Success", getWidrawel.payload, getWidrawel.statusCode, {
-                            "title_id": "Penukaran Coins Berhasil",
-                            "title_en": "Coin Withdrawal Successful",
-                            "status": "SUCCESS",
-                            "action": "APPROVAL",
-                            "timestamp": await this.utilsService.getDateTimeISOString(),
-                            "description_id": `Rp${getWidrawel.payload.amount} berhasil ditransfer ke rekening tujuan`,
-                            "description_en": `Rp${getWidrawel.payload.amount} has been successfully transferred to the destination account`,
-                        });
-                        await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "SUCCESS", getWidrawel.payload);
-                    } else {
-                        console.log("==================================== START CECK STATUS " + getWidrawel[i].partnerTrxid + "====================================");
-                        let OyDisbursementStatus_ = new OyDisbursementStatus();
-                        OyDisbursementStatus_.partner_trx_id = getWidrawel[i].partnerTrxid;
-                        console.log("PARTNER_TRX_ID " + getWidrawel[i].partnerTrxid);
+        try {
+            if (await this.utilsService.ceckData(getwithdraws)) {
+                for (let i = 0; i < getwithdraws.length; i++) {
+                    let transactionv2Detail = getwithdraws[i].detail;
+                    if (transactionv2Detail.length > 0) {
+                        let getWidrawel = await this.withdrawsService.findOne(transactionv2Detail[0].withdrawId.toString());
+                        if (getWidrawel.status == "Success") {
+                            await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Success", getWidrawel.payload, getWidrawel.statusCode, {
+                                "title_id": "Penukaran Coins Berhasil",
+                                "title_en": "Coin Withdrawal Successful",
+                                "status": "SUCCESS",
+                                "action": "APPROVAL",
+                                "timestamp": await this.utilsService.getDateTimeISOString(),
+                                "description_id": `Rp${getWidrawel.payload.amount} berhasil ditransfer ke rekening tujuan`,
+                                "description_en": `Rp${getWidrawel.payload.amount} has been successfully transferred to the destination account`,
+                            });
+                            await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "SUCCESS", getWidrawel.payload);
+                        } else {
+                            console.log("==================================== START CECK STATUS " + getWidrawel.partnerTrxid + "====================================");
+                            let OyDisbursementStatus_ = new OyDisbursementStatus();
+                            OyDisbursementStatus_.partner_trx_id = getWidrawel.partnerTrxid;
+                            console.log("PARTNER_TRX_ID " + getWidrawel.partnerTrxid);
 
-                        let OyDisbursementStatusResponse_: OyDisbursementStatusResponse = await this.oyPgService.disbursementStatus(OyDisbursementStatus_);
-                        console.log("RESPONSE " + JSON.stringify(OyDisbursementStatusResponse_));
+                            let OyDisbursementStatusResponse_: OyDisbursementStatusResponse = await this.oyPgService.disbursementStatus(OyDisbursementStatus_);
+                            console.log("RESPONSE " + JSON.stringify(OyDisbursementStatusResponse_));
 
-                        let currentStatusCode = getWidrawel[i].statusCode;
-                        let responseStatusCode = OyDisbursementStatusResponse_.status.code.toString();
-                        console.log("CURRENT STATUS CODE ", currentStatusCode);
-                        console.log("RESPONSE STATUS CODE ", responseStatusCode);
-                        try {
-                            if (currentStatusCode != responseStatusCode) {
-                                console.log("STAUS ", "NOT THE SAME");
-                                let CreateWithdrawsDto_ = new CreateWithdrawsDto();
-                                CreateWithdrawsDto_.statusCode = responseStatusCode;
-                                if (responseStatusCode == "000") {
-                                    await this.withdrawsService.updateonewithtracking(getWidrawel[i].partnerTrxid, "Success", OyDisbursementStatusResponse_, responseStatusCode, {
-                                        "title_id": "Penukaran Coins Berhasil",
-                                        "title_en": "Coin Withdrawal Successful",
-                                        "status": "SUCCESS",
-                                        "action": "APPROVAL",
-                                        "timestamp": await this.utilsService.getDateTimeISOString(),
-                                        "description_id": `Rp${OyDisbursementStatusResponse_.amount} berhasil ditransfer ke rekening tujuan`,
-                                        "description_en": `Rp${OyDisbursementStatusResponse_.amount} has been successfully transferred to the destination account`,
-                                    });
-                                    await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "SUCCESS", OyDisbursementStatusResponse_);
-                                } else if (responseStatusCode == "300") {
-                                    await this.withdrawsService.updateonewithtracking(getWidrawel[i].partnerTrxid, "Failed", OyDisbursementStatusResponse_, responseStatusCode, {
-                                        "title_id": "Penukaran Coins Gagal",
-                                        "title_en": "Coin Withdrawal Failed",
-                                        "status": "FAILED",
-                                        "action": "APPROVAL",
-                                        "timestamp": await this.utilsService.getDateTimeISOString(),
-                                        "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
-                                        "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
-                                    });
-                                    await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "FAILED", OyDisbursementStatusResponse_);
+                            let currentStatusCode = getWidrawel.statusCode;
+                            let responseStatusCode = OyDisbursementStatusResponse_.status.code.toString();
+                            console.log("CURRENT STATUS CODE ", currentStatusCode);
+                            console.log("RESPONSE STATUS CODE ", responseStatusCode);
+                            try {
+                                if (currentStatusCode != responseStatusCode) {
+                                    console.log("STAUS ", "NOT THE SAME");
+                                    let CreateWithdrawsDto_ = new CreateWithdrawsDto();
+                                    CreateWithdrawsDto_.statusCode = responseStatusCode;
+                                    if (responseStatusCode == "000") {
+                                        await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Success", OyDisbursementStatusResponse_, responseStatusCode, {
+                                            "title_id": "Penukaran Coins Berhasil",
+                                            "title_en": "Coin Withdrawal Successful",
+                                            "status": "SUCCESS",
+                                            "action": "APPROVAL",
+                                            "timestamp": await this.utilsService.getDateTimeISOString(),
+                                            "description_id": `Rp${OyDisbursementStatusResponse_.amount} berhasil ditransfer ke rekening tujuan`,
+                                            "description_en": `Rp${OyDisbursementStatusResponse_.amount} has been successfully transferred to the destination account`,
+                                        });
+                                        await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "SUCCESS", OyDisbursementStatusResponse_);
+                                    } else if (responseStatusCode == "300") {
+                                        await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Failed", OyDisbursementStatusResponse_, responseStatusCode, {
+                                            "title_id": "Penukaran Coins Gagal",
+                                            "title_en": "Coin Withdrawal Failed",
+                                            "status": "FAILED",
+                                            "action": "APPROVAL",
+                                            "timestamp": await this.utilsService.getDateTimeISOString(),
+                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
+                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
+                                        });
+                                        await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "FAILED", OyDisbursementStatusResponse_);
+                                    }
+                                    await this.withdrawsService.updateoneData(getwithdraws[i]._id.toString(), CreateWithdrawsDto_, OyDisbursementStatusResponse_);
+                                } else {
+                                    console.log("STATUS ", "THE SAME");
                                 }
-                                await this.withdrawsService.updateoneData(getwithdraws[i]._id.toString(), CreateWithdrawsDto_, OyDisbursementStatusResponse_);
-                            } else {
-                                console.log("STATUS ", "THE SAME");
+                            } catch (e) {
+                                console.log("------------- ERROR " + e + " -------------");
                             }
-                        } catch (e) {
-                            console.log("------------- ERROR " + e + " -------------");
+                            console.log("==================================== END CECK STATUS ====================================");
+                            console.log("");
+                            console.log("");
                         }
-                        console.log("==================================== END CECK STATUS ====================================");
-                        console.log("");
-                        console.log("");
                     }
                 }
             }
+        } catch (e) {
+            console.log(e)
         }
     }
 }
