@@ -678,14 +678,28 @@ export class TransactionsV2Service {
                     }
                 }
                 if (transactionProductCode == "GF") {
-                    const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
-                    const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
-                    if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
-                        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
-                            coinProfitSharingGF = coinTransaction * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+                    if (category == "CONTENT") {
+                        const ID_SETTING_PROFIT_SHARING_GIFT_CONTENT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT_CONTENT");
+                        const GET_ID_SETTING_PROFIT_SHARING_GIFT_CONTENT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT_CONTENT);
+                        if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT_CONTENT)) {
+                            if (GET_ID_SETTING_PROFIT_SHARING_GIFT_CONTENT.typedata.toString() == "persen") {
+                                coinProfitSharingGF = coinTransaction * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT_CONTENT.value) / 100);
+                            }
+                            if (GET_ID_SETTING_PROFIT_SHARING_GIFT_CONTENT.typedata.toString() == "number") {
+                                coinProfitSharingGF = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT_CONTENT.value);
+                            }
                         }
-                        if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
-                            coinProfitSharingGF = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+                    }
+                    if (category == "LIVE") {
+                        const ID_SETTING_PROFIT_SHARING_GIFT = this.configService.get("ID_SETTING_PROFIT_SHARING_GIFT");
+                        const GET_ID_SETTING_PROFIT_SHARING_GIFT = await this.utilsService.getSetting_Mixed_Data(ID_SETTING_PROFIT_SHARING_GIFT);
+                        if (await this.utilsService.ceckData(GET_ID_SETTING_PROFIT_SHARING_GIFT)) {
+                            if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "persen") {
+                                coinProfitSharingGF = coinTransaction * (Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value) / 100);
+                            }
+                            if (GET_ID_SETTING_PROFIT_SHARING_GIFT.typedata.toString() == "number") {
+                                coinProfitSharingGF = coinTransaction - Number(GET_ID_SETTING_PROFIT_SHARING_GIFT.value);
+                            }
                         }
                     }
                 }
