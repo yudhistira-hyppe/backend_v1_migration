@@ -8754,7 +8754,22 @@ export class UserbasicnewService {
                     package: "$trans.transOld.packageName",
                     noInvoiceLama: "$trans.transOld.noinvoice",
                     expiredtimeva: "$trans.transOld.expiredtimeva",
-                    coa: "$trans.coa.coa",
+                    coa: {
+                        $cond: {
+                            if: {
+                                $and: [
+                                    {
+                                        $eq: ["$trans.coa.coa", "Live Gift"]
+                                    },
+                                    {
+                                        $eq: [{ $arrayElemAt: ["$trans.detail.category", 0] }, "CONTENT"]
+                                    }
+                                ]
+                            },
+                            then: "Content Gift",
+                            else: "$trans.coa.coa"
+                        }
+                    },
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
@@ -9408,7 +9423,22 @@ export class UserbasicnewService {
                     package: "$trans.transOld.packageName",
                     noInvoiceLama: "$trans.transOld.noinvoice",
                     expiredtimeva: "$trans.transOld.expiredtimeva",
-                    coa: "$trans.coa.coa",
+                    coa: {
+                        $cond: {
+                            if: {
+                                $and: [
+                                    {
+                                        $eq: ["$trans.coa.coa", "Live Gift"]
+                                    },
+                                    {
+                                        $eq: [{ $arrayElemAt: ["$trans.detail.category", 0] }, "CONTENT"]
+                                    }
+                                ]
+                            },
+                            then: "Content Gift",
+                            else: "$trans.coa.coa"
+                        }
+                    },
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",

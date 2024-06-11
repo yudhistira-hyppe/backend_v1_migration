@@ -21865,21 +21865,24 @@ export class TransactionsController {
                         if (x.coaDetailStatus == "debit") {
                             x.desc_title_id = `Penerimaan Gift dari Live`;
                             x.desc_title_en = `Gift received from Live`;
-                            x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
-                            x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
+                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
+                            x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                         } else {
                             x.desc_title_id = `Pembelian Gift untuk Live`;
                             x.desc_title_en = `Gift Purchase for Live`;
-                            x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
-                            x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                            let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
+                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
                         }
                         break;
                     case "Content Gift":
                         if (x.coaDetailStatus == "debit") {
-                            x.desc_title_id = `Penerimaan Gift dari Konten`;
-                            x.desc_title_en = `Gift received from Content`;
-                            x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari ${x.postType}`;
-                            x.desc_content_en = `Gift worth ${x.coin} Coins received from ${x.postType}`;
+                            x.desc_title_id = `Menerima Gift`;
+                            x.desc_title_en = `Gift Received`;
+                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
+                            x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                         } else {
                             x.desc_title_id = `Memberikan Gift Konten`;
                             x.desc_title_en = `Gift Sent to Content`;
@@ -21967,26 +21970,29 @@ export class TransactionsController {
                             if (x.coaDetailStatus == "debit") {
                                 x.desc_title_id = `Penerimaan Gift dari Live`;
                                 x.desc_title_en = `Gift received from Live`;
-                                x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
-                                x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
+                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
+                                x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                             } else {
                                 x.desc_title_id = `Pembelian Gift untuk Live`;
                                 x.desc_title_en = `Gift Purchase for Live`;
-                                x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
-                                x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                                let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
+                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
                             }
                             break;
                         case "Content Gift":
                             if (x.coaDetailStatus == "debit") {
-                                x.desc_title_id = `Penerimaan Gift dari Konten`;
-                                x.desc_title_en = `Gift received from Content`;
-                                x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Konten`;
-                                x.desc_content_en = `Gift worth ${x.coin} Coins received from Content`;
+                                x.desc_title_id = `Menerima Gift`;
+                                x.desc_title_en = `Gift Received`;
+                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
+                                x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                             } else {
-                                x.desc_title_id = `Pembelian Gift untuk Content`;
-                                x.desc_title_en = `Gift Purchase for Content`;
-                                x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
-                                x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                                x.desc_title_id = `Memberikan Gift Konten`;
+                                x.desc_title_en = `Gift Sent to Content`;
+                                x.desc_content_id = `untuk @${x.postOwner} - pada ${x.postType}`;
+                                x.desc_content_en = `for @${x.postOwner} - on ${x.postType}`;
                             }
                             break;
                         case "Penjualan Konten":
@@ -22121,21 +22127,24 @@ export class TransactionsController {
                         if (x.coaDetailStatus == "debit") {
                             x.desc_title_id = `Penerimaan Gift dari Live`;
                             x.desc_title_en = `Gift received from Live`;
-                            x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
-                            x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
+                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
+                            x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                         } else {
                             x.desc_title_id = `Pembelian Gift untuk Live`;
                             x.desc_title_en = `Gift Purchase for Live`;
-                            x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
-                            x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                            let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
+                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
                         }
                         break;
                     case "Content Gift":
                         if (x.coaDetailStatus == "debit") {
-                            x.desc_title_id = `Penerimaan Gift dari Konten`;
-                            x.desc_title_en = `Gift received from Content`;
-                            x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari ${x.postType}`;
-                            x.desc_content_en = `Gift worth ${x.coin} Coins received from ${x.postType}`;
+                            x.desc_title_id = `Menerima Gift`;
+                            x.desc_title_en = `Gift Received`;
+                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
+                            x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                         } else {
                             x.desc_title_id = `Memberikan Gift Konten`;
                             x.desc_title_en = `Gift Sent to Content`;
@@ -22184,8 +22193,9 @@ export class TransactionsController {
                         x.desc_title_en = `Coins Exchanged`;
                         x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
                         x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
-                        x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
-                        x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
+                        let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                        x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
+                        x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
                         break;
                     case "REFUND":
                         x.desc_title_id = `Pengembalian Coins`;
@@ -22225,13 +22235,15 @@ export class TransactionsController {
                             if (x.coaDetailStatus == "debit") {
                                 x.desc_title_id = `Penerimaan Gift dari Live`;
                                 x.desc_title_en = `Gift received from Live`;
-                                x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari Live`;
-                                x.desc_content_en = `Gift worth ${x.coin} Coins received from Live`;
+                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
+                                x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                             } else {
                                 x.desc_title_id = `Pembelian Gift untuk Live`;
                                 x.desc_title_en = `Gift Purchase for Live`;
-                                x.desc_content_id = `Pembelian Gift senilai ${x.coin} Coins`;
-                                x.desc_content_en = `Gift worth ${x.coin} Coins purchased`;
+                                let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
+                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
                             }
                             break;
                         case "Content Gift":
@@ -22239,8 +22251,8 @@ export class TransactionsController {
                                 x.desc_title_id = `Menerima Gift`;
                                 x.desc_title_en = `Gift Received`;
                                 let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
-                                x.desc_content_id = `${dataBuyer["usernamebuyer"]}`;
-                                x.desc_content_en = `Gift worth ${x.coin} Coins received from ${x.postType}`;
+                                x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
+                                x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                             } else {
                                 x.desc_title_id = `Memberikan Gift Konten`;
                                 x.desc_title_en = `Gift Sent to Content`;
@@ -22287,8 +22299,11 @@ export class TransactionsController {
                         case "WD":
                             x.desc_title_id = `Penukaran Coins`;
                             x.desc_title_en = `Coins Exchanged`;
-                            x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
-                            x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
+                            x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
+                            x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
+                            let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                            x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
+                            x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
                             break;
                         case "REFUND":
                             x.desc_title_id = `Pengembalian Coins`;
