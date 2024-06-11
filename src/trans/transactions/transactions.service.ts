@@ -11169,14 +11169,14 @@ export class TransactionsService {
 
     async ceckStatusDisbursementV3() {
         let getwithdraws: transactionsV2[] = await this.transactionsV2Service.findWDPending();
-        
+
         if (await this.utilsService.ceckData(getwithdraws)) {
             for (let i = 0; i < getwithdraws.length; i++) {
                 let transactionv2Detail = getwithdraws[i].detail;
                 if (transactionv2Detail.length > 0) {
                     let getWidrawel = await this.withdrawsService.findOne(transactionv2Detail[0].withdrawId.toString());
                     if (getWidrawel.status == "Success") {
-                        await this.withdrawsService.updateonewithtracking(getWidrawel[i].partnerTrxid, "Success", getWidrawel.payload, getWidrawel.statusCode, {
+                        await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Success", getWidrawel.payload, getWidrawel.statusCode, {
                             "title_id": "Penukaran Coins Berhasil",
                             "title_en": "Coin Withdrawal Successful",
                             "status": "SUCCESS",
