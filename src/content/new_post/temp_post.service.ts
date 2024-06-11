@@ -2587,7 +2587,8 @@ export class TempPOSTService {
                                     "isIdVerified": 1,
                                     "isPrivate": 1,
                                     "isFollowPrivate": 1,
-                                    "isPostPrivate": 1
+                                    "isPostPrivate": 1,
+                                    GiftActivation:1
                                 }
                             }
                         ]
@@ -3581,6 +3582,7 @@ export class TempPOSTService {
                         "mediaThumbUri": "$mediaPost.mediaThumbUri",
                         "fullName": "$user.fullName",
                         "username": "$uName.username",
+                        GiftActivation:"$uName.GiftActivation",
                         "avatar": "$avatar",
                         "privacy": {
                             "isCelebrity": "$user.isCelebrity",
@@ -3746,6 +3748,7 @@ export class TempPOSTService {
                         "mediaThumbUri": 1,
                         "fullName": 1,
                         "username": 1,
+                        GiftActivation:1,
                         "avatar": 1,
                         "statusCB": 1,
                         "privacy": 1,
@@ -4688,7 +4691,8 @@ export class TempPOSTService {
                                     "isIdVerified": 1,
                                     "isPrivate": 1,
                                     "isFollowPrivate": 1,
-                                    "isPostPrivate": 1
+                                    "isPostPrivate": 1,
+                                    GiftActivation:1,
                                 }
                             }
                         ]
@@ -5683,6 +5687,7 @@ export class TempPOSTService {
                         "mediaThumbUri": "$mediaPost.mediaThumbUri",
                         "fullName": "$user.fullName",
                         "username": "$uName.username",
+                        GiftActivation:"$uName.GiftActivation",
                         "avatar": "$avatar",
                         "privacy": {
                             "isCelebrity": "$user.isCelebrity",
@@ -5848,6 +5853,7 @@ export class TempPOSTService {
                         "mediaThumbUri": 1,
                         "fullName": 1,
                         "username": 1,
+                        GiftActivation:1,
                         "avatar": 1,
                         "statusCB": 1,
                         "privacy": 1,
@@ -6784,7 +6790,8 @@ export class TempPOSTService {
                                     "isIdVerified": 1,
                                     "isPrivate": 1,
                                     "isFollowPrivate": 1,
-                                    "isPostPrivate": 1
+                                    "isPostPrivate": 1,
+                                    GiftActivation:1,
                                 }
                             }
                         ]
@@ -7778,6 +7785,7 @@ export class TempPOSTService {
                         "mediaThumbUri": "$mediaPost.mediaThumbUri",
                         "fullName": "$user.fullName",
                         "username": "$uName.username",
+                        GiftActivation:"$uName.GiftActivation",
                         "avatar": "$avatar",
                         "privacy": {
                             "isCelebrity": "$user.isCelebrity",
@@ -7943,6 +7951,7 @@ export class TempPOSTService {
                         "mediaThumbUri": 1,
                         "fullName": 1,
                         "username": 1,
+                        GiftActivation:1,
                         "avatar": 1,
                         "statusCB": 1,
                         "privacy": 1,
