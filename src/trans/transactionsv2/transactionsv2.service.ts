@@ -563,6 +563,9 @@ export class TransactionsV2Service {
         idVoucher: any[],
         detail: any[],
         status: string) {
+        let logParam = [];
+        let param = await this.getLog(platform,transactionProductCode,category,coinTransaction,discountCoin,priceRp,discountRp,idUserBuy,idUserSell,idVoucher, detail,status)
+        logParam.push(param);
         var outputdatatransaction = [];
         try {
             //Currency coin 
@@ -732,6 +735,7 @@ export class TransactionsV2Service {
                 transactionsV2_.product = getProduct._id;
                 transactionsV2_.status = status;
                 transactionsV2_.detail = detail;
+                transactionsV2_.logParam = logParam;
 
                 //Set Voucher Diskon
                 if (idVoucher != undefined) {
@@ -1398,6 +1402,64 @@ export class TransactionsV2Service {
         } catch (e) {
             console.log(e);
             return false;
+        }
+    }
+
+    async getLog(
+        platform: string,
+        transactionProductCode: string,
+        category: string,
+        coinTransaction: number,
+        discountCoin: number = 0,
+        priceRp: number = 0,
+        discountRp: number = 0,
+        idUserBuy: string,
+        idUserSell: string,
+        idVoucher: any[],
+        detail: any[],
+        status: string) {
+        let param = {};
+        try {
+            if (platform != undefined && platform != null) {
+                param["platform"] = platform;
+            }
+            if (transactionProductCode != undefined && transactionProductCode != null) {
+                param["transactionProductCode"] = transactionProductCode;
+            }
+            if (category != undefined && category != null) {
+                param["category"] = category;
+            }
+            if (coinTransaction != undefined && coinTransaction != null) {
+                param["coinTransaction"] = coinTransaction;
+            }
+            if (discountCoin != undefined && discountCoin != null) {
+                param["discountCoin"] = discountCoin;
+            }
+            if (priceRp != undefined && priceRp != null) {
+                param["priceRp"] = priceRp;
+            }
+            if (discountRp != undefined && discountRp != null) {
+                param["discountRp"] = discountRp;
+            }
+            if (idUserBuy != undefined && idUserBuy != null) {
+                param["idUserBuy"] = idUserBuy;
+            }
+            if (idUserSell != undefined && idUserSell != null) {
+                param["idUserSell"] = idUserSell;
+            }
+            if (idVoucher != undefined && idVoucher != null) {
+                param["idVoucher"] = idVoucher;
+            }
+            if (detail != undefined && detail != null) {
+                param["detail"] = detail;
+            }
+            if (status != undefined && status != null) {
+                param["status"] = status;
+            }
+            return param;
+        } catch (e) {
+            param["error"] = e;
+            return param;
         }
     }
 

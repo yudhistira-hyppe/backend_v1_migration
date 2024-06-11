@@ -50,5 +50,7 @@ export class transactionsV2 {
     typeUser: string;
     @Prop()
     typeTransaction: string;
+    @Prop()
+    logParam: any[];
 }
 export const transactionsV2Schema = SchemaFactory.createForClass(transactionsV2);
