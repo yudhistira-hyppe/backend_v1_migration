@@ -2382,6 +2382,16 @@ export class TransactionsController {
         var arrDt = [];
         var product_id = null;
 
+        var langIso = null;
+        var titleinsukses2 = "Selamat!";
+        var titleensukses2= "Congratulation!";
+        var bodyinsukses2 = "Konten Anda Telah Terjual Saldo akan diteruskan ke akun hype Anda.";
+        var bodyensukses2 = "Your Content Has Been Sold The balance will be forwarded to your Hyppe Account.";
+        var titleinsuksesbeli2 = "Selamat!";
+        var titleensuksesbeli2 = "Congratulation!";
+        var bodyinsuksesbeli2 = "Konten Berhasil Dibeli";
+        var bodyensuksesbeli2 = "Content Successfully Purchased";
+
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
         dt = new Date(dt);
@@ -3489,7 +3499,11 @@ export class TransactionsController {
                             "total": amountTotal
 
                         };
+
+                        this.notifseller(emailseller.toString(), titleinsukses2, titleensukses2, bodyinsukses2, bodyensukses2, eventType, event, noinvoic, noinvoic);
+                        this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
                     }
+
 
 
                     try {
@@ -21151,7 +21165,7 @@ export class TransactionsController {
                 datawithdraw.bankDisbursmentCharge = mongoose.Types.ObjectId(idBankDisbursmentCharge);
                 datawithdraw.description = "Withdraw Coins from HYPPE";
                 datawithdraw.idUser = mongoose.Types.ObjectId(iduserstring);
-                datawithdraw.status = "PENDING";
+                datawithdraw.status = "Pending";
                 datawithdraw.timestamp = dtnow.toISOString();
                 datawithdraw.verified = false;
                 datawithdraw.partnerTrxid = partnertrxid;

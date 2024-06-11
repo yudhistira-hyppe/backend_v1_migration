@@ -8758,7 +8758,65 @@ export class UserbasicnewService {
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
-                    vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] }
+                    vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] },
+                    activityType: {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "debit"]
+                                            },
+                                            {
+                                                $ne: ["$trans.coa.coa", "REFUND"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coins Ditambahkan"
+                                },
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "debit"]
+                                            },
+                                            {
+                                                $eq: ["$trans.coa.coa", "REFUND"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coins Dikembalikan"
+                                },
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "credit"]
+                                            },
+                                            {
+                                                $eq: ["$trans.coa.coa", "WD"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coins Ditukar"
+                                },
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "credit"]
+                                            },
+                                            {
+                                                $ne: ["$trans.coa.coa", "WD"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coin Digunakan"
+                                }
+                            ]
+                        }
+                    }
                     // tracking: "$trans.withdrawData.tracking"
                 }
             }
