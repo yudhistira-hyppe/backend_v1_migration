@@ -891,7 +891,7 @@ export class AdsController {
                 AdsDto_.adspricecredits = getSetting_CreditPrice.creditPrice;
             }
             if (AdsDto_.status == "UNDER_REVIEW") {
-                var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, AdsDto_.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "PENDING");
+                var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, AdsDto_.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "SUCCESS");
                 if (dataTransaction != false) {
                     AdsDto_.idTransactionCreate = dataTransaction.data[0].idTransaction.toString()
                 }
@@ -997,7 +997,7 @@ export class AdsController {
             // AdsBalaceCreditDto_.idtrans = ads._id;
             if (ads.status != "ACTIVE") {
                 if ((ads.status == "DRAFT") && (AdsDto_.status == "UNDER_REVIEW")) {
-                    var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, ads.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "SUCCESS");
+                    var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, ads.userID.toString(), undefined, undefined, [{ "adsID": ads._id, "credit": ads.credit }], "SUCCESS");
                     if (dataTransaction != false) {
                         AdsDto_.idTransactionCreate = dataTransaction.data[0].idTransaction.toString()
                     }
@@ -1029,7 +1029,7 @@ export class AdsController {
                     // }
                 }
                 if ((ads.status == "UNDER_REVIEW") && (AdsDto_.status == "IN_ACTIVE")) {
-                    await this.transactionsV2Service.updateTransaction(AdsDto_.idTransactionCreate, "FAILED", [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }]);
+                    await this.transactionsV2Service.updateTransaction(ads.idTransactionCreate, "FAILED", [{ "adsID": ads._id, "credit": ads.credit }]);
                     //--------------------INSERT BALANCE KREDIT--------------------
                     // AdsBalaceCreditDto_.iduser = ads.userID;
                     // AdsBalaceCreditDto_.debet = 0;
@@ -2195,29 +2195,29 @@ export class AdsController {
         AdsLogsDto_.dateTime = await this.utilsService.getDateTimeString();
         AdsLogsDto_.nameActivitas = ["GetAds"];
 
-        //Validasi Token
-        if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-            AdsLogsDto_.responseAds = JSON.stringify({ response: "Unauthorized" });
-            //await this.adslogsService.create(AdsLogsDto_);
+        // //Validasi Token
+        // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+        //     AdsLogsDto_.responseAds = JSON.stringify({ response: "Unauthorized" });
+        //     //await this.adslogsService.create(AdsLogsDto_);
 
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
 
-            await this.errorHandler.generateNotAcceptableException(
-                'Unauthorized',
-            );
-        }
-        if (!(await this.utilsService.validasiTokenEmail(headers))) {
-            AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed email header dan token not match" });
-            //await this.adslogsService.create(AdsLogsDto_);
+        //     await this.errorHandler.generateNotAcceptableException(
+        //         'Unauthorized',
+        //     );
+        // }
+        // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+        //     AdsLogsDto_.responseAds = JSON.stringify({ response: "Unabled to proceed email header dan token not match" });
+        //     //await this.adslogsService.create(AdsLogsDto_);
 
-            var timestamps_end = await this.utilsService.getDateTimeString();
-            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
 
-            await this.errorHandler.generateNotAcceptableException(
-                'Unabled to proceed email header dan token not match',
-            );
-        }
+        //     await this.errorHandler.generateNotAcceptableException(
+        //         'Unabled to proceed email header dan token not match',
+        //     );
+        // }
 
         //Validasi Param typeAdsId
         if (id == undefined) {
@@ -2307,6 +2307,12 @@ export class AdsController {
             var data_Update_Ads = {}
             if ((data_ads[0].totalView + 1) <= data_ads[0].tayang) {
                 data_Update_Ads["$inc"] = { 'usedCredit': Number(data_ads[0].CPV), 'totalView': 1 };
+                const dataDetail = {
+                    credit: Number(data_ads[0].CPV),
+                    qty: 1,
+                    dataAds: data_ads[0]
+                }
+                await this.transactionsV2Service.insertTransaction("APP", "AD", "VIEW", 0, 0, 0, 0, data_ads[0].userID.toString(), undefined , undefined, [dataDetail], "SUCCESS");
             }
             if (data_ads[0].tayang == (data_ads[0].totalView + 1)) {
                 data_Update_Ads["status"] = "IN_ACTIVE";
@@ -2793,8 +2799,12 @@ export class AdsController {
             //Ads Rewatch Transaction
             let getDatacurency = await this.transactionsV2Service.getCurency();
             let cointReward = Number(dataRewards.rewardPrice) / Number(getDatacurency.coin);
-            
-            var dataTransaction = await this.transactionsV2Service.insertTransaction("APP", "AD", "CLICKED", cointReward, 0, 0, 0, undefined, data_userbasic._id.toString(), undefined, [dataAds], "SUCCESS");
+            const dataDetail = {
+                credit: Number(dataAds.CPA),
+                qty:1,
+                dataAds: dataAds
+            }
+            var dataTransaction = await this.transactionsV2Service.insertTransaction("APP", "AD", "CLICKED", cointReward, 0, 0, 0, undefined, data_userbasic._id.toString(), undefined, [dataDetail], "SUCCESS");
             if (dataTransaction != false) {
                 let arrayDataTransaction = dataTransaction.data;
                 arrayDataTransaction.filter((bd) => {
