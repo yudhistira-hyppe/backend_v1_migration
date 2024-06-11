@@ -11215,6 +11215,9 @@ export class TransactionsService {
                                             "description_id": `Rp${OyDisbursementStatusResponse_.amount} berhasil ditransfer ke rekening tujuan`,
                                             "description_en": `Rp${OyDisbursementStatusResponse_.amount} has been successfully transferred to the destination account`,
                                         });
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.verified = true
+                                        CreateWithdrawsDto_.description = "Transaction has been completed(success)";
                                         await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "SUCCESS", OyDisbursementStatusResponse_);
                                     } else if (responseStatusCode == "300") {
                                         await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Failed", OyDisbursementStatusResponse_, responseStatusCode, {
@@ -11226,7 +11229,34 @@ export class TransactionsService {
                                             "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
                                             "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
                                         });
+                                        CreateWithdrawsDto_.verified = false
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.description = "Transaction is FAILED";
                                         await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "FAILED", OyDisbursementStatusResponse_);
+                                    } else if (responseStatusCode == "101") {
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.verified = false
+                                        CreateWithdrawsDto_.description = "Transaction is Processed";
+                                    } else if (responseStatusCode == "102") {
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.verified = false
+                                        CreateWithdrawsDto_.description = "Transaction is In Progress";
+                                    } else if (responseStatusCode == "204") {
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.verified = false
+                                        CreateWithdrawsDto_.description = "Transaction do not exist(Partner Tx ID is Not Found)";
+                                    } else if (responseStatusCode == "206") {
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.verified = false
+                                        CreateWithdrawsDto_.description = "Transaction is FAILED(Partner Deposit Balance is Not Enough)";
+                                    } else if (responseStatusCode == "301") {
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
+                                        CreateWithdrawsDto_.verified = false
+                                        CreateWithdrawsDto_.description = "Pending (When there is an unclear answer from Banks Network)";
+                                    } else {
+                                        CreateWithdrawsDto_.verified = false
+                                        CreateWithdrawsDto_.description = OyDisbursementStatusResponse_.tx_status_description;
+                                        CreateWithdrawsDto_.status = OyDisbursementStatusResponse_.status.message;
                                     }
                                     await this.withdrawsService.updateoneData(getwithdraws[i]._id.toString(), CreateWithdrawsDto_, OyDisbursementStatusResponse_);
                                 } else {
