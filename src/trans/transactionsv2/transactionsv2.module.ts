@@ -40,11 +40,13 @@ import { TransactionsDiscountsService } from './discount/transactionsdiscount.se
 import { DisquslogsModule } from 'src/content/disquslogs/disquslogs.module';
 import { AdsService } from './Ads/ads.service';
 import { Ads, AdsSchema } from '../ads/schemas/ads.schema';
+import { AdsRewardsModule } from '../adsv2/adsrewards/adsrewards.module';
 // import { BoostintervalModule } from 'src/content/boostinterval/boostinterval.module';
 // import { BoostsessionModule } from 'src/content/boostsession/boostsession.module';
 @Module({
 
     imports: [
+        AdsRewardsModule,
         DisquslogsModule,
         LogapisModule,
         AdsPriceCreditsModule,

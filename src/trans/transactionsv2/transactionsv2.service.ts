@@ -20,6 +20,7 @@ import { TransactionsCoaTableService } from './coa/transactionscoatable.service'
 import { AdsBalaceCreditService } from '../adsv2/adsbalacecredit/adsbalacecredit.service';
 import { DisquslogsService } from '../../content/disquslogs/disquslogs.service';
 import { AdsService } from '../ads/ads.service';
+import { AdsRewardsService } from '../adsv2/adsrewards/adsrewards.service';
 
 @Injectable()
 export class TransactionsV2Service {
@@ -40,6 +41,7 @@ export class TransactionsV2Service {
         private readonly transactionsCoaTableService: TransactionsCoaTableService,
         private readonly disquslogsService: DisquslogsService,
         private readonly adsService: AdsService,
+        private readonly adsRewardsService: AdsRewardsService,
     ) { }
 
     async updateByIdTransaction(idTrans: string, data: any) {
@@ -817,6 +819,9 @@ export class TransactionsV2Service {
                                                                     }
                                                                     dataTotalCredit = Number(dataCredit) * Number(dataQty);
                                                                     dataGrandTotalCredit += dataTotalCredit;
+                                                                    if (category == "CLICKED" || category == "VIEW") {
+                                                                        credit = dataGrandTotalCredit;
+                                                                    }
                                                                 }
                                                                 hutangSaldoCredit = ((Number(currencyCredit) * Number(currencyCoin)) * dataGrandTotalCredit);
                                                             }
@@ -835,6 +840,9 @@ export class TransactionsV2Service {
                                                                     }
                                                                     dataTotalCredit = Number(dataCredit) * Number(dataQty);
                                                                     dataGrandTotalCredit += dataTotalCredit;
+                                                                    if (category == "CLICKED" || category == "VIEW") {
+                                                                        credit = dataGrandTotalCredit;
+                                                                    }
                                                                 }
                                                                 hutangSaldoCredit = -1 * ((Number(currencyCredit) * Number(currencyCoin)) * dataGrandTotalCredit);
                                                             }
@@ -1063,10 +1071,10 @@ export class TransactionsV2Service {
                                                     if (categoryTransactionType.transaction[tr].name == "PendapatanAdvertisement") {
                                                         if (categoryTransactionType.transaction[tr].status != undefined) {
                                                             if (categoryTransactionType.transaction[tr].status == "debit") {
-
+                                                                pendapatanAdvertisement = -1*(hutangSaldoCredit + hutangSaldoCoin)
                                                             }
                                                             if (categoryTransactionType.transaction[tr].status == "credit") {
-
+                                                                pendapatanAdvertisement = (hutangSaldoCredit + hutangSaldoCoin)
                                                             }
                                                         }
                                                     }
@@ -1314,7 +1322,7 @@ export class TransactionsV2Service {
                 transactionsV2_.credit = credit;
                 transactionsV2_.totalPrice = totalPrice;
                 transactionsV2_.typeUser = typeUser;
-                if (category == "CREATE" || category == "END") {
+                if (category == "CREATE" || category == "END" || category == "VIEW") {
                     transactionsV2_.typeTransaction = "CREDIT";
                 } else {
                     transactionsV2_.typeTransaction = "COIN";
