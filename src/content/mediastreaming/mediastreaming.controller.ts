@@ -201,19 +201,19 @@ export class MediastreamingController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/ceck')
-  @HttpCode(HttpStatus.ACCEPTED)
+  //@HttpCode(HttpStatus.ACCEPTED)
   async getStatusStream(
     @Query('idBanned') idBanned: string, @Headers() headers) {
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
-      );
-    }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
-      );
-    }
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     console.log(profile);
     if (!(await this.utilsService.ceckData(profile))) {
