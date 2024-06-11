@@ -3916,6 +3916,7 @@ export class TransactionsController {
 
 
     }
+
     @Post('api/transactions/detail/coin/v2')
     @UseGuards(JwtAuthGuard)
     async profiv2(@Req() request: Request): Promise<any> {
@@ -8731,6 +8732,7 @@ export class TransactionsController {
 
         await this.accountbalancesService.createdata(dataacountbalance);
     }
+
     async accontbalanceAdminCoin(type: string, iduseradmin: { oid: string }, amount: number, iduserbuy: string, idtrans: Object) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
@@ -8750,6 +8752,7 @@ export class TransactionsController {
 
         await this.accountbalancesService.createdata(dataacountbalance);
     }
+
     async accontbalanceAdminWitdraw(type: string, iduseradmin: { oid: string }, idusersell: { oid: String }, amount: number) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
@@ -8812,6 +8815,7 @@ export class TransactionsController {
 
         await this.accountbalancesService.createdata(dataacountbalance);
     }
+    
     async accontbalanceWithdrawv2(iduser: string, amount: number, tipe: string) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp

@@ -997,7 +997,7 @@ export class AdsController {
             // AdsBalaceCreditDto_.idtrans = ads._id;
             if (ads.status != "ACTIVE") {
                 if ((ads.status == "DRAFT") && (AdsDto_.status == "UNDER_REVIEW")) {
-                    var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, ads.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "PENDING");
+                    var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "CREATE", 0, 0, 0, 0, ads.userID.toString(), undefined, undefined, [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }], "SUCCESS");
                     if (dataTransaction != false) {
                         AdsDto_.idTransactionCreate = dataTransaction.data[0].idTransaction.toString()
                     }

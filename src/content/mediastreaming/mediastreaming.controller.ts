@@ -243,10 +243,10 @@ export class MediastreamingController {
           let dataAppeal_ = dataAppeal.filter(function (el) {
             return el.approveText != "WAITING_RESPONSE";
           });
-          if (dataAppeal_.length > 0){
-            statusBanned = "ACTIVE"
-          } else {
+          if (dataAppeal_.length > 0) {
             statusBanned = "ACTIVE_BANNED"
+          } else {
+            statusBanned = "ACTIVE"
           }
         }else{
           statusBanned = "NOACTIVE"; 
@@ -286,12 +286,12 @@ export class MediastreamingController {
             dateStream: streamWarning[0].dateStream,
             statusAppeal: statusAppeal,
             statusApprove: statusApprove,
+            statusBanned: statusBanned,
             user: {
               _id: profile._id._id.toString(),
               fullName: profile.fullName,
               email: profile.email,
               username: profile.username,
-              statusBanned: statusBanned,
               avatar: {
                 "mediaBasePath": profile.mediaBasePath,
                 "mediaUri": profile.mediaUri,
