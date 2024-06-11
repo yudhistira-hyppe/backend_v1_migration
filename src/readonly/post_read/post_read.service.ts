@@ -26605,6 +26605,9 @@ export class PostsReadService {
             "username": {
               $arrayElemAt: ["$userBasic.username", 0]
             },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             "avatar":
             {
               "mediaBasePath": { $arrayElemAt: ["$userBasic.mediaBasePath", 0] },
@@ -28766,6 +28769,9 @@ export class PostsReadService {
             "username": {
               $arrayElemAt: ["$userBasic.username", 0]
             },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             "avatar":
             {
               "mediaBasePath": { $arrayElemAt: ["$userBasic.mediaBasePath", 0] },
@@ -29841,6 +29847,9 @@ export class PostsReadService {
             },
             "username": {
               $arrayElemAt: ["$userBasic.username", 0]
+            },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
             },
             "avatar":
             {
