@@ -3930,11 +3930,11 @@ export class TransactionsController {
         var expired = null;
         var status = null;
         var datenow = new Date(Date.now());
-        var datapemberi=null;
-        var datapenerima=null;
-        var idtr2=null;
-        var pemberi=null;
-        var penerima=null;
+        var datapemberi = null;
+        var datapenerima = null;
+        var idtr2 = null;
+        var pemberi = null;
+        var penerima = null;
         const messages = {
             "info": ["The process successful"],
         };
@@ -3943,37 +3943,37 @@ export class TransactionsController {
             noinvoice = request_json["noinvoice"];
             try {
                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice, profitsharingpercent);
-                try{
-                    idtr2=data.idTransaction;
-                }catch(e){
-                    idtr2=null;
+                try {
+                    idtr2 = data.idTransaction;
+                } catch (e) {
+                    idtr2 = null;
                 }
 
-                try{
-                    datapemberi=await this.TransactionsV2Service.cekPembeliPenerima(idtr2,"USER_BUY");
-                }catch(e){
-                    datapemberi=null;
+                try {
+                    datapemberi = await this.TransactionsV2Service.cekPembeliPenerima(idtr2, "USER_BUY");
+                } catch (e) {
+                    datapemberi = null;
                 }
 
-                if(datapemberi !==null){
-                    pemberi=datapemberi.username;
+                if (datapemberi !== null) {
+                    pemberi = datapemberi.username;
                 }
 
-                try{
-                    datapenerima=await this.TransactionsV2Service.cekPembeliPenerima(idtr2,"USER_SELL");
-                }catch(e){
-                    datapenerima=null;
+                try {
+                    datapenerima = await this.TransactionsV2Service.cekPembeliPenerima(idtr2, "USER_SELL");
+                } catch (e) {
+                    datapenerima = null;
                 }
 
-                if(datapenerima !==null){
-                    penerima=datapenerima.username;
+                if (datapenerima !== null) {
+                    penerima = datapenerima.username;
                 }
 
                 if (data.expiredtimeva && data.status && data.idtr_lama) {
                     let expiredtimeva = data.expiredtimeva;
                     status = data.status;
                     idtransaksi = data.idtr_lama;
-                   
+
                     let expiredvanew = new Date(expiredtimeva);
                     expiredvanew.setHours(expiredvanew.getHours() - 7);
                     if (status == "WAITING_PAYMENT" || status == "PENDING") {
@@ -3983,34 +3983,34 @@ export class TransactionsController {
                                 await this.TransactionsV2Service.updateTransaction(data.idTransaction, "FAILED", null);
                                 if (data.voucherDiskon.length > 0) await this.monetizationService.updateStock(data.voucherDiskon[0].toString(), 1, false);
 
-                                try{
-                                data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
-                               
-                                }catch(e){
+                                try {
+                                    data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
+
+                                } catch (e) {
 
                                 }
-                                
+
                             } catch (e) {
 
                             }
                         }
                     }
 
-                   
+
                     // if (data.coa == "Pembelian Konten" || data.coa == "Penjualan Konten") {
                     //     data.coinadminfee = data.coin * profitsharingpercent / 100;
                     // }
                 }
-                if(data !==null){
-                    data.pemberi=pemberi;
-                    data.penerima=penerima;
+                if (data !== null) {
+                    data.pemberi = pemberi;
+                    data.penerima = penerima;
                 }
                 return { response_code: 202, data, messages };
             } catch (e) {
                 data = null;
                 throw new BadRequestException("Transaction is not found..!");
             }
-        } else {throw new BadRequestException("Missing param: noinvoice (string)")};
+        } else { throw new BadRequestException("Missing param: noinvoice (string)") };
 
     }
     // @Post('api/pg/oy/callback/va')
@@ -22018,6 +22018,105 @@ export class TransactionsController {
                             x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
                             break;
                     }
+                }
+            }
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: data,
+                messages
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
+    @Post('api/transactions/usercoinorderhistory')
+    @UseGuards(JwtAuthGuard)
+    async usercoinorderhistory(@Req() request: Request, @Headers() headers): Promise<any> {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/usercoinorderhistory';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        var datenow = new Date(Date.now());
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var user_data = await this.basic2SS.findBymail(setemail);
+        if (!user_data) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("User data not found");
+        }
+        if (request_json.email == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: email (string)");
+        }
+        if (request_json.page == undefined) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Missing field: page (number)");
+        }
+        // if (request_json.limit == undefined) {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+        //     throw new BadRequestException("Missing field: limit (number)");
+        // }
+
+        try {
+            let foundExpired = false;
+            var data = await this.basic2SS.getUserCoinOrderHistory(request_json.email, request_json.page * 5, request_json.type, request_json.startdate, request_json.enddate, request_json.descending);
+            for (let x of data) {
+                if (x.detail && x.detail.length > 0 && typeof x.detail[0].amount == 'string') {
+                    x.detail[0].amount = Number(x.detail[0].amount);
+                }
+                let expiredvanew = new Date(x.expiredtimeva);
+                expiredvanew.setHours(expiredvanew.getHours() - 7);
+                if (x.status == "WAITING_PAYMENT" || x.status == "PENDING") {
+                    if (datenow > expiredvanew) {
+                        try {
+                            await this.transactionsService.updatecancel(x.idTransLama.toString());
+                            await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
+                            if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
+                            // x.status = "FAILED";
+                            if (!foundExpired) foundExpired = true;
+                        } catch (e) {
+
+                        }
+                    }
+                }
+            }
+            while (foundExpired) {
+                foundExpired = false;
+                data = await this.basic2SS.getUserCoinOrderHistory(request_json.email, request_json.page * 5, request_json.type, request_json.startdate, request_json.enddate, request_json.descending);
+                for (let x of data) {
+                    let expiredvanew = new Date(x.expiredtimeva);
+                    expiredvanew.setHours(expiredvanew.getHours() - 7);
+                    if (x.status == "WAITING_PAYMENT" || x.status == "PENDING") {
+                        if (datenow > expiredvanew) {
+                            try {
+                                await this.transactionsService.updatecancel(x.idTransLama.toString());
+                                await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
+                                if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
+                                // x.status = "FAILED";
+                                if (!foundExpired) foundExpired = true;
+                            } catch (e) {
+
+                            }
+                        }
+                    }
+
                 }
             }
             var timestamps_end = await this.utilsService.getDateTimeString();
