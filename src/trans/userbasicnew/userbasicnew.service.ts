@@ -8615,7 +8615,7 @@ export class UserbasicnewService {
             })
         }
 
-        if (order_by != undefined) {
+        if (order_by != undefined || order_by != null) {
             if (order_by == true) {
                 pipeline.push(
                     {
@@ -9269,7 +9269,7 @@ export class UserbasicnewService {
             },
         )
 
-        if (order_by && order_by !== undefined) {
+        if (order_by != undefined || order_by != null) {
             if (order_by == true) {
                 pipeline.push(
                     {
