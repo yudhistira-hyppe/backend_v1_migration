@@ -13171,6 +13171,9 @@ export class AdsService {
                     AdsDto_.status = status;
                     AdsDto_.isActive = false;
                     await this.update(ads[t]._id, AdsDto_);
+
+                    await this.transactionsV2Service.updateTransaction(AdsDto_.idTransactionCreate, "FAILED", [{ "adsID": AdsDto_._id, "credit": AdsDto_.credit }]);
+                    //AdsDto_.idTransactionEnd = dataTransaction.data[0].idTransaction.toString()
                     var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "END", 0, 0, 0, 0, ads[t].userID.toString(), undefined, undefined, [{ "adsID": ads[t]._id, "credit": sisaCredit }], "PENDING");
                     if (dataTransaction != false) {
                         AdsDto_.idTransactionEnd = dataTransaction.data[0].idTransaction.toString()

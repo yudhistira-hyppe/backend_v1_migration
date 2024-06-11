@@ -48,5 +48,7 @@ export class transactionsV2 {
     typeCategory: string;
     @Prop()
     typeUser: string;
+    @Prop()
+    typeTransaction: string;
 }
 export const transactionsV2Schema = SchemaFactory.createForClass(transactionsV2);

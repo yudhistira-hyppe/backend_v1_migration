@@ -11169,7 +11169,6 @@ export class TransactionsService {
 
     async ceckStatusDisbursementV3() {
         let getwithdraws: transactionsV2[] = await this.transactionsV2Service.findWDPending();
-        console.log(getwithdraws);
         
         if (await this.utilsService.ceckData(getwithdraws)) {
             for (let i = 0; i < getwithdraws.length; i++) {
