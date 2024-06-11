@@ -1194,7 +1194,11 @@ export class UtilsService {
       datadevice = await this.userdevicesService.findActive(emailuserbasic);
       for (var i = 0; i < datadevice.length; i++) {
         var deviceid = datadevice[i].deviceID;
+        try{
         await admin.messaging().sendToDevice(deviceid, payload, option);
+        }catch(e){
+
+        }
 
         arraydevice.push(deviceid);
 
