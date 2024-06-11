@@ -612,7 +612,7 @@ export class UtilsService {
       }
 
       //SET BODY SAVE
-      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (eventType == "NOTIFY_LIVE" || eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN")) {
+      if ((eventType == "REACTION") || (eventType == "COMMENT") || (eventType == "LIKE") || (eventType == "TRANSACTION") || (event == "POST") || (eventType == "NOTIFY_LIVE" )) {
         if (event == "BOOST_SUCCES" || event == "ADS VIEW" || event == "ADS CLICK") {
           if (idtransaction != null) {
             data_send['postID'] = idtransaction
@@ -627,23 +627,7 @@ export class UtilsService {
           }
         }
 
-        if (eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN") {
-          body_save_id4 = body_save_id_get.toString().replace("${amount}", await this.numberFormatString(amount))
-          body_save_id3 = body_save_id4.toString().replace("${account_name}", account_name)
-          body_save_id2 = body_save_id3.toString().replace("${user_name}", get_username_senderParty)
-
-          body_save_en4 = body_save_en_get.toString().replace("${amount}", await this.numberFormatString(amount))
-          body_save_en3 = body_save_en4.toString().replace("${account_name}", account_name)
-          body_save_en2 = body_save_en3.toString().replace("${user_name}", get_username_senderParty)
-
-          if (eventType == "SUCCESS_WITHDRAW_COIN") {
-            body_save_id = body_save_id2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
-            body_save_en = body_save_en2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
-          }else{
-            body_save_id = body_save_id2.toString();
-            body_save_en = body_save_en2.toString();
-          }
-        }
+       
 
         if (event == "ADS VIEW" || event == "ADS CLICK") {
           body_save_id = body_save_id_get.toString().replace("${rewards}", customText)
@@ -690,7 +674,25 @@ export class UtilsService {
           body_save_id = body_save_id_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
           body_save_en = body_save_en_get.toString().replace("${post_type}", "Hyppe" + Post_type_upper)
         }
-      } else {
+      } 
+      else if (eventType == "WITHDRAW_COIN" || eventType == "SUCCESS_WITHDRAW_COIN" || eventType == "FAILED_WITHDRAW_COIN") {
+        body_save_id4 = body_save_id_get.toString().replace("${amount}", await this.numberFormatString(amount))
+        body_save_id3 = body_save_id4.toString().replace("${account_name}", account_name)
+        body_save_id2 = body_save_id3.toString().replace("${user_name}", get_username_senderParty)
+
+        body_save_en4 = body_save_en_get.toString().replace("${amount}", await this.numberFormatString(amount))
+        body_save_en3 = body_save_en4.toString().replace("${account_name}", account_name)
+        body_save_en2 = body_save_en3.toString().replace("${user_name}", get_username_senderParty)
+
+        if (eventType == "SUCCESS_WITHDRAW_COIN") {
+          body_save_id = body_save_id2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
+          body_save_en = body_save_en2.toString().replace("${trx_fee}", await this.numberFormatString(trx_fee))
+        }else{
+          body_save_id = body_save_id2.toString();
+          body_save_en = body_save_en2.toString();
+        }
+      }
+      else {
         if (eventType == "FOLLOWER" || eventType == "FOLLOWING") {
           data_send['postType'] = eventType
           data_send['postID'] = get_username_senderParty
@@ -844,7 +846,7 @@ export class UtilsService {
 
     }
   }
-
+  
   async numberFormatString(nominal: string) {
     return nominal.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.")
   }
