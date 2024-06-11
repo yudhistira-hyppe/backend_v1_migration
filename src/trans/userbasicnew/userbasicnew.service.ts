@@ -8237,10 +8237,13 @@ export class UserbasicnewService {
                     $nin: [new Types.ObjectId("66306d4dff1a0000750077e2"), new Types.ObjectId("662731cc56375e3a6b2230a6")]
                 }
             },
+            // {
+            //     product: {
+            //         $ne: new Types.ObjectId("660f7d90c306d245ed2c206c")
+            //     }
+            // }
             {
-                product: {
-                    $ne: new Types.ObjectId("660f7d90c306d245ed2c206c")
-                }
+                typeTransaction: "COIN"
             }
         );
         if (status && status.length > 0) matchAnd.push({
