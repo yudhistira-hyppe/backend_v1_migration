@@ -3955,7 +3955,7 @@ export class TransactionsController {
                     datapemberi = null;
                 }
 
-                if (datapemberi !== null) {
+                if (datapemberi && datapemberi != undefined) {
                     pemberi = datapemberi.username;
                 }
 
@@ -3965,7 +3965,7 @@ export class TransactionsController {
                     datapenerima = null;
                 }
 
-                if (datapenerima !== null) {
+                if (datapenerima && datapenerima != undefined) {
                     penerima = datapenerima.username;
                 }
 
