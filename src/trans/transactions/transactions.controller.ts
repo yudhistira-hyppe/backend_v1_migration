@@ -3930,6 +3930,8 @@ export class TransactionsController {
         var expired = null;
         var status = null;
         var datenow = new Date(Date.now());
+        var databytr=null;
+        var idtr2=null;
         const messages = {
             "info": ["The process successful"],
         };
@@ -3942,6 +3944,11 @@ export class TransactionsController {
                     let expiredtimeva = data.expiredtimeva;
                     status = data.status;
                     idtransaksi = data.idtr_lama;
+                    // try{
+                    //     idtr2=data.
+                    // }catch(e){
+
+                    // }
 
                     let expiredvanew = new Date(expiredtimeva);
                     expiredvanew.setHours(expiredvanew.getHours() - 7);
