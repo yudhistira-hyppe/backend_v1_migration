@@ -57,12 +57,6 @@ export class TransactionsV2Controller {
         return data;
     }
 
-    @Post('/update/2')
-    @HttpCode(HttpStatus.ACCEPTED)
-    async updateADSTEst(@Req() request: any) {
-        var dataTransaction = await this.transactionsV2Service.insertTransaction("BUS", "AD", "END", 0, 0, 0, 0, "62ccef9e5f458435760af946", undefined, undefined, [{ "adsID": "", "credit": 400 }], "SUCCESS");
-    }
-
     @Post('/coinhistory')
     @UseGuards(JwtAuthGuard)
     async listCoinHistory(@Req() request: any, @Headers() headers) {

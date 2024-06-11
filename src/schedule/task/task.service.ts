@@ -23,29 +23,28 @@ export class TaskService {
 
   @Cron('0 */7 * * * *')
   challengeJob2() {
-    // this.logger.debug('----------CHALLEGE JOB START----------', new Date());
-    // this.challengeService.sendNotifeChallenge();
-    // this.challengeService.updateBadgeex();
-    // this.challengeService.updateSubchallengeex();
+    this.logger.debug('----------CHALLEGE JOB START----------', new Date());
+    this.challengeService.sendNotifeChallenge();
+    this.challengeService.updateBadgeex();
+    this.challengeService.updateSubchallengeex();
   }
 
   @Cron('0 */10 * * * *')
   ceckStatus() {
     this.logger.debug('----------DISBURSEMENT JOB START----------');
-    //this.transactionsService.ceckStatusDisbursementV3();
+    this.transactionsService.ceckStatusDisbursementV3();
   }
 
-  @Cron('*/10 * * * * *')
-  //@Cron('0 0 0 * * *')
+  @Cron('0 0 0 * * *')
   ceckADS() {
-    // this.logger.debug('----------ADS JOB START----------', new Date());
-    // this.adsService.ceckAdsActive();
+    this.logger.debug('----------ADS JOB START----------', new Date());
+    this.adsService.ceckAdsActive();
   }
   // // @Cron('5 * * * * *')
   @Cron('0 */10 * * * *')
   ceckUserStream() {
-    // this.logger.debug('----------STREAM JOB START----------', new Date());
-    // this.mediastreamingService.StreamRefreshUserWarning();
-    // this.mediastreamingService.StreamAppeal();
+    this.logger.debug('----------STREAM JOB START----------', new Date());
+    this.mediastreamingService.StreamRefreshUserWarning();
+    this.mediastreamingService.StreamAppeal();
   }
 }

@@ -1314,6 +1314,11 @@ export class TransactionsV2Service {
                 transactionsV2_.credit = credit;
                 transactionsV2_.totalPrice = totalPrice;
                 transactionsV2_.typeUser = typeUser;
+                if (category == "CREATE" || category == "END") {
+                    transactionsV2_.typeTransaction = "CREDIT";
+                } else {
+                    transactionsV2_.typeTransaction = "COIN";
+                }
                 await this.transactionsModel.create(transactionsV2_);
 
                 outputdatatransaction.push(transactionsV2_);
