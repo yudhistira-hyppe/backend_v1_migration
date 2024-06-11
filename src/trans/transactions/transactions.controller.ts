@@ -2384,7 +2384,7 @@ export class TransactionsController {
 
         var langIso = null;
         var titleinsukses2 = "Selamat!";
-        var titleensukses2= "Congratulation!";
+        var titleensukses2 = "Congratulation!";
         var bodyinsukses2 = "Konten Anda Telah Terjual Saldo akan diteruskan ke akun hype Anda.";
         var bodyensukses2 = "Your Content Has Been Sold The balance will be forwarded to your Hyppe Account.";
         var titleinsuksesbeli2 = "Selamat!";
@@ -21447,8 +21447,8 @@ export class TransactionsController {
                         "status": "FAILED",
                         "action": "APPROVAL",
                         "timestamp": dtb,
-                        "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`,
-                        "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.tx_status_description}`,
+                        "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.status.message}`,
+                        "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.status.message}`,
                         "approved_by": user_data._id
                     });
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
@@ -21656,8 +21656,8 @@ export class TransactionsController {
                             "status": "FAILED",
                             "action": "APPROVAL",
                             "timestamp": dtb,
-                            "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.tx_status_description}`,
-                            "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.tx_status_description}`,
+                            "description_id": `Penukaran coins gagal dengan alasan ${infodisbursemen.status.message}`,
+                            "description_en": `Coin withdrawal failed with the following reason: ${infodisbursemen.status.message}`,
                             "approved_by": user_data._id
                         });
                         // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "FAILED", detail: detailTrans });
@@ -22182,6 +22182,8 @@ export class TransactionsController {
                     case "WD":
                         x.desc_title_id = `Penukaran Coins`;
                         x.desc_title_en = `Coins Exchanged`;
+                        x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
+                        x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
                         x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
                         x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
                         break;
@@ -22234,9 +22236,10 @@ export class TransactionsController {
                             break;
                         case "Content Gift":
                             if (x.coaDetailStatus == "debit") {
-                                x.desc_title_id = `Penerimaan Gift dari Konten`;
-                                x.desc_title_en = `Gift received from Content`;
-                                x.desc_content_id = `Gift senilai ${x.coin} Coins diterima dari ${x.postType}`;
+                                x.desc_title_id = `Menerima Gift`;
+                                x.desc_title_en = `Gift Received`;
+                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `${dataBuyer["usernamebuyer"]}`;
                                 x.desc_content_en = `Gift worth ${x.coin} Coins received from ${x.postType}`;
                             } else {
                                 x.desc_title_id = `Memberikan Gift Konten`;
