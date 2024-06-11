@@ -8846,30 +8846,30 @@ export class UserbasicnewService {
         );
 
         if (startdate != null && enddate != null) {
-            var dateend = null;
-            try {
-                var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
+            // var dateend = null;
+            // try {
+            //     var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
 
-                dateend = currentdate.toISOString();
-            } catch (e) {
-                dateend = "";
-            }
+            //     dateend = currentdate.toISOString();
+            // } catch (e) {
+            //     dateend = "";
+            // }
             match.push(
                 {
                     "$expr":
                     {
                         "$gte":
                             [
-                                "$createdAt", startdate
+                                "$createdAt", startdate + " 00:00:00"
                             ]
                     }
                 },
                 {
                     "$expr":
                     {
-                        "$lt":
+                        "$lte":
                             [
-                                "$createdAt", dateend
+                                "$createdAt", enddate + " 23:59:59"
                             ]
                     }
                 },
@@ -8894,6 +8894,10 @@ export class UserbasicnewService {
                 }
             );
         }
+
+        match.push({
+            typeTransaction: "COIN"
+        })
 
         var lookup = [];
         lookup.push(

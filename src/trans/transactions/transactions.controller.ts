@@ -3930,6 +3930,8 @@ export class TransactionsController {
         var expired = null;
         var status = null;
         var datenow = new Date(Date.now());
+        var databytr=null;
+        var idtr2=null;
         const messages = {
             "info": ["The process successful"],
         };
@@ -3942,6 +3944,11 @@ export class TransactionsController {
                     let expiredtimeva = data.expiredtimeva;
                     status = data.status;
                     idtransaksi = data.idtr_lama;
+                    // try{
+                    //     idtr2=data.
+                    // }catch(e){
+
+                    // }
 
                     let expiredvanew = new Date(expiredtimeva);
                     expiredvanew.setHours(expiredvanew.getHours() - 7);
@@ -8815,7 +8822,7 @@ export class TransactionsController {
 
         await this.accountbalancesService.createdata(dataacountbalance);
     }
-    
+
     async accontbalanceWithdrawv2(iduser: string, amount: number, tipe: string) {
         var dt = new Date(Date.now());
         dt.setHours(dt.getHours() + 7); // timestamp
@@ -21253,7 +21260,7 @@ export class TransactionsController {
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
-                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "SUCCESS", infodisbursemen, statuscode, {
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Success", infodisbursemen, statuscode, {
                         "title_id": "Penukaran Coins Berhasil",
                         "title_en": "Coin Withdrawal Successful",
                         "status": "SUCCESS",
@@ -21298,7 +21305,7 @@ export class TransactionsController {
                     dtburs.setHours(dtburs.getHours() + 7); // timestamp
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
-                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "IN PROGRESS", infodisbursemen, statuscode, {
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Pending", infodisbursemen, statuscode, {
                         "title_id": "Penukaran Coins Sedang Berlangsung",
                         "title_en": "Coin Withdrawal Is In Progress",
                         "status": "IN PROGRESS",
@@ -21344,7 +21351,7 @@ export class TransactionsController {
                     let dtb = dtburs.toISOString();
 
                     // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "PENDING", detail: detailTrans });
-                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "IN PROGRESS", infodisbursemen, statuscode, {
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Pending", infodisbursemen, statuscode, {
                         "title_id": "Penukaran Coins Tertunda",
                         "title_en": "Coin Withdrawal Currently Pending",
                         "status": "IN PROGRESS",
@@ -21383,7 +21390,7 @@ export class TransactionsController {
                     dtburs = new Date(dtburs);
                     let dtb = dtburs.toISOString();
 
-                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "FAILED", infodisbursemen, statuscode, {
+                    let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Failed", infodisbursemen, statuscode, {
                         "title_id": "Penukaran Coins Gagal",
                         "title_en": "Coin Withdrawal Failed",
                         "status": "FAILED",
@@ -21462,7 +21469,7 @@ export class TransactionsController {
                         dtburs.setHours(dtburs.getHours() + 7); // timestamp
                         dtburs = new Date(dtburs);
                         let dtb = dtburs.toISOString();
-                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "SUCCESS", infodisbursemen, statuscode, {
+                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Success", infodisbursemen, statuscode, {
                             "title_id": "Penukaran Coins Berhasil",
                             "title_en": "Coin Withdrawal Successful",
                             "status": "SUCCESS",
@@ -21507,7 +21514,7 @@ export class TransactionsController {
                         dtburs.setHours(dtburs.getHours() + 7); // timestamp
                         dtburs = new Date(dtburs);
                         let dtb = dtburs.toISOString();
-                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "IN PROGRESS", infodisbursemen, statuscode, {
+                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Pending", infodisbursemen, statuscode, {
                             "title_id": "Penukaran Coins Sedang Berlangsung",
                             "title_en": "Coin Withdrawal Is In Progress",
                             "status": "IN PROGRESS",
@@ -21553,7 +21560,7 @@ export class TransactionsController {
                         let dtb = dtburs.toISOString();
 
                         // updateTrans = await this.TransactionsV2Service.updateByIdTransaction(request_json.idTransaction, { status: "PENDING", detail: detailTrans });
-                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "IN PROGRESS", infodisbursemen, statuscode, {
+                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Pending", infodisbursemen, statuscode, {
                             "title_id": "Penukaran Coins Tertunda",
                             "title_en": "Coin Withdrawal Currently Pending",
                             "status": "IN PROGRESS",
@@ -21592,7 +21599,7 @@ export class TransactionsController {
                         dtburs = new Date(dtburs);
                         let dtb = dtburs.toISOString();
 
-                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "FAILED", infodisbursemen, statuscode, {
+                        let updateWithdraw = await this.withdrawsService.updateonewithtracking(partnerTrxid, "Failed", infodisbursemen, statuscode, {
                             "title_id": "Penukaran Coins Gagal",
                             "title_en": "Coin Withdrawal Failed",
                             "status": "FAILED",
