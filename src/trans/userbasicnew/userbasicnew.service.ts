@@ -8236,6 +8236,14 @@ export class UserbasicnewService {
                 category: {
                     $nin: [new Types.ObjectId("66306d4dff1a0000750077e2"), new Types.ObjectId("662731cc56375e3a6b2230a6")]
                 }
+            },
+            // {
+            //     product: {
+            //         $ne: new Types.ObjectId("660f7d90c306d245ed2c206c")
+            //     }
+            // }
+            {
+                typeTransaction: "COIN"
             }
         );
         if (status && status.length > 0) matchAnd.push({
@@ -8736,6 +8744,9 @@ export class UserbasicnewService {
                     coin: "$trans.coin",
                     coinDiscount: { $ifNull: ["$trans.coinDiscount", 0] },
                     totalCoin: "$trans.totalCoin",
+                    price: { $arrayElemAt: ['$trans.detail.amount', 0] },
+                    // priceDiscont: { $ifNull: ["$trans.priceDiscont", 0] },
+                    totalPrice: { $arrayElemAt: ['$trans.detail.totalAmount', 0] },
                     createdAt: "$trans.createdAt",
                     updatedAt: "$trans.updatedAt",
                     status: "$trans.status",
@@ -8896,10 +8907,10 @@ export class UserbasicnewService {
                 $set: {
                     vaNumber: {
                         "$ifNull":
-                        [
-                            { '$arrayElemAt': [ '$detail.payload.va_number', 0 ] },
-                            null
-                        ]
+                            [
+                                { '$arrayElemAt': ['$detail.payload.va_number', 0] },
+                                null
+                            ]
                     }
                 }
             },
@@ -9085,53 +9096,53 @@ export class UserbasicnewService {
                     "noInvoice": "$trans.noInvoice",
                     "discount": {
                         "$ifNull": [
-                        "$trans.diskon",
-                        {
-                            "$cond": {
-                            "if": {
-                                "$eq": [
-                                "$trans.coinDiscount",
-                                0
-                                ]
-                            },
-                            "then": "$trans.priceDiscount",
-                            "else": "$trans.coinDiscount"
+                            "$trans.diskon",
+                            {
+                                "$cond": {
+                                    "if": {
+                                        "$eq": [
+                                            "$trans.coinDiscount",
+                                            0
+                                        ]
+                                    },
+                                    "then": "$trans.priceDiscount",
+                                    "else": "$trans.coinDiscount"
+                                }
                             }
-                        }
                         ]
                     },
                     "price": {
                         "$cond": {
-                        "if": {
-                            "$eq": [
-                            "$trans.type",
-                            "Pembelian Coin"
-                            ]
-                        },
-                        "then": {
-                            "$arrayElemAt": [
-                            "$trans.detail.amount",
-                            0
-                            ]
-                        },
-                        "else": "$trans.price"
+                            "if": {
+                                "$eq": [
+                                    "$trans.type",
+                                    "Pembelian Coin"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$trans.detail.amount",
+                                    0
+                                ]
+                            },
+                            "else": "$trans.price"
                         }
                     },
                     "totalPrice": {
                         "$cond": {
-                        "if": {
-                            "$eq": [
-                            "$trans.type",
-                            "Pembelian Coin"
-                            ]
-                        },
-                        "then": {
-                            "$arrayElemAt": [
-                            "$trans.detail.totalAmount",
-                            0
-                            ]
-                        },
-                        "else": "$trans.totalPrice"
+                            "if": {
+                                "$eq": [
+                                    "$trans.type",
+                                    "Pembelian Coin"
+                                ]
+                            },
+                            "then": {
+                                "$arrayElemAt": [
+                                    "$trans.detail.totalAmount",
+                                    0
+                                ]
+                            },
+                            "else": "$trans.totalPrice"
                         }
                     },
                     "coin": "$trans.coin",
