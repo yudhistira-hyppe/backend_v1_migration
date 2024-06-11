@@ -229,11 +229,16 @@ export class MediastreamingController {
         );
       }
     }
+    //Get ID_SETTING_MAX_BANNED
+    const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
+    const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
 
+    let dataBanned = null;
+    let dataBanned_ = null;
     let statusBanned = "NONE"; 
     if (idBanned!=undefined){
-      let dataBanned = profile.streamBannedHistory;
-      let dataBanned_ = dataBanned.filter(function (el) {
+      dataBanned = profile.streamBannedHistory;
+      dataBanned_ = dataBanned.filter(function (el) {
         return el.idBanned == idBanned;
       });
       if (dataBanned_.length>0){
@@ -257,9 +262,6 @@ export class MediastreamingController {
     let statusAppeal = false;
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
-        //Get ID_SETTING_MAX_BANNED
-        const ID_SETTING_MAX_BANNED = this.configService.get("ID_SETTING_MAX_BANNED");
-        const GET_ID_SETTING_MAX_BANNED = await this.utilsService.getSetting_Mixed(ID_SETTING_MAX_BANNED);
         let statusApprove = "NONE"
 
         let streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
@@ -344,12 +346,27 @@ export class MediastreamingController {
           return Response;
         }
       }else{
+        let dataStream = {};
+        if (dataBanned_ != null) {
+          dataStream["streamBannedDate"] = dataBanned_[0].bannedDate;
+          dataStream["totalPelanggaran"] = dataBanned_[0].userWarning.length;
+          dataStream["streamBannedMax"] = Number(GET_ID_SETTING_MAX_BANNED);
+          if (statusBanned == "ACTIVE") {
+            dataStream["statusAppeal"] = true;
+          } else {
+            dataStream["statusAppeal"] = false;
+          }
+          if (statusBanned == "ACTIVE_BANNED") {
+            dataStream["statusApprove"] = true;
+          } else {
+            dataStream["statusApprove"] = false;
+          }
+        }
+        dataStream["statusBanned"] = statusBanned;
         const Response = {
           response_code: 202,
           statusStream: true,
-          data: {
-            statusBanned: statusBanned,
-          },
+          data: dataStream,
           messages: {
             info: [
               "Succesfully"
@@ -359,12 +376,27 @@ export class MediastreamingController {
         return Response;
       }
     } else {
+      let dataStream = {};
+      if (dataBanned_ !=null){
+        dataStream["streamBannedDate"] = dataBanned_[0].bannedDate;
+        dataStream["totalPelanggaran"] = dataBanned_[0].userWarning.length;
+        dataStream["streamBannedMax"] = Number(GET_ID_SETTING_MAX_BANNED);
+        if (statusBanned == "ACTIVE") {
+          dataStream["statusAppeal"] = true;
+        } else {
+          dataStream["statusAppeal"] = false;
+        }
+        if (statusBanned == "ACTIVE_BANNED") {
+          dataStream["statusApprove"] = true;
+        } else {
+          dataStream["statusApprove"] = false;
+        }
+      }
+      dataStream["statusBanned"] = statusBanned;
       const Response = {
         response_code: 202,
         statusStream: true,
-        data: {
-          statusBanned: statusBanned,
-        },
+        data: dataStream,
         messages: {
           info: [
             "Succesfully"
