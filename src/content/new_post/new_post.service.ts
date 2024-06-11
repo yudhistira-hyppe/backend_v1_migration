@@ -48759,6 +48759,9 @@ export class NewPostService {
                 0
               ]
             },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             "avatar": {
               "mediaBasePath": {
                 "$arrayElemAt": [
@@ -49405,6 +49408,9 @@ export class NewPostService {
             mediaThumbUri: { '$arrayElemAt': [ '$mediaSource.mediaThumbUri', 0 ] },
             fullName: { '$arrayElemAt': [ '$userBasic.fullName', 0 ] },
             username: { '$arrayElemAt': [ '$userBasic.username', 0 ] },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             avatar: {
               mediaBasePath: { '$arrayElemAt': [ '$userBasic.mediaBasePath', 0 ] },
               mediaUri: { '$arrayElemAt': [ '$userBasic.mediaUri', 0 ] },
@@ -50234,6 +50240,9 @@ export class NewPostService {
                 0
               ]
             },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             "avatar": {
               "mediaBasePath": {
                 "$arrayElemAt": [
@@ -50876,6 +50885,9 @@ export class NewPostService {
             mediaThumbUri: { '$arrayElemAt': [ '$mediaSource.mediaThumbUri', 0 ] },
             fullName: { '$arrayElemAt': [ '$userBasic.fullName', 0 ] },
             username: { '$arrayElemAt': [ '$userBasic.username', 0 ] },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             avatar: {
               mediaBasePath: { '$arrayElemAt': [ '$userBasic.mediaBasePath', 0 ] },
               mediaUri: { '$arrayElemAt': [ '$userBasic.mediaUri', 0 ] },
@@ -51389,6 +51401,9 @@ export class NewPostService {
             mediaThumbUri: { '$arrayElemAt': [ '$mediaSource.mediaThumbUri', 0 ] },
             fullName: { '$arrayElemAt': [ '$userBasic.fullName', 0 ] },
             username: { '$arrayElemAt': [ '$userBasic.username', 0 ] },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             avatar: {
               mediaBasePath: { '$arrayElemAt': [ '$userBasic.mediaBasePath', 0 ] },
               mediaUri: { '$arrayElemAt': [ '$userBasic.mediaUri', 0 ] },
@@ -52089,6 +52104,9 @@ export class NewPostService {
             mediaThumbUri: { '$arrayElemAt': [ '$mediaSource.mediaThumbUri', 0 ] },
             fullName: { '$arrayElemAt': [ '$userBasic.fullName', 0 ] },
             username: { '$arrayElemAt': [ '$userBasic.username', 0 ] },
+            "GiftActivation":{
+              $arrayElemAt: ["$userBasic.GiftActivation", 0]
+            },
             avatar: {
               mediaBasePath: { '$arrayElemAt': [ '$userBasic.mediaBasePath', 0 ] },
               mediaUri: { '$arrayElemAt': [ '$userBasic.mediaUri', 0 ] },
