@@ -2405,7 +2405,7 @@ export class TransactionsV2Service {
                                     if: {
                                         $and: [
                                             {
-                                                $eq: ["$coa.coa", "Content Gift"]
+                                                $eq: ["$coa", "Content Gift"]
                                             },
                                             {
                                                 $eq: [{ $arrayElemAt: ["$detail.category", 0] }, "LIVE"]
