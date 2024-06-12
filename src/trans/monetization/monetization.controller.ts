@@ -179,6 +179,11 @@ export class MonetizationController {
     // if (request_json.type !== "COIN" && request_json.type !== "CREDIT" && request_json.type !== "GIFT" && request_json.type !== 'DISCOUNT') { throw new BadRequestException("type must be 'COIN' or 'CREDIT' or 'GIFT' or 'DISCOUNT'"); }
     if (types.indexOf(request_json.type) < 0) { throw new BadRequestException("type must be 'COIN', 'CREDIT', 'GIFT', or 'DISCOUNT'"); }
     let skip = (request_json.page >= 0 ? request_json.page : 0) * request_json.limit;
+    try{
+      this.updatestatus();
+    }catch(e){
+     
+    }
     var data = await this.monetizationService.listAllCoin(skip, request_json.limit, request_json.descending, request_json.type, request_json.name, request_json.from, request_json.to, request_json.stock_gte, request_json.stock_lte, request_json.status, request_json.audiens, request_json.tipegift, request_json.jenisProduk);
 
     var timestamps_end = await this.utilService.getDateTimeString();
@@ -539,5 +544,15 @@ export class MonetizationController {
     updatedata.isSend = true;
     updatedata.updatedAt = await this.utilService.getDateTimeString();
     await this.monetizationService.updateOne(data._id.toString(), updatedata);
+  }
+
+  async updatestatus(){
+    var datastok=null;
+    try{
+      datastok=await this.monetizationService.updateManyStatus();
+    }catch(e){
+      
+    }
+
   }
 }
