@@ -1920,6 +1920,11 @@ export class MediastreamingService {
         }
       },
       {
+        $set: {
+          view_unique: { "$setUnion": ["$view.userId", []] }
+        }
+      },
+      {
         $project: {
           view: {
             $filter: {
@@ -1930,11 +1935,7 @@ export class MediastreamingService {
               }
             }
           },
-        }
-      },
-      {
-        $set: {
-          view_unique: { "$setUnion": ["$view.userId", []] }
+          view_unique: 1
         }
       },
     ];
