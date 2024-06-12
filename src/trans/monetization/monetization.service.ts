@@ -599,7 +599,7 @@ export class MonetizationService {
             //     }
             // })
             matchAnd.push({
-                "stock": {
+                "last_stock": {
                     $gte: stockFrom
                 }
             })
@@ -613,7 +613,7 @@ export class MonetizationService {
             //     }
             // })
             matchAnd.push({
-                "stock": {
+                "last_stock": {
                     $lte: stockTo
                 }
             })
@@ -1030,8 +1030,7 @@ export class MonetizationService {
                 );
         }
 
-        if(skip != null && limit != null)
-        {
+        if (skip != null && limit != null) {
             pipeline.push(
                 {
                     $skip: skip
@@ -1049,419 +1048,418 @@ export class MonetizationService {
         return data;
     }
 
-    async dashboard(start:string, end:string)
-    {   
+    async dashboard(start: string, end: string) {
         var currentdate = new Date(new Date(end).setDate(new Date(end).getDate() + 1));
-      
+
         var dateend = currentdate.toISOString().split("T")[0];
 
         var data = await this.monetData.aggregate([
             {
                 "$match":
                 {
-                    "type":"DISCOUNT",
-                    "active":true,
+                    "type": "DISCOUNT",
+                    "active": true,
                 }
             },
             {
                 "$facet":
                 {
                     "total":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "createdAt":
+                                "$match":
                                 {
-                                    "$gte":start,
-                                    "$lt":dateend
+                                    "createdAt":
+                                    {
+                                        "$gte": start,
+                                        "$lt": dateend
+                                    }
                                 }
-                            }   
-                        },
-                        {
-                            "$group":
+                            },
                             {
-                                "_id":null,
-                                "total":
+                                "$group":
                                 {
-                                    "$sum":"$stock"
+                                    "_id": null,
+                                    "total":
+                                    {
+                                        "$sum": "$stock"
+                                    }
                                 }
-                            }
-                        },
-                    ],
+                            },
+                        ],
                     "popular":
-                    [
-                        {
-                            "$lookup":
+                        [
                             {
-                                "from":"transactionsDiscounts",
-                                "let":
+                                "$lookup":
                                 {
-                                    "fk_id":"$_id"
-                                },
-                                "as":"detail_trans",
-                                "pipeline":
-                                [
+                                    "from": "transactionsDiscounts",
+                                    "let":
                                     {
-                                        "$match":
-                                        {
-                                            "$and":
-                                            [
+                                        "fk_id": "$_id"
+                                    },
+                                    "as": "detail_trans",
+                                    "pipeline":
+                                        [
+                                            {
+                                                "$match":
                                                 {
-                                                    "$expr":
-                                                    {
-                                                        "$eq":
+                                                    "$and":
                                                         [
-                                                            "$idDiscount", "$$fk_id"
+                                                            {
+                                                                "$expr":
+                                                                {
+                                                                    "$eq":
+                                                                        [
+                                                                            "$idDiscount", "$$fk_id"
+                                                                        ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "createdAt":
+                                                                {
+                                                                    "$gte": start,
+                                                                    "$lt": dateend
+                                                                }
+                                                            }
                                                         ]
-                                                    }
-                                                },
+                                                }
+                                            },
+                                            {
+                                                "$group":
                                                 {
-                                                    "createdAt":
+                                                    "_id": null,
+                                                    "total":
                                                     {
-                                                        "$gte":start,
-                                                        "$lt":dateend
+                                                        "$sum": 1
                                                     }
                                                 }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "$group":
-                                        {
-                                            "_id":null,
-                                            "total":
-                                            {
-                                                "$sum":1
                                             }
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "$set":
+                                        ]
+                                }
+                            },
                             {
-                                "gettotal":
+                                "$set":
                                 {
-                                    "$arrayElemAt":
-                                    [
-                                        "$detail_trans.total", 0
-                                    ]
+                                    "gettotal":
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$detail_trans.total", 0
+                                            ]
+                                    }
+                                }
+                            },
+                            {
+                                "$sort":
+                                {
+                                    "gettotal": -1
+                                }
+                            },
+                            {
+                                "$limit": 5
+                            },
+                            {
+                                "$project":
+                                {
+                                    _id: 1,
+                                    code_package: 1,
+                                    package_id: 1,
+                                    name: 1,
+                                    total:
+                                    {
+                                        "$ifNull":
+                                            [
+                                                "$gettotal",
+                                                0
+                                            ]
+                                    },
                                 }
                             }
-                        },
-                        {
-                            "$sort":
-                            {
-                                "gettotal":-1
-                            }
-                        },
-                        {
-                            "$limit":5
-                        },
-                        {
-                            "$project":
-                            {
-                                _id:1,
-                                code_package:1,
-                                package_id:1,
-                                name:1,
-                                total:
-                                {
-                                    "$ifNull":
-                                    [
-                                        "$gettotal",
-                                        0
-                                    ]
-                                },
-                            }
-                        }
-                    ],
+                        ],
                     "chart_public":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "audiens":"PUBLIC"
-                            }
-                        },
-                        {
-                            "$lookup":
-                            {
-                                "from":"transactionsDiscounts",
-                                "let":
+                                "$match":
                                 {
-                                    "fk_id":"$_id",
-                                    "created_id":
+                                    "audiens": "PUBLIC"
+                                }
+                            },
+                            {
+                                "$lookup":
+                                {
+                                    "from": "transactionsDiscounts",
+                                    "let":
                                     {
-                                        "$substr":
-                                        [
-                                            "$createdAt", 0, 10
-                                        ]
-                                    }
-                                },
-                                "as":"detail_trans",
-                                "pipeline":
-                                [
-                                    {
-                                        "$match":
+                                        "fk_id": "$_id",
+                                        "created_id":
                                         {
-                                            "$and":
-                                            [
+                                            "$substr":
+                                                [
+                                                    "$createdAt", 0, 10
+                                                ]
+                                        }
+                                    },
+                                    "as": "detail_trans",
+                                    "pipeline":
+                                        [
+                                            {
+                                                "$match":
                                                 {
-                                                    "$expr":
-                                                    {
-                                                        "$eq":
+                                                    "$and":
                                                         [
-                                                            "$idDiscount", "$$fk_id"
+                                                            {
+                                                                "$expr":
+                                                                {
+                                                                    "$eq":
+                                                                        [
+                                                                            "$idDiscount", "$$fk_id"
+                                                                        ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "$expr":
+                                                                {
+                                                                    "$gte":
+                                                                        [
+                                                                            "$transactionDate", "$$created_id"
+                                                                        ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "transactionDate":
+                                                                {
+                                                                    "$lt": dateend
+                                                                }
+                                                            }
                                                         ]
-                                                    }
-                                                },
+                                                }
+                                            },
+                                            {
+                                                "$project":
                                                 {
-                                                    "$expr":
+                                                    "tanggal":
                                                     {
-                                                        "$gte":
-                                                        [
-                                                            "$transactionDate", "$$created_id"
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "transactionDate":
-                                                    {
-                                                        "$lt":dateend
+                                                        "$substr":
+                                                            [
+                                                                "$transactionDate",
+                                                                0,
+                                                                10
+                                                            ]
                                                     }
                                                 }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "$project":
-                                        {
-                                            "tanggal":
+                                            },
                                             {
-                                                "$substr":
-                                                [
-                                                    "$transactionDate",
-                                                    0,
-                                                    10
-                                                ]
+                                                "$group":
+                                                {
+                                                    "_id": "$tanggal",
+                                                    "total":
+                                                    {
+                                                        "$sum": 1
+                                                    }
+                                                }
                                             }
-                                        }
-                                    },
-                                    {
-                                        "$group":
-                                        {
-                                            "_id":"$tanggal",
-                                            "total":
-                                            {
-                                                "$sum":1
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "$unwind":
+                                        ]
+                                }
+                            },
                             {
-                                path:"$detail_trans"
-                            }
-                        },
-                        {
-                            "$group":
-                            {
-                                "_id":"$detail_trans._id",
-                                "total":
+                                "$unwind":
                                 {
-                                    "$sum":"$detail_trans.total"
+                                    path: "$detail_trans"
+                                }
+                            },
+                            {
+                                "$group":
+                                {
+                                    "_id": "$detail_trans._id",
+                                    "total":
+                                    {
+                                        "$sum": "$detail_trans.total"
+                                    }
+                                }
+                            },
+                            {
+                                "$sort":
+                                {
+                                    "_id": 1
                                 }
                             }
-                        },
-                        {
-                            "$sort":
-                            {
-                                "_id":1
-                            }
-                        }
-                    ],
+                        ],
                     "chart_special":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "audiens":"SPECIAL"
-                            }
-                        },
-                        {
-                            "$lookup":
-                            {
-                                "from":"transactionsDiscounts",
-                                "let":
+                                "$match":
                                 {
-                                    "fk_id":"$_id",
-                                    "created_id":
+                                    "audiens": "SPECIAL"
+                                }
+                            },
+                            {
+                                "$lookup":
+                                {
+                                    "from": "transactionsDiscounts",
+                                    "let":
                                     {
-                                        "$substr":
-                                        [
-                                            "$createdAt", 0, 10
-                                        ]
-                                    },
-                                },
-                                "as":"detail_trans",
-                                "pipeline":
-                                [
-                                    {
-                                        "$match":
+                                        "fk_id": "$_id",
+                                        "created_id":
                                         {
-                                            "$and":
-                                            [
+                                            "$substr":
+                                                [
+                                                    "$createdAt", 0, 10
+                                                ]
+                                        },
+                                    },
+                                    "as": "detail_trans",
+                                    "pipeline":
+                                        [
+                                            {
+                                                "$match":
                                                 {
-                                                    "$expr":
-                                                    {
-                                                        "$eq":
+                                                    "$and":
                                                         [
-                                                            "$idDiscount", "$$fk_id"
+                                                            {
+                                                                "$expr":
+                                                                {
+                                                                    "$eq":
+                                                                        [
+                                                                            "$idDiscount", "$$fk_id"
+                                                                        ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "$expr":
+                                                                {
+                                                                    "$gte":
+                                                                        [
+                                                                            "$transactionDate", "$$created_id"
+                                                                        ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "transactionDate":
+                                                                {
+                                                                    "$lt": dateend
+                                                                }
+                                                            }
                                                         ]
-                                                    }
-                                                },
+                                                }
+                                            },
+                                            {
+                                                "$project":
                                                 {
-                                                    "$expr":
+                                                    "tanggal":
                                                     {
-                                                        "$gte":
-                                                        [
-                                                            "$transactionDate", "$$created_id"
-                                                        ]
-                                                    }
-                                                },
-                                                {
-                                                    "transactionDate":
-                                                    {
-                                                        "$lt":dateend
+                                                        "$substr":
+                                                            [
+                                                                "$transactionDate",
+                                                                0,
+                                                                10
+                                                            ]
                                                     }
                                                 }
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "$project":
-                                        {
-                                            "tanggal":
+                                            },
                                             {
-                                                "$substr":
-                                                [
-                                                    "$transactionDate",
-                                                    0,
-                                                    10
-                                                ]
+                                                "$group":
+                                                {
+                                                    "_id": "$tanggal",
+                                                    "total":
+                                                    {
+                                                        "$sum": 1
+                                                    }
+                                                }
                                             }
-                                        }
-                                    },
+                                        ]
+                                }
+                            },
+                            {
+                                "$unwind":
+                                {
+                                    path: "$detail_trans"
+                                }
+                            },
+                            {
+                                "$group":
+                                {
+                                    "_id": "$detail_trans._id",
+                                    "total":
                                     {
-                                        "$group":
-                                        {
-                                            "_id":"$tanggal",
-                                            "total":
-                                            {
-                                                "$sum":1
-                                            }
-                                        }
+                                        "$sum": "$detail_trans.total"
                                     }
-                                ]
-                            }
-                        },
-                        {
-                            "$unwind":
+                                }
+                            },
                             {
-                                path:"$detail_trans"
-                            }
-                        },
-                        {
-                            "$group":
-                            {
-                                "_id":"$detail_trans._id",
-                                "total":
+                                "$sort":
                                 {
-                                    "$sum":"$detail_trans.total"
+                                    "_id": 1
                                 }
                             }
-                        },
-                        {
-                            "$sort":
-                            {
-                                "_id":1
-                            }
-                        }
-                    ],
+                        ],
                     "total_stock_first_public":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "audiens":"PUBLIC"
-                            }
-                        },
-                        {
-                            "$project":
-                            {
-                                "tanggal":
+                                "$match":
                                 {
-                                    "$substr":
-                                    [
-                                        "$createdAt",
-                                        0,
-                                        10
-                                    ]
-                                },
-                                "total":"$stock"
-                            }
-                        },
-                        {
-                            "$group":
+                                    "audiens": "PUBLIC"
+                                }
+                            },
                             {
-                                "_id":"$tanggal",
-                                "total":
+                                "$project":
                                 {
-                                    "$sum":"$total"
+                                    "tanggal":
+                                    {
+                                        "$substr":
+                                            [
+                                                "$createdAt",
+                                                0,
+                                                10
+                                            ]
+                                    },
+                                    "total": "$stock"
+                                }
+                            },
+                            {
+                                "$group":
+                                {
+                                    "_id": "$tanggal",
+                                    "total":
+                                    {
+                                        "$sum": "$total"
+                                    }
                                 }
                             }
-                        }
-                    ],
+                        ],
                     "total_stock_first_special":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "audiens":"SPECIAL"
-                            }
-                        },
-                        {
-                            "$project":
-                            {
-                                "tanggal":
+                                "$match":
                                 {
-                                    "$substr":
-                                    [
-                                        "$createdAt",
-                                        0,
-                                        10
-                                    ]
-                                },
-                                "total":"$stock"
-                            }
-                        },
-                        {
-                            "$group":
+                                    "audiens": "SPECIAL"
+                                }
+                            },
                             {
-                                "_id":"$tanggal",
-                                "total":
+                                "$project":
                                 {
-                                    "$sum":"$total"
+                                    "tanggal":
+                                    {
+                                        "$substr":
+                                            [
+                                                "$createdAt",
+                                                0,
+                                                10
+                                            ]
+                                    },
+                                    "total": "$stock"
+                                }
+                            },
+                            {
+                                "$group":
+                                {
+                                    "_id": "$tanggal",
+                                    "total":
+                                    {
+                                        "$sum": "$total"
+                                    }
                                 }
                             }
-                        }
-                    ]
+                        ]
                 }
             },
             {
@@ -1471,15 +1469,15 @@ export class MonetizationService {
                     {
                         "$filter":
                         {
-                            "input":"$chart_public",
-                            "as":"getData",
+                            "input": "$chart_public",
+                            "as": "getData",
                             "cond":
                             {
                                 "$lt":
-                                [
-                                    "$$getData._id",
-                                    start
-                                ]
+                                    [
+                                        "$$getData._id",
+                                        start
+                                    ]
                             }
                         }
                     },
@@ -1487,15 +1485,15 @@ export class MonetizationService {
                     {
                         "$filter":
                         {
-                            "input":"$chart_special",
-                            "as":"getData",
+                            "input": "$chart_special",
+                            "as": "getData",
                             "cond":
                             {
                                 "$lt":
-                                [
-                                    "$$getData._id",
-                                    start
-                                ]
+                                    [
+                                        "$$getData._id",
+                                        start
+                                    ]
                             }
                         }
                     },
@@ -1503,15 +1501,15 @@ export class MonetizationService {
                     {
                         "$filter":
                         {
-                            "input":"$total_stock_first_public",
-                            "as":"getData",
+                            "input": "$total_stock_first_public",
+                            "as": "getData",
                             "cond":
                             {
                                 "$lt":
-                                [
-                                    "$$getData._id",
-                                    start
-                                ]
+                                    [
+                                        "$$getData._id",
+                                        start
+                                    ]
                             }
                         }
                     },
@@ -1519,15 +1517,15 @@ export class MonetizationService {
                     {
                         "$filter":
                         {
-                            "input":"$total_stock_first_special",
-                            "as":"getData",
+                            "input": "$total_stock_first_special",
+                            "as": "getData",
                             "cond":
                             {
                                 "$lt":
-                                [
-                                    "$$getData._id",
-                                    start
-                                ]
+                                    [
+                                        "$$getData._id",
+                                        start
+                                    ]
                             }
                         }
                     },
@@ -1535,27 +1533,27 @@ export class MonetizationService {
                     {
                         "$filter":
                         {
-                            "input":"$chart_public",
-                            "as":"getData",
+                            "input": "$chart_public",
+                            "as": "getData",
                             "cond":
                             {
                                 "$and":
-                                [
-                                    {
-                                        "$gte":
-                                        [
-                                            "$$getData._id",
-                                            start
-                                        ]
-                                    },
-                                    {
-                                        "$lt":
-                                        [
-                                            "$$getData._id",
-                                            dateend
-                                        ]
-                                    }
-                                ]
+                                    [
+                                        {
+                                            "$gte":
+                                                [
+                                                    "$$getData._id",
+                                                    start
+                                                ]
+                                        },
+                                        {
+                                            "$lt":
+                                                [
+                                                    "$$getData._id",
+                                                    dateend
+                                                ]
+                                        }
+                                    ]
                             }
                         }
                     },
@@ -1563,27 +1561,27 @@ export class MonetizationService {
                     {
                         "$filter":
                         {
-                            "input":"$chart_special",
-                            "as":"getData",
+                            "input": "$chart_special",
+                            "as": "getData",
                             "cond":
                             {
                                 "$and":
-                                [
-                                    {
-                                        "$gte":
-                                        [
-                                            "$$getData._id",
-                                            start
-                                        ]
-                                    },
-                                    {
-                                        "$lt":
-                                        [
-                                            "$$getData._id",
-                                            dateend
-                                        ]
-                                    }
-                                ]
+                                    [
+                                        {
+                                            "$gte":
+                                                [
+                                                    "$$getData._id",
+                                                    start
+                                                ]
+                                        },
+                                        {
+                                            "$lt":
+                                                [
+                                                    "$$getData._id",
+                                                    dateend
+                                                ]
+                                        }
+                                    ]
                             }
                         }
                     },
@@ -1595,38 +1593,38 @@ export class MonetizationService {
                     "total_created":
                     {
                         "$arrayElemAt":
-                        [
-                            "$total.total", 0
-                        ]   
+                            [
+                                "$total.total", 0
+                            ]
                     },
-                    "popular_discount":"$popular",
-                    list_used_chart_public:1,
-                    list_used_chart_special:1,
+                    "popular_discount": "$popular",
+                    list_used_chart_public: 1,
+                    list_used_chart_special: 1,
                     "total_stock_temp_public":
                     {
                         "$filter":
                         {
-                            "input":"$total_stock_first_public",
-                            "as":"getData",
+                            "input": "$total_stock_first_public",
+                            "as": "getData",
                             "cond":
                             {
                                 "$and":
-                                [
-                                    {
-                                        "$gte":
-                                        [
-                                            "$$getData._id",
-                                            start
-                                        ]
-                                    },
-                                    {
-                                        "$lt":
-                                        [
-                                            "$$getData._id",
-                                            dateend
-                                        ]
-                                    }
-                                ]
+                                    [
+                                        {
+                                            "$gte":
+                                                [
+                                                    "$$getData._id",
+                                                    start
+                                                ]
+                                        },
+                                        {
+                                            "$lt":
+                                                [
+                                                    "$$getData._id",
+                                                    dateend
+                                                ]
+                                        }
+                                    ]
                             }
                         }
                     },
@@ -1634,123 +1632,123 @@ export class MonetizationService {
                     {
                         "$filter":
                         {
-                            "input":"$total_stock_first_special",
-                            "as":"getData",
+                            "input": "$total_stock_first_special",
+                            "as": "getData",
                             "cond":
                             {
                                 "$and":
-                                [
-                                    {
-                                        "$gte":
-                                        [
-                                            "$$getData._id",
-                                            start
-                                        ]
-                                    },
-                                    {
-                                        "$lt":
-                                        [
-                                            "$$getData._id",
-                                            dateend
-                                        ]
-                                    }
-                                ]
+                                    [
+                                        {
+                                            "$gte":
+                                                [
+                                                    "$$getData._id",
+                                                    start
+                                                ]
+                                        },
+                                        {
+                                            "$lt":
+                                                [
+                                                    "$$getData._id",
+                                                    dateend
+                                                ]
+                                        }
+                                    ]
                             }
                         }
                     },
                     "total_available_public_before":
                     {
                         "$subtract":
-                        [
-                            {
-                                "$sum":
-                                [
-                                    "$list_available_chart_public_before_filter.total",
-                                ]
-                            },
-                            {
-                                "$cond":
+                            [
                                 {
-                                    "if":
-                                    {
-                                        "$eq":
+                                    "$sum":
                                         [
-                                            {
-                                                "$size":"$list_used_chart_public_before_filter"
-                                            },
-                                            0
+                                            "$list_available_chart_public_before_filter.total",
                                         ]
-                                    },
-                                    "then":0,
-                                    "else":
+                                },
+                                {
+                                    "$cond":
                                     {
-                                        "$sum":
-                                        [
-                                            "$list_used_chart_public_before_filter.total"
-                                        ]
+                                        "if":
+                                        {
+                                            "$eq":
+                                                [
+                                                    {
+                                                        "$size": "$list_used_chart_public_before_filter"
+                                                    },
+                                                    0
+                                                ]
+                                        },
+                                        "then": 0,
+                                        "else":
+                                        {
+                                            "$sum":
+                                                [
+                                                    "$list_used_chart_public_before_filter.total"
+                                                ]
+                                        }
                                     }
                                 }
-                            }
-                        ]
+                            ]
                     },
                     "total_available_special_before":
                     {
                         "$subtract":
-                        [
-                            {
-                                "$sum":
-                                [
-                                    "$list_available_chart_special_before_filter.total",
-                                ]
-                            },
-                            {
-                                "$cond":
+                            [
                                 {
-                                    "if":
-                                    {
-                                        "$eq":
+                                    "$sum":
                                         [
-                                            {
-                                                "$size":"$list_used_chart_special_before_filter"
-                                            },
-                                            0
+                                            "$list_available_chart_special_before_filter.total",
                                         ]
-                                    },
-                                    "then":0,
-                                    "else":
+                                },
+                                {
+                                    "$cond":
                                     {
-                                        "$sum":
-                                        [
-                                            "$list_used_chart_special_before_filter.total"
-                                        ]
+                                        "if":
+                                        {
+                                            "$eq":
+                                                [
+                                                    {
+                                                        "$size": "$list_used_chart_special_before_filter"
+                                                    },
+                                                    0
+                                                ]
+                                        },
+                                        "then": 0,
+                                        "else":
+                                        {
+                                            "$sum":
+                                                [
+                                                    "$list_used_chart_special_before_filter.total"
+                                                ]
+                                        }
                                     }
                                 }
-                            }
-                        ]
+                            ]
                     },
                     "total_used_discount_public":
                     {
                         "$sum":
-                        [
-                            "$list_used_chart_public.total"
-                        ]
+                            [
+                                "$list_used_chart_public.total"
+                            ]
                     },
                     "total_used_discount_special":
                     {
                         "$sum":
-                        [
-                            "$list_used_chart_special.total"
-                        ]
+                            [
+                                "$list_used_chart_special.total"
+                            ]
                     },
                 }
             }
-        ]);  
-        
+        ]);
+
         //untuk nyari chart penggunaan diskon public
         var startdate = new Date(start);
         startdate.setDate(startdate.getDate() - 1);
         var tempdate = new Date(startdate).toISOString().split("T")[0];
-        var used_public  = [];
+        var used_public = [];
         //kalo lama, berarti error disini!!
         while (tempdate != dateend) {
             var temp = new Date(tempdate);
@@ -1775,7 +1773,7 @@ export class MonetizationService {
         var startdate = new Date(start);
         startdate.setDate(startdate.getDate() - 1);
         var tempdate = new Date(startdate).toISOString().split("T")[0];
-        var used_special  = [];
+        var used_special = [];
         //kalo lama, berarti error disini!!
         while (tempdate != dateend) {
             var temp = new Date(tempdate);
@@ -1800,7 +1798,7 @@ export class MonetizationService {
         var startdate = new Date(start);
         startdate.setDate(startdate.getDate() - 1);
         var tempdate = new Date(startdate).toISOString().split("T")[0];
-        var available_public  = [];
+        var available_public = [];
         var total_discount_public = parseInt(data[0].total_available_public_before);
         //kalo lama, berarti error disini!!
         while (tempdate != dateend) {
@@ -1820,8 +1818,7 @@ export class MonetizationService {
                     total: total_discount_public
                 }
             }
-            else
-            {
+            else {
                 total_discount_public = total_discount_public + obj.total - checkexist.total;
                 obj.total = total_discount_public;
             }
@@ -1833,7 +1830,7 @@ export class MonetizationService {
         var startdate = new Date(start);
         startdate.setDate(startdate.getDate() - 1);
         var tempdate = new Date(startdate).toISOString().split("T")[0];
-        var available_special  = [];
+        var available_special = [];
         var total_discount_special = parseInt(data[0].total_available_special_before);
         //kalo lama, berarti error disini!!
         while (tempdate != dateend) {
@@ -1853,8 +1850,7 @@ export class MonetizationService {
                     total: total_discount_special
                 }
             }
-            else
-            {
+            else {
                 total_discount_special = total_discount_special + obj.total - checkexist.total;
                 obj.total = total_discount_special;
             }
@@ -1862,18 +1858,18 @@ export class MonetizationService {
             available_special.push(obj);
         }
 
-        var result = 
+        var result =
         {
-            total_created:data[0].total_created,
-            popular_discount:data[0].popular_discount,
-            list_used_chart_public:used_public,
-            list_used_chart_special:used_special,
-            list_available_chart_public:available_public,
-            list_available_chart_special:available_special,
-            total_available_discount_public:total_discount_public,
-            total_available_discount_special:total_discount_special,
-            total_used_discount_public:data[0].total_used_discount_public,
-            total_used_discount_special:data[0].total_used_discount_special,
+            total_created: data[0].total_created,
+            popular_discount: data[0].popular_discount,
+            list_used_chart_public: used_public,
+            list_used_chart_special: used_special,
+            list_available_chart_public: available_public,
+            list_available_chart_special: available_special,
+            total_available_discount_public: total_discount_public,
+            total_available_discount_special: total_discount_special,
+            total_used_discount_public: data[0].total_used_discount_public,
+            total_used_discount_special: data[0].total_used_discount_special,
         };
 
         return result;
@@ -2205,8 +2201,7 @@ export class MonetizationService {
         return data;
     }
 
-    async discount_usage_general(target:string, username:string, transaction_id:string, startdate:string, enddate:string, status:string, page:number, limit:number)
-    {
+    async discount_usage_general(target: string, username: string, transaction_id: string, startdate: string, enddate: string, status: string, page: number, limit: number) {
         var pipeline = [];
         var facet = {};
 
@@ -2223,36 +2218,36 @@ export class MonetizationService {
             {
                 "$lookup":
                 {
-                    "from":"transactionsDiscounts",
+                    "from": "transactionsDiscounts",
                     "as": "trans_data_2",
-                    "let": 
-                    { 
+                    "let":
+                    {
                         "disc_id": '$_id'
                     },
                     "pipeline":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "$expr":
+                                "$match":
                                 {
-                                    "$eq":
-                                    [
-                                        "$$disc_id", "$idDiscount"
-                                    ]
+                                    "$expr":
+                                    {
+                                        "$eq":
+                                            [
+                                                "$$disc_id", "$idDiscount"
+                                            ]
+                                    }
                                 }
                             }
-                        }
-                    ]
+                        ]
                 }
             },
             {
                 "$project":
                 {
-                    "tipe":"$audiens",
+                    "tipe": "$audiens",
                     "total":
                     {
-                        "$size":"$trans_data_2"
+                        "$size": "$trans_data_2"
                     }
                 }
             }
@@ -2263,85 +2258,85 @@ export class MonetizationService {
             {
                 "$lookup":
                 {
-                    "from":"transactionsDiscounts",
+                    "from": "transactionsDiscounts",
                     "as": "trans_data",
-                    "let": 
-                    { 
+                    "let":
+                    {
                         "idDiscount": '$_id'
                     },
                     "pipeline":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "$expr":
+                                "$match":
                                 {
-                                    "$eq":
-                                    [
-                                        "$$idDiscount","$idDiscount"
-                                    ]
+                                    "$expr":
+                                    {
+                                        "$eq":
+                                            [
+                                                "$$idDiscount", "$idDiscount"
+                                            ]
+                                    }
+                                }
+                            },
+                            {
+                                "$lookup":
+                                {
+                                    from: "transactionsV2",
+                                    localField: "idTransaction",
+                                    foreignField: "_id",
+                                    as: "trans_detail"
+                                }
+                            },
+                            {
+                                "$project":
+                                {
+                                    _id:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail._id", 0
+                                            ]
+                                    },
+                                    idUser: 1,
+                                    idTransaction:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.idTransaction", 0
+                                            ]
+                                    },
+                                    coin:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.coin", 0
+                                            ]
+                                    },
+                                    price:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.price", 0
+                                            ]
+                                    },
+                                    totalCoin:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.totalCoin", 0
+                                            ]
+                                    },
+                                    totalPrice:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.totalPrice", 0
+                                            ]
+                                    },
+                                    createdAt: 1
                                 }
                             }
-                        },
-                        {
-                            "$lookup":
-                            {
-                                from:"transactionsV2",
-                                localField:"idTransaction",
-                                foreignField:"_id",
-                                as:"trans_detail"
-                            }
-                        },
-                        {
-                            "$project":
-                            {
-                                _id:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail._id", 0
-                                    ]
-                                },
-                                idUser:1,
-                                idTransaction:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.idTransaction", 0
-                                    ]
-                                },
-                                coin:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.coin", 0
-                                    ]
-                                },
-                                price:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.price", 0
-                                    ]
-                                },
-                                totalCoin:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.totalCoin", 0
-                                    ]
-                                },
-                                totalPrice:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.totalPrice", 0
-                                    ]
-                                },
-                                createdAt:1
-                            }
-                        }
-                    ]
+                        ]
                 }
             },
             {
@@ -2350,19 +2345,19 @@ export class MonetizationService {
                     "getuserID":
                     {
                         "$arrayElemAt":
-                        [
-                            "$trans_data.idUser", 0
-                        ]
+                            [
+                                "$trans_data.idUser", 0
+                            ]
                     }
                 }
             },
             {
                 "$lookup":
                 {
-                    from:"newUserBasics",
-                    localField:"getuserID",
-                    foreignField:"_id",
-                    as:"list_user"
+                    from: "newUserBasics",
+                    localField: "getuserID",
+                    foreignField: "_id",
+                    as: "list_user"
                 }
             },
             {
@@ -2371,122 +2366,122 @@ export class MonetizationService {
                     "username":
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$list_user.username", 0
-                                ]
-                            },
-                            null
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$list_user.username", 0
+                                        ]
+                                },
+                                null
+                            ]
                     },
                     "fullName":
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$list_user.fullName", 0
-                                ]
-                            },
-                            null
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$list_user.fullName", 0
+                                        ]
+                                },
+                                null
+                            ]
                     },
                     "email":
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$list_user.email", 0
-                                ]
-                            },
-                            null
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$list_user.email", 0
+                                        ]
+                                },
+                                null
+                            ]
                     },
                     "avatar":
                     {
                         "mediaBasePath":
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$list_user.mediaBasePath", 0
-                                    ]
-                                },
-                                null
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$list_user.mediaBasePath", 0
+                                            ]
+                                    },
+                                    null
+                                ]
                         },
                         "mediaEndpoint":
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$list_user.mediaEndpoint", 0
-                                    ]
-                                },
-                                null
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$list_user.mediaEndpoint", 0
+                                            ]
+                                    },
+                                    null
+                                ]
                         },
                         "mediaType":
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$list_user.mediaType", 0
-                                    ]
-                                },
-                                null
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$list_user.mediaType", 0
+                                            ]
+                                    },
+                                    null
+                                ]
                         },
                         "mediaUri":
                         {
                             "$ifNull":
-                            [
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$list_user.mediaUri", 0
-                                    ]
-                                },
-                                null
-                            ]
+                                [
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$list_user.mediaUri", 0
+                                            ]
+                                    },
+                                    null
+                                ]
                         },
                     },
                     "transaction_date":
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$trans_data.createdAt", 0
-                                ]
-                            },
-                            null //atau bisa juga diganti jadi tanggal now
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$trans_data.createdAt", 0
+                                        ]
+                                },
+                                null //atau bisa juga diganti jadi tanggal now
+                            ]
                     },
                     "transaction_ID":
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$trans_data.idTransaction", 0
-                                ]
-                            },
-                            "KOSONG" //atau bisa juga diganti jadi tanggal now
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$trans_data.idTransaction", 0
+                                        ]
+                                },
+                                "KOSONG" //atau bisa juga diganti jadi tanggal now
+                            ]
                     },
                     "used_discount":
                     {
@@ -2495,13 +2490,13 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$trans_data",
-                                    []
-                                ]
+                                    [
+                                        "$trans_data",
+                                        []
+                                    ]
                             },
-                            then:false,
-                            else:true
+                            then: false,
+                            else: true
                         }
                     },
                     total:
@@ -2511,96 +2506,90 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$satuan_diskon", "COIN"
-                                ]
+                                    [
+                                        "$satuan_diskon", "COIN"
+                                    ]
                             },
                             then:
                             {
                                 "$arrayElemAt":
-                                [
-                                    "$trans_data.totalCoin", 0
-                                ]
+                                    [
+                                        "$trans_data.totalCoin", 0
+                                    ]
                             },
                             else:
                             {
                                 "$arrayElemAt":
-                                [
-                                    "$trans_data.totalPrice", 0
-                                ]
+                                    [
+                                        "$trans_data.totalPrice", 0
+                                    ]
                             }
                         }
                     }
                 }
             }
         );
-        
+
         var match = [];
-        if(username != null)
-        {
+        if (username != null) {
             match.push(
                 {
                     "$or":
-                    [
-                        {
-                            "username":
+                        [
                             {
-                                "$regex":username,
-                                "$options":"i"
-                            }
-                        },
-                        {
-                            "email":
+                                "username":
+                                {
+                                    "$regex": username,
+                                    "$options": "i"
+                                }
+                            },
                             {
-                                "$regex":username,
-                                "$options":"i"
-                            }
-                        },
-                    ]
+                                "email":
+                                {
+                                    "$regex": username,
+                                    "$options": "i"
+                                }
+                            },
+                        ]
                 }
             );
         }
 
-        if(transaction_id != null)
-        {
+        if (transaction_id != null) {
             match.push(
                 {
                     "transaction_ID":
                     {
-                        "$regex":transaction_id,
-                        "$options":"i"
+                        "$regex": transaction_id,
+                        "$options": "i"
                     }
                 }
             );
         }
 
-        if(status != null)
-        {
-            if(status.toString() == "true")
-            {
+        if (status != null) {
+            if (status.toString() == "true") {
                 match.push(
                     {
-                        "used_discount":true
+                        "used_discount": true
                     }
-                ); 
+                );
             }
-            else
-            {
+            else {
                 match.push(
                     {
-                        "used_discount":false
+                        "used_discount": false
                     }
                 );
             }
         }
 
-        if(startdate != null && enddate != null)
-        {
+        if (startdate != null && enddate != null) {
             var before = new Date(startdate).toISOString().split("T")[0];
             var input = new Date(enddate);
             input.setDate(input.getDate() + 1);
             var after = new Date(input).toISOString().split("T")[0];
-            
+
             match.push(
                 {
                     "transaction_date":
@@ -2612,26 +2601,24 @@ export class MonetizationService {
             );
         }
 
-        if(match.length != 0)
-        {
+        if (match.length != 0) {
             facetAggregate.push(
                 {
                     "$match":
                     {
-                        "$and":match
+                        "$and": match
                     }
                 }
-            );    
+            );
         }
 
-        if(page != null && limit != null)
-        {
+        if (page != null && limit != null) {
             facetAggregate.push(
                 {
-                    "$skip":page * limit
+                    "$skip": page * limit
                 },
                 {
-                    "$limit":limit
+                    "$limit": limit
                 }
             )
         }
@@ -2639,7 +2626,7 @@ export class MonetizationService {
         facet['list'] = facetAggregate;
         pipeline.push(
             {
-                "$facet":facet
+                "$facet": facet
             }
         );
 
@@ -2650,8 +2637,7 @@ export class MonetizationService {
         return data;
     }
 
-    async discount_usage_special(target:string, username:string, transaction_id:string, startdate:string, enddate:string, status:string, page:number, limit:number)
-    {
+    async discount_usage_special(target: string, username: string, transaction_id: string, startdate: string, enddate: string, status: string, page: number, limit: number) {
         var pipeline = [];
         var facet = {};
 
@@ -2668,36 +2654,36 @@ export class MonetizationService {
             {
                 "$lookup":
                 {
-                    "from":"transactionsDiscounts",
+                    "from": "transactionsDiscounts",
                     "as": "trans_data_2",
-                    "let": 
-                    { 
+                    "let":
+                    {
                         "disc_id": '$_id'
                     },
                     "pipeline":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "$expr":
+                                "$match":
                                 {
-                                    "$eq":
-                                    [
-                                        "$$disc_id", "$idDiscount"
-                                    ]
+                                    "$expr":
+                                    {
+                                        "$eq":
+                                            [
+                                                "$$disc_id", "$idDiscount"
+                                            ]
+                                    }
                                 }
                             }
-                        }
-                    ]
+                        ]
                 }
             },
             {
                 "$project":
                 {
-                    "tipe":"$audiens",
+                    "tipe": "$audiens",
                     "total":
                     {
-                        "$size":"$trans_data_2"
+                        "$size": "$trans_data_2"
                     }
                 }
             }
@@ -2708,206 +2694,206 @@ export class MonetizationService {
             {
                 "$lookup":
                 {
-                    "from":"newUserBasics",
+                    "from": "newUserBasics",
                     "as": "user_data",
-                    "let": 
-                    { 
-                        local_id: '$audiens_user' 
+                    "let":
+                    {
+                        local_id: '$audiens_user'
                     },
-                    "pipeline": 
-                    [
-                        {
-                            "$match":
+                    "pipeline":
+                        [
                             {
-                                "$expr":
+                                "$match":
                                 {
-                                    "$in":
-                                    [
-                                        "$_id", "$$local_id"
-                                    ]
+                                    "$expr":
+                                    {
+                                        "$in":
+                                            [
+                                                "$_id", "$$local_id"
+                                            ]
+                                    }
                                 }
-                            }
-                        },
-                    ]
+                            },
+                        ]
                 }
             },
             {
                 "$set":
                 {
-                    "list_user":"$user_data"
+                    "list_user": "$user_data"
                 }
             },
             {
                 "$unwind":
                 {
-                    "path":"$list_user",
-                    "preserveNullAndEmptyArrays":true
+                    "path": "$list_user",
+                    "preserveNullAndEmptyArrays": true
                 }
             },
             {
                 "$lookup":
                 {
-                    "from":"transactionsDiscounts",
+                    "from": "transactionsDiscounts",
                     "as": "trans_data",
-                    "let": 
-                    { 
+                    "let":
+                    {
                         "idUser": '$list_user._id',
                         "idDiscount": '$_id'
                     },
                     "pipeline":
-                    [
-                        {
-                            "$match":
+                        [
                             {
-                                "$and":
-                                [
+                                "$match":
+                                {
+                                    "$and":
+                                        [
+                                            {
+                                                "$expr":
+                                                {
+                                                    "$eq":
+                                                        [
+                                                            "$$idUser", "$idUser"
+                                                        ]
+                                                }
+                                            },
+                                            {
+                                                "$expr":
+                                                {
+                                                    "$eq":
+                                                        [
+                                                            "$$idDiscount", "$idDiscount"
+                                                        ]
+                                                }
+                                            }
+                                        ]
+                                }
+                            },
+                            {
+                                "$lookup":
+                                {
+                                    from: "transactionsV2",
+                                    localField: "idTransaction",
+                                    foreignField: "_id",
+                                    as: "trans_detail"
+                                }
+                            },
+                            {
+                                "$project":
+                                {
+                                    _id:
                                     {
-                                        "$expr":
-                                        {
-                                            "$eq":
+                                        "$arrayElemAt":
                                             [
-                                                "$$idUser","$idUser"
+                                                "$trans_detail._id", 0
                                             ]
-                                        }
                                     },
+                                    idTransaction:
                                     {
-                                        "$expr":
-                                        {
-                                            "$eq":
+                                        "$arrayElemAt":
                                             [
-                                                "$$idDiscount","$idDiscount"
+                                                "$trans_detail.idTransaction", 0
                                             ]
-                                        }
-                                    }
-                                ]
+                                    },
+                                    coin:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.coin", 0
+                                            ]
+                                    },
+                                    price:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.price", 0
+                                            ]
+                                    },
+                                    totalCoin:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.totalCoin", 0
+                                            ]
+                                    },
+                                    totalPrice:
+                                    {
+                                        "$arrayElemAt":
+                                            [
+                                                "$trans_detail.totalPrice", 0
+                                            ]
+                                    },
+                                    createdAt: 1
+                                }
                             }
-                        },
-                        {
-                            "$lookup":
-                            {
-                                from:"transactionsV2",
-                                localField:"idTransaction",
-                                foreignField:"_id",
-                                as:"trans_detail"
-                            }
-                        },
-                        {
-                            "$project":
-                            {
-                                _id:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail._id", 0
-                                    ]
-                                },
-                                idTransaction:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.idTransaction", 0
-                                    ]
-                                },
-                                coin:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.coin", 0
-                                    ]
-                                },
-                                price:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.price", 0
-                                    ]
-                                },
-                                totalCoin:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.totalCoin", 0
-                                    ]
-                                },
-                                totalPrice:
-                                {
-                                    "$arrayElemAt":
-                                    [
-                                        "$trans_detail.totalPrice", 0
-                                    ]
-                                },
-                                createdAt:1
-                            }
-                        }
-                    ]
+                        ]
                 }
             },
             {
                 "$project":
                 {
-                    "username":"$list_user.username",
-                    "fullName":"$list_user.fullName",
-                    "email":"$list_user.email",
+                    "username": "$list_user.username",
+                    "fullName": "$list_user.fullName",
+                    "email": "$list_user.email",
                     "avatar":
                     {
                         "mediaBasePath":
                         {
                             "$ifNull":
-                            [
-                                "$list_user.mediaBasePath",
-                                null
-                            ]
+                                [
+                                    "$list_user.mediaBasePath",
+                                    null
+                                ]
                         },
                         "mediaEndpoint":
                         {
                             "$ifNull":
-                            [
-                                "$list_user.mediaEndpoint",
-                                null
-                            ]
+                                [
+                                    "$list_user.mediaEndpoint",
+                                    null
+                                ]
                         },
                         "mediaType":
                         {
                             "$ifNull":
-                            [
-                                "$list_user.mediaType",
-                                null
-                            ]
+                                [
+                                    "$list_user.mediaType",
+                                    null
+                                ]
                         },
                         "mediaUri":
                         {
                             "$ifNull":
-                            [
-                                "$list_user.mediaUri",
-                                null
-                            ]
+                                [
+                                    "$list_user.mediaUri",
+                                    null
+                                ]
                         },
                     },
                     "transaction_date":
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$trans_data.createdAt", 0
-                                ]
-                            },
-                            "$createdAt" //atau bisa juga diganti jadi tanggal now
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$trans_data.createdAt", 0
+                                        ]
+                                },
+                                "$createdAt" //atau bisa juga diganti jadi tanggal now
+                            ]
                     },
                     "transaction_ID":
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$arrayElemAt":
-                                [
-                                    "$trans_data.idTransaction", 0
-                                ]
-                            },
-                            "KOSONG" //atau bisa juga diganti jadi tanggal now
-                        ]
+                            [
+                                {
+                                    "$arrayElemAt":
+                                        [
+                                            "$trans_data.idTransaction", 0
+                                        ]
+                                },
+                                "KOSONG" //atau bisa juga diganti jadi tanggal now
+                            ]
                     },
                     "used_discount":
                     {
@@ -2916,118 +2902,112 @@ export class MonetizationService {
                             if:
                             {
                                 "$eq":
-                                [
-                                    "$trans_data",
-                                    []
-                                ]
+                                    [
+                                        "$trans_data",
+                                        []
+                                    ]
                             },
-                            then:false,
-                            else:true
+                            then: false,
+                            else: true
                         }
                     },
                     total:
                     {
                         "$ifNull":
-                        [
-                            {
-                                "$cond":
+                            [
                                 {
-                                    if:
+                                    "$cond":
                                     {
-                                        "$eq":
-                                        [
-                                            "$satuan_diskon", "COIN"
-                                        ]
-                                    },
-                                    then:
-                                    {
-                                        "$arrayElemAt":
-                                        [
-                                            "$trans_data.totalCoin", 0
-                                        ]
-                                    },
-                                    else:
-                                    {
-                                        "$arrayElemAt":
-                                        [
-                                            "$trans_data.totalPrice", 0
-                                        ]
+                                        if:
+                                        {
+                                            "$eq":
+                                                [
+                                                    "$satuan_diskon", "COIN"
+                                                ]
+                                        },
+                                        then:
+                                        {
+                                            "$arrayElemAt":
+                                                [
+                                                    "$trans_data.totalCoin", 0
+                                                ]
+                                        },
+                                        else:
+                                        {
+                                            "$arrayElemAt":
+                                                [
+                                                    "$trans_data.totalPrice", 0
+                                                ]
+                                        }
                                     }
-                                }
-                            },
-                            0
-                        ]
+                                },
+                                0
+                            ]
                     }
                 }
             }
         );
-        
+
         var match = [];
-        if(status != null)
-        {
-            if(status.toString() == "true")
-            {
+        if (status != null) {
+            if (status.toString() == "true") {
                 match.push(
                     {
-                        "used_discount":true
+                        "used_discount": true
                     }
-                ); 
+                );
             }
-            else
-            {
+            else {
                 match.push(
                     {
-                        "used_discount":false
+                        "used_discount": false
                     }
                 );
             }
         }
 
-        if(username != null)
-        {
+        if (username != null) {
             match.push(
                 {
                     "$or":
-                    [
-                        {
-                            "username":
+                        [
                             {
-                                "$regex":username,
-                                "$options":"i"
-                            }
-                        },
-                        {
-                            "email":
+                                "username":
+                                {
+                                    "$regex": username,
+                                    "$options": "i"
+                                }
+                            },
                             {
-                                "$regex":username,
-                                "$options":"i"
-                            }
-                        },
-                    ]
+                                "email":
+                                {
+                                    "$regex": username,
+                                    "$options": "i"
+                                }
+                            },
+                        ]
                 }
             );
         }
 
-        if(transaction_id != null)
-        {
+        if (transaction_id != null) {
             match.push(
                 {
                     "transaction_ID":
                     {
-                        "$regex":transaction_id,
-                        "$options":"i"
+                        "$regex": transaction_id,
+                        "$options": "i"
                     }
                 }
             );
         }
 
-        if(startdate != null && enddate != null)
-        {
+        if (startdate != null && enddate != null) {
             var before = new Date(startdate).toISOString().split("T")[0];
             var input = new Date(enddate);
             input.setDate(input.getDate() + 1);
             var after = new Date(input).toISOString().split("T")[0];
-            
+
             match.push(
                 {
                     "transaction_date":
@@ -3039,26 +3019,24 @@ export class MonetizationService {
             );
         }
 
-        if(match.length != 0)
-        {
+        if (match.length != 0) {
             facetAggregate.push(
                 {
                     "$match":
                     {
-                        "$and":match
+                        "$and": match
                     }
                 }
-            );    
+            );
         }
 
-        if(page != null && limit != null)
-        {
+        if (page != null && limit != null) {
             facetAggregate.push(
                 {
-                    "$skip":page * limit
+                    "$skip": page * limit
                 },
                 {
-                    "$limit":limit
+                    "$limit": limit
                 }
             )
         }
@@ -3066,7 +3044,7 @@ export class MonetizationService {
         facet['list'] = facetAggregate;
         pipeline.push(
             {
-                "$facet":facet
+                "$facet": facet
             }
         );
 
