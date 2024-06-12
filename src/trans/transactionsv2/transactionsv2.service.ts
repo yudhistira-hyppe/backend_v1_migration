@@ -514,6 +514,7 @@ export class TransactionsV2Service {
                             transactionsV2_.price = 0;
                             transactionsV2_.credit = 0;
                             transactionsV2_.totalPrice = 0;
+                            transactionsV2_.typeTransaction = "COIN";
                             transactionsV2_.typeUser = typeUser;
                             await this.transactionsModel.create(transactionsV2_);
 
@@ -1330,7 +1331,20 @@ export class TransactionsV2Service {
 
                 if (category != undefined) {
                     transactionsV2_.typeCategory = category;
-                }
+                }else{
+                    if (transactionProductCode == "CO") {
+                        transactionsV2_.typeCategory = "CONTENT_OWNERSHIP";
+                    }
+                    if (transactionProductCode == "BP") {
+                        transactionsV2_.typeCategory = "BOOST_POST";
+                    }
+                    if (transactionProductCode == "CR") {
+                        transactionsV2_.typeCategory = "PAKET_CREDIT";
+                    }
+                    if (transactionProductCode == "CM") {
+                        transactionsV2_.typeCategory = "CONTENT_MARKETPLACE";
+                    }
+                } 
                 transactionsV2_.idUser = idUser;
                 transactionsV2_.coinDiscount = coinDiscount;
                 transactionsV2_.coin = coin;
