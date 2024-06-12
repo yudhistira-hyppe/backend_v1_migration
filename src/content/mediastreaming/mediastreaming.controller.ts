@@ -235,7 +235,8 @@ export class MediastreamingController {
 
     let dataBanned = null;
     let dataBanned_ = null;
-    let statusBanned = "NONE"; 
+    let statusBanned = "NONE";
+    let statusApprove = "NONE" 
     if (idBanned!=undefined){
       dataBanned = profile.streamBannedHistory;
       dataBanned_ = dataBanned.filter(function (el) {
@@ -262,7 +263,6 @@ export class MediastreamingController {
     let statusAppeal = false;
     if (profile.streamBanned != undefined) {
       if (profile.streamBanned) {
-        let statusApprove = "NONE"
 
         let streamWarning = (profile.streamWarning != undefined) ? profile.streamWarning : [];
         let streamBanding = (profile.streamBanding != undefined) ? profile.streamBanding:[];
@@ -357,9 +357,9 @@ export class MediastreamingController {
             dataStream["statusAppeal"] = false;
           }
           if (statusBanned == "ACTIVE_BANNED") {
-            dataStream["statusApprove"] = true;
+            dataStream["statusApprove"] = "APPROVE";
           } else {
-            dataStream["statusApprove"] = false;
+            dataStream["statusApprove"] = "WAITING_RESPONSE";
           }
         }
         dataStream["statusBanned"] = statusBanned;
@@ -387,9 +387,9 @@ export class MediastreamingController {
           dataStream["statusAppeal"] = false;
         }
         if (statusBanned == "ACTIVE_BANNED") {
-          dataStream["statusApprove"] = true;
+          dataStream["statusApprove"] = "APPROVE";
         } else {
-          dataStream["statusApprove"] = false;
+          dataStream["statusApprove"] = "WAITING_RESPONSE";
         }
       }
       dataStream["statusBanned"] = statusBanned;
