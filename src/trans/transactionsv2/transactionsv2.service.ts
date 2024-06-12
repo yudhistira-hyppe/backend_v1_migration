@@ -2061,7 +2061,7 @@ export class TransactionsV2Service {
                         $ifNull: [{ $arrayElemAt: ['$detail.id', 0] }, "-"]
                     },
                     "credit": {
-                        $ifNull: [{ $arrayElemAt: ['$detail.credit', 0] }, "-"]
+                        $ifNull: [{ $arrayElemAt: ['$detail.credit', 0] }, 0]
                     },
                     "boost_type": {
                         $ifNull: [{ $arrayElemAt: ['$detail.interval.type', 0] }, "-"]
