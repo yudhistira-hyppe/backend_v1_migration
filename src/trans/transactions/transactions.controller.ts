@@ -30,6 +30,7 @@ import { CreateUserplaylistDto } from '../userplaylist/dto/create-userplaylist.d
 import { LanguagesService } from '../../infra/languages/languages.service';
 import { ignoreElements } from 'rxjs';
 import { AdsService } from '../ads/ads.service';
+import { AdsTypeService } from '../adsv2/adstype/adstype.service';
 import { BoostsessionService } from '../../content/boostsession/boostsession.service';
 import { BoostintervalService } from '../../content/boostinterval/boostinterval.service';
 import { TemplatesRepo } from '../../infra/templates_repo/schemas/templatesrepo.schema';
@@ -103,7 +104,8 @@ export class TransactionsController {
         private readonly PosttaskService: PosttaskService,
         private readonly transCoinSS: transactionCoinService,
         private readonly transCreditSS: TransactionsCreditsService,
-        private readonly monetizationService: MonetizationService
+        private readonly monetizationService: MonetizationService,
+        private readonly adsTypeService: AdsTypeService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -21834,6 +21836,8 @@ export class TransactionsController {
             let foundExpired = false;
             var data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype, request_json.productName, request_json.descending);
             for (let x of data) {
+                let dataBuyer = null;
+                let dataSeller = null;
                 if (x.detail && x.detail.length > 0 && typeof x.detail[0].amount == 'string') {
                     x.detail[0].amount = Number(x.detail[0].amount);
                 }
@@ -21856,8 +21860,10 @@ export class TransactionsController {
                 }
                 switch (x.coa) {
                     case "Paket Coin":
-                        x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
-                        x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
+                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_en = "Coins Added";
+                        x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
+                        x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
                         x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
                         x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
                         break;
@@ -21865,22 +21871,22 @@ export class TransactionsController {
                         if (x.coaDetailStatus == "debit") {
                             x.desc_title_id = `Penerimaan Gift dari Live`;
                             x.desc_title_en = `Gift received from Live`;
-                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                             x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
                             x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                         } else {
                             x.desc_title_id = `Pembelian Gift untuk Live`;
                             x.desc_title_en = `Gift Purchase for Live`;
-                            let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
-                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
-                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
+                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
                         }
                         break;
                     case "Content Gift":
                         if (x.coaDetailStatus == "debit") {
                             x.desc_title_id = `Menerima Gift`;
                             x.desc_title_en = `Gift Received`;
-                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                             x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
                             x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                         } else {
@@ -21891,54 +21897,71 @@ export class TransactionsController {
                         }
                         break;
                     case "Penjualan Konten":
-                        x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
-                        x.desc_title_en = `Content Sales Proceeds`;
-                        x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
-                        x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_en = "Coins Added";
+                        dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_subtitle_id = `Penjualan Konten`;
+                        x.desc_subtitle_en = `Content Sales`;
+                        x.desc_content_id = `dari konten ${dataBuyer.post_type} oleh @${dataBuyer["usernamebuyer"]}`;
+                        x.desc_content_en = `from ${dataBuyer.post_type} content by @${dataBuyer["usernamebuyer"]}`;
                         break;
                     case "Ads":
-                        x.desc_title_id = `Menonton Iklan`;
-                        x.desc_title_en = `Ads Watched`;
-                        x.desc_content_id = `Dari menonton iklan`;
-                        x.desc_content_en = `From watching ads`;
+                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_en = "Coins Added";
+                        x.desc_subtitle_id = `Menonton Iklan`;
+                        x.desc_subtitle_en = `Ads Watched`;
+                        let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                        x.desc_content_id = `dari ${adsTypeData.nameType}`;
+                        x.desc_content_en = `from ${adsTypeData.nameType}`;
                         break;
                     case "Pembelian Konten":
-                        x.desc_title_id = `Pembelian Konten`;
-                        x.desc_title_en = `Content Purchase`;
-                        x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
-                        x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_subtitle_id = `Pembelian Konten`;
+                        x.desc_subtitle_en = `Content Purchase`;
+                        dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_content_id = `dari @${dataSeller["usernameseller"]} konten ${dataSeller.post_type}`;
+                        x.desc_content_en = `from @${dataSeller["usernameseller"]} ${dataSeller.post_type} content`;
                         break;
                     case "Conten Ownership":
-                        x.desc_title_id = `Kepemilikan Konten`;
-                        x.desc_title_en = `Content Ownership`;
-                        x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
-                        x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
+                        x.desc_subtitle_en = `Content Ownership Purchase`;
+                        x.desc_content_id = `untuk ${x.postType}`;
+                        x.desc_content_en = `for ${x.postType}`;
                         break;
                     case "Paket Kredit":
-                        x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
-                        x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                        x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
-                        x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
+                        x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
+                        x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
+                        x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
                         break;
                     case "Boost Post":
-                        x.desc_title_id = `Boost Postingan`;
-                        x.desc_title_en = `Boost Post`;
-                        x.desc_content_id = `Boost Postingan sampai ${x.detail[0].datedateEnd}`;
-                        x.desc_content_en = `Post Boosted until ${x.detail[0].datedateEnd}`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_title_id = `Berlangganan Boost Post`;
+                        x.desc_title_en = `Boost Post Subscription`;
+                        x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
+                        x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
                         break;
                     case "WD":
-                        x.desc_title_id = `Penukaran Coins`;
+                        x.desc_title_id = `Coins Ditukar`;
                         x.desc_title_en = `Coins Exchanged`;
-                        x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
-                        x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
-                        let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                        x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
-                        x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
+                        x.desc_subtitle_id = `Melakukan Penukaran`;
+                        x.desc_subtitle_en = `Exchange Done`;
+                        // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                        x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
+                        x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
                     case "REFUND":
-                        x.desc_title_id = `Pengembalian Coins`;
+                        x.desc_title_id = `Coins Dikembalikan`;
                         x.desc_title_en = `Coins Refunded`;
-                        x.desc_content_id = `${x.coin} Coins dikembalikan`;
-                        x.desc_content_en = `${x.coin} Coins refunded`;
+                        x.desc_subtitle_id = `Pengembalian Coins`;
+                        x.desc_subtitle_en = `Coins Refunded`;
+                        x.desc_content_id = `Coins dikembalikan oleh Hyppe`;
+                        x.desc_content_en = `Coins refunded by Hyppe`;
                         break;
                 }
             }
@@ -21946,6 +21969,8 @@ export class TransactionsController {
                 foundExpired = false;
                 data = await this.basic2SS.getUserCoinTransactionHistory(request_json.email, request_json.page * 5, request_json.status, request_json.type, request_json.startdate, request_json.enddate, request_json.activitytype, request_json.productName, request_json.descending);
                 for (let x of data) {
+                    let dataBuyer = null;
+                    let dataSeller = null;
                     let expiredvanew = new Date(x.expiredtimeva);
                     expiredvanew.setHours(expiredvanew.getHours() - 7);
                     if (x.status == "WAITING_PAYMENT" || x.status == "PENDING") {
@@ -21963,8 +21988,10 @@ export class TransactionsController {
                     }
                     switch (x.coa) {
                         case "Paket Coin":
-                            x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
-                            x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
+                            x.desc_title_id = "Coins Ditambahkan";
+                            x.desc_title_en = "Coins Added";
+                            x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
+                            x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
                             x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
                             x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
                             break;
@@ -21972,22 +21999,22 @@ export class TransactionsController {
                             if (x.coaDetailStatus == "debit") {
                                 x.desc_title_id = `Penerimaan Gift dari Live`;
                                 x.desc_title_en = `Gift received from Live`;
-                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                                 x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
                                 x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                             } else {
                                 x.desc_title_id = `Pembelian Gift untuk Live`;
                                 x.desc_title_en = `Gift Purchase for Live`;
-                                let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
-                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
-                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
+                                dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
+                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
                             }
                             break;
                         case "Content Gift":
                             if (x.coaDetailStatus == "debit") {
                                 x.desc_title_id = `Menerima Gift`;
                                 x.desc_title_en = `Gift Received`;
-                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                                 x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
                                 x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                             } else {
@@ -21998,54 +22025,71 @@ export class TransactionsController {
                             }
                             break;
                         case "Penjualan Konten":
-                            x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
-                            x.desc_title_en = `Content Sales Proceeds`;
-                            x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
-                            x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coins Ditambahkan";
+                            x.desc_title_en = "Coins Added";
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_subtitle_id = `Penjualan Konten`;
+                            x.desc_subtitle_en = `Content Sales`;
+                            x.desc_content_id = `dari konten ${dataBuyer.post_type} oleh @${dataBuyer["usernamebuyer"]}`;
+                            x.desc_content_en = `from ${dataBuyer.post_type} content by @${dataBuyer["usernamebuyer"]}`;
                             break;
                         case "Ads":
-                            x.desc_title_id = `Menonton Iklan`;
-                            x.desc_title_en = `Ads Watched`;
-                            x.desc_content_id = `Dari menonton iklan`;
-                            x.desc_content_en = `From watching ads`;
+                            x.desc_title_id = "Coins Ditambahkan";
+                            x.desc_title_en = "Coins Added";
+                            x.desc_subtitle_id = `Menonton Iklan`;
+                            x.desc_subtitle_en = `Ads Watched`;
+                            let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                            x.desc_content_id = `dari ${adsTypeData.nameType}`;
+                            x.desc_content_en = `from ${adsTypeData.nameType}`;
                             break;
                         case "Pembelian Konten":
-                            x.desc_title_id = `Pembelian Konten`;
-                            x.desc_title_en = `Content Purchase`;
-                            x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
-                            x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_subtitle_id = `Pembelian Konten`;
+                            x.desc_subtitle_en = `Content Purchase`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `dari @${dataSeller["usernameseller"]} konten ${dataSeller.post_type}`;
+                            x.desc_content_en = `from @${dataSeller["usernameseller"]} ${dataSeller.post_type} content`;
                             break;
                         case "Conten Ownership":
-                            x.desc_title_id = `Kepemilikan Konten`;
-                            x.desc_title_en = `Content Ownership`;
-                            x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
-                            x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
+                            x.desc_subtitle_en = `Content Ownership Purchase`;
+                            x.desc_content_id = `untuk ${x.postType}`;
+                            x.desc_content_en = `for ${x.postType}`;
                             break;
                         case "Paket Kredit":
-                            x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
-                            x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                            x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
-                            x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
+                            x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
+                            x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
+                            x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
                             break;
                         case "Boost Post":
-                            x.desc_title_id = `Boost Postingan`;
-                            x.desc_title_en = `Boost Post`;
-                            x.desc_content_id = `Boost Postingan seharga ${x.coin} Coins`;
-                            x.desc_content_en = `Post Boosted for ${x.coin} Coins`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_title_id = `Berlangganan Boost Post`;
+                            x.desc_title_en = `Boost Post Subscription`;
+                            x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
+                            x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
                             break;
                         case "WD":
-                            x.desc_title_id = `Penukaran Coins`;
+                            x.desc_title_id = `Coins Ditukar`;
                             x.desc_title_en = `Coins Exchanged`;
-                            x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
-                            x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
-                            let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                            x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
-                            x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
+                            x.desc_subtitle_id = `Melakukan Penukaran`;
+                            x.desc_subtitle_en = `Exchange Done`;
+                            // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                            x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
+                            x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
                         case "REFUND":
-                            x.desc_title_id = `Pengembalian Coins`;
+                            x.desc_title_id = `Coins Dikembalikan`;
                             x.desc_title_en = `Coins Refunded`;
-                            x.desc_content_id = `${x.coin} Coins dikembalikan`;
-                            x.desc_content_en = `${x.coin} Coins refunded`;
+                            x.desc_subtitle_id = `Pengembalian Coins`;
+                            x.desc_subtitle_en = `Coins Refunded`;
+                            x.desc_content_id = `Coins dikembalikan oleh Hyppe`;
+                            x.desc_content_en = `Coins refunded by Hyppe`;
                             break;
                     }
                 }
@@ -22108,6 +22152,8 @@ export class TransactionsController {
             let foundExpired = false;
             var data = await this.basic2SS.getUserCoinOrderHistory(request_json.email, request_json.page * 5, request_json.type, request_json.startdate, request_json.enddate, request_json.descending);
             for (let x of data) {
+                let dataBuyer = null;
+                let dataSeller = null;
                 if (x.detail && x.detail.length > 0 && typeof x.detail[0].amount == 'string') {
                     x.detail[0].amount = Number(x.detail[0].amount);
                 }
@@ -22128,8 +22174,10 @@ export class TransactionsController {
                 }
                 switch (x.coa) {
                     case "Paket Coin":
-                        x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
-                        x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
+                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_en = "Coins Added";
+                        x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
+                        x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
                         x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
                         x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
                         break;
@@ -22137,22 +22185,22 @@ export class TransactionsController {
                         if (x.coaDetailStatus == "debit") {
                             x.desc_title_id = `Penerimaan Gift dari Live`;
                             x.desc_title_en = `Gift received from Live`;
-                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                             x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
                             x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                         } else {
                             x.desc_title_id = `Pembelian Gift untuk Live`;
                             x.desc_title_en = `Gift Purchase for Live`;
-                            let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
-                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
-                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
+                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
                         }
                         break;
                     case "Content Gift":
                         if (x.coaDetailStatus == "debit") {
                             x.desc_title_id = `Menerima Gift`;
                             x.desc_title_en = `Gift Received`;
-                            let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                             x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
                             x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                         } else {
@@ -22163,55 +22211,71 @@ export class TransactionsController {
                         }
                         break;
                     case "Penjualan Konten":
-                        x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
-                        x.desc_title_en = `Content Sales Proceeds`;
-                        x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
-                        x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_en = "Coins Added";
+                        dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_subtitle_id = `Penjualan Konten`;
+                        x.desc_subtitle_en = `Content Sales`;
+                        x.desc_content_id = `dari konten ${dataBuyer.post_type} oleh @${dataBuyer["usernamebuyer"]}`;
+                        x.desc_content_en = `from ${dataBuyer.post_type} content by @${dataBuyer["usernamebuyer"]}`;
                         break;
                     case "Ads":
-                        x.desc_title_id = `Menonton Iklan`;
-                        x.desc_title_en = `Ads Watched`;
-                        x.desc_content_id = `Dari menonton iklan`;
-                        x.desc_content_en = `From watching ads`;
+                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_en = "Coins Added";
+                        x.desc_subtitle_id = `Menonton Iklan`;
+                        x.desc_subtitle_en = `Ads Watched`;
+                        let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                        x.desc_content_id = `dari ${adsTypeData.nameType}`;
+                        x.desc_content_en = `from ${adsTypeData.nameType}`;
                         break;
                     case "Pembelian Konten":
-                        x.desc_title_id = `Pembelian Konten`;
-                        x.desc_title_en = `Content Purchase`;
-                        x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
-                        x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_subtitle_id = `Pembelian Konten`;
+                        x.desc_subtitle_en = `Content Purchase`;
+                        dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_content_id = `dari @${dataSeller["usernameseller"]} konten ${dataSeller.post_type}`;
+                        x.desc_content_en = `from @${dataSeller["usernameseller"]} ${dataSeller.post_type} content`;
                         break;
                     case "Conten Ownership":
-                        x.desc_title_id = `Kepemilikan Konten`;
-                        x.desc_title_en = `Content Ownership`;
-                        x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
-                        x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
+                        x.desc_subtitle_en = `Content Ownership Purchase`;
+                        x.desc_content_id = `untuk ${x.postType}`;
+                        x.desc_content_en = `for ${x.postType}`;
                         break;
                     case "Paket Kredit":
-                        x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
-                        x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                        x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
-                        x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
+                        x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
+                        x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
+                        x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
                         break;
                     case "Boost Post":
-                        x.desc_title_id = `Boost Postingan`;
-                        x.desc_title_en = `Boost Post`;
-                        x.desc_content_id = `Boost Postingan sampai ${x.detail[0].datedateEnd}`;
-                        x.desc_content_en = `Post Boosted until ${x.detail[0].datedateEnd}`;
+                        x.desc_title_id = "Coin Digunakan";
+                        x.desc_title_en = "Coins Used";
+                        x.desc_title_id = `Berlangganan Boost Post`;
+                        x.desc_title_en = `Boost Post Subscription`;
+                        x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
+                        x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
                         break;
                     case "WD":
-                        x.desc_title_id = `Penukaran Coins`;
+                        x.desc_title_id = `Coins Ditukar`;
                         x.desc_title_en = `Coins Exchanged`;
-                        x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
-                        x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
-                        let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                        x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
-                        x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
-                        break;
+                        x.desc_subtitle_id = `Melakukan Penukaran`;
+                        x.desc_subtitle_en = `Exchange Done`;
+                        // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                        x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
+                        x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
                     case "REFUND":
-                        x.desc_title_id = `Pengembalian Coins`;
+                        x.desc_title_id = `Coins Dikembalikan`;
                         x.desc_title_en = `Coins Refunded`;
-                        x.desc_content_id = `${x.coin} Coins dikembalikan`;
-                        x.desc_content_en = `${x.coin} Coins refunded`;
+                        x.desc_subtitle_id = `Pengembalian Coins`;
+                        x.desc_subtitle_en = `Coins Refunded`;
+                        x.desc_content_id = `Coins dikembalikan oleh Hyppe`;
+                        x.desc_content_en = `Coins refunded by Hyppe`;
                         break;
                 }
             }
@@ -22219,6 +22283,8 @@ export class TransactionsController {
                 foundExpired = false;
                 data = await this.basic2SS.getUserCoinOrderHistory(request_json.email, request_json.page * 5, request_json.type, request_json.startdate, request_json.enddate, request_json.descending);
                 for (let x of data) {
+                    let dataBuyer = null;
+                    let dataSeller = null;
                     let expiredvanew = new Date(x.expiredtimeva);
                     expiredvanew.setHours(expiredvanew.getHours() - 7);
                     if (x.status == "WAITING_PAYMENT" || x.status == "PENDING") {
@@ -22236,8 +22302,10 @@ export class TransactionsController {
                     }
                     switch (x.coa) {
                         case "Paket Coin":
-                            x.desc_title_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
-                            x.desc_title_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
+                            x.desc_title_id = "Coins Ditambahkan";
+                            x.desc_title_en = "Coins Added";
+                            x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
+                            x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
                             x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
                             x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
                             break;
@@ -22245,22 +22313,22 @@ export class TransactionsController {
                             if (x.coaDetailStatus == "debit") {
                                 x.desc_title_id = `Penerimaan Gift dari Live`;
                                 x.desc_title_en = `Gift received from Live`;
-                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                                 x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.idStream}`;
                                 x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.idStream}`;
                             } else {
                                 x.desc_title_id = `Pembelian Gift untuk Live`;
                                 x.desc_title_en = `Gift Purchase for Live`;
-                                let dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
-                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.titleStream}`;
-                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.titleStream}`;
+                                dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
+                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - ${dataSeller.idStream}`;
                             }
                             break;
                         case "Content Gift":
                             if (x.coaDetailStatus == "debit") {
                                 x.desc_title_id = `Menerima Gift`;
                                 x.desc_title_en = `Gift Received`;
-                                let dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                                 x.desc_content_id = `@${dataBuyer["usernamebuyer"]} mengirim ${dataBuyer.productName} pada konten: ${dataBuyer.post_id}`;
                                 x.desc_content_en = `@${dataBuyer["usernamebuyer"]} sent ${dataBuyer.productName} to content: ${dataBuyer.post_id}`;
                             } else {
@@ -22271,55 +22339,71 @@ export class TransactionsController {
                             }
                             break;
                         case "Penjualan Konten":
-                            x.desc_title_id = `Penerimaan Hasil Penjualan Konten`;
-                            x.desc_title_en = `Content Sales Proceeds`;
-                            x.desc_content_id = `Penjualan Konten seharga ${x.coin} Coins`;
-                            x.desc_content_en = `Content Sales worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coins Ditambahkan";
+                            x.desc_title_en = "Coins Added";
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_subtitle_id = `Penjualan Konten`;
+                            x.desc_subtitle_en = `Content Sales`;
+                            x.desc_content_id = `dari konten ${dataBuyer.post_type} oleh @${dataBuyer["usernamebuyer"]}`;
+                            x.desc_content_en = `from ${dataBuyer.post_type} content by @${dataBuyer["usernamebuyer"]}`;
                             break;
                         case "Ads":
-                            x.desc_title_id = `Menonton Iklan`;
-                            x.desc_title_en = `Ads Watched`;
-                            x.desc_content_id = `Dari menonton iklan`;
-                            x.desc_content_en = `From watching ads`;
+                            x.desc_title_id = "Coins Ditambahkan";
+                            x.desc_title_en = "Coins Added";
+                            x.desc_subtitle_id = `Menonton Iklan`;
+                            x.desc_subtitle_en = `Ads Watched`;
+                            let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                            x.desc_content_id = `dari ${adsTypeData.nameType}`;
+                            x.desc_content_en = `from ${adsTypeData.nameType}`;
                             break;
                         case "Pembelian Konten":
-                            x.desc_title_id = `Pembelian Konten`;
-                            x.desc_title_en = `Content Purchase`;
-                            x.desc_content_id = `Pembelian Konten seharga ${x.coin} Coins`;
-                            x.desc_content_en = `Content Purchase worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_subtitle_id = `Pembelian Konten`;
+                            x.desc_subtitle_en = `Content Purchase`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `dari @${dataSeller["usernameseller"]} konten ${dataSeller.post_type}`;
+                            x.desc_content_en = `from @${dataSeller["usernameseller"]} ${dataSeller.post_type} content`;
                             break;
                         case "Conten Ownership":
-                            x.desc_title_id = `Kepemilikan Konten`;
-                            x.desc_title_en = `Content Ownership`;
-                            x.desc_content_id = `Pembelian Kepemilikan Konten seharga ${x.coin} Coins`;
-                            x.desc_content_en = `Content Ownership Purchase worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
+                            x.desc_subtitle_en = `Content Ownership Purchase`;
+                            x.desc_content_id = `untuk ${x.postType}`;
+                            x.desc_content_en = `for ${x.postType}`;
                             break;
                         case "Paket Kredit":
-                            x.desc_title_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
-                            x.desc_title_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                            x.desc_content_id = `Pembelian ${x.detail[0].credit} Credits seharga ${x.coin} Coins`;
-                            x.desc_content_en = `${x.detail[0].credit} Credits Purchase worth ${x.coin} Coins`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
+                            x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
+                            x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
+                            x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
                             break;
                         case "Boost Post":
-                            x.desc_title_id = `Boost Postingan`;
-                            x.desc_title_en = `Boost Post`;
-                            x.desc_content_id = `Boost Postingan sampai ${x.detail[0].datedateEnd}`;
-                            x.desc_content_en = `Post Boosted until ${x.detail[0].datedateEnd}`;
+                            x.desc_title_id = "Coin Digunakan";
+                            x.desc_title_en = "Coins Used";
+                            x.desc_title_id = `Berlangganan Boost Post`;
+                            x.desc_title_en = `Boost Post Subscription`;
+                            x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
+                            x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
                             break;
                         case "WD":
-                            x.desc_title_id = `Penukaran Coins`;
+                            x.desc_title_id = `Coins Ditukar`;
                             x.desc_title_en = `Coins Exchanged`;
-                            x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
-                            x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
-                            let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                            x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
-                            x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
-                            break;
+                            x.desc_subtitle_id = `Melakukan Penukaran`;
+                            x.desc_subtitle_en = `Exchange Done`;
+                            // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                            x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
+                            x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
                         case "REFUND":
-                            x.desc_title_id = `Pengembalian Coins`;
+                            x.desc_title_id = `Coins Dikembalikan`;
                             x.desc_title_en = `Coins Refunded`;
-                            x.desc_content_id = `${x.coin} Coins dikembalikan`;
-                            x.desc_content_en = `${x.coin} Coins refunded`;
+                            x.desc_subtitle_id = `Pengembalian Coins`;
+                            x.desc_subtitle_en = `Coins Refunded`;
+                            x.desc_content_id = `Coins dikembalikan oleh Hyppe`;
+                            x.desc_content_en = `Coins refunded by Hyppe`;
                             break;
                     }
                 }

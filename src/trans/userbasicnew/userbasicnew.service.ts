@@ -8332,6 +8332,9 @@ export class UserbasicnewService {
                                 },
                                 idPost: {
                                     $ifNull: [{ $arrayElemAt: ['$detail.postID', 0] }, "-"]
+                                },
+                                typeAdsID: {
+                                    $ifNull: [{ $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
                                 }
                             }
                         },
@@ -8546,6 +8549,14 @@ export class UserbasicnewService {
                         },
                         // {
                         //     $lookup: {
+                        //         from: "adstypes",
+                        //         localField: "typeAdsID",
+                        //         foreignField: "_id",
+                        //         as: "dataAdsType"
+                        //     }
+                        // },
+                        // {
+                        //     $lookup: {
                         //         from: "withdraws",
                         //         as: "withdrawData",
                         //         let: {
@@ -8569,6 +8580,7 @@ export class UserbasicnewService {
                         //             },
                         //             {
                         //                 $project: {
+                        //                     idAccountBank: 1,
                         //                     tracking: { $reverseArray: "$tracking" }
                         //                 }
                         //             }
@@ -8733,6 +8745,7 @@ export class UserbasicnewService {
                     },
                     // idPembeli: "$trans.idPembeli",
                     // datapembeli: "$trans.datapembeli",
+                    typeAdsID: "$trans.typeAdsID",
                     "postID": { $arrayElemAt: ['$trans.datapost.postID', 0] },
                     "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
                     "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
@@ -8767,12 +8780,31 @@ export class UserbasicnewService {
                                 ]
                             },
                             then: "Content Gift",
-                            else: "$trans.coa.coa"
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coa", "Content Gift"]
+                                            },
+                                            {
+                                                $eq: [{ $arrayElemAt: ["$trans.detail.category", 0] }, "LIVE"]
+                                            }
+                                        ]
+                                    },
+                                    then: "Live Gift",
+                                    else: "$trans.coa.coa"
+                                }
+                            }
                         }
                     },
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
+                    // idAccountBank: "$trans.withdrawData.idAccountBank",
+                    // adType: {
+                    //     $ifNull: [{ $arrayElemAt: ['$trans.dataAdsType.nameType', 0] }, "-"]
+                    // },
                     vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] },
                     activityType: {
                         $switch: {
@@ -9010,6 +9042,9 @@ export class UserbasicnewService {
                                 },
                                 idPost: {
                                     $ifNull: [{ $arrayElemAt: ['$detail.postID', 0] }, "-"]
+                                },
+                                typeAdsID: {
+                                    $ifNull: [{ $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
                                 }
                             }
                         },
@@ -9222,38 +9257,38 @@ export class UserbasicnewService {
                             },
 
                         },
-                        {
-                            $lookup: {
-                                from: "withdraws",
-                                as: "withdrawData",
-                                let: {
-                                    localID: {
-                                        $arrayElemAt: ["$detail.withdrawId", 0]
-                                    }
-                                },
-                                pipeline: [
-                                    {
-                                        $match:
-                                        {
-                                            $and:
-                                                [
-                                                    {
-                                                        $expr: {
-                                                            $eq: ['$_id', '$$localID']
-                                                        }
-                                                    },
-                                                ]
-                                        }
-                                    },
-                                    {
-                                        $project: {
-                                            idAccountBank: 1,
-                                            tracking: { $reverseArray: "$tracking" }
-                                        }
-                                    }
-                                ]
-                            }
-                        },
+                        // {
+                        //     $lookup: {
+                        //         from: "withdraws",
+                        //         as: "withdrawData",
+                        //         let: {
+                        //             localID: {
+                        //                 $arrayElemAt: ["$detail.withdrawId", 0]
+                        //             }
+                        //         },
+                        //         pipeline: [
+                        //             {
+                        //                 $match:
+                        //                 {
+                        //                     $and:
+                        //                         [
+                        //                             {
+                        //                                 $expr: {
+                        //                                     $eq: ['$_id', '$$localID']
+                        //                                 }
+                        //                             },
+                        //                         ]
+                        //                 }
+                        //             },
+                        //             {
+                        //                 $project: {
+                        //                     idAccountBank: 1,
+                        //                     tracking: { $reverseArray: "$tracking" }
+                        //                 }
+                        //             }
+                        //         ]
+                        //     }
+                        // },
                         {
                             $unwind: {
                                 path: "$transOld",
@@ -9266,12 +9301,12 @@ export class UserbasicnewService {
                                 preserveNullAndEmptyArrays: true
                             }
                         },
-                        {
-                            $unwind: {
-                                path: "$withdrawData",
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
+                        // {
+                        //     $unwind: {
+                        //         path: "$withdrawData",
+                        //         preserveNullAndEmptyArrays: true
+                        //     }
+                        // },
                     ],
 
                 },
@@ -9402,6 +9437,7 @@ export class UserbasicnewService {
                     },
                     // idPembeli: "$trans.idPembeli",
                     // datapembeli: "$trans.datapembeli",
+                    typeAdsID: "$trans.typeAdsID",
                     "postID": { $arrayElemAt: ['$trans.datapost.postID', 0] },
                     "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
                     "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
@@ -9436,14 +9472,90 @@ export class UserbasicnewService {
                                 ]
                             },
                             then: "Content Gift",
-                            else: "$trans.coa.coa"
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coa", "Content Gift"]
+                                            },
+                                            {
+                                                $eq: [{ $arrayElemAt: ["$trans.detail.category", 0] }, "LIVE"]
+                                            }
+                                        ]
+                                    },
+                                    then: "Live Gift",
+                                    else: "$trans.coa.coa"
+                                }
+                            }
                         }
                     },
                     coaDetailName: "$trans.coa.coaDetailName",
                     coaDetailStatus: "$trans.coa.coaDetailStatus",
                     detail: "$trans.detail",
                     vaNumber: { $arrayElemAt: ['$trans.detail.payload.va_number', 0] },
-                    idAccountBank: "$trans.withdrawData.idAccountBank"
+                    // adType: {
+                    //     $ifNull: [{ $arrayElemAt: ['$trans.dataAdsType.nameType', 0] }, "-"]
+                    // },
+                    // idAccountBank: "$trans.withdrawData.idAccountBank",
+                    activityType: {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "debit"]
+                                            },
+                                            {
+                                                $ne: ["$trans.coa.coa", "REFUND"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coins Ditambahkan"
+                                },
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "debit"]
+                                            },
+                                            {
+                                                $eq: ["$trans.coa.coa", "REFUND"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coins Dikembalikan"
+                                },
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "credit"]
+                                            },
+                                            {
+                                                $eq: ["$trans.coa.coa", "WD"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coins Ditukar"
+                                },
+                                {
+                                    case: {
+                                        $and: [
+                                            {
+                                                $eq: ["$trans.coa.coaDetailStatus", "credit"]
+                                            },
+                                            {
+                                                $ne: ["$trans.coa.coa", "WD"]
+                                            },
+                                        ]
+                                    },
+                                    then: "Coin Digunakan"
+                                }
+                            ]
+                        }
+                    }
                     // tracking: "$trans.withdrawData.tracking"
                 }
             }

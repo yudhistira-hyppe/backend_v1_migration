@@ -38,6 +38,7 @@ import { MonetizenewModule } from 'src/trans/transactions/monetizenew/monetizene
 import { MonetizationModule } from '../monetization/monetization.module';
 import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
 import { PosttaskModule } from '../../content/posttask/posttask.module';
+import { AdsTypesModule } from '../adsv2/adstype/adstype.module';
 @Module({
 
     imports: [
@@ -56,7 +57,7 @@ import { PosttaskModule } from '../../content/posttask/posttask.module';
         UtilsModule,
         ConfigModule.forRoot(), GetusercontentsModule, UserbasicsModule, Settings2Module, MethodepaymentsModule, BanksModule, PostsModule, Pph21sModule, AccountbalancesModule, OyPgModule,
         InsightsModule, UserbankaccountsModule, WithdrawsModule, MediavideosModule, MediapictsModule, MediadiariesModule, UservouchersModule, VouchersModule, MediastoriesModule, LanguagesModule,
-        AdsModule, MonetizationModule,
+        AdsModule, MonetizationModule, AdsTypesModule,
         MongooseModule.forFeature([{ name: Transactions.name, schema: TransactionsSchema }], 'SERVER_FULL')
     ],
     controllers: [TransactionsController],
