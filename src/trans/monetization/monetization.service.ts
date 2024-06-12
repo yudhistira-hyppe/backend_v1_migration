@@ -35,7 +35,7 @@ export class MonetizationService {
         return this.monetData.find({last_stock:{$lte:0},status:true}).exec();
     }
     async updateManyStatus() {
-        let data = await this.monetData.updateMany({last_stock:{$lte:0},status:true },
+        let data = await this.monetData.updateMany({last_stock:{$lte:0},status:true,type:{$ne:"GIFT"} },
             {
                 $set: {
                     status: false,
