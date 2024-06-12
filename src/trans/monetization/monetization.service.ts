@@ -31,7 +31,20 @@ export class MonetizationService {
     async find(): Promise<Monetize[]> {
         return this.monetData.find().exec();
     }
+    async findLaststock(): Promise<Monetize[]> {
+        return this.monetData.find({last_stock:{$lte:0},status:true}).exec();
+    }
+    async updateManyStatus() {
+        let data = await this.monetData.updateMany({last_stock:{$lte:0},status:true,type:{$ne:"GIFT"} },
+            {
+                $set: {
+                    status: false,
+                }
 
+
+            });
+        return data;
+    }
     async findOne(id: string): Promise<Monetize> {
         var setid = new mongoose.Types.ObjectId(id);
         var data = await this.monetData.findById(setid);

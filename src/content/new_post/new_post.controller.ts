@@ -5331,7 +5331,7 @@ export class NewPostController {
                 "postID": postID,
                 "typeData": "POST",
                 "qty": 1,
-                "amount": transaction_fee,
+                "amount": Number(transaction_fee),
                 "discountCoin": discount_fee,
                 "totalAmount": transaction_fee - discount_fee
             }
