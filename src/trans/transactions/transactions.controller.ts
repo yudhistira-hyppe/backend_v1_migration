@@ -21957,8 +21957,8 @@ export class TransactionsController {
                     case "Boost Post":
                         x.desc_title_id = "Coin Digunakan";
                         x.desc_title_en = "Coins Used";
-                        x.desc_title_id = `Berlangganan Boost Post`;
-                        x.desc_title_en = `Boost Post Subscription`;
+                        x.desc_subtitle_id = `Berlangganan Boost Post`;
+                        x.desc_subtitle_en = `Boost Post Subscription`;
                         dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                         x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
                         x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
@@ -22096,8 +22096,8 @@ export class TransactionsController {
                         case "Boost Post":
                             x.desc_title_id = "Coin Digunakan";
                             x.desc_title_en = "Coins Used";
-                            x.desc_title_id = `Berlangganan Boost Post`;
-                            x.desc_title_en = `Boost Post Subscription`;
+                            x.desc_subtitle_id = `Berlangganan Boost Post`;
+                            x.desc_subtitle_en = `Boost Post Subscription`;
                             dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                             x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
                             x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
@@ -22293,8 +22293,8 @@ export class TransactionsController {
                     case "Boost Post":
                         x.desc_title_id = "Coin Digunakan";
                         x.desc_title_en = "Coins Used";
-                        x.desc_title_id = `Berlangganan Boost Post`;
-                        x.desc_title_en = `Boost Post Subscription`;
+                        x.desc_subtitle_id = `Berlangganan Boost Post`;
+                        x.desc_subtitle_en = `Boost Post Subscription`;
                         dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                         x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
                         x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
@@ -22432,8 +22432,8 @@ export class TransactionsController {
                         case "Boost Post":
                             x.desc_title_id = "Coin Digunakan";
                             x.desc_title_en = "Coins Used";
-                            x.desc_title_id = `Berlangganan Boost Post`;
-                            x.desc_title_en = `Boost Post Subscription`;
+                            x.desc_subtitle_id = `Berlangganan Boost Post`;
+                            x.desc_subtitle_en = `Boost Post Subscription`;
                             dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
                             x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
                             x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
