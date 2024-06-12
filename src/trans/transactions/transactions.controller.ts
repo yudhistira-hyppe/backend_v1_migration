@@ -3959,6 +3959,9 @@ export class TransactionsController {
             noinvoice = request_json["noinvoice"];
             try {
                 data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice, profitsharingpercent);
+                if (data.detail && data.detail.length > 0 && typeof data.detail[0].amount == "string") {
+                    data.detail[0].amount = Number(data.detail[0].amount);
+                }
                 try {
                     idtr2 = data.idTransaction;
                 } catch (e) {
@@ -4001,7 +4004,9 @@ export class TransactionsController {
 
                                 try {
                                     data = await this.TransactionsV2Service.getdetailtransaksinewinvoiceonly(noinvoice);
-
+                                    if (data.detail && data.detail.length > 0 && typeof data.detail[0].amount == "string") {
+                                        data.detail[0].amount = Number(data.detail[0].amount);
+                                    }
                                 } catch (e) {
 
                                 }
