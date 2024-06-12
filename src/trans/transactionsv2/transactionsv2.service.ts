@@ -838,7 +838,7 @@ export class TransactionsV2Service {
                                                                     }
                                                                     dataTotalCredit = Number(dataCredit) * Number(dataQty);
                                                                     dataGrandTotalCredit += dataTotalCredit;
-                                                                    if (category == "CLICKED" || category == "VIEW") {
+                                                                    if (category == "CLICKED" || category == "VIEW" || category == "CREATE") {
                                                                         credit = dataGrandTotalCredit;
                                                                     }
                                                                 }
@@ -1211,6 +1211,27 @@ export class TransactionsV2Service {
                         typeUser = "USER_BUY";
                         idUser = getDataUserBuy._id;
                         coinDiscount = discountCoin;
+                    }
+
+                    if (category == "CLICKED" || category == "VIEW") {
+                        let dataGrandTotalCredit = 0;
+                        for (let k = 0; k < detail.length; k++) {
+                            let dataDetail = detail[k];
+                            let dataCredit = 0;
+                            let dataQty = 0;
+                            let dataTotalCredit = 0;
+                            if (dataDetail.credit != undefined) {
+                                dataCredit = dataDetail.credit;
+                            }
+                            if (dataDetail.qty != undefined) {
+                                dataQty = dataDetail.qty;
+                            }
+                            dataTotalCredit = Number(dataCredit) * Number(dataQty);
+                            dataGrandTotalCredit += dataTotalCredit;
+                            if (category == "CLICKED" || category == "VIEW") {
+                                credit = dataGrandTotalCredit;
+                            }
+                        }
                     }
 
                     if (categoryTransaction.type != undefined) {
