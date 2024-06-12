@@ -21929,9 +21929,11 @@ export class TransactionsController {
                     case "WD":
                         x.desc_title_id = `Penukaran Coins`;
                         x.desc_title_en = `Coins Exchanged`;
-                        x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
-                        x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
-                        break;
+                        x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
+                        x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
+                        let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                        x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
+                        x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
                     case "REFUND":
                         x.desc_title_id = `Pengembalian Coins`;
                         x.desc_title_en = `Coins Refunded`;
@@ -22034,8 +22036,16 @@ export class TransactionsController {
                         case "WD":
                             x.desc_title_id = `Penukaran Coins`;
                             x.desc_title_en = `Coins Exchanged`;
-                            x.desc_content_id = `${x.coin} Coins ditukarkan menjadi Rp${x.detail[0].totalAmount}`;
-                            x.desc_content_en = `${x.coin} Coins exchanged to Rp${x.detail[0].totalAmount}`;
+                            x.desc_subtitle_id = `Saldo Rp${x.detail[0].amount} Ditarik`;
+                            x.desc_subtitle_en = `Rp${x.detail[0].amount} Balance Withdrawn`;
+                            let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
+                            x.desc_content_id = `Ke Rekening ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
+                            x.desc_content_en = `To Account: ${userAccData.bankRek} - ${userAccData.noRek} - ${userAccData.namaRek}`;
+                        case "REFUND":
+                            x.desc_title_id = `Pengembalian Coins`;
+                            x.desc_title_en = `Coins Refunded`;
+                            x.desc_content_id = `${x.coin} Coins dikembalikan`;
+                            x.desc_content_en = `${x.coin} Coins refunded`;
                             break;
                     }
                 }
