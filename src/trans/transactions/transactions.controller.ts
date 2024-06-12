@@ -21892,8 +21892,9 @@ export class TransactionsController {
                         } else {
                             x.desc_title_id = `Memberikan Gift Konten`;
                             x.desc_title_en = `Gift Sent to Content`;
-                            x.desc_content_id = `untuk @${x.postOwner} - pada ${x.postType}`;
-                            x.desc_content_en = `for @${x.postOwner} - on ${x.postType}`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.post_type}`;
+                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.post_type}`;
                         }
                         break;
                     case "Penjualan Konten":
@@ -21928,8 +21929,9 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Used";
                         x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
                         x.desc_subtitle_en = `Content Ownership Purchase`;
-                        x.desc_content_id = `untuk ${x.postType}`;
-                        x.desc_content_en = `for ${x.postType}`;
+                        dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_content_id = `untuk ${dataSeller.post_type}`;
+                        x.desc_content_en = `for ${dataSeller.post_type}`;
                         break;
                     case "Paket Kredit":
                         x.desc_title_id = "Coin Digunakan";
@@ -21944,8 +21946,9 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Used";
                         x.desc_title_id = `Berlangganan Boost Post`;
                         x.desc_title_en = `Boost Post Subscription`;
-                        x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
-                        x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
+                        dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
+                        x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
                         break;
                     case "WD":
                         x.desc_title_id = `Coins Ditukar`;
@@ -22020,8 +22023,9 @@ export class TransactionsController {
                             } else {
                                 x.desc_title_id = `Memberikan Gift Konten`;
                                 x.desc_title_en = `Gift Sent to Content`;
-                                x.desc_content_id = `untuk @${x.postOwner} - pada ${x.postType}`;
-                                x.desc_content_en = `for @${x.postOwner} - on ${x.postType}`;
+                                dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.post_type}`;
+                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.post_type}`;
                             }
                             break;
                         case "Penjualan Konten":
@@ -22056,8 +22060,9 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Used";
                             x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
                             x.desc_subtitle_en = `Content Ownership Purchase`;
-                            x.desc_content_id = `untuk ${x.postType}`;
-                            x.desc_content_en = `for ${x.postType}`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk ${dataSeller.post_type}`;
+                            x.desc_content_en = `for ${dataSeller.post_type}`;
                             break;
                         case "Paket Kredit":
                             x.desc_title_id = "Coin Digunakan";
@@ -22072,8 +22077,9 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Used";
                             x.desc_title_id = `Berlangganan Boost Post`;
                             x.desc_title_en = `Boost Post Subscription`;
-                            x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
-                            x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
+                            x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
                             break;
                         case "WD":
                             x.desc_title_id = `Coins Ditukar`;
@@ -22206,8 +22212,9 @@ export class TransactionsController {
                         } else {
                             x.desc_title_id = `Memberikan Gift Konten`;
                             x.desc_title_en = `Gift Sent to Content`;
-                            x.desc_content_id = `untuk @${x.postOwner} - pada ${x.postType}`;
-                            x.desc_content_en = `for @${x.postOwner} - on ${x.postType}`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.post_type}`;
+                            x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.post_type}`;
                         }
                         break;
                     case "Penjualan Konten":
@@ -22242,8 +22249,9 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Used";
                         x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
                         x.desc_subtitle_en = `Content Ownership Purchase`;
-                        x.desc_content_id = `untuk ${x.postType}`;
-                        x.desc_content_en = `for ${x.postType}`;
+                        dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_content_id = `untuk ${dataSeller.post_type}`;
+                        x.desc_content_en = `for ${dataSeller.post_type}`;
                         break;
                     case "Paket Kredit":
                         x.desc_title_id = "Coin Digunakan";
@@ -22258,8 +22266,9 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Used";
                         x.desc_title_id = `Berlangganan Boost Post`;
                         x.desc_title_en = `Boost Post Subscription`;
-                        x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
-                        x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
+                        dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                        x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
+                        x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
                         break;
                     case "WD":
                         x.desc_title_id = `Coins Ditukar`;
@@ -22334,8 +22343,9 @@ export class TransactionsController {
                             } else {
                                 x.desc_title_id = `Memberikan Gift Konten`;
                                 x.desc_title_en = `Gift Sent to Content`;
-                                x.desc_content_id = `untuk @${x.postOwner} - pada ${x.postType}`;
-                                x.desc_content_en = `for @${x.postOwner} - on ${x.postType}`;
+                                dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                                x.desc_content_id = `untuk @${dataSeller["usernameseller"]} - pada ${dataSeller.post_type}`;
+                                x.desc_content_en = `for @${dataSeller["usernameseller"]} - on ${dataSeller.post_type}`;
                             }
                             break;
                         case "Penjualan Konten":
@@ -22370,8 +22380,9 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Used";
                             x.desc_subtitle_id = `Pembelian Kepemilikan Konten`;
                             x.desc_subtitle_en = `Content Ownership Purchase`;
-                            x.desc_content_id = `untuk ${x.postType}`;
-                            x.desc_content_en = `for ${x.postType}`;
+                            dataSeller = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk ${dataSeller.post_type}`;
+                            x.desc_content_en = `for ${dataSeller.post_type}`;
                             break;
                         case "Paket Kredit":
                             x.desc_title_id = "Coin Digunakan";
@@ -22386,8 +22397,9 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Used";
                             x.desc_title_id = `Berlangganan Boost Post`;
                             x.desc_title_en = `Boost Post Subscription`;
-                            x.desc_content_id = `untuk ${x.postType} - hingga ${x.detail[0].datedateEnd}`;
-                            x.desc_content_en = `for ${x.postType} - until ${x.detail[0].datedateEnd}`;
+                            dataBuyer = await this.TransactionsV2Service.getdetailtransaksinewincoince2(x.idTrans);
+                            x.desc_content_id = `untuk ${dataBuyer.post_type} - hingga ${x.detail[0].datedateEnd}`;
+                            x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
                             break;
                         case "WD":
                             x.desc_title_id = `Coins Ditukar`;

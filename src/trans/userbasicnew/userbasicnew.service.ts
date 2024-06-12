@@ -8437,49 +8437,49 @@ export class UserbasicnewService {
                                 ]
                             }
                         },
-                        {
-                            $lookup:
-                            {
+                        // {
+                        //     $lookup:
+                        //     {
 
-                                from: "newPosts",
-                                as: "datapost",
-                                let: {
-                                    idLocal: "$idPost"
-                                },
-                                pipeline: [
-                                    {
-                                        "$match":
-                                        {
-                                            "$expr":
-                                            {
-                                                "$eq":
-                                                    [
-                                                        "$$idLocal", "$postID"
-                                                    ]
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "$limit": 1
-                                    },
-                                    {
-                                        "$lookup": {
-                                            from: "newUserBasics",
-                                            localField: "email",
-                                            foreignField: "email",
-                                            as: "postOwnerData"
-                                        }
-                                    },
-                                    {
-                                        "$project": {
-                                            "postID": 1,
-                                            "postType": 1,
-                                            "postOwner": { $arrayElemAt: ["$postOwnerData.username", 0] }
-                                        }
-                                    }
-                                ]
-                            }
-                        },
+                        //         from: "newPosts",
+                        //         as: "datapost",
+                        //         let: {
+                        //             idLocal: "$idPost"
+                        //         },
+                        //         pipeline: [
+                        //             {
+                        //                 "$match":
+                        //                 {
+                        //                     "$expr":
+                        //                     {
+                        //                         "$eq":
+                        //                             [
+                        //                                 "$$idLocal", "$postID"
+                        //                             ]
+                        //                     }
+                        //                 }
+                        //             },
+                        //             {
+                        //                 "$limit": 1
+                        //             },
+                        //             {
+                        //                 "$lookup": {
+                        //                     from: "newUserBasics",
+                        //                     localField: "email",
+                        //                     foreignField: "email",
+                        //                     as: "postOwnerData"
+                        //                 }
+                        //             },
+                        //             {
+                        //                 "$project": {
+                        //                     "postID": 1,
+                        //                     "postType": 1,
+                        //                     "postOwner": { $arrayElemAt: ["$postOwnerData.username", 0] }
+                        //                 }
+                        //             }
+                        //         ]
+                        //     }
+                        // },
                         {
                             "$lookup": {
                                 from: "transactions",
@@ -8746,9 +8746,9 @@ export class UserbasicnewService {
                     // idPembeli: "$trans.idPembeli",
                     // datapembeli: "$trans.datapembeli",
                     typeAdsID: "$trans.typeAdsID",
-                    "postID": { $arrayElemAt: ['$trans.datapost.postID', 0] },
-                    "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
-                    "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
+                    // "postID": { $arrayElemAt: ['$trans.datapost.postID', 0] },
+                    // "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
+                    // "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
                     idTrans: "$trans.idTransaction",
                     voucherDiskon: "$trans.voucherDiskon",
                     type: "$trans.type",
@@ -8915,6 +8915,8 @@ export class UserbasicnewService {
                 $limit: 5
             }
         )
+        // var util = require('util');
+        // console.log(util.inspect(pipeline, { depth: null, showHidden: false }));
         let result = await this.UserbasicnewModel.aggregate(pipeline)
         return result;
     }
@@ -9147,49 +9149,49 @@ export class UserbasicnewService {
                                 ]
                             }
                         },
-                        {
-                            $lookup:
-                            {
+                        // {
+                        //     $lookup:
+                        //     {
 
-                                from: "newPosts",
-                                as: "datapost",
-                                let: {
-                                    idLocal: "$idPost"
-                                },
-                                pipeline: [
-                                    {
-                                        "$match":
-                                        {
-                                            "$expr":
-                                            {
-                                                "$eq":
-                                                    [
-                                                        "$$idLocal", "$postID"
-                                                    ]
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "$limit": 1
-                                    },
-                                    {
-                                        "$lookup": {
-                                            from: "newUserBasics",
-                                            localField: "email",
-                                            foreignField: "email",
-                                            as: "postOwnerData"
-                                        }
-                                    },
-                                    {
-                                        "$project": {
-                                            "postID": 1,
-                                            "postType": 1,
-                                            "postOwner": { $arrayElemAt: ["$postOwnerData.username", 0] }
-                                        }
-                                    }
-                                ]
-                            }
-                        },
+                        //         from: "newPosts",
+                        //         as: "datapost",
+                        //         let: {
+                        //             idLocal: "$idPost"
+                        //         },
+                        //         pipeline: [
+                        //             {
+                        //                 "$match":
+                        //                 {
+                        //                     "$expr":
+                        //                     {
+                        //                         "$eq":
+                        //                             [
+                        //                                 "$$idLocal", "$postID"
+                        //                             ]
+                        //                     }
+                        //                 }
+                        //             },
+                        //             {
+                        //                 "$limit": 1
+                        //             },
+                        //             {
+                        //                 "$lookup": {
+                        //                     from: "newUserBasics",
+                        //                     localField: "email",
+                        //                     foreignField: "email",
+                        //                     as: "postOwnerData"
+                        //                 }
+                        //             },
+                        //             {
+                        //                 "$project": {
+                        //                     "postID": 1,
+                        //                     "postType": 1,
+                        //                     "postOwner": { $arrayElemAt: ["$postOwnerData.username", 0] }
+                        //                 }
+                        //             }
+                        //         ]
+                        //     }
+                        // },
                         {
                             "$lookup": {
                                 from: "transactions",
@@ -9438,9 +9440,9 @@ export class UserbasicnewService {
                     // idPembeli: "$trans.idPembeli",
                     // datapembeli: "$trans.datapembeli",
                     typeAdsID: "$trans.typeAdsID",
-                    "postID": { $arrayElemAt: ['$trans.datapost.postID', 0] },
-                    "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
-                    "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
+                    // "postID": { $arrayElemAt: ['$trans.datapost.postID', 0] },
+                    // "postType": { $arrayElemAt: ['$trans.datapost.postType', 0] },
+                    // "postOwner": { $arrayElemAt: ['$trans.datapost.postOwner', 0] },
                     idTrans: "$trans.idTransaction",
                     voucherDiskon: "$trans.voucherDiskon",
                     type: "$trans.type",
