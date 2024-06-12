@@ -2399,8 +2399,8 @@ export class DisqusController {
 
   private async buildDisqusv2(dto: ContentDto, buildInteractive: boolean) {
     let cts = await this.disquscontactsService.findByEmailAndMate(dto.email.toString(), dto.receiverParty.toString());
-    var profile = await this.utilsService.generateProfile2(String(dto.email), 'PROFILE');
-    var profile_mate = await this.utilsService.generateProfile2(String(dto.mate), 'PROFILE');
+    let profile = await this.utilsService.generateProfile2(String(dto.email), 'PROFILE');
+    let profile_mate = await this.utilsService.generateProfile2(String(dto.receiverParty), 'PROFILE');
     let dis = new Disqus();
     if (cts != undefined && cts.length > 0) {
       let ct = cts[0];
@@ -2524,8 +2524,8 @@ export class DisqusController {
         if (dataStream.kick != undefined) {
           if (dataStream.kick.length > 0) {
             const arrayKick = dataStream.kick;
-            const idSend = profile.iduser.toString();
-            const idReceiver = profile_mate.iduser.toString();
+            let idSend = profile.iduser.toString();
+            let idReceiver = profile_mate.iduser.toString();
 
             const foundSend = arrayKick.some(el => el.userId === idSend);
             const foundReceiver = arrayKick.some(el => el.userId === idReceiver);
