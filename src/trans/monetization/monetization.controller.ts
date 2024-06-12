@@ -374,6 +374,11 @@ export class MonetizationController {
     }
 
     var getuserdata = await this.basic2SS.findBymail(email);
+    try{
+      this.updatestatus();
+    }catch(e){
+     
+    }
 
     data = await this.monetizationService.listDiscount(getuserdata._id.toString(), page, limit, productType, transaction_amount);
 
