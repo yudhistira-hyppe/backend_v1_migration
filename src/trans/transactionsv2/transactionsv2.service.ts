@@ -565,7 +565,7 @@ export class TransactionsV2Service {
         detail: any[],
         status: string) {
         let logParam = [];
-        let param = await this.getLog(platform,transactionProductCode,category,coinTransaction,discountCoin,priceRp,discountRp,idUserBuy,idUserSell,idVoucher, detail,status)
+        let param = await this.getLog(platform, transactionProductCode, category, coinTransaction, discountCoin, priceRp, discountRp, idUserBuy, idUserSell, idVoucher, detail, status)
         logParam.push(param);
         var outputdatatransaction = [];
         try {
@@ -1352,7 +1352,7 @@ export class TransactionsV2Service {
 
                 if (category != undefined) {
                     transactionsV2_.typeCategory = category;
-                }else{
+                } else {
                     if (transactionProductCode == "CO") {
                         transactionsV2_.typeCategory = "CONTENT_OWNERSHIP";
                     }
@@ -1365,7 +1365,7 @@ export class TransactionsV2Service {
                     if (transactionProductCode == "CM") {
                         transactionsV2_.typeCategory = "CONTENT_MARKETPLACE";
                     }
-                } 
+                }
                 transactionsV2_.idUser = idUser;
                 transactionsV2_.coinDiscount = coinDiscount;
                 transactionsV2_.coin = coin;
@@ -2407,7 +2407,38 @@ export class TransactionsV2Service {
                     recipientUser: {
                         $ifNull: [{ $arrayElemAt: ['$datawithdraw.idUser', 0] }, "-"]
                     },
-                    coa: 1,
+                    // coa: 1,
+                    coa: {
+                        $cond: {
+                            if: {
+                                $and: [
+                                    {
+                                        $eq: ["$coa", "Live Gift"]
+                                    },
+                                    {
+                                        $eq: [{ $arrayElemAt: ["$detail.category", 0] }, "CONTENT"]
+                                    }
+                                ]
+                            },
+                            then: "Content Gift",
+                            else: {
+                                $cond: {
+                                    if: {
+                                        $and: [
+                                            {
+                                                $eq: ["$coa", "Content Gift"]
+                                            },
+                                            {
+                                                $eq: [{ $arrayElemAt: ["$detail.category", 0] }, "LIVE"]
+                                            }
+                                        ]
+                                    },
+                                    then: "Live Gift",
+                                    else: "$coa"
+                                }
+                            }
+                        }
+                    },
                     coaDetailName: 1,
                     coaDetailStatus: 1,
                     "coinadminfee": {
