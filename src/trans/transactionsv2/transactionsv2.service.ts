@@ -3816,7 +3816,13 @@ export class TransactionsV2Service {
                                 _id:"$tanggal",
                                 total:
                                 {
-                                    "$sum":"$totalCoin"
+                                    "$sum":
+                                    {
+                                        "$arrayElemAt":
+                                        [
+                                            "$detail.totalAmount", 0
+                                        ]
+                                    }
                                 }
                             }
                         },
@@ -3873,7 +3879,16 @@ export class TransactionsV2Service {
                                 _id:"$tanggal",
                                 total:
                                 {
-                                    "$sum":"$totalCoin"
+                                    "$sum":
+                                    {
+                                        "$sum":
+                                        {
+                                            "$arrayElemAt":
+                                            [
+                                                "$detail.totalAmount", 0
+                                            ]
+                                        }
+                                    }
                                 }
                             }
                         },
