@@ -21924,7 +21924,7 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Added";
                         x.desc_subtitle_id = `Menonton Iklan`;
                         x.desc_subtitle_en = `Ads Watched`;
-                        let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                        let adsTypeData = x.typeAdsID ? await this.adsTypeService.findOne(x.typeAdsID.toString()) : { nameType: "" };
                         x.desc_content_id = `dari ${adsTypeData.nameType}`;
                         x.desc_content_en = `from ${adsTypeData.nameType}`;
                         break;
@@ -22063,7 +22063,7 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Added";
                             x.desc_subtitle_id = `Menonton Iklan`;
                             x.desc_subtitle_en = `Ads Watched`;
-                            let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                            let adsTypeData = x.typeAdsID ? await this.adsTypeService.findOne(x.typeAdsID.toString()) : { nameType: "" }
                             x.desc_content_id = `dari ${adsTypeData.nameType}`;
                             x.desc_content_en = `from ${adsTypeData.nameType}`;
                             break;
@@ -22260,7 +22260,7 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Added";
                         x.desc_subtitle_id = `Menonton Iklan`;
                         x.desc_subtitle_en = `Ads Watched`;
-                        let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                        let adsTypeData = x.typeAdsID ? await this.adsTypeService.findOne(x.typeAdsID.toString()) : { nameType: "" };
                         x.desc_content_id = `dari ${adsTypeData.nameType}`;
                         x.desc_content_en = `from ${adsTypeData.nameType}`;
                         break;
@@ -22399,7 +22399,7 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Added";
                             x.desc_subtitle_id = `Menonton Iklan`;
                             x.desc_subtitle_en = `Ads Watched`;
-                            let adsTypeData = await this.adsTypeService.findOne(x.typeAdsID.toString());
+                            let adsTypeData = x.typeAdsID ? await this.adsTypeService.findOne(x.typeAdsID.toString()) : { nameType: "" };
                             x.desc_content_id = `dari ${adsTypeData.nameType}`;
                             x.desc_content_en = `from ${adsTypeData.nameType}`;
                             break;
