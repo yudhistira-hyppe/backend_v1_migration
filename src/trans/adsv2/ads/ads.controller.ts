@@ -1029,7 +1029,7 @@ export class AdsController {
                     // }
                 }
                 if ((ads.status == "UNDER_REVIEW") && (AdsDto_.status == "IN_ACTIVE")) {
-                    await this.transactionsV2Service.updateTransaction(ads.idTransactionCreate, "FAILED", [{ "adsID": ads._id, "credit": ads.credit }]);
+                    await this.transactionsV2Service.updateTransaction(ads.idTransactionCreate, "FAILED", [{ "adsID": ads._id, "credit": ads.credit }], "REJECTED");
                     //--------------------INSERT BALANCE KREDIT--------------------
                     // AdsBalaceCreditDto_.iduser = ads.userID;
                     // AdsBalaceCreditDto_.debet = 0;

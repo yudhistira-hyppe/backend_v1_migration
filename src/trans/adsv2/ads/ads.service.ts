@@ -13172,7 +13172,7 @@ export class AdsService {
                     AdsDto_.isActive = false;
                     await this.update(ads[t]._id, AdsDto_);
                     if (sisaCredit > 0) {
-                        await this.transactionsV2Service.updateTransaction(ads[t].idTransactionCreate, "FAILED", [{ "adsID": ads[t]._id, "credit": sisaCredit }]);
+                        await this.transactionsV2Service.updateTransaction(ads[t].idTransactionCreate, "FAILED", [{ "adsID": ads[t]._id, "credit": sisaCredit }],"REFUND");
                     }
                     
                     // let AdsBalaceCreditDto_ = new AdsBalaceCreditDto();

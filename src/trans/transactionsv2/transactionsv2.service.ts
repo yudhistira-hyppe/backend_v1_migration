@@ -90,7 +90,7 @@ export class TransactionsV2Service {
         }).exec();
     }
 
-    async updateTransaction(idTrans: string, status: string, data: any) {
+    async updateTransaction(idTrans: string, status: string, data: any, type?: string) {
         //Get Current Date
         const currentDate = await this.utilsService.getDateTimeString();
         //Get Data Transaction
@@ -161,10 +161,16 @@ export class TransactionsV2Service {
                                                     AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(dataTransaction.idUser.toString());
                                                     AdsBalaceCredit_.debet = 0;
                                                     AdsBalaceCredit_.kredit = Number(dataTransaction.credit);
-                                                    AdsBalaceCredit_.type = "REFUND";
+                                                    if (type == "REFUND") {
+                                                        AdsBalaceCredit_.type = "REFUND";
+                                                        AdsBalaceCredit_.description = "ADS REFUND";
+                                                    }
+                                                    if (type == "REJECTED") {
+                                                        AdsBalaceCredit_.type = "REJECTED";
+                                                        AdsBalaceCredit_.description = "ADS REJECTED";
+                                                    }
                                                     AdsBalaceCredit_.idtrans = dataTransaction._id;
                                                     AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
-                                                    AdsBalaceCredit_.description = "ADS REJECTED";
                                                     AdsBalaceCredit_.idAdspricecredits = adsService_.idAdspricecredits;
                                                     await this.adsBalaceCreditService.create(AdsBalaceCredit_);
                                                 }
