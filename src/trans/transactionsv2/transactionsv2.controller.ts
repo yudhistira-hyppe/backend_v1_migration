@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UtilsService } from '../../utils/utils.service';
 import { LogapisService } from '../logapis/logapis.service';
 import { UserbasicnewService } from '../userbasicnew/userbasicnew.service';
+import { ErrorHandler } from 'src/utils/error.handler';
 // import { MonetizationService } from '../monetization/monetization.service';
 // import { BoostintervalService } from 'src/content/boostinterval/boostinterval.service';
 // import { BoostsessionService } from 'src/content/boostsession/boostsession.service';
@@ -22,6 +23,7 @@ export class TransactionsV2Controller {
         private readonly utilsService: UtilsService,
         private readonly logapiSS: LogapisService,
         private readonly basic2SS: UserbasicnewService,
+        private readonly error: ErrorHandler
         // private readonly monetizationService: MonetizationService,
         // private readonly boostIntervalService: BoostintervalService,
         // private readonly boostSessionService: BoostsessionService
@@ -479,4 +481,64 @@ export class TransactionsV2Controller {
     //     await this.utilsService.sendFcmV2(email, email, eventType, event, type, postID, post_type, idtransaction)
     //     //await this.utilsService.sendFcm(email, titlein, titleen, bodyin, bodyen, eventType, event);
     // }
+
+    @Post('/statistics/coin')
+    @UseGuards(JwtAuthGuard)
+    async chartCoin(@Req() request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + request.originalUrl;
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+
+        if(request_json.startdate == undefined || request_json.startdate == null || request_json.enddate == undefined || request_json.enddate == null)
+        {
+            await this.error.generateBadRequestException("startdate field and enddate field is required");
+        }
+
+        var data = await this.transactionsV2Service.chartCoin(request_json.startdate, request_json.enddate);
+
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+        return {
+            response_code: 202,
+            data,
+            messages
+        }
+    }
+
+    @Post('/statistics/credit')
+    @UseGuards(JwtAuthGuard)
+    async chartCredit(@Req() request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + request.originalUrl;
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var email = auth.email;
+        var request_json = JSON.parse(JSON.stringify(request.body));
+
+        if(request_json.startdate == undefined || request_json.startdate == null || request_json.enddate == undefined || request_json.enddate == null)
+        {
+            await this.error.generateBadRequestException("startdate field and enddate field is required");
+        }
+
+        var data = await this.transactionsV2Service.chartCredit(request_json.startdate, request_json.enddate);
+
+        const messages = {
+            "info": ["The process was successful"],
+        };
+
+        var timestamps_end = await this.utilsService.getDateTimeString();
+        this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+        return {
+            response_code: 202,
+            data,
+            messages
+        }
+    }
 }
