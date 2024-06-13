@@ -201,19 +201,19 @@ export class MediastreamingController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/ceck')
-  //@HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.ACCEPTED)
   async getStatusStream(
     @Query('idBanned') idBanned: string, @Headers() headers) {
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     console.log(profile);
     if (!(await this.utilsService.ceckData(profile))) {
@@ -407,21 +407,21 @@ export class MediastreamingController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/update')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
     const currentDate = await this.utilsService.getDateTimeString();
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
@@ -539,7 +539,8 @@ export class MediastreamingController {
                 userId: new mongoose.Types.ObjectId(profile._id.toString()),
                 status: true,
                 createAt: currentDate,
-                updateAt: currentDate
+                updateAt: currentDate,
+                lokasi: (profile.statesName != undefined) ? profile.statesName:null
               }
               await this.mediastreamingService.insertView(MediastreamingDto_._id.toString(), dataView);
               //UPDATE COMMENT
