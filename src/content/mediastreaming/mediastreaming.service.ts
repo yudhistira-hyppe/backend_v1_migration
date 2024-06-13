@@ -3888,8 +3888,315 @@ export class MediastreamingService {
 
   async dashboard(start_date: any, end_date: any): Promise<any> {
     let pipeline = [];
-    pipeline.push({
-      
-    })
+    pipeline.push(
+      {
+        $match:
+        {
+          $expr: {
+            $and: [
+              {
+                $gte: ["$startLive", start_date.toISOString()]
+              },
+              {
+                $lte: ["$startLive", end_date.toISOString()]
+              }
+            ]
+          }
+        },
+
+      },
+      {
+        $set: {
+          "viewCount": {
+            $size: "$view"
+          },
+
+        }
+      },
+      {
+        $set: {
+          "dateLive": {
+            $substr:
+              [
+                "$startLive",
+                0,
+                10
+              ]
+          },
+
+        }
+      },
+      {
+        $lookup:
+        {
+          from: "newUserBasics",
+          as: "userbasics_data",
+          let:
+          {
+            userId: "$userId"
+          },
+          pipeline:
+            [
+              {
+                $match:
+                {
+                  $expr:
+                  {
+                    $eq:
+                      [
+                        "$_id",
+                        "$$userId"
+                      ]
+                  }
+                },
+
+              },
+              {
+                $project:
+                {
+                  _id: 1,
+                  email: 1,
+                  fullName: 1,
+                  username: 1,
+                  statesName: 1,
+                  avatar: {
+                    "mediaBasePath": "$mediaBasePath",
+                    "mediaUri": "$mediaUri",
+                    "mediaType": "$mediaType",
+                    "mediaEndpoint": "$mediaEndpoint",
+
+                  }
+                }
+              }
+            ]
+        }
+      },
+      {
+        $set: {
+          "lokasi": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userbasics_data", 0]
+                }
+              },
+              "in": "$$tmp.statesName"
+            }
+          }
+        }
+      },
+      {
+        $facet:
+        {
+          stremer: [
+            {
+              $group: {
+                _id: "$userId",
+                count: {
+                  $sum: "$viewCount"
+                }
+              }
+            }
+          ],
+          viewer: [
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: "$viewCount"
+                }
+              }
+            }
+          ],
+          sesi: [
+            {
+              $group: {
+                _id: null,
+                count: {
+                  $sum: 1
+                }
+              }
+            }
+          ],
+          dateStream: [
+            {
+              $group: {
+                _id: "$dateLive",
+                streamer: {
+                  $sum: 1
+                },
+                viewer: {
+                  $sum: "$viewCount"
+                }
+              }
+            },
+            {
+              $project: {
+                "dateLive": "$_id",
+                "streamer": 1,
+                "viewer": 1
+              }
+            }
+          ],
+          sesiStream: [
+            {
+              $group: {
+                _id: {
+                  "userId": "$userId",
+                  "dateLive": "$dateLive",
+
+                },
+                streamer: {
+                  $sum: 1
+                },
+                viewer: {
+                  $sum: "$viewCount"
+                }
+              }
+            },
+            {
+              $project: {
+                "dateLive": "$_id.dateLive",
+                "streamer": 1,
+                "viewer": 1
+              }
+            }
+          ],
+          lokasiStreamer: [
+            {
+              $group: {
+                _id: "$lokasi",
+                streamer: {
+                  $sum: 1
+                },
+
+              }
+            }
+          ],
+          lokasiViewer: [
+            {
+              '$unwind': '$view'
+            },
+            {
+              $group: {
+                _id: "$view.lokasi",
+                viewer: {
+                  $sum: 1
+                },
+
+              }
+            }
+          ],
+          feedbackStreamer: [
+            {
+              $group: {
+                _id: "$feedBack",
+                feedbackText: {
+                  $push: {
+                    "userId": {
+                      "$let": {
+                        "vars": {
+                          "tmp": {
+                            "$arrayElemAt": ["$userbasics_data", 0]
+                          }
+                        },
+                        "in": "$$tmp._id"
+                      }
+                    },
+                    "email": {
+                      "$let": {
+                        "vars": {
+                          "tmp": {
+                            "$arrayElemAt": ["$userbasics_data", 0]
+                          }
+                        },
+                        "in": "$$tmp.email"
+                      }
+                    },
+                    "fullName": {
+                      "$let": {
+                        "vars": {
+                          "tmp": {
+                            "$arrayElemAt": ["$userbasics_data", 0]
+                          }
+                        },
+                        "in": "$$tmp.fullName"
+                      }
+                    },
+                    "username": {
+                      "$let": {
+                        "vars": {
+                          "tmp": {
+                            "$arrayElemAt": ["$userbasics_data", 0]
+                          }
+                        },
+                        "in": "$$tmp.username"
+                      }
+                    },
+                    "avatar": {
+                      "$let": {
+                        "vars": {
+                          "tmp": {
+                            "$arrayElemAt": ["$userbasics_data", 0]
+                          }
+                        },
+                        "in": "$$tmp.avatar"
+                      }
+                    },
+                    "feedbackText": "$feedbackText",
+
+                  }
+                },
+              }
+            },
+            {
+              $project: {
+                "feedback": "$_id",
+                "feedbackText": 1,
+              }
+            }
+          ],
+
+        }
+      },
+      {
+        $project: {
+          stremer: {
+            $size: "$stremer"
+          },
+          viewer: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$viewer", 0]
+                }
+              },
+              "in": "$$tmp.count"
+            }
+          },
+          sesi: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$sesi", 0]
+                }
+              },
+              "in": "$$tmp.count"
+            }
+          },
+          statistics: "$dateStream",
+          totalSesi: "$sesiStream",
+          lokasiStreamer: "$lokasiStreamer",
+          lokasiViewer: "$lokasiViewer",
+          feedbackStreamer: "$feedbackStreamer"
+        }
+      })
+
+    let query = await this.MediastreamingModel.aggregate(pipeline);
+    return query;
+  }
+
+  async database(username: string, desc: string, idLive: string, start_date: string, end_date: string){
+
   }
 }

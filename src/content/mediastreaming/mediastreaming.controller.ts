@@ -29,21 +29,21 @@ export class MediastreamingController {
     private readonly mediastreamingrequestService: MediastreamingrequestService, 
     private readonly appGateway: AppGateway,) { } 
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('/create')
-  @HttpCode(HttpStatus.ACCEPTED)
+  //@HttpCode(HttpStatus.ACCEPTED)
   async createStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
     const currentDate = await this.utilsService.getDate();
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
-      );
-    }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
-      );
-    }
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
@@ -407,21 +407,21 @@ export class MediastreamingController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('/update')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
     const currentDate = await this.utilsService.getDateTimeString();
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
-      );
-    }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
-      );
-    }
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
@@ -469,9 +469,13 @@ export class MediastreamingController {
       }
       //CECK TYPE STOP
       if (MediastreamingDto_.type == "STOP") {
+        let dateStart = ceckId.startLive;
+        let dateStop = currentDate;
+        let durasi = await this.utilsService.durasi(dateStart.toString(), dateStop.toString());
         _MediastreamingDto_.statusText = "FINISHED";
         _MediastreamingDto_.status = false;
-        _MediastreamingDto_.endLive = currentDate;
+        _MediastreamingDto_.durasi = durasi;
+        _MediastreamingDto_.endLive = dateStop;
         await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
         const getDataStream = await this.mediastreamingService.getDataEndLive(MediastreamingDto_._id.toString());
         //GET ID JENIS REPORT
@@ -970,9 +974,13 @@ export class MediastreamingController {
 
                 //CECK REPORT LENGTH
                 if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)) {
+                  let dateStart = ceckId.startLive;
+                  let dateStop = currentDate;
+                  let durasi = await this.utilsService.durasi(dateStart.toString(), dateStop.toString());
+                  _MediastreamingDto_.durasi = durasi;
                   _MediastreamingDto_.statusText = "STOPPED";
                   _MediastreamingDto_.status = false;
-                  _MediastreamingDto_.endLive = currentDate;
+                  _MediastreamingDto_.endLive = dateStop;
                   await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
 
                   let income = 0;
@@ -1692,20 +1700,63 @@ export class MediastreamingController {
     return await this.mediastreamingAgoraService.generateToken(MediastreamingDto_.userId.toString(), privilegeExpireTime);
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('/dashboard')
   @HttpCode(HttpStatus.ACCEPTED)
   async dashboard(@Body() body: any, @Headers() headers, @Request() req) {
-    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unauthorized',
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
+
+    //----------------START DATE----------------
+    var start_date = null;
+    if (body.start_date != undefined) {
+      start_date = new Date(body.start_date);
+    }
+
+    //----------------END DATE----------------
+    var end_date = null;
+    if (body.end_date != undefined) {
+      end_date = new Date(body.end_date);
+      end_date = new Date(end_date.setDate(end_date.getDate() + 1));
+    }
+
+    try {
+      const live_dashboard = await this.mediastreamingService.dashboard(start_date, end_date);
+      return await this.errorHandler.generateAcceptResponseCodeWithData(
+        "Get Live Stream Dashboard succesfully", live_dashboard,
       );
     }
-    if (!(await this.utilsService.validasiTokenEmail(headers))) {
-      await this.errorHandler.generateNotAcceptableException(
-        'Unabled to proceed email header dan token not match',
+    catch (e) {
+      await this.errorHandler.generateInternalServerErrorException(
+        'Unabled to proceed, ERROR ' + e,
       );
     }
+
+  }
+
+
+  //@UseGuards(JwtAuthGuard)
+  @Post('/database')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async database(@Body() body: any, @Headers() headers, @Request() req) {
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
 
     //----------------START DATE----------------
     var start_date = null;
