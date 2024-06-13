@@ -3704,6 +3704,8 @@ export class TransactionsController {
                     var listtransaksi = [];
                     var recordTransCOIN = null;
                     if (dttr != false) {
+
+                        
                         var getdataresulttrans = dttr.data;
                         for (var i = 0; i < getdataresulttrans.length; i++) {
                             var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
@@ -3798,10 +3800,14 @@ export class TransactionsController {
                                 "total": amountTotal
 
                             };
+
+                            let titleinsuksesbeli2 = "Selamat!";
+                            let titleensuksesbeli2 = "Congratulation!";
+                            let bodyinsuksesbeli2 = "Konten Berhasil Dibeli";
+                            let bodyensuksesbeli2 = "Content Successfully Purchased";
+
+                            //this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
                         }
-
-
-
 
                         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
                         return res.status(HttpStatus.OK).json({
