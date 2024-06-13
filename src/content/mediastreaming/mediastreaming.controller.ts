@@ -456,7 +456,8 @@ export class MediastreamingController {
         if (Number(ceckId.expireTime) > Number(getDateTime)) {
           if (MediastreamingDto_.title != undefined) {
             _MediastreamingDto_.title = MediastreamingDto_.title;
-          }
+          } 
+          _MediastreamingDto_.statusText = "ONGOING";
           _MediastreamingDto_.status = true;
           _MediastreamingDto_.startLive = currentDate;
           await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
@@ -468,6 +469,7 @@ export class MediastreamingController {
       }
       //CECK TYPE STOP
       if (MediastreamingDto_.type == "STOP") {
+        _MediastreamingDto_.statusText = "FINISHED";
         _MediastreamingDto_.status = false;
         _MediastreamingDto_.endLive = currentDate;
         await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
@@ -499,10 +501,12 @@ export class MediastreamingController {
       if (MediastreamingDto_.type == "PAUSE") {
         //UPDATE STATUS PAUSE
         const pause = (ceckId.pause != undefined) ? ceckId.pause:false;
-        if (pause){
+        if (pause) {
+          _MediastreamingDto_.statusText = "ONGOING";
           _MediastreamingDto_.pause = false;
           _MediastreamingDto_.pauseDate = currentDate;
         } else {
+          _MediastreamingDto_.statusText = "PAUSE";
           _MediastreamingDto_.pause = true;
           _MediastreamingDto_.pauseDate = currentDate;
         }
@@ -966,6 +970,7 @@ export class MediastreamingController {
 
                 //CECK REPORT LENGTH
                 if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)) {
+                  _MediastreamingDto_.statusText = "STOPPED";
                   _MediastreamingDto_.status = false;
                   _MediastreamingDto_.endLive = currentDate;
                   await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);

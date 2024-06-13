@@ -48,6 +48,7 @@ export class MediastreamingDto {
   income: number;
   reportRemark: any;
   user: any;
+  statusText: String;
 }
 
 export class MediastreamingRequestDto{

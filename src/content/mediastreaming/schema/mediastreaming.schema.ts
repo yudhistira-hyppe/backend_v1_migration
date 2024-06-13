@@ -43,7 +43,9 @@ export class Mediastreaming{
     @Prop()
     urlIngest: String;
     @Prop()
-    feedBack: String;
+    feedBack: String; 
+    @Prop()
+    feedbackText: String; 
     @Prop()
     createAt: String;
     @Prop()
@@ -65,6 +67,8 @@ export class Mediastreaming{
     @Prop()
     dateBanned: String;
     @Prop()
-    income: number; 
+    income: number;
+    @Prop()
+    statusText: String;
 }
 export const MediastreamingSchema = SchemaFactory.createForClass(Mediastreaming);
