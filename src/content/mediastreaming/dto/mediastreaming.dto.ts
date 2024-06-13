@@ -49,7 +49,7 @@ export class MediastreamingDto {
   reportRemark: any;
   user: any;
   statusText: String;
-  durasi: any;
+  durasi: number;
 }
 
 export class MediastreamingRequestDto{

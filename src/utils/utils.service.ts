@@ -3547,14 +3547,8 @@ export class UtilsService {
 
   async durasi(dateStart: string, dateEnd: string) {
     let d = (new Date(dateEnd).getTime()) - (new Date(dateStart).getTime());
-    let weekdays = Math.floor(d / 1000 / 60 / 60 / 24 / 7);
-    let days = Math.floor(d / 1000 / 60 / 60 / 24 - weekdays * 7);
-    let hours = Math.floor(d / 1000 / 60 / 60 - weekdays * 7 * 24 - days * 24);
-    let minutes = Math.floor(d / 1000 / 60 - weekdays * 7 * 24 * 60 - days * 24 * 60 - hours * 60);
-    let seconds = Math.floor(d / 1000 - weekdays * 7 * 24 * 60 * 60 - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60);
-    let t = {};
-    ['hours', 'minutes', 'seconds'].forEach(q => { if (eval(q) > 0) { t[q] = eval(q); } });
-    return t;
+    let resultInMinutes = Math.round(d / 60000);
+    return resultInMinutes;
   }
 }
 

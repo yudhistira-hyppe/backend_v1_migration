@@ -71,6 +71,6 @@ export class Mediastreaming{
     @Prop()
     statusText: String;
     @Prop()
-    durasi: any[];
+    durasi: number;
 }
 export const MediastreamingSchema = SchemaFactory.createForClass(Mediastreaming);
