@@ -2061,7 +2061,7 @@ export class TransactionsV2Service {
                         $ifNull: [{ $arrayElemAt: ['$detail.withdrawId', 0] }, "-"]
                     },
                     "typeAdsID": {
-                        $ifNull: [{ $arrayElemAt: ['$detail.dataAds.typeAdsID', 0] }, "-"]
+                        $ifNull: [{ $arrayElemAt: ['$detail.dataAds.typeAdsID', 0] }, { $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
                     },
                     "idStream": {
                         $ifNull: [{ $arrayElemAt: ['$detail.idStream', 0] }, "-"]
@@ -2860,7 +2860,7 @@ export class TransactionsV2Service {
                         '$ifNull': [{ '$arrayElemAt': ['$detail.withdrawId', 0] }, '-']
                     },
                     typeAdsID: {
-                        '$ifNull': [{ '$arrayElemAt': ['$detail.dataAds.typeAdsID', 0] }, '-']
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.dataAds.typeAdsID', 0] }, { $arrayElemAt: ['$detail.typeAdsID', 0] }, '-']
                     },
                     idStream: {
                         '$ifNull': [{ '$arrayElemAt': ['$detail.idStream', 0] }, '-']

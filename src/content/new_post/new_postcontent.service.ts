@@ -708,7 +708,7 @@ export class NewPostContentService {
     let post = await this.buildUpdatePost(body, headers);
     let apost = await this.loaddata.create(post);
 
-    if (body.certified && body.certified == true) {
+    if (body.certified && body.certified == "true") {
       console.log("post cert: " + opost.certified);
       if (opost.certified == undefined || opost.certified == false) {
         console.log(body.certified)
