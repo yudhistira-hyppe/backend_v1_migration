@@ -201,19 +201,19 @@ export class MediastreamingController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/ceck')
-  //@HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.ACCEPTED)
   async getStatusStream(
     @Query('idBanned') idBanned: string, @Headers() headers) {
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     console.log(profile);
     if (!(await this.utilsService.ceckData(profile))) {
@@ -407,21 +407,21 @@ export class MediastreamingController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/update')
   @HttpCode(HttpStatus.ACCEPTED)
   async updateStreaming(@Body() MediastreamingDto_: MediastreamingDto, @Headers() headers) {
     const currentDate = await this.utilsService.getDateTimeString();
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
     var profile = await this.userbasicnewService.findBymail(headers['x-auth-user']);
     if (!(await this.utilsService.ceckData(profile))) {
       await this.errorHandler.generateNotAcceptableException(
@@ -456,7 +456,8 @@ export class MediastreamingController {
         if (Number(ceckId.expireTime) > Number(getDateTime)) {
           if (MediastreamingDto_.title != undefined) {
             _MediastreamingDto_.title = MediastreamingDto_.title;
-          }
+          } 
+          _MediastreamingDto_.statusText = "ONGOING";
           _MediastreamingDto_.status = true;
           _MediastreamingDto_.startLive = currentDate;
           await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
@@ -468,6 +469,7 @@ export class MediastreamingController {
       }
       //CECK TYPE STOP
       if (MediastreamingDto_.type == "STOP") {
+        _MediastreamingDto_.statusText = "FINISHED";
         _MediastreamingDto_.status = false;
         _MediastreamingDto_.endLive = currentDate;
         await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);
@@ -499,10 +501,12 @@ export class MediastreamingController {
       if (MediastreamingDto_.type == "PAUSE") {
         //UPDATE STATUS PAUSE
         const pause = (ceckId.pause != undefined) ? ceckId.pause:false;
-        if (pause){
+        if (pause) {
+          _MediastreamingDto_.statusText = "ONGOING";
           _MediastreamingDto_.pause = false;
           _MediastreamingDto_.pauseDate = currentDate;
         } else {
+          _MediastreamingDto_.statusText = "PAUSE";
           _MediastreamingDto_.pause = true;
           _MediastreamingDto_.pauseDate = currentDate;
         }
@@ -539,7 +543,8 @@ export class MediastreamingController {
                 userId: new mongoose.Types.ObjectId(profile._id.toString()),
                 status: true,
                 createAt: currentDate,
-                updateAt: currentDate
+                updateAt: currentDate,
+                lokasi: (profile.statesName != undefined) ? profile.statesName:null
               }
               await this.mediastreamingService.insertView(MediastreamingDto_._id.toString(), dataView);
               //UPDATE COMMENT
@@ -965,6 +970,7 @@ export class MediastreamingController {
 
                 //CECK REPORT LENGTH
                 if (getReportlength >= Number(GET_ID_SETTING_MAX_REPORT)) {
+                  _MediastreamingDto_.statusText = "STOPPED";
                   _MediastreamingDto_.status = false;
                   _MediastreamingDto_.endLive = currentDate;
                   await this.mediastreamingService.updateStreaming(MediastreamingDto_._id.toString(), _MediastreamingDto_);

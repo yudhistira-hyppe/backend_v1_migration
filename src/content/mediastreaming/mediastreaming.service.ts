@@ -3887,6 +3887,9 @@ export class MediastreamingService {
   }
 
   async dashboard(start_date: any, end_date: any): Promise<any> {
-    
+    let pipeline = [];
+    pipeline.push({
+      
+    })
   }
 }

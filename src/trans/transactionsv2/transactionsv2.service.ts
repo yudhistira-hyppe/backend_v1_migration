@@ -3609,4 +3609,284 @@ export class TransactionsV2Service {
         let query = await this.transactionsModel.aggregate(pipeline);
         return query[0];
     }
+
+    async chartCoin(startdate:string, enddate:string) {
+        try {
+            var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
+            var dateend = currentdate.toISOString().split("T")[0];
+        } catch (e) {
+            dateend = enddate.substring(0,10);
+        }
+        
+        var data = await this.transactionsModel.aggregate([
+            {
+                "$facet":
+                {
+                    "income":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "category":new mongoose.Types.ObjectId("660f9095c306d245ed2c207f")
+                                    },
+                                    {
+                                        "product":new mongoose.Types.ObjectId("660f7d64c306d245ed2c205d")
+                                    },
+                                    {
+                                        "typeUser":"USER_BUY"
+                                    },
+                                    {
+                                        "createdAt":
+                                        {
+                                            "$gte":startdate,
+                                            "$lt":dateend
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "$set":
+                            {
+                                "tanggal":
+                                {
+                                    "$substr":
+                                    [
+                                        "$createdAt",
+                                        0,
+                                        10
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$group":
+                            {
+                                _id:"$tanggal",
+                                total:
+                                {
+                                    "$sum":"$totalCoin"
+                                }
+                            }
+                        },
+                        {
+                            "$sort":
+                            {
+                                _id:1
+                            }
+                        }
+                    ],
+                    "outcome":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "category":
+                                        {
+                                            "$in":
+                                            [
+                                                new mongoose.Types.ObjectId("6627318f56375e3a6b2230a0"),
+                                                new mongoose.Types.ObjectId("660f95087225851d07c171d5"),
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "product":
+                                        {
+                                            "$in":
+                                            [
+                                                new mongoose.Types.ObjectId("660f7cf8c306d245ed2c2042"),
+                                                new mongoose.Types.ObjectId("660f7d47c306d245ed2c2053"),
+                                                new mongoose.Types.ObjectId("660f7d5ac306d245ed2c2058"),
+                                                new mongoose.Types.ObjectId("660f7d83c306d245ed2c2067"),
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "typeUser":"USER_BUY"
+                                    },
+                                    {
+                                        "createdAt":
+                                        {
+                                            "$gte":startdate,
+                                            "$lt":dateend
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "$set":
+                            {
+                                "tanggal":
+                                {
+                                    "$substr":
+                                    [
+                                        "$createdAt",
+                                        0,
+                                        10
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$group":
+                            {
+                                _id:"$tanggal",
+                                total:
+                                {
+                                    "$sum":"$totalCoin"
+                                }
+                            }
+                        },
+                        {
+                            "$sort":
+                            {
+                                _id:1
+                            }
+                        }
+                    ]
+                }
+            }
+        ]);
+        return data;
+    }
+
+    async chartCredit(startdate:string, enddate:string) {
+        try {
+            var currentdate = new Date(new Date(enddate).setDate(new Date(enddate).getDate() + 1));
+            var dateend = currentdate.toISOString().split("T")[0];
+        } catch (e) {
+            dateend = enddate.substring(0,10);
+        }
+        
+        var data = await this.transactionsModel.aggregate([
+            {
+                "$facet":
+                {
+                    "income":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "category":new mongoose.Types.ObjectId("66306d4dff1a0000750077e2")
+                                    },
+                                    {
+                                        "product":new mongoose.Types.ObjectId("660f7d7bc306d245ed2c2062")
+                                    },
+                                    {
+                                        "typeUser":"USER_BUY"
+                                    },
+                                    {
+                                        "createdAt":
+                                        {
+                                            "$gte":startdate,
+                                            "$lt":dateend
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "$set":
+                            {
+                                "tanggal":
+                                {
+                                    "$substr":
+                                    [
+                                        "$createdAt",
+                                        0,
+                                        10
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$group":
+                            {
+                                _id:"$tanggal",
+                                total:
+                                {
+                                    "$sum":"$totalCoin"
+                                }
+                            }
+                        },
+                        {
+                            "$sort":
+                            {
+                                _id:1
+                            }
+                        }
+                    ],
+                    "outcome":
+                    [
+                        {
+                            "$match":
+                            {
+                                "$and":
+                                [
+                                    {
+                                        "category":new mongoose.Types.ObjectId("6667f2ec2e5e0000280046a2")
+                                    },
+                                    {
+                                        "product":new mongoose.Types.ObjectId("660f7d90c306d245ed2c206c")
+                                    },
+                                    {
+                                        "typeUser":"USER_BUY"
+                                    },
+                                    {
+                                        "createdAt":
+                                        {
+                                            "$gte":startdate,
+                                            "$lt":dateend
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "$set":
+                            {
+                                "tanggal":
+                                {
+                                    "$substr":
+                                    [
+                                        "$createdAt",
+                                        0,
+                                        10
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "$group":
+                            {
+                                _id:"$tanggal",
+                                total:
+                                {
+                                    "$sum":"$totalCoin"
+                                }
+                            }
+                        },
+                        {
+                            "$sort":
+                            {
+                                _id:1
+                            }
+                        }
+                    ]
+                }
+            }
+        ]);
+        return data;
+    }
 }
