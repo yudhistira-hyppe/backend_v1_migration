@@ -2296,7 +2296,7 @@ export class MonetizationService {
                                 {
                                     from: "transactionsV2",
                                     localField: "idTransaction",
-                                    foreignField: "_id",
+                                    foreignField: "idTransaction",
                                     as: "trans_detail"
                                 }
                             },
@@ -2786,7 +2786,7 @@ export class MonetizationService {
                                 {
                                     from: "transactionsV2",
                                     localField: "idTransaction",
-                                    foreignField: "_id",
+                                    foreignField: "idTransaction",
                                     as: "trans_detail"
                                 }
                             },
