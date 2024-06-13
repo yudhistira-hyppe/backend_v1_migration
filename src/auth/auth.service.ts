@@ -13060,7 +13060,7 @@ export class AuthService {
 
     if (await this.utilsService.ceckData(datauserbasicsService)) {
       //Ceck User ActivityEvent Parent
-      const user_activityevents =
+      const user_activityevents_ =
         await this.activityeventsService.findParentWitoutDevice(
           user_email,
           'CHANGE_PASS',
@@ -13072,7 +13072,9 @@ export class AuthService {
       const passuser = datauserbasicsService.password;
       isMatch = await this.utilsService.comparePassword(user_oldPass, passuser);
 
-      if (Object.keys(user_activityevents).length > 0) {
+      //if (Object.keys(user_activityevents).length > 0) {
+      if (await this.utilsService.ceckData(user_activityevents_)) {
+        let user_activityevents:any[] = [user_activityevents_];
         if (isMatch) {
           this.basic2SS.updatebyEmail(user_email, {
             isEmailVerified: true,
