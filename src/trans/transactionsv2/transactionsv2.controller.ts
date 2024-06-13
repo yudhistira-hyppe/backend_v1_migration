@@ -499,6 +499,60 @@ export class TransactionsV2Controller {
 
         var data = await this.transactionsV2Service.chartCoin(request_json.startdate, request_json.enddate);
 
+        var startdate = new Date(request_json.startdate);
+        startdate.setDate(startdate.getDate() - 1);
+        var tempdate = new Date(startdate).toISOString().split("T")[0];
+        var end = new Date().toISOString().split("T")[0];
+        var arrayincome = [];
+
+        var tempincome = data[0].income;
+        //kalo lama, berarti error disini!!
+        while (tempdate != end) {
+            var temp = new Date(tempdate);
+            temp.setDate(temp.getDate() + 1);
+            tempdate = new Date(temp).toISOString().split("T")[0];
+            //console.log(tempdate);
+
+            let obj = tempincome.find(objs => objs._id === tempdate);
+            //console.log(obj);
+            if (obj == undefined) {
+                obj =
+                {
+                    _id: tempdate,
+                    total: 0
+                }
+            }
+
+            arrayincome.push(obj);
+        }
+
+        var startdate = new Date(request_json.startdate);
+        startdate.setDate(startdate.getDate() - 1);
+        var tempdate = new Date(startdate).toISOString().split("T")[0];
+        var end = new Date().toISOString().split("T")[0];
+        var arrayoutcome = [];
+
+        var tempoutcome = data[0].outcome;
+        //kalo lama, berarti error disini!!
+        while (tempdate != end) {
+            var temp = new Date(tempdate);
+            temp.setDate(temp.getDate() + 1);
+            tempdate = new Date(temp).toISOString().split("T")[0];
+            //console.log(tempdate);
+
+            let obj = tempoutcome.find(objs => objs._id === tempdate);
+            //console.log(obj);
+            if (obj == undefined) {
+                obj =
+                {
+                    _id: tempdate,
+                    total: 0
+                }
+            }
+
+            arrayoutcome.push(obj);
+        }
+
         const messages = {
             "info": ["The process was successful"],
         };
@@ -507,7 +561,11 @@ export class TransactionsV2Controller {
         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
         return {
             response_code: 202,
-            data,
+            "data":
+            {
+                income:arrayincome,
+                outcome:arrayoutcome,
+            },
             messages
         }
     }
@@ -529,6 +587,60 @@ export class TransactionsV2Controller {
 
         var data = await this.transactionsV2Service.chartCredit(request_json.startdate, request_json.enddate);
 
+        var startdate = new Date(request_json.startdate);
+        startdate.setDate(startdate.getDate() - 1);
+        var tempdate = new Date(startdate).toISOString().split("T")[0];
+        var end = new Date().toISOString().split("T")[0];
+        var arrayincome = [];
+
+        var tempincome = data[0].income;
+        //kalo lama, berarti error disini!!
+        while (tempdate != end) {
+            var temp = new Date(tempdate);
+            temp.setDate(temp.getDate() + 1);
+            tempdate = new Date(temp).toISOString().split("T")[0];
+            //console.log(tempdate);
+
+            let obj = tempincome.find(objs => objs._id === tempdate);
+            //console.log(obj);
+            if (obj == undefined) {
+                obj =
+                {
+                    _id: tempdate,
+                    total: 0
+                }
+            }
+
+            arrayincome.push(obj);
+        }
+
+        var startdate = new Date(request_json.startdate);
+        startdate.setDate(startdate.getDate() - 1);
+        var tempdate = new Date(startdate).toISOString().split("T")[0];
+        var end = new Date().toISOString().split("T")[0];
+        var arrayoutcome = [];
+
+        var tempoutcome = data[0].outcome;
+        //kalo lama, berarti error disini!!
+        while (tempdate != end) {
+            var temp = new Date(tempdate);
+            temp.setDate(temp.getDate() + 1);
+            tempdate = new Date(temp).toISOString().split("T")[0];
+            //console.log(tempdate);
+
+            let obj = tempoutcome.find(objs => objs._id === tempdate);
+            //console.log(obj);
+            if (obj == undefined) {
+                obj =
+                {
+                    _id: tempdate,
+                    total: 0
+                }
+            }
+
+            arrayoutcome.push(obj);
+        }
+
         const messages = {
             "info": ["The process was successful"],
         };
@@ -537,7 +649,11 @@ export class TransactionsV2Controller {
         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
         return {
             response_code: 202,
-            data,
+            "data":
+            {
+                income:arrayincome,
+                outcome:arrayoutcome,
+            },
             messages
         }
     }

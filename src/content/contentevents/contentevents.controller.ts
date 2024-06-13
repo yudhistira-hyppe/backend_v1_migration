@@ -10821,23 +10821,8 @@ export class ContenteventsController {
           if (!isguest) {
             this.sendInteractiveFCM2(email_receiverParty, "LIKE", request.body.postID, email_user);
           }
-          // const databasic = await this.userbasicsService.findOne(
-          //   email_receiverParty
-          // );
-          // var iduser = null;
-          // if (databasic !== null) {
-          //   iduser = databasic._id;
-          //   this.userChallengeLike(iduser.toString(), idevent1.toString(), "contentevents", "LIKE", request.body.postID);
-          // }
-          //this.userChallengeLike2(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
-          //this.userChallengeLike3(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty);
-
-
+        
           this.scorelikerequestnew(idevent1.toString(), "contentevents", "LIKE", request.body.postID, email_user, email_receiverParty, listchallenge,postType,createdAt,saleAmount);
-
-
-
 
         } catch (error) {
           var fullurl = request.get("Host") + request.originalUrl;

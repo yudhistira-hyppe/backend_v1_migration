@@ -62,7 +62,8 @@ import { TransactionsCredits } from '../transactionsv2/credit/schema/transaction
 import { transactionCoinService } from '../monetization/transactionCoin/transactionCoin.service';
 import { TransactionsCreditsService } from '../transactionsv2/credit/transactionscredits.service';
 import { MonetizationService } from '../monetization/monetization.service';
-
+import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
+import { TransactionsDiscounts } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
 @Controller()
@@ -105,7 +106,8 @@ export class TransactionsController {
         private readonly transCoinSS: transactionCoinService,
         private readonly transCreditSS: TransactionsCreditsService,
         private readonly monetizationService: MonetizationService,
-        private readonly adsTypeService: AdsTypeService
+        private readonly adsTypeService: AdsTypeService,
+        private readonly TransactionsDiscountsService: TransactionsDiscountsService
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -2587,6 +2589,7 @@ export class TransactionsController {
         var datalanguage = null;
         var langIso = null;
         var datamaxmin = null;
+        var idTransactionv2=null;
         var max = 0;
         var min = 0;
 
@@ -2917,6 +2920,7 @@ export class TransactionsController {
                                             console.log(e.message);
                                         }
 
+                                        
                                         try {
 
                                             await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
@@ -2938,7 +2942,7 @@ export class TransactionsController {
                                         }
 
                                         try {
-                                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
+                                            await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, priceAmount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
                                         } catch (e) {
 
                                         }
@@ -2950,16 +2954,34 @@ export class TransactionsController {
                                             datav2 = null;
 
                                         }
-
+    
                                         if (datav2 !== null) {
                                             invoicev2 = datav2.noInvoice;
+                                            idTransactionv2=datav2.idTransaction;
+                                            let createdAt=datav2.createdAt;
+
+                                            try{
+                                                var insertDatatransDiscount = new TransactionsDiscounts();
+                                                insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                                                insertDatatransDiscount.idTransaction = idTransactionv2;
+                                                insertDatatransDiscount.idUser = iduser;
+                                                insertDatatransDiscount.idDiscount=idDiscount;
+                                                insertDatatransDiscount.totalPayment = amountTotal;
+                                                insertDatatransDiscount.transactionDate = createdAt;
+                                                insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                                                insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                                                await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+                                            }catch(e){
+
+                                            }
+                                            try {
+                                                this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
+                                            } catch (e) {
+    
+                                            }
                                         }
 
-                                        try {
-                                            this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
-                                        } catch (e) {
-
-                                        }
+                                      
                                         await this.transactionsService.updatestatuscancel(idtransaction);
 
 
@@ -3177,7 +3199,7 @@ export class TransactionsController {
                                     }
 
                                     try {
-                                        await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, amount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
+                                        await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, priceAmount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
                                     } catch (e) {
 
                                     }
@@ -3192,12 +3214,28 @@ export class TransactionsController {
 
                                     if (datav2 !== null) {
                                         invoicev2 = datav2.noInvoice;
-                                    }
+                                        idTransactionv2=datav2.idTransaction;
+                                        let createdAt=datav2.createdAt;
 
-                                    try {
-                                        this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
-                                    } catch (e) {
+                                        try{
+                                            var insertDatatransDiscount = new TransactionsDiscounts();
+                                            insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                                            insertDatatransDiscount.idTransaction = idTransactionv2;
+                                            insertDatatransDiscount.idUser = iduser;
+                                            insertDatatransDiscount.idDiscount=idDiscount;
+                                            insertDatatransDiscount.totalPayment = amountTotal;
+                                            insertDatatransDiscount.transactionDate = createdAt;
+                                            insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                                            insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                                            await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+                                        }catch(e){
 
+                                        }
+                                        try {
+                                            this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
+                                        } catch (e) {
+
+                                        }
                                     }
 
 
@@ -3477,6 +3515,7 @@ export class TransactionsController {
                     } catch (e) {
                         dttv2 = null;
                     }
+                    
 
                     if (dttv2 !== null) {
 
@@ -3501,6 +3540,24 @@ export class TransactionsController {
                             "total": amountTotal
 
                         };
+
+                        idTransactionv2=dttv2.idTransaction;
+                        let createdAt=dttv2.createdAt;
+
+                        try{
+                            var insertDatatransDiscount = new TransactionsDiscounts();
+                            insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                            insertDatatransDiscount.idTransaction = idTransactionv2;
+                            insertDatatransDiscount.idUser = iduser;
+                            insertDatatransDiscount.idDiscount=idDiscount;
+                            insertDatatransDiscount.totalPayment = amountTotal;
+                            insertDatatransDiscount.transactionDate = createdAt;
+                            insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                            insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                            await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+                        }catch(e){
+
+                        }
 
                         this.notifseller(emailseller.toString(), titleinsukses2, titleensukses2, bodyinsukses2, bodyensukses2, eventType, event, noinvoic, noinvoic);
                         this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
@@ -3801,11 +3858,23 @@ export class TransactionsController {
 
                             };
 
-                            let titleinsuksesbeli2 = "Selamat!";
-                            let titleensuksesbeli2 = "Congratulation!";
-                            let bodyinsuksesbeli2 = "Konten Berhasil Dibeli";
-                            let bodyensuksesbeli2 = "Content Successfully Purchased";
-
+                            idTransactionv2=dttv2.idTransaction;
+                            let createdAt=dttv2.createdAt;
+    
+                            try{
+                                var insertDatatransDiscount = new TransactionsDiscounts();
+                                insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+                                insertDatatransDiscount.idTransaction = idTransactionv2;
+                                insertDatatransDiscount.idUser = iduser;
+                                insertDatatransDiscount.idDiscount=idDiscount;
+                                insertDatatransDiscount.totalPayment = amountTotal;
+                                insertDatatransDiscount.transactionDate = createdAt;
+                                insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+                                insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+                                await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+                            }catch(e){
+    
+                            }
                             //this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
                         }
 
