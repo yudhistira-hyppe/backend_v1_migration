@@ -3885,4 +3885,8 @@ export class MediastreamingService {
     view: number,): Promise<any> {
     return await this.transactionsV2Service.updateDataStreamSpecificUser(streamID, status, email, view);
   }
+
+  async dashboard(start_date: any, end_date: any): Promise<any> {
+    
+  }
 }

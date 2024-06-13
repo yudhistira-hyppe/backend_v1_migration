@@ -90,7 +90,7 @@ export class TransactionsV2Service {
         }).exec();
     }
 
-    async updateTransaction(idTrans: string, status: string, data: any) {
+    async updateTransaction(idTrans: string, status: string, data: any, type?: string) {
         //Get Current Date
         const currentDate = await this.utilsService.getDateTimeString();
         //Get Data Transaction
@@ -161,10 +161,16 @@ export class TransactionsV2Service {
                                                     AdsBalaceCredit_.iduser = new mongoose.Types.ObjectId(dataTransaction.idUser.toString());
                                                     AdsBalaceCredit_.debet = 0;
                                                     AdsBalaceCredit_.kredit = Number(dataTransaction.credit);
-                                                    AdsBalaceCredit_.type = "REFUND";
+                                                    if (type == "REFUND") {
+                                                        AdsBalaceCredit_.type = "REFUND";
+                                                        AdsBalaceCredit_.description = "ADS REFUND";
+                                                    }
+                                                    if (type == "REJECTED") {
+                                                        AdsBalaceCredit_.type = "REJECTED";
+                                                        AdsBalaceCredit_.description = "ADS REJECTED";
+                                                    }
                                                     AdsBalaceCredit_.idtrans = dataTransaction._id;
                                                     AdsBalaceCredit_.timestamp = await this.utilsService.getDateTimeString();
-                                                    AdsBalaceCredit_.description = "ADS REJECTED";
                                                     AdsBalaceCredit_.idAdspricecredits = adsService_.idAdspricecredits;
                                                     await this.adsBalaceCreditService.create(AdsBalaceCredit_);
                                                 }
@@ -838,7 +844,7 @@ export class TransactionsV2Service {
                                                                     }
                                                                     dataTotalCredit = Number(dataCredit) * Number(dataQty);
                                                                     dataGrandTotalCredit += dataTotalCredit;
-                                                                    if (category == "CLICKED" || category == "VIEW") {
+                                                                    if (category == "CLICKED" || category == "VIEW" || category == "CREATE") {
                                                                         credit = dataGrandTotalCredit;
                                                                     }
                                                                 }
@@ -1211,6 +1217,27 @@ export class TransactionsV2Service {
                         typeUser = "USER_BUY";
                         idUser = getDataUserBuy._id;
                         coinDiscount = discountCoin;
+                    }
+
+                    if (category == "CLICKED" || category == "VIEW") {
+                        let dataGrandTotalCredit = 0;
+                        for (let k = 0; k < detail.length; k++) {
+                            let dataDetail = detail[k];
+                            let dataCredit = 0;
+                            let dataQty = 0;
+                            let dataTotalCredit = 0;
+                            if (dataDetail.credit != undefined) {
+                                dataCredit = dataDetail.credit;
+                            }
+                            if (dataDetail.qty != undefined) {
+                                dataQty = dataDetail.qty;
+                            }
+                            dataTotalCredit = Number(dataCredit) * Number(dataQty);
+                            dataGrandTotalCredit += dataTotalCredit;
+                            if (category == "CLICKED" || category == "VIEW") {
+                                credit = dataGrandTotalCredit;
+                            }
+                        }
                     }
 
                     if (categoryTransaction.type != undefined) {
@@ -2034,7 +2061,7 @@ export class TransactionsV2Service {
                         $ifNull: [{ $arrayElemAt: ['$detail.withdrawId', 0] }, "-"]
                     },
                     "typeAdsID": {
-                        $ifNull: [{ $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
+                        $ifNull: [{ $arrayElemAt: ['$detail.dataAds.typeAdsID', 0] }, { $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
                     },
                     "idStream": {
                         $ifNull: [{ $arrayElemAt: ['$detail.idStream', 0] }, "-"]
@@ -2833,7 +2860,7 @@ export class TransactionsV2Service {
                         '$ifNull': [{ '$arrayElemAt': ['$detail.withdrawId', 0] }, '-']
                     },
                     typeAdsID: {
-                        '$ifNull': [{ '$arrayElemAt': ['$detail.typeAdsID', 0] }, '-']
+                        '$ifNull': [{ '$arrayElemAt': ['$detail.dataAds.typeAdsID', 0] }, { $arrayElemAt: ['$detail.typeAdsID', 0] }, '-']
                     },
                     idStream: {
                         '$ifNull': [{ '$arrayElemAt': ['$detail.idStream', 0] }, '-']

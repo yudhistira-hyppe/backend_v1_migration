@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Headers, Get, HttpStatus, Post, UseGuards, Query } from '@nestjs/common';
+import { Body, Controller, HttpCode, Headers, Get, HttpStatus, Post, UseGuards, Query, Request } from '@nestjs/common';
 import { MediastreamingService } from './mediastreaming.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UtilsService } from '../../utils/utils.service';
@@ -1684,5 +1684,47 @@ export class MediastreamingController {
     const currentTime = Math.floor(Date.now() / 1000);
     const privilegeExpireTime = currentTime + Number(GET_EXPIRATION_TIME_LIVE)
     return await this.mediastreamingAgoraService.generateToken(MediastreamingDto_.userId.toString(), privilegeExpireTime);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/dashboard')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async dashboard(@Body() body: any, @Headers() headers, @Request() req) {
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+
+    //----------------START DATE----------------
+    var start_date = null;
+    if (body.start_date != undefined) {
+      start_date = new Date(body.start_date);
+    }
+
+    //----------------END DATE----------------
+    var end_date = null;
+    if (body.end_date != undefined) {
+      end_date = new Date(body.end_date);
+      end_date = new Date(end_date.setDate(end_date.getDate() + 1));
+    }
+
+    try {
+      const live_dashboard = await this.mediastreamingService.dashboard(start_date, end_date);
+      return await this.errorHandler.generateAcceptResponseCodeWithData(
+        "Get Live Stream Dashboard succesfully", live_dashboard,
+      );
+    }
+    catch (e) {
+      await this.errorHandler.generateInternalServerErrorException(
+        'Unabled to proceed, ERROR ' + e,
+      );
+    }
+
   }
 }

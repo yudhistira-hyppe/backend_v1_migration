@@ -8334,7 +8334,7 @@ export class UserbasicnewService {
                                     $ifNull: [{ $arrayElemAt: ['$detail.postID', 0] }, "-"]
                                 },
                                 typeAdsID: {
-                                    $ifNull: [{ $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
+                                    $ifNull: [{ $arrayElemAt: ['$detail.dataAds.typeAdsID', 0] }, { $arrayElemAt: ['$detail.typeAdsID', 0] }, null]
                                 }
                             }
                         },
@@ -9046,7 +9046,7 @@ export class UserbasicnewService {
                                     $ifNull: [{ $arrayElemAt: ['$detail.postID', 0] }, "-"]
                                 },
                                 typeAdsID: {
-                                    $ifNull: [{ $arrayElemAt: ['$detail.typeAdsID', 0] }, "-"]
+                                    $ifNull: [{ $arrayElemAt: ['$detail.dataAds.typeAdsID', 0] }, { $arrayElemAt: ['$detail.typeAdsID', 0] }, null]
                                 }
                             }
                         },
