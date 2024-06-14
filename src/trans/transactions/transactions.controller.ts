@@ -2589,7 +2589,7 @@ export class TransactionsController {
         var datalanguage = null;
         var langIso = null;
         var datamaxmin = null;
-        var idTransactionv2=null;
+        var idTransactionv2 = null;
         var max = 0;
         var min = 0;
 
@@ -2920,7 +2920,7 @@ export class TransactionsController {
                                             console.log(e.message);
                                         }
 
-                                        
+
                                         try {
 
                                             await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
@@ -2954,34 +2954,34 @@ export class TransactionsController {
                                             datav2 = null;
 
                                         }
-    
+
                                         if (datav2 !== null) {
                                             invoicev2 = datav2.noInvoice;
-                                            idTransactionv2=datav2.idTransaction;
-                                            let createdAt=datav2.createdAt;
+                                            idTransactionv2 = datav2.idTransaction;
+                                            let createdAt = datav2.createdAt;
 
-                                            try{
+                                            try {
                                                 var insertDatatransDiscount = new TransactionsDiscounts();
                                                 insertDatatransDiscount._id = new mongoose.Types.ObjectId();
                                                 insertDatatransDiscount.idTransaction = idTransactionv2;
                                                 insertDatatransDiscount.idUser = iduser;
-                                                insertDatatransDiscount.idDiscount=idDiscount;
+                                                insertDatatransDiscount.idDiscount = idDiscount;
                                                 insertDatatransDiscount.totalPayment = amountTotal;
                                                 insertDatatransDiscount.transactionDate = createdAt;
                                                 insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
                                                 insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
                                                 await this.TransactionsDiscountsService.create(insertDatatransDiscount);
-                                            }catch(e){
+                                            } catch (e) {
 
                                             }
                                             try {
                                                 this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
                                             } catch (e) {
-    
+
                                             }
                                         }
 
-                                      
+
                                         await this.transactionsService.updatestatuscancel(idtransaction);
 
 
@@ -3214,21 +3214,21 @@ export class TransactionsController {
 
                                     if (datav2 !== null) {
                                         invoicev2 = datav2.noInvoice;
-                                        idTransactionv2=datav2.idTransaction;
-                                        let createdAt=datav2.createdAt;
+                                        idTransactionv2 = datav2.idTransaction;
+                                        let createdAt = datav2.createdAt;
 
-                                        try{
+                                        try {
                                             var insertDatatransDiscount = new TransactionsDiscounts();
                                             insertDatatransDiscount._id = new mongoose.Types.ObjectId();
                                             insertDatatransDiscount.idTransaction = idTransactionv2;
                                             insertDatatransDiscount.idUser = iduser;
-                                            insertDatatransDiscount.idDiscount=idDiscount;
+                                            insertDatatransDiscount.idDiscount = idDiscount;
                                             insertDatatransDiscount.totalPayment = amountTotal;
                                             insertDatatransDiscount.transactionDate = createdAt;
                                             insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
                                             insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
                                             await this.TransactionsDiscountsService.create(insertDatatransDiscount);
-                                        }catch(e){
+                                        } catch (e) {
 
                                         }
                                         try {
@@ -3515,7 +3515,7 @@ export class TransactionsController {
                     } catch (e) {
                         dttv2 = null;
                     }
-                    
+
 
                     if (dttv2 !== null) {
 
@@ -3541,21 +3541,21 @@ export class TransactionsController {
 
                         };
 
-                        idTransactionv2=dttv2.idTransaction;
-                        let createdAt=dttv2.createdAt;
+                        idTransactionv2 = dttv2.idTransaction;
+                        let createdAt = dttv2.createdAt;
 
-                        try{
+                        try {
                             var insertDatatransDiscount = new TransactionsDiscounts();
                             insertDatatransDiscount._id = new mongoose.Types.ObjectId();
                             insertDatatransDiscount.idTransaction = idTransactionv2;
                             insertDatatransDiscount.idUser = iduser;
-                            insertDatatransDiscount.idDiscount=idDiscount;
+                            insertDatatransDiscount.idDiscount = idDiscount;
                             insertDatatransDiscount.totalPayment = amountTotal;
                             insertDatatransDiscount.transactionDate = createdAt;
                             insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
                             insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
                             await this.TransactionsDiscountsService.create(insertDatatransDiscount);
-                        }catch(e){
+                        } catch (e) {
 
                         }
 
@@ -3762,7 +3762,7 @@ export class TransactionsController {
                     var recordTransCOIN = null;
                     if (dttr != false) {
 
-                        
+
                         var getdataresulttrans = dttr.data;
                         for (var i = 0; i < getdataresulttrans.length; i++) {
                             var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
@@ -3858,22 +3858,22 @@ export class TransactionsController {
 
                             };
 
-                            idTransactionv2=dttv2.idTransaction;
-                            let createdAt=dttv2.createdAt;
-    
-                            try{
+                            idTransactionv2 = dttv2.idTransaction;
+                            let createdAt = dttv2.createdAt;
+
+                            try {
                                 var insertDatatransDiscount = new TransactionsDiscounts();
                                 insertDatatransDiscount._id = new mongoose.Types.ObjectId();
                                 insertDatatransDiscount.idTransaction = idTransactionv2;
                                 insertDatatransDiscount.idUser = iduser;
-                                insertDatatransDiscount.idDiscount=idDiscount;
+                                insertDatatransDiscount.idDiscount = idDiscount;
                                 insertDatatransDiscount.totalPayment = amountTotal;
                                 insertDatatransDiscount.transactionDate = createdAt;
                                 insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
                                 insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
                                 await this.TransactionsDiscountsService.create(insertDatatransDiscount);
-                            }catch(e){
-    
+                            } catch (e) {
+
                             }
                             //this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
                         }
@@ -4075,6 +4075,7 @@ export class TransactionsController {
                             try {
                                 await this.transactionsService.updatecancel(idtransaksi);
                                 await this.TransactionsV2Service.updateTransaction(data.idTransaction, "FAILED", null);
+                                this.notifbuy2(data.emailbuyer, "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${data.usernamebuyer}, transaksi ${data.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${data.usernamebuyer}, the ${data.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", data.post_id, data.noInvoice);
                                 if (data.voucherDiskon.length > 0) await this.monetizationService.updateStock(data.voucherDiskon[0].toString(), 1, false);
 
                                 try {
@@ -5389,9 +5390,11 @@ export class TransactionsController {
 
             if (dataV2 !== null) {
                 idTransactionv2 = dataV2.idTransaction
+                let detailtr = await this.TransactionsV2Service.getdetailtransaksinewincoince2(idTransactionv2);
 
                 try {
                     await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "FAILED", payload);
+                    this.notifbuyerCoin(emailbuyer.toString(), "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${detailtr["usernamebuyer"]}, transaksi ${detailtr.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${detailtr["usernamebuyer"]}, the ${detailtr.coa} transaction failed due to the payment period expiring. Click to see the details!`, eventType, "TOPUP_COIN", noInvoice2.toString(), noInvoice2);
                 } catch (e) {
 
                 }
@@ -21930,6 +21933,7 @@ export class TransactionsController {
                             await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
                             if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
                             // x.status = "FAILED";
+                            this.notifbuy2(x.emailbuyer, "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${x.usernamebuyer}, transaksi ${x.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${x.usernamebuyer}, the ${x.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", x.detail[0].postID ? x.detail[0].postID : "-", x.noInvoice);
                             if (!foundExpired) foundExpired = true;
                         } catch (e) {
 
@@ -22071,6 +22075,7 @@ export class TransactionsController {
                                 await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
                                 if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
                                 // x.status = "FAILED";
+                                this.notifbuy2(x.emailbuyer, "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${x.usernamebuyer}, transaksi ${x.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${x.usernamebuyer}, the ${x.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", x.detail[0].postID ? x.detail[0].postID : "-", x.noInvoice);
                                 if (!foundExpired) foundExpired = true;
                             } catch (e) {
 
@@ -22268,6 +22273,7 @@ export class TransactionsController {
                             await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
                             if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
                             // x.status = "FAILED";
+                            this.notifbuy2(x.emailbuyer, "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${x.usernamebuyer}, transaksi ${x.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${x.usernamebuyer}, the ${x.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", x.detail[0].postID ? x.detail[0].postID : "-", x.noInvoice);
                             if (!foundExpired) foundExpired = true;
                         } catch (e) {
 
@@ -22407,6 +22413,7 @@ export class TransactionsController {
                                 await this.TransactionsV2Service.updateTransaction(x.idTrans, "FAILED", null);
                                 if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
                                 // x.status = "FAILED";
+                                this.notifbuy2(x.emailbuyer, "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${x.usernamebuyer}, transaksi ${x.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${x.usernamebuyer}, the ${x.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", x.detail[0].postID ? x.detail[0].postID : "-", x.noInvoice);
                                 if (!foundExpired) foundExpired = true;
                             } catch (e) {
 

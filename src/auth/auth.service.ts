@@ -13199,9 +13199,9 @@ export class AuthService {
         }
       } else {
         if (isMatch) {
-          this.userauthsService.updatebyEmail(user_email, {
+          this.basic2SS.updatebyEmail(user_email, {
             isEmailVerified: true,
-            password: bcrypt.hashSync(user_newPass, 5),
+            password: await this.utilsService.generatePassword(user_newPass),
           });
 
           //Create ActivityEvent Parent

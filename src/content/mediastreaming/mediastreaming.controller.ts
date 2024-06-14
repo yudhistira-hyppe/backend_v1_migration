@@ -5,7 +5,7 @@ import { UtilsService } from '../../utils/utils.service';
 import { ErrorHandler } from '../../utils/error.handler';
 import { Long } from 'mongodb';
 import mongoose from 'mongoose';
-import { CallbackModeration, MediastreamingDto, MediastreamingRequestDto, RequestAppealStream, RequestSoctDto } from './dto/mediastreaming.dto';
+import { CallbackModeration, MediastreamingDto, MediastreamingRequestDto, RequestAppealStream, RequestConsoleStream, RequestSoctDto } from './dto/mediastreaming.dto';
 import { ConfigService } from '@nestjs/config';
 import { MediastreamingalicloudService } from './mediastreamingalicloud.service';
 import { AppGateway } from '../socket/socket.gateway';
@@ -1700,36 +1700,23 @@ export class MediastreamingController {
     return await this.mediastreamingAgoraService.generateToken(MediastreamingDto_.userId.toString(), privilegeExpireTime);
   }
 
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/dashboard')
   @HttpCode(HttpStatus.ACCEPTED)
-  async dashboard(@Body() body: any, @Headers() headers, @Request() req) {
-    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unauthorized',
-    //   );
-    // }
-    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
-    //   await this.errorHandler.generateNotAcceptableException(
-    //     'Unabled to proceed email header dan token not match',
-    //   );
-    // }
-
-    //----------------START DATE----------------
-    var start_date = null;
-    if (body.start_date != undefined) {
-      start_date = new Date(body.start_date);
+  async dashboard(@Body() RequestConsoleStream_: RequestConsoleStream, @Headers() headers) {
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
     }
-
-    //----------------END DATE----------------
-    var end_date = null;
-    if (body.end_date != undefined) {
-      end_date = new Date(body.end_date);
-      end_date = new Date(end_date.setDate(end_date.getDate() + 1));
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
     }
 
     try {
-      const live_dashboard = await this.mediastreamingService.dashboard(start_date, end_date);
+      const live_dashboard = await this.mediastreamingService.dashboard(RequestConsoleStream_);
       return await this.errorHandler.generateAcceptResponseCodeWithData(
         "Get Live Stream Dashboard succesfully", live_dashboard,
       );
@@ -1746,7 +1733,7 @@ export class MediastreamingController {
   //@UseGuards(JwtAuthGuard)
   @Post('/database')
   @HttpCode(HttpStatus.ACCEPTED)
-  async database(@Body() body: any, @Headers() headers, @Request() req) {
+  async database(@Body() RequestConsoleStream_: RequestConsoleStream, @Headers() headers) {
     // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
     //   await this.errorHandler.generateNotAcceptableException(
     //     'Unauthorized',
@@ -1758,21 +1745,8 @@ export class MediastreamingController {
     //   );
     // }
 
-    //----------------START DATE----------------
-    var start_date = null;
-    if (body.start_date != undefined) {
-      start_date = new Date(body.start_date);
-    }
-
-    //----------------END DATE----------------
-    var end_date = null;
-    if (body.end_date != undefined) {
-      end_date = new Date(body.end_date);
-      end_date = new Date(end_date.setDate(end_date.getDate() + 1));
-    }
-
     try {
-      const live_dashboard = await this.mediastreamingService.dashboard(start_date, end_date);
+      const live_dashboard = await this.mediastreamingService.database(RequestConsoleStream_);
       return await this.errorHandler.generateAcceptResponseCodeWithData(
         "Get Live Stream Dashboard succesfully", live_dashboard,
       );
