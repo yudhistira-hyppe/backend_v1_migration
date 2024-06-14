@@ -79,4 +79,55 @@ export class AdsPurposesController {
             );
         }
     }
+
+    @Post('/list')
+    @UseGuards(JwtAuthGuard)
+    async profileuser(@Req() request: Request): Promise<any> {
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        var descending = null;
+
+        var data = null;
+        var noAudit = null;
+        var startdate = null;
+        var enddate = null;
+        var idUser = null;
+        var remark=null;
+        var type=null;
+    
+        remark = request_json["remark"];
+        idUser = request_json["idUser"];
+        startdate = request_json["startdate"];
+        enddate = request_json["enddate"];
+        descending = request_json["descending"];
+        type = request_json["type"];
+        const messages = {
+            "info": ["The process successful"],
+        };
+        var lengdata = null;
+
+        var page = null;
+        var limit = null;
+
+
+        if (request_json["limit"] !== undefined) {
+            limit = request_json["limit"];
+        }
+        if (request_json["page"] !== undefined) {
+            page = request_json["page"];
+        }
+
+        try {
+            data = await this.adsBalaceCreditService.list(page, limit, descending, startdate, enddate, idUser,remark,type);
+            lengdata = data.length;
+
+        } catch (e) {
+            data = [];
+            lengdata = 0;
+
+        }
+    
+        return { response_code: 202, data, totalrow: lengdata, page, limit, messages };
+
+
+    }
 }
