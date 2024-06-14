@@ -64,6 +64,7 @@ import { TransactionsCreditsService } from '../transactionsv2/credit/transaction
 import { MonetizationService } from '../monetization/monetization.service';
 import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
 import { TransactionsDiscounts } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
+import { temppostDISCUSS } from 'src/content/disqus/newpost/temppost.service';
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
 @Controller()
@@ -107,7 +108,8 @@ export class TransactionsController {
         private readonly transCreditSS: TransactionsCreditsService,
         private readonly monetizationService: MonetizationService,
         private readonly adsTypeService: AdsTypeService,
-        private readonly TransactionsDiscountsService: TransactionsDiscountsService
+        private readonly TransactionsDiscountsService: TransactionsDiscountsService,
+        private readonly temppostDiscuSS: temppostDISCUSS
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -3567,6 +3569,7 @@ export class TransactionsController {
 
                     try {
                         await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
+                        await this.temppostDiscuSS.updateemail(postIds, email.toString(), idbuyer, timedate)
                     } catch (e) {
 
                     }
@@ -19102,11 +19105,13 @@ export class TransactionsController {
     async updateslike2(postid: string) {
         await this.posts2SS.updatesalelike(postid);
         await this.posts2SS.updateeventlike(postid);
+        await this.temppostDiscuSS.updatesalelike(postid);
     }
 
     async updatesview2(postid: string) {
         await this.posts2SS.updatesaleview(postid);
         await this.posts2SS.updateeventview(postid);
+        await this.temppostDiscuSS.updatesaleview(postid);
     }
 
     async notifseller(emailseller: string, titleinsukses: string, titleensukses: string, bodyinsukses: string, bodyensukses: string, eventType: string, event: string, postid: string, noinvoice: string) {
