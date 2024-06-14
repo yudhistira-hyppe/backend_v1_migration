@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Mediastreaming, MediastreamingDocument } from './schema/mediastreaming.schema';
-import { MediastreamingDto, RequestSoctDto } from './dto/mediastreaming.dto';
+import { MediastreamingDto, RequestConsoleStream, RequestSoctDto } from './dto/mediastreaming.dto';
 import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
@@ -3886,25 +3886,44 @@ export class MediastreamingService {
     return await this.transactionsV2Service.updateDataStreamSpecificUser(streamID, status, email, view);
   }
 
-  async dashboard(start_date: any, end_date: any): Promise<any> {
+  async dashboard(RequestConsoleStream_: RequestConsoleStream): Promise<any> {
     let pipeline = [];
-    pipeline.push(
-      {
-        $match:
-        {
-          $expr: {
-            $and: [
-              {
-                $gte: ["$startLive", start_date.toISOString()]
-              },
-              {
-                $lte: ["$startLive", end_date.toISOString()]
-              }
-            ]
-          }
-        },
+    let $match = {};
+    let $expr = {};
+    let $and = [];
 
-      },
+    //----------------START DATE----------------
+    var start_date = null;
+    if (RequestConsoleStream_.livePeriodeStart != undefined) {
+      start_date = new Date(RequestConsoleStream_.livePeriodeStart.toString());
+    }
+
+    //----------------END DATE----------------
+    var end_date = null;
+    if (RequestConsoleStream_.livePeriodeEnd != undefined) {
+      end_date = new Date(RequestConsoleStream_.livePeriodeEnd.toString());
+      end_date = new Date(end_date.setDate(end_date.getDate() + 1));
+    }
+
+    if (start_date!=null){
+      $and.push({
+        $gte: ["$startLive", start_date.toISOString()]
+      })
+    }
+
+    if (end_date != null) {
+      $and.push({
+        $gte: ["$startLive", start_date.toISOString()]
+      })
+    }
+
+    if (start_date != null || end_date != null){
+      $expr["$and"] = $and;
+      $match["$expr"] = $expr;
+      pipeline.push({ $match });
+    }
+
+    pipeline.push(
       {
         $set: {
           "viewCount": {
@@ -4196,7 +4215,118 @@ export class MediastreamingService {
     return query;
   }
 
-  async database(username: string, desc: string, idLive: string, start_date: string, end_date: string){
+  async database(RequestConsoleStream_: RequestConsoleStream) {
+    let pipeline = [];
+    let $match = {};
+    let $expr = {};
+    let $and = [];
+
+    //FILTER LIVE DESC
+    if (RequestConsoleStream_.liveDesc != undefined) {
+      $and.push({
+        title: {
+          $regex: RequestConsoleStream_.liveDesc.toString(),
+          $options: "i"
+        }
+      });
+    }
+
+    //FILTER LIVE ID
+    if (RequestConsoleStream_.liveId != undefined) {
+      $and.push({
+        _id: new mongoose.Types.ObjectId(RequestConsoleStream_.liveId.toString())
+      });
+    }
+
+    //FILTER START END LIVE
+    if (RequestConsoleStream_.livePeriodeStart != undefined || RequestConsoleStream_.livePeriodeEnd != undefined) {
+      //----------------START DATE----------------
+      var start_date = null;
+      if (RequestConsoleStream_.livePeriodeStart != undefined) {
+        start_date = new Date(RequestConsoleStream_.livePeriodeStart.toString());
+      }
+
+      //----------------END DATE----------------
+      var end_date = null;
+      if (RequestConsoleStream_.livePeriodeEnd != undefined) {
+        end_date = new Date(RequestConsoleStream_.livePeriodeEnd.toString());
+        end_date = new Date(end_date.setDate(end_date.getDate() + 1));
+      }
+
+      if (start_date != null) {
+        $and.push({
+          $gte: ["$startLive", start_date.toISOString()]
+        })
+      }
+
+      if (end_date != null) {
+        $and.push({
+          $gte: ["$startLive", start_date.toISOString()]
+        })
+      }
+    }
+
+    //FILTER LIVE ID
+    if (RequestConsoleStream_.liveDurasi != undefined) {
+      if (RequestConsoleStream_.liveDurasi.length > 0) {
+        var liveDurasiFilter = [];
+        //show_smaller_than_20
+        if (RequestConsoleStream_.liveDurasi.includes("show_smaller_than_20")) {
+          liveDurasiFilter.push({
+            durasi: {
+              $gt: 0, $lt: 14
+            }
+          })
+        }
+        //show_20_smaller_than_40
+        if (RequestConsoleStream_.liveDurasi.includes("show_20_smaller_than_40")) {
+          liveDurasiFilter.push({
+            durasi: {
+              $gt: 20, $lt: 40
+            }
+          })
+        }
+        //show_40_smaller_than_60
+        if (RequestConsoleStream_.liveDurasi.includes("show_40_smaller_than_60")) {
+          liveDurasiFilter.push({
+            durasi: {
+              $gt: 40, $lt: 60
+            }
+          })
+        }
+        $and.push({
+          $or: liveDurasiFilter
+        });
+      }
+    }
+
+    //SKIP
+    if (RequestConsoleStream_.page != undefined){
+
+    }
+
+    //LIMIT
+    if (RequestConsoleStream_.limit != undefined) {
+
+    }
+
+    // if (page > 0) {
+    //   paramaggregate.push({
+    //     "$skip": (limit * page)
+    //   });
+    // }
+    // //LIMIT
+    // if (limit > 0) {
+    //   paramaggregate.push({
+    //     "$limit": limit
+    //   });
+    // }
+
+    // if (start_date != null || end_date != null) {
+    //   $expr["$and"] = $and;
+    //   $match["$expr"] = $expr;
+    //   pipeline.push({ $match });
+    // }
 
   }
 }

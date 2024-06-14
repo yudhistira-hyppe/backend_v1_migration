@@ -92,3 +92,14 @@ export class RequestAppealStream {
   approve: boolean;
   createAt: String;
 }
+export class RequestConsoleStream {
+  liveDesc: String;
+  liveId: String;
+  livePeriodeStart: mongoose.Types.ObjectId;
+  livePeriodeEnd: String;
+  liveDurasi: any[];
+  page: number;
+  limit: number;
+  sortField: String;
+  sort: String;
+}
