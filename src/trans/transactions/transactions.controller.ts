@@ -22624,6 +22624,66 @@ export class TransactionsController {
         }
     }
 
+    @Post('api/transactions/updatevafailed')
+    @UseGuards(JwtAuthGuard)
+    async updateTransactionFailed(@Req() request: Request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/updatefailed';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            var request_json = JSON.parse(JSON.stringify(request.body));
+            let nova = "";
+            if (request_json.nova) {
+                nova = request_json.nova;
+                let datatr = await this.transactionsService.findva(nova);
+                let idva = datatr.idva;
+                let oyresponse = await this.oyPgService.staticVaInfo(idva);
+                if (oyresponse.va_status == "EXPIRED") {
+                    let datatr2 = await this.TransactionsV2Service.findByOneNova(datatr.iduserbuyer.toString(), nova);
+                    let detailtr2 = await this.TransactionsV2Service.getdetailtransaksinewincoince2(datatr2.idTransaction);
+                    await this.transactionsService.updatecancel(datatr._id.toString());
+                    await this.TransactionsV2Service.updateTransaction(datatr2.idTransaction, "FAILED", oyresponse);
+                    this.notifbuy2(detailtr2["emailbuyer"], "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${detailtr2["usernamebuyer"]}, transaksi ${detailtr2.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${detailtr2["usernamebuyer"]}, the ${detailtr2.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", detailtr2.post_id, detailtr2.noInvoice);
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    return {
+                        response_code: 202,
+                        data: {
+                            expired: true,
+                            response: oyresponse
+                        },
+                        messages
+                    }
+                }
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                return {
+                    response_code: 202,
+                    data: {
+                        expired: false,
+                        response: oyresponse
+                    },
+                    messages
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+                throw new BadRequestException("Missing field: nova (string)");
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
     async posttaskUpdate(postID: string, Posttask_: Posttask) {
         var dataposttask = null;
 
