@@ -5394,10 +5394,11 @@ export class TransactionsController {
             if (dataV2 !== null) {
                 idTransactionv2 = dataV2.idTransaction
                 let detailtr = await this.TransactionsV2Service.getdetailtransaksinewincoince2(idTransactionv2);
-
+                let datatrlama = await this.transactionsService.findva(detailtr.va_number);
                 try {
-                    await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "FAILED", payload);
-                    this.notifbuyerCoin(emailbuyer.toString(), "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${detailtr["usernamebuyer"]}, transaksi ${detailtr.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${detailtr["usernamebuyer"]}, the ${detailtr.coa} transaction failed due to the payment period expiring. Click to see the details!`, eventType, "TOPUP_COIN", noInvoice2.toString(), noInvoice2);
+                    await this.transactionsService.updatecancel(datatrlama._id.toString());
+                    await this.TransactionsV2Service.updateTransaction(idTransactionv2, "FAILED", payload);
+                    this.notifbuyerCoin(emailbuyer.toString(), "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${detailtr["usernamebuyer"]}, transaksi ${detailtr.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${detailtr["usernamebuyer"]}, the ${detailtr.coa} transaction failed due to the payment period expiring. Click to see the details!`, eventType, "TOPUP_COIN", detailtr.post_id, noInvoice2);
                 } catch (e) {
 
                 }
