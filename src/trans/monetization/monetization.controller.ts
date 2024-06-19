@@ -179,10 +179,10 @@ export class MonetizationController {
     // if (request_json.type !== "COIN" && request_json.type !== "CREDIT" && request_json.type !== "GIFT" && request_json.type !== 'DISCOUNT') { throw new BadRequestException("type must be 'COIN' or 'CREDIT' or 'GIFT' or 'DISCOUNT'"); }
     if (types.indexOf(request_json.type) < 0) { throw new BadRequestException("type must be 'COIN', 'CREDIT', 'GIFT', or 'DISCOUNT'"); }
     let skip = (request_json.page >= 0 ? request_json.page : 0) * request_json.limit;
-    try{
+    try {
       this.updatestatus();
-    }catch(e){
-     
+    } catch (e) {
+
     }
     var data = await this.monetizationService.listAllCoin(skip, request_json.limit, request_json.descending, request_json.type, request_json.name, request_json.from, request_json.to, request_json.stock_gte, request_json.stock_lte, request_json.status, request_json.audiens, request_json.tipegift, request_json.jenisProduk);
 
@@ -374,10 +374,10 @@ export class MonetizationController {
     }
 
     var getuserdata = await this.basic2SS.findBymail(email);
-    try{
+    try {
       this.updatestatus();
-    }catch(e){
-     
+    } catch (e) {
+
     }
 
     data = await this.monetizationService.listDiscount(getuserdata._id.toString(), page, limit, productType, transaction_amount);
@@ -396,10 +396,10 @@ export class MonetizationController {
 
   @Post("usage-user/:id")
   @UseGuards(JwtAuthGuard)
-  async listusageuser(@Param() id:string, @Req() request: Request, @Headers() headers) {
+  async listusageuser(@Param() id: string, @Req() request: Request, @Headers() headers) {
     var data = null;
     var timestamps_start = await this.utilService.getDateTimeString();
-    var url = headers.host + "/api/monetization/"+ id +"/discount";
+    var url = headers.host + "/api/monetization/usage-user" + id;
     var token = headers['x-auth-token'];
     var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
     var email = auth.email;
@@ -414,65 +414,52 @@ export class MonetizationController {
 
     var request_json = JSON.parse(JSON.stringify(request.body));
 
-    if(request_json.kurs_type == null || request_json.kurs_type == undefined)
-    {
+    if (request_json.kurs_type == null || request_json.kurs_type == undefined) {
       await this.error.generateBadRequestException("kurs_type field must required");
     }
-    else
-    {
+    else {
       tipeKurs = request_json.kurs_type;
     }
 
-    if(request_json.page == null || request_json.page == undefined)
-    {
+    if (request_json.page == null || request_json.page == undefined) {
       await this.error.generateBadRequestException("page field must required");
     }
-    else
-    {
+    else {
       page = request_json.page;
     }
 
-    if(request_json.limit == null || request_json.limit == undefined)
-    {
+    if (request_json.limit == null || request_json.limit == undefined) {
       await this.error.generateBadRequestException("limit field must required");
     }
-    else
-    {
+    else {
       limit = request_json.limit;
     }
 
-    if(request_json.username != null && request_json.username != undefined)
-    {
-      username = request_json.username; 
+    if (request_json.username != null && request_json.username != undefined) {
+      username = request_json.username;
     }
 
-    if(request_json.transaction_name != null && request_json.transaction_name != undefined)
-    {
-      transactionid = request_json.transaction_name; 
+    if (request_json.transaction_name != null && request_json.transaction_name != undefined) {
+      transactionid = request_json.transaction_name;
     }
 
-    if(request_json.startdate != null && request_json.startdate != undefined && request_json.enddate != null && request_json.enddate != undefined)
-    {
-      startdate = request_json.startdate; 
-      enddate = request_json.enddate; 
+    if (request_json.startdate != null && request_json.startdate != undefined && request_json.enddate != null && request_json.enddate != undefined) {
+      startdate = request_json.startdate;
+      enddate = request_json.enddate;
     }
 
-    if(request_json.using_discount != null && request_json.using_discount != undefined)
-    {
-      status = request_json.using_discount; 
+    if (request_json.using_discount != null && request_json.using_discount != undefined) {
+      status = request_json.using_discount;
     }
 
     var data = null;
-    if(tipeKurs == "PUBLIC")
-    {
+    if (tipeKurs == "PUBLIC") {
       data = await this.monetizationService.discount_usage_general(id, username, transactionid, startdate, enddate, status, page, limit);
     }
-    else if(tipeKurs == "SPECIAL")
-    {
+    else if (tipeKurs == "SPECIAL") {
       data = await this.monetizationService.discount_usage_special(id, username, transactionid, startdate, enddate, status, page, limit);
     }
-    else
-    {
+    else {
       await this.error.generateBadRequestException("kurs_type value not found");
     }
 
@@ -499,18 +486,15 @@ export class MonetizationController {
     var email = auth.email;
 
     var request_json = JSON.parse(JSON.stringify(request.body));
-    if(request_json.startdate == null || request_json.startdate == undefined || request_json.enddate == null || request_json.enddate == undefined)
-    {
+    if (request_json.startdate == null || request_json.startdate == undefined || request_json.enddate == null || request_json.enddate == undefined) {
       await this.error.generateBadRequestException("startdate field or enddate field is required");
     }
 
-    if(request_json.type == null || request_json.type == undefined)
-    {
+    if (request_json.type == null || request_json.type == undefined) {
       await this.error.generateBadRequestException("type field is required");
     }
 
-    if(request_json.type == "DISCOUNT")
-    {
+    if (request_json.type == "DISCOUNT") {
       data = await this.monetizationService.dashboard(request_json.startdate, request_json.enddate);
     }
 
@@ -551,12 +535,12 @@ export class MonetizationController {
     await this.monetizationService.updateOne(data._id.toString(), updatedata);
   }
 
-  async updatestatus(){
-    var datastok=null;
-    try{
-      datastok=await this.monetizationService.updateManyStatus();
-    }catch(e){
-      
+  async updatestatus() {
+    var datastok = null;
+    try {
+      datastok = await this.monetizationService.updateManyStatus();
+    } catch (e) {
+
     }
 
   }
