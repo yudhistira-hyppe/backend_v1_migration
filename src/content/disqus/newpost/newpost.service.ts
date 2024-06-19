@@ -449,7 +449,7 @@ export class NewpostService {
             likes: 1
         };
        
-        setinput["$set"] = {
+        setinput["$push"] = {
             "userLike": userlike
         }
         
@@ -459,6 +459,117 @@ export class NewpostService {
                 postID: postID,
             },
             setinput,
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
+    }
+    async updateLike3( email_target: string, postID: string) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
+        // var setCEViewer = getdata.userView;
+        // setCEViewer.push(email_target);
+        // setinput["$set"] = {
+        //     "userView": setCEViewer
+        // }
+        
+        this.PostsModel.updateOne(
+            {
+                //email: email,
+                postID: postID,
+            },
+            {
+                "$inc":
+                {
+                    likes:1
+                },
+                "$push":
+                {
+                    userLike:email_target
+                }
+            },
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
+    }
+
+    async updateView4( email_target: string, postID: string) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
+        // var setCEViewer = getdata.userView;
+        // setCEViewer.push(email_target);
+        // setinput["$set"] = {
+        //     "userView": setCEViewer
+        // }
+        
+        this.PostsModel.updateOne(
+            {
+                //email: email,
+                postID: postID,
+            },
+            {
+                "$inc":
+                {
+                    views:1
+                },
+                "$push":
+                {
+                    userView:email_target,
+                    "viewer":email_target
+                }
+            },
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
+    }
+    async updateView5( email_target: string, postID: string) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
+        // var setCEViewer = getdata.userView;
+        // setCEViewer.push(email_target);
+        // setinput["$set"] = {
+        //     "userView": setCEViewer
+        // }
+        
+        this.PostsModel.updateOne(
+            {
+                //email: email,
+                postID: postID,
+            },
+            {
+                "$inc":
+                {
+                    views:1
+                },
+                "$push":
+                {
+                   
+                    "viewer":email_target
+                }
+            },
             function (err, docs) {
                 if (err) {
                     console.log(err);
@@ -486,6 +597,43 @@ export class NewpostService {
                 postID: postID,
             },
             setinput,
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
+    }
+
+    async updateUnLike3( email_target: string, postID: string) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
+        // var setCEViewer = getdata.userView;
+        // setCEViewer.push(email_target);
+        // setinput["$set"] = {
+        //     "userView": setCEViewer
+        // }
+        
+        this.PostsModel.updateOne(
+            {
+                //email: email,
+                postID: postID,
+            },
+            {
+                "$inc":
+                {
+                    likes:-1
+                },
+                "$pull":
+                {
+                    userLike:email_target
+                }
+            },
             function (err, docs) {
                 if (err) {
                     console.log(err);
