@@ -416,9 +416,9 @@ export class NewpostService {
     async updateView3( postID: string,viewer: any[]) {
         // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
         var setinput = {};
-        setinput['$inc'] = {
-            views: 1
-        };
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
        
         setinput["$set"] = {
             

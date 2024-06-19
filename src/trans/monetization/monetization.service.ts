@@ -32,10 +32,10 @@ export class MonetizationService {
         return this.monetData.find().exec();
     }
     async findLaststock(): Promise<Monetize[]> {
-        return this.monetData.find({last_stock:{$lte:0},status:true}).exec();
+        return this.monetData.find({ last_stock: { $lte: 0 }, status: true }).exec();
     }
     async updateManyStatus() {
-        let data = await this.monetData.updateMany({last_stock:{$lte:0},status:true,type:{$ne:"GIFT"} },
+        let data = await this.monetData.updateMany({ last_stock: { $lte: 0 }, status: true, type: { $ne: "GIFT" } },
             {
                 $set: {
                     status: false,
@@ -2644,9 +2644,10 @@ export class MonetizationService {
         );
 
         // var util = require('util');
-        // util.inspect(pipeline, { showHidden:false, depth:null });
+        // console.log(util.inspect(pipeline, { showHidden: false, depth: null }));
 
         var data = await this.monetData.aggregate(pipeline);
+        if (data[0].detail[0].total == 0) data[0].list = [];
         return data;
     }
 
@@ -3062,7 +3063,7 @@ export class MonetizationService {
         );
 
         // var util = require('util');
-        // console.log(util.inspect(pipeline, { showHidden:false, depth:null }));
+        // console.log(util.inspect(pipeline, { showHidden: false, depth: null }));
 
         var data = await this.monetData.aggregate(pipeline);
         return data;

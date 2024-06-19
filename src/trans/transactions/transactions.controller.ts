@@ -2359,10 +2359,10 @@ export class TransactionsController {
         const messages = {
             "info": ["The process was successful"],
         };
-        const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
-        const datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
-        var max = datamaxmin.Max;
-        var min = datamaxmin.Min;
+        // const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
+        // const datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
+        // var max = datamaxmin.Max;
+        // var min = datamaxmin.Min;
         var dailymax = 50000000;
         // const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         // var dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
@@ -2370,37 +2370,77 @@ export class TransactionsController {
         var request_json = JSON.parse(JSON.stringify(request.body));
         const userbasic = await this.basic2SS.findBymail(setemail);
 
-        var formatmax = new Intl.NumberFormat('en-DE').format(max);
-        var formatmin = new Intl.NumberFormat('en-DE').format(min);
+        // var formatmax = new Intl.NumberFormat('en-DE').format(max);
+        // var formatmin = new Intl.NumberFormat('en-DE').format(min);
         var totalAmount = request_json.amount;
-        if (totalAmount >= min && totalAmount <= max) {
-            let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
-            console.log("totaltransaction:", totaltransaction);
-            let dailyTotal = totaltransaction.length > 0 ? totaltransaction[0].totaltransaction : 0
-            if (totalAmount + dailyTotal <= dailymax) {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-                return {
-                    response_code: 202,
-                    data: {
-                        // totalAmountWithAdmin: totalAmount,
-                        valid: true
-                    },
-                    messages
-                }
-            } else {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-                return {
-                    response_code: 400,
-                    data: {
-                        // totalAmountWithAdmin: totalAmount,
-                        valid: false
-                    },
-                    messages: {
-                        info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
-                    }
-                }
+        // if (totalAmount >= min && totalAmount <= max) {
+        //     let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
+        //     console.log("totaltransaction:", totaltransaction);
+        //     let dailyTotal = totaltransaction.length > 0 ? totaltransaction[0].totaltransaction : 0
+        //     if (totalAmount + dailyTotal <= dailymax) {
+        //         var timestamps_end = await this.utilsService.getDateTimeString();
+        //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //         return {
+        //             response_code: 202,
+        //             data: {
+        //                 // totalAmountWithAdmin: totalAmount,
+        //                 valid: true,
+        //                 trMin: min,
+        //                 trMax: max,
+        //                 dailyMax: dailymax
+        //             },
+        //             messages
+        //         }
+        //     } else {
+        //         var timestamps_end = await this.utilsService.getDateTimeString();
+        //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //         return {
+        //             response_code: 400,
+        //             data: {
+        //                 // totalAmountWithAdmin: totalAmount,
+        //                 valid: false,
+        //                 trMin: min,
+        //                 trMax: max,
+        //                 dailyMax: dailymax
+        //             },
+        //             messages: {
+        //                 info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
+        //             }
+        //         }
+        //     }
+        // } else {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //     return {
+        //         response_code: 400,
+        //         data: {
+        //             // totalAmountWithAdmin: totalAmount,
+        //             valid: false,
+        //             trMin: min,
+        //             trMax: max,
+        //             dailyMax: dailymax
+        //         },
+        //         messages: {
+        //             info: ["Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax, "Payment must be greater than or equal to IDR " + formatmin + " and less than or equal to IDR " + formatmax]
+        //         }
+        //     }
+        // }
+        let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
+        console.log("totaltransaction:", totaltransaction);
+        let dailyTotal = totaltransaction.length > 0 ? totaltransaction[0].totaltransaction : 0
+        if (totalAmount + dailyTotal <= dailymax) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: {
+                    // totalAmountWithAdmin: totalAmount,
+                    valid: true,
+                    // trMin: min,
+                    // trMax: max,
+                    dailyMax: dailymax
+                },
+                messages
             }
         } else {
             var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2409,10 +2449,13 @@ export class TransactionsController {
                 response_code: 400,
                 data: {
                     // totalAmountWithAdmin: totalAmount,
-                    valid: false
+                    valid: false,
+                    // trMin: min,
+                    // trMax: max,
+                    dailyMax: dailymax
                 },
                 messages: {
-                    info: ["Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax, "Payment must be greater than or equal to IDR " + formatmin + " and less than or equal to IDR " + formatmax]
+                    info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
                 }
             }
         }
@@ -23373,8 +23416,8 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Added";
                         x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
                         x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
-                        x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
-                        x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
+                        x.desc_content_id = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
+                        x.desc_content_en = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} converted to ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
                         break;
                     case "Live Gift":
                         if (x.coaDetailStatus == "debit") {
@@ -23455,8 +23498,8 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Used";
                         x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
                         x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                        x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
-                        x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
+                        x.desc_content_id = `${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credit`;
+                        x.desc_content_en = `${new Intl.NumberFormat('en-DE').format(x.coin)} converted to ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credits`;
                         break;
                     case "Boost Post":
                         x.desc_title_id = "Coin Digunakan";
@@ -23473,8 +23516,8 @@ export class TransactionsController {
                         x.desc_subtitle_id = `Melakukan Penukaran`;
                         x.desc_subtitle_en = `Exchange Done`;
                         // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                        x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
-                        x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
+                        x.desc_content_id = `Penukaran ${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
+                        x.desc_content_en = `Exchanged ${new Intl.NumberFormat('en-DE').format(x.coin)} to be converted to Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
                     case "REFUND":
                         x.desc_title_id = `Coins Dikembalikan`;
                         x.desc_title_en = `Coins Refunded`;
@@ -23513,8 +23556,8 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Added";
                             x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
                             x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
-                            x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
-                            x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
+                            x.desc_content_id = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
+                            x.desc_content_en = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} converted to ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
                             break;
                         case "Live Gift":
                             if (x.coaDetailStatus == "debit") {
@@ -23568,7 +23611,7 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Added";
                             x.desc_subtitle_id = `Menonton Iklan`;
                             x.desc_subtitle_en = `Ads Watched`;
-                            let adsTypeData = x.typeAdsID ? await this.adsTypeService.findOne(x.typeAdsID.toString()) : { nameType: "" }
+                            let adsTypeData = x.typeAdsID ? await this.adsTypeService.findOne(x.typeAdsID.toString()) : { nameType: "" };
                             x.desc_content_id = `dari ${adsTypeData.nameType}`;
                             x.desc_content_en = `from ${adsTypeData.nameType}`;
                             break;
@@ -23595,8 +23638,8 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Used";
                             x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
                             x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                            x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
-                            x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
+                            x.desc_content_id = `${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credit`;
+                            x.desc_content_en = `${new Intl.NumberFormat('en-DE').format(x.coin)} converted to ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credits`;
                             break;
                         case "Boost Post":
                             x.desc_title_id = "Coin Digunakan";
@@ -23613,8 +23656,8 @@ export class TransactionsController {
                             x.desc_subtitle_id = `Melakukan Penukaran`;
                             x.desc_subtitle_en = `Exchange Done`;
                             // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                            x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
-                            x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
+                            x.desc_content_id = `Penukaran ${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
+                            x.desc_content_en = `Exchanged ${new Intl.NumberFormat('en-DE').format(x.coin)} to be converted to Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
                         case "REFUND":
                             x.desc_title_id = `Coins Dikembalikan`;
                             x.desc_title_en = `Coins Refunded`;
@@ -23711,8 +23754,8 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Added";
                         x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
                         x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
-                        x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
-                        x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
+                        x.desc_content_id = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
+                        x.desc_content_en = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} converted to ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
                         break;
                     case "Live Gift":
                         if (x.coaDetailStatus == "debit") {
@@ -23793,8 +23836,8 @@ export class TransactionsController {
                         x.desc_title_en = "Coins Used";
                         x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
                         x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                        x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
-                        x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
+                        x.desc_content_id = `${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credit`;
+                        x.desc_content_en = `${new Intl.NumberFormat('en-DE').format(x.coin)} converted to ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credits`;
                         break;
                     case "Boost Post":
                         x.desc_title_id = "Coin Digunakan";
@@ -23811,8 +23854,8 @@ export class TransactionsController {
                         x.desc_subtitle_id = `Melakukan Penukaran`;
                         x.desc_subtitle_en = `Exchange Done`;
                         // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                        x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
-                        x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
+                        x.desc_content_id = `Penukaran ${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
+                        x.desc_content_en = `Exchanged ${new Intl.NumberFormat('en-DE').format(x.coin)} to be converted to Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
                     case "REFUND":
                         x.desc_title_id = `Coins Dikembalikan`;
                         x.desc_title_en = `Coins Refunded`;
@@ -23847,12 +23890,12 @@ export class TransactionsController {
                     }
                     switch (x.coa) {
                         case "Paket Coin":
-                            x.desc_title_id = "Coins Ditambahkan";
+                            x.desc_title_id = "Pembelian Coin";
                             x.desc_title_en = "Coins Added";
                             x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
                             x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
-                            x.desc_content_id = `Rp${x.detail[0].amount} dikonversikan dengan ${x.coin} Coins`;
-                            x.desc_content_en = `Rp${x.detail[0].amount} converted to ${x.coin} Coins`;
+                            x.desc_content_id = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
+                            x.desc_content_en = `Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].amount)} converted to ${new Intl.NumberFormat('en-DE').format(x.coin)} Coins`;
                             break;
                         case "Live Gift":
                             if (x.coaDetailStatus == "debit") {
@@ -23933,8 +23976,8 @@ export class TransactionsController {
                             x.desc_title_en = "Coins Used";
                             x.desc_subtitle_id = x.package ? `Pembelian Credits ${x.package}` : `Pembelian Credits`;
                             x.desc_subtitle_en = x.package ? `${x.package} Credits Purchase` : `Credits Purchase`;
-                            x.desc_content_id = `${x.coin} dikonversikan dengan ${x.detail[0].credit} Credit`;
-                            x.desc_content_en = `${x.coin} converted to ${x.detail[0].credit} Credits`;
+                            x.desc_content_id = `${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credit`;
+                            x.desc_content_en = `${new Intl.NumberFormat('en-DE').format(x.coin)} converted to ${new Intl.NumberFormat('en-DE').format(x.detail[0].credit)} Credits`;
                             break;
                         case "Boost Post":
                             x.desc_title_id = "Coin Digunakan";
@@ -23946,13 +23989,13 @@ export class TransactionsController {
                             x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
                             break;
                         case "WD":
-                            x.desc_title_id = `Coins Ditukar`;
+                            x.desc_title_id = `Penukaran Coin`;
                             x.desc_title_en = `Coins Exchanged`;
                             x.desc_subtitle_id = `Melakukan Penukaran`;
                             x.desc_subtitle_en = `Exchange Done`;
                             // let userAccData = await this.userbankaccountsService.getDetailAccountBankById2(x.idAccountBank.toString());
-                            x.desc_content_id = `Penukaran ${x.coin} dikonversikan dengan Rp${x.detail[0].totalAmount}`;
-                            x.desc_content_en = `Exchanged ${x.coin} to be converted to Rp${x.detail[0].totalAmount}`;
+                            x.desc_content_id = `Penukaran ${new Intl.NumberFormat('en-DE').format(x.coin)} dikonversikan dengan Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
+                            x.desc_content_en = `Exchanged ${new Intl.NumberFormat('en-DE').format(x.coin)} to be converted to Rp${new Intl.NumberFormat('en-DE').format(x.detail[0].totalAmount)}`;
                         case "REFUND":
                             x.desc_title_id = `Coins Dikembalikan`;
                             x.desc_title_en = `Coins Refunded`;
