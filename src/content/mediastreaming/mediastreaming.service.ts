@@ -4938,4 +4938,202 @@ export class MediastreamingService {
     let query = await this.MediastreamingModel.aggregate(pipeline);
     return query;
   }
+
+  async databaseDetailGift(_id: string, page: number, limit: number) {
+    const data = await this.MediastreamingModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id)
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "gift": {
+            $sortArray:
+            {
+              input: "$gift",
+              sortBy: { "createAt": 1 }
+            }
+          }
+        }
+      },
+      {
+        $unwind:
+        {
+          path: "$gift"
+        }
+      },
+      {
+        "$project": {
+          "_id": 1,
+          "gift": 1,
+          "giftCreate": "$gift.createAt"
+        }
+      },
+      {
+        $lookup:
+        {
+          from: "monetize",
+          localField: "gift.idGift",
+          foreignField: "_id",
+          as: "data_gift"
+        }
+      },
+      {
+        "$lookup": {
+          from: "newUserBasics",
+          as: "data_userbasics",
+          let: {
+            localID: "$gift.userId"
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$localID"]
+                },
+
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                follower: 1,
+                following: 1,
+                avatar: {
+                  "mediaBasePath": "$mediaBasePath",
+                  "mediaUri": "$mediaUri",
+                  "mediaType": "$mediaType",
+                  "mediaEndpoint": "$mediaEndpoint",
+
+                }
+              }
+            },
+            {
+              $project: {
+                fullName: 1,
+                email: 1,
+                username: 1,
+                avatar: 1,
+                follower: 1,
+                following: 1,
+              }
+            },
+
+          ],
+
+        }
+      },
+      {
+        "$project": {
+          "giftCreate": 1,
+          "giftId": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "name": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.name"
+            }
+          },
+          "thumbnail": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.thumbnail"
+            }
+          },
+          "animation": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.animation"
+            }
+          },
+          "typeGift": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.typeGift"
+            }
+          },
+          "userId": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp._id"
+            }
+          },
+          "email": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.email"
+            }
+          },
+          "fullName": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+          "username": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          "avatar": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_userbasics", 0]
+                }
+              },
+              "in": "$$tmp.avatar"
+            }
+          },
+
+        }
+      },
+    ]);
+    return data;
+  }
 }

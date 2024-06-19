@@ -1783,4 +1783,35 @@ export class MediastreamingController {
     }
 
   }
+
+  //@UseGuards(JwtAuthGuard)
+  @Get('/database/gift')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async databaseDetailGift(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('id') id: string, @Headers() headers) {
+    // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unauthorized',
+    //   );
+    // }
+    // if (!(await this.utilsService.validasiTokenEmail(headers))) {
+    //   await this.errorHandler.generateNotAcceptableException(
+    //     'Unabled to proceed email header dan token not match',
+    //   );
+    // }
+
+    try {
+      const live_dashboard = await this.mediastreamingService.databaseDetailGift(id, page, limit);
+      return await this.errorHandler.generateAcceptResponseCodeWithData(
+        "Get Live Stream database detail succesfully", live_dashboard,
+      );
+    } catch (e) {
+      await this.errorHandler.generateInternalServerErrorException(
+        'Unabled to proceed, ERROR ' + e,
+      );
+    }
+
+  }
 }
