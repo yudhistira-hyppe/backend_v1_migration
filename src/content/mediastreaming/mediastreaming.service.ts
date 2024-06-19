@@ -4722,9 +4722,16 @@ export class MediastreamingService {
                   totalView: {
                     $size: "$view_unique"
                   },
+                  totalGift: {
+                    $size: "$gift"
+                  },
                   totalComment: {
                     $size: "$comment_active"
                   },
+                  totalShare: {
+                    $size: "$share"
+                  },
+                  income: 1,
                   report: {
                     $size: "$report"
                   },
@@ -4882,6 +4889,36 @@ export class MediastreamingService {
               },
               "in": "$$tmp.totalView"
             }
+          }, 
+          totalGift: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.totalGift"
+            }
+          },
+          income: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.income"
+            }
+          }, 
+          totalShare: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.totalShare"
+            }
           },
           report: {
             "$let": {
@@ -4892,7 +4929,7 @@ export class MediastreamingService {
               },
               "in": "$$tmp.report"
             }
-          },
+          }, 
           lokasiViewer: 1,
           reportDetail: 1, 
         }
