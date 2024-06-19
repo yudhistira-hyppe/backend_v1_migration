@@ -30931,6 +30931,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -31007,6 +31010,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -31097,6 +31104,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -31395,6 +31406,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -31471,6 +31485,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -31561,6 +31579,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -31858,6 +31880,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -31934,6 +31959,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -32024,6 +32053,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -32320,6 +32353,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -32396,6 +32432,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -32486,6 +32526,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -32561,7 +32605,7 @@ export class NewPostService {
                 },
 
               ],
-            "vid":
+           "vid":
               [
                 {
                   $lookup: {
@@ -32613,6 +32657,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -32689,6 +32736,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -32779,6 +32830,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -32855,7 +32910,6 @@ export class NewPostService {
 
               ],
 
-
           },
 
         },
@@ -32880,6 +32934,7 @@ export class NewPostService {
         });
 
     }
+    //sampaisini
     else if (pict === true && vid === false && diary === true && user === true && tag === false) {
       pipeline.push(
 
@@ -33080,6 +33135,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -33156,6 +33214,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -33246,6 +33308,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -33321,7 +33387,7 @@ export class NewPostService {
                 },
 
               ],
-            "diary":
+           "diary":
               [
                 {
                   $lookup: {
@@ -33373,6 +33439,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -33449,6 +33518,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -33539,6 +33612,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -33784,7 +33861,7 @@ export class NewPostService {
                   $limit: limit
                 },
               ],
-            "vid":
+         "vid":
               [
                 {
                   $lookup: {
@@ -33836,6 +33913,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -33912,6 +33992,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -34002,6 +34086,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -34077,8 +34165,7 @@ export class NewPostService {
                 },
 
               ],
-
-            "diary":
+         "diary":
               [
                 {
                   $lookup: {
@@ -34130,6 +34217,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -34206,6 +34296,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -34296,6 +34390,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -34594,6 +34692,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -34670,6 +34771,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -34760,6 +34865,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -34835,7 +34944,7 @@ export class NewPostService {
                 },
 
               ],
-            "vid":
+          "vid":
               [
                 {
                   $lookup: {
@@ -34887,6 +34996,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -34963,6 +35075,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -35053,6 +35169,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -35128,8 +35248,7 @@ export class NewPostService {
                 },
 
               ],
-
-            "diary":
+         "diary":
               [
                 {
                   $lookup: {
@@ -35181,6 +35300,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -35257,6 +35379,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -35347,6 +35473,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -35621,7 +35751,7 @@ export class NewPostService {
           $facet:
           {
 
-            "vid":
+         "vid":
               [
                 {
                   $lookup: {
@@ -35673,6 +35803,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -35749,6 +35882,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -35839,6 +35976,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -35914,7 +36055,6 @@ export class NewPostService {
                 },
 
               ],
-
           },
 
         },
@@ -35985,6 +36125,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -36061,6 +36204,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -36151,6 +36298,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -36243,7 +36394,7 @@ export class NewPostService {
           $facet:
           {
 
-            "diary":
+         "diary":
               [
                 {
                   $lookup: {
@@ -36295,6 +36446,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -36371,6 +36525,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -36461,6 +36619,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -36924,7 +37086,7 @@ export class NewPostService {
         {
           $facet:
           {
-            "diary":
+           "diary":
               [
                 {
                   $lookup: {
@@ -36976,6 +37138,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -37052,6 +37217,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -37142,6 +37311,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -37329,7 +37502,7 @@ export class NewPostService {
         {
           $facet:
           {
-            "vid":
+           "vid":
               [
                 {
                   $lookup: {
@@ -37381,6 +37554,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -37457,6 +37633,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -37547,6 +37727,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -37622,7 +37806,6 @@ export class NewPostService {
                 },
 
               ],
-
             "tags":
               [
                 {
@@ -37735,300 +37918,311 @@ export class NewPostService {
         {
           $facet:
           {
-            //pict
-            "pict":
-              [
-                {
-                  $lookup: {
-                    from: "newPosts",
-                    pipeline: [
-                      {
-                        $match:
-                        {
-                          $and: [
-                            {
-                              $text: {
-                                $search: key,
+           //pict
+           "pict":
+           [
+             {
+               $lookup: {
+                 from: "newPosts",
+                 pipeline: [
+                   {
+                     $match:
+                     {
+                       $and: [
+                         {
+                           $text: {
+                             $search: key,
 
-                              }
-                            },
-                            {
-                              "reportedStatus": {
-                                $ne: "OWNED"
-                              }
-                            },
-                            {
-                              "visibility": "PUBLIC"
-                            },
-                            {
-                              "active": true
-                            },
-                            {
-                              "postType": "pict"
-                            },
-                            {
-                              "reportedUser.email": {
-                                $not: {
-                                  $regex: email
-                                }
-                              }
-                            },
+                           }
+                         },
+                         {
+                           "reportedStatus": {
+                             $ne: "OWNED"
+                           }
+                         },
+                         {
+                           "visibility": "PUBLIC"
+                         },
+                         {
+                           "active": true
+                         },
+                         {
+                           "postType": "pict"
+                         },
+                         {
+                           "reportedUser.email": {
+                             $not: {
+                               $regex: email
+                             }
+                           }
+                         },
 
-                          ]
-                        },
+                       ]
+                     },
 
-                      },
-                      {
-                        $set: {
-                          scorePict: {
-                            $meta: "textScore"
-                          }
-                        }
-                      },
-                      {
-                        $project: {
-                          mediaSource: 1,
-                          "boosted":
-                          {
-                            $cond: {
-                              if: {
-                                $gt: [{
-                                  "$dateToString": {
-                                    "format": "%Y-%m-%d %H:%M:%S",
-                                    "date": {
-                                      $add: [new Date(), 25200000]
-                                    }
-                                  }
-                                }, "$boosted.boostSession.timeEnd"]
-                              },
-                              then: [],
-                              else: '$boosted'
-                            }
-                          },
-                          "reportedStatus": 1,
-                          "insight": {
-                            "shares": "$shares",
-                            "comments": "$comments",
-                            "views": "$views",
-                            "likes": "$likes",
+                   },
+                   {
+                     $set: {
+                       scorePict: {
+                         $meta: "textScore"
+                       }
+                     }
+                   },
+                   {
+                     $project: {
+                       mediaSource: 1,
+                       "userLike":1,
+                       "userView":1,
+                       "viewer":1,
+                       "boosted":
+                       {
+                         $cond: {
+                           if: {
+                             $gt: [{
+                               "$dateToString": {
+                                 "format": "%Y-%m-%d %H:%M:%S",
+                                 "date": {
+                                   $add: [new Date(), 25200000]
+                                 }
+                               }
+                             }, "$boosted.boostSession.timeEnd"]
+                           },
+                           then: [],
+                           else: '$boosted'
+                         }
+                       },
+                       "reportedStatus": 1,
+                       "insight": {
+                         "shares": "$shares",
+                         "comments": "$comments",
+                         "views": "$views",
+                         "likes": "$likes",
 
-                          },
-                          "views": "$views",
-                          "comments": "$comments",
-                          "likes": "$likes",
-                          "scorePict": 1,
-                          "_id": 1,
-                          "postID": 1,
-                          "createdAt": 1,
-                          "updatedAt": 1,
-                          "email": 1,
-                          "postType": 1,
-                          "description": 1,
-                          "active": 1,
-                          "metadata": 1,
-                          "location": 1,
-                          "isOwned": 1,
-                          "visibility": 1,
-                          "isViewed": 1,
-                          "allowComments": 1,
-                          "saleAmount": 1,
+                       },
+                       "views": "$views",
+                       "comments": "$comments",
+                       "likes": "$likes",
+                       "scorePict": 1,
+                       "_id": 1,
+                       "postID": 1,
+                       "createdAt": 1,
+                       "updatedAt": 1,
+                       "email": 1,
+                       "postType": 1,
+                       "description": 1,
+                       "active": 1,
+                       "metadata": 1,
+                       "location": 1,
+                       "isOwned": 1,
+                       "visibility": 1,
+                       "isViewed": 1,
+                       "allowComments": 1,
+                       "saleAmount": 1,
 
-                        }
-                      },
-                      {
-                        $sort: {
-                          scorePict: - 1,
-                          comments: - 1,
-                          likes: - 1,
-                          views: -1
-                        }
-                      },
-                      {
-                        $skip: skip
-                      },
-                      {
-                        $limit: limit
-                      },
-                    ],
-                    as: "pict"
-                  },
+                     }
+                   },
+                   {
+                     $sort: {
+                       scorePict: - 1,
+                       comments: - 1,
+                       likes: - 1,
+                       views: -1
+                     }
+                   },
+                   {
+                     $skip: skip
+                   },
+                   {
+                     $limit: limit
+                   },
+                 ],
+                 as: "pict"
+               },
 
-                },
+             },
 
-                {
-                  $unwind: {
-                    path: "$pict",
-                    preserveNullAndEmptyArrays: true
-                  }
-                },
+             {
+               $unwind: {
+                 path: "$pict",
+                 preserveNullAndEmptyArrays: true
+               }
+             },
 
-                {
-                  $project: {
-                    "scorePict": "$pict.scorePict",
-                    "boosted": "$pict.boosted",
-                    "reportedStatus": "$pict.reportedStatus",
-                    "_id": "$pict._id",
-                    "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
-                    {
-                      "$concat": ["/thumb/", "$pict.postID"]
-                    },
-                    mediaEndpoint: {
-                      "$cond":
-                      {
-                        if:
-                        {
-                          "$eq":
-                            [
-                              "$pict.postType", "pict"
-                            ]
-                        },
-                        then:
-                        {
-                          "$concat":
-                            [
-                              "/pict/",
-                              "$pict.postID"
-                            ]
-                        },
-                        else:
-                        {
-                          "$concat":
-                            [
-                              "/stream/",
-                              "$pict.postID"
-                            ]
-                        }
-                      }
-                    },
-                    "mediaType": {
-                      $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
-                    },
-                    "createdAt": "$pict.createdAt",
-                    "updatedAt": "$pict.updatedAt",
-                    "postID": "$pict.postID",
-                    "email": "$pict.email",
-                    "postType": "$pict.postType",
-                    "description": "$pict.description",
-                    "active": "$pict.active",
-                    "metadata": "$pict.metadata",
-                    "location": "$pict.location",
-                    "isOwned": "$pict.isOwned",
-                    "visibility": "$pict.visibility",
-                    "isViewed": "$pict.isViewed",
-                    "allowComments": "$pict.allowComments",
-                    "saleAmount": "$pict.saleAmount",
-                    "monetize":
-                    {
-                      $cond: {
-                        if: {
-                          $gte: ["$pict.saleAmount", 1]
-                        },
-                        then: true,
-                        else: "$taslimKONAG"
-                      }
-                    },
-                    "comments": "$pict.comments",
-                    "likes": "$pict.likes",
-                    "insight":
-                    {
-                      $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
-                    },
-                    "apsaraId": {
-                      $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
-                    },
-                    "isApsara": {
-                      $arrayElemAt: ['$pict.mediaSource.apsara', 0]
-                    },
-                    "viewed": "$pict.insight.views",
-                  }
-                },
-                {
-                  $lookup: {
-                    from: 'newUserBasics',
-                    localField: 'email',
-                    foreignField: 'email',
-                    as: 'userBasic',
+             {
+               $project: {
+                 mediaSource:  "$pict.mediaSource",
+                 "userLike":"$pict.userLike",
+                 "userView":"$pict.userView",
+                 "viewer": "$pict.viewer",
+                 "scorePict": "$pict.scorePict",
+                 "boosted": "$pict.boosted",
+                 "reportedStatus": "$pict.reportedStatus",
+                 "_id": "$pict._id",
+                 "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
+                 {
+                   "$concat": ["/thumb/", "$pict.postID"]
+                 },
+                 mediaEndpoint: {
+                   "$cond":
+                   {
+                     if:
+                     {
+                       "$eq":
+                         [
+                           "$pict.postType", "pict"
+                         ]
+                     },
+                     then:
+                     {
+                       "$concat":
+                         [
+                           "/pict/",
+                           "$pict.postID"
+                         ]
+                     },
+                     else:
+                     {
+                       "$concat":
+                         [
+                           "/stream/",
+                           "$pict.postID"
+                         ]
+                     }
+                   }
+                 },
+                 "mediaType": {
+                   $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
+                 },
+                 "createdAt": "$pict.createdAt",
+                 "updatedAt": "$pict.updatedAt",
+                 "postID": "$pict.postID",
+                 "email": "$pict.email",
+                 "postType": "$pict.postType",
+                 "description": "$pict.description",
+                 "active": "$pict.active",
+                 "metadata": "$pict.metadata",
+                 "location": "$pict.location",
+                 "isOwned": "$pict.isOwned",
+                 "visibility": "$pict.visibility",
+                 "isViewed": "$pict.isViewed",
+                 "allowComments": "$pict.allowComments",
+                 "saleAmount": "$pict.saleAmount",
+                 "monetize":
+                 {
+                   $cond: {
+                     if: {
+                       $gte: ["$pict.saleAmount", 1]
+                     },
+                     then: true,
+                     else: "$taslimKONAG"
+                   }
+                 },
+                 "comments": "$pict.comments",
+                 "likes": "$pict.likes",
+                 "insight":
+                 {
+                   $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
+                 },
+                 "apsaraId": {
+                   $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
+                 },
+                 "isApsara": {
+                   $arrayElemAt: ['$pict.mediaSource.apsara', 0]
+                 },
+                 "viewed": "$pict.insight.views",
+               }
+             },
+             {
+               $lookup: {
+                 from: 'newUserBasics',
+                 localField: 'email',
+                 foreignField: 'email',
+                 as: 'userBasic',
 
-                  },
+               },
 
-                },
-                {
-                  $project: {
-                    "scorePict": 1,
-                    "boosted": 1,
-                    "reportedStatus": 1,
-                    "_id": 1,
-                    "mediaThumbEndpoint": 1,
-                    "mediaEndpoint": 1,
-                    "mediaType": 1,
-                    "createdAt": 1,
-                    "updatedAt": 1,
-                    "postID": 1,
-                    "email": 1,
-                    "postType": 1,
-                    "description": 1,
-                    "active": 1,
-                    "metadata": 1,
-                    "location": 1,
-                    "isOwned": 1,
-                    "visibility": 1,
-                    "isViewed": 1,
-                    "allowComments": 1,
-                    "saleAmount": 1,
-                    "monetize": 1,
-                    "comments": 1,
-                    "likes": 1,
-                    "insight": 1,
-                    "apsaraId": 1,
-                    "isApsara": 1,
-                    "viewed": 1,
-                    "fullName": {
-                      $arrayElemAt: ["$userBasic.fullName", 0]
-                    },
-                    "username": {
-                      $arrayElemAt: ["$userBasic.username", 0]
-                    },
-                    "avatar":
-                    {
-                      "mediaBasePath": {
-                        $arrayElemAt: ["$userBasic.mediaBasePath", 0]
-                      },
-                      "mediaUri": {
-                        $arrayElemAt: ["$userBasic.mediaUri", 0]
-                      },
-                      "originalName": {
-                        $arrayElemAt: ["$userBasic.originalName", 0]
-                      },
-                      "fsSourceUri": {
-                        $arrayElemAt: ["$userBasic.fsSourceUri", 0]
-                      },
-                      "fsSourceName": {
-                        $arrayElemAt: ["$userBasic.fsSourceName", 0]
-                      },
-                      "fsTargetUri": {
-                        $arrayElemAt: ["$userBasic.fsTargetUri", 0]
-                      },
-                      "mediaType": {
-                        $arrayElemAt: ["$userBasic.mediaType", 0]
-                      },
-                      "mediaEndpoint": {
-                        $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
-                      },
+             },
+             {
+               $project: {
+                 mediaSource:1,
+                 "userLike":1,
+                 "userView":1,
+                 "viewer": 1,
+                 "scorePict": 1,
+                 "boosted": 1,
+                 "reportedStatus": 1,
+                 "_id": 1,
+                 "mediaThumbEndpoint": 1,
+                 "mediaEndpoint": 1,
+                 "mediaType": 1,
+                 "createdAt": 1,
+                 "updatedAt": 1,
+                 "postID": 1,
+                 "email": 1,
+                 "postType": 1,
+                 "description": 1,
+                 "active": 1,
+                 "metadata": 1,
+                 "location": 1,
+                 "isOwned": 1,
+                 "visibility": 1,
+                 "isViewed": 1,
+                 "allowComments": 1,
+                 "saleAmount": 1,
+                 "monetize": 1,
+                 "comments": 1,
+                 "likes": 1,
+                 "insight": 1,
+                 "apsaraId": 1,
+                 "isApsara": 1,
+                 "viewed": 1,
+                 "fullName": {
+                   $arrayElemAt: ["$userBasic.fullName", 0]
+                 },
+                 "username": {
+                   $arrayElemAt: ["$userBasic.username", 0]
+                 },
+                 "avatar":
+                 {
+                   "mediaBasePath": {
+                     $arrayElemAt: ["$userBasic.mediaBasePath", 0]
+                   },
+                   "mediaUri": {
+                     $arrayElemAt: ["$userBasic.mediaUri", 0]
+                   },
+                   "originalName": {
+                     $arrayElemAt: ["$userBasic.originalName", 0]
+                   },
+                   "fsSourceUri": {
+                     $arrayElemAt: ["$userBasic.fsSourceUri", 0]
+                   },
+                   "fsSourceName": {
+                     $arrayElemAt: ["$userBasic.fsSourceName", 0]
+                   },
+                   "fsTargetUri": {
+                     $arrayElemAt: ["$userBasic.fsTargetUri", 0]
+                   },
+                   "mediaType": {
+                     $arrayElemAt: ["$userBasic.mediaType", 0]
+                   },
+                   "mediaEndpoint": {
+                     $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
+                   },
 
-                    },
+                 },
 
-                  }
-                },
-                {
-                  $sort: {
-                    scorePict: - 1,
-                    comments: - 1,
-                    likes: - 1,
-                    viewed: -1
-                  }
-                },
+               }
+             },
+             {
+               $sort: {
+                 scorePict: - 1,
+                 comments: - 1,
+                 likes: - 1,
+                 viewed: -1
+               }
+             },
 
-              ],
+           ],
             "tags":
               [
                 {
@@ -38140,235 +38334,95 @@ export class NewPostService {
         {
           $facet:
           {
-            //pict
-            "pict":
-              [
+        //pict
+        "pict":
+        [
+          {
+            $lookup: {
+              from: "newPosts",
+              pipeline: [
                 {
-                  $lookup: {
-                    from: "newPosts",
-                    pipeline: [
+                  $match:
+                  {
+                    $and: [
                       {
-                        $match:
-                        {
-                          $and: [
-                            {
-                              $text: {
-                                $search: key,
+                        $text: {
+                          $search: key,
 
-                              }
-                            },
-                            {
-                              "reportedStatus": {
-                                $ne: "OWNED"
-                              }
-                            },
-                            {
-                              "visibility": "PUBLIC"
-                            },
-                            {
-                              "active": true
-                            },
-                            {
-                              "postType": "pict"
-                            },
-                            {
-                              "reportedUser.email": {
-                                $not: {
-                                  $regex: email
-                                }
-                              }
-                            },
-
-                          ]
-                        },
-
+                        }
                       },
                       {
-                        $set: {
-                          scorePict: {
-                            $meta: "textScore"
+                        "reportedStatus": {
+                          $ne: "OWNED"
+                        }
+                      },
+                      {
+                        "visibility": "PUBLIC"
+                      },
+                      {
+                        "active": true
+                      },
+                      {
+                        "postType": "pict"
+                      },
+                      {
+                        "reportedUser.email": {
+                          $not: {
+                            $regex: email
                           }
                         }
                       },
-                      {
-                        $project: {
-                          mediaSource: 1,
-                          "boosted":
-                          {
-                            $cond: {
-                              if: {
-                                $gt: [{
-                                  "$dateToString": {
-                                    "format": "%Y-%m-%d %H:%M:%S",
-                                    "date": {
-                                      $add: [new Date(), 25200000]
-                                    }
-                                  }
-                                }, "$boosted.boostSession.timeEnd"]
-                              },
-                              then: [],
-                              else: '$boosted'
-                            }
-                          },
-                          "reportedStatus": 1,
-                          "insight": {
-                            "shares": "$shares",
-                            "comments": "$comments",
-                            "views": "$views",
-                            "likes": "$likes",
 
-                          },
-                          "views": "$views",
-                          "comments": "$comments",
-                          "likes": "$likes",
-                          "scorePict": 1,
-                          "_id": 1,
-                          "postID": 1,
-                          "createdAt": 1,
-                          "updatedAt": 1,
-                          "email": 1,
-                          "postType": 1,
-                          "description": 1,
-                          "active": 1,
-                          "metadata": 1,
-                          "location": 1,
-                          "isOwned": 1,
-                          "visibility": 1,
-                          "isViewed": 1,
-                          "allowComments": 1,
-                          "saleAmount": 1,
-
-                        }
-                      },
-                      {
-                        $sort: {
-                          scorePict: - 1,
-                          comments: - 1,
-                          likes: - 1,
-                          views: -1
-                        }
-                      },
-                      {
-                        $skip: skip
-                      },
-                      {
-                        $limit: limit
-                      },
-                    ],
-                    as: "pict"
+                    ]
                   },
 
                 },
-
                 {
-                  $unwind: {
-                    path: "$pict",
-                    preserveNullAndEmptyArrays: true
+                  $set: {
+                    scorePict: {
+                      $meta: "textScore"
+                    }
                   }
                 },
-
                 {
                   $project: {
-                    "scorePict": "$pict.scorePict",
-                    "boosted": "$pict.boosted",
-                    "reportedStatus": "$pict.reportedStatus",
-                    "_id": "$pict._id",
-                    "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
-                    {
-                      "$concat": ["/thumb/", "$pict.postID"]
-                    },
-                    mediaEndpoint: {
-                      "$cond":
-                      {
-                        if:
-                        {
-                          "$eq":
-                            [
-                              "$pict.postType", "pict"
-                            ]
-                        },
-                        then:
-                        {
-                          "$concat":
-                            [
-                              "/pict/",
-                              "$pict.postID"
-                            ]
-                        },
-                        else:
-                        {
-                          "$concat":
-                            [
-                              "/stream/",
-                              "$pict.postID"
-                            ]
-                        }
-                      }
-                    },
-                    "mediaType": {
-                      $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
-                    },
-                    "createdAt": "$pict.createdAt",
-                    "updatedAt": "$pict.updatedAt",
-                    "postID": "$pict.postID",
-                    "email": "$pict.email",
-                    "postType": "$pict.postType",
-                    "description": "$pict.description",
-                    "active": "$pict.active",
-                    "metadata": "$pict.metadata",
-                    "location": "$pict.location",
-                    "isOwned": "$pict.isOwned",
-                    "visibility": "$pict.visibility",
-                    "isViewed": "$pict.isViewed",
-                    "allowComments": "$pict.allowComments",
-                    "saleAmount": "$pict.saleAmount",
-                    "monetize":
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer":1,
+                    "boosted":
                     {
                       $cond: {
                         if: {
-                          $gte: ["$pict.saleAmount", 1]
+                          $gt: [{
+                            "$dateToString": {
+                              "format": "%Y-%m-%d %H:%M:%S",
+                              "date": {
+                                $add: [new Date(), 25200000]
+                              }
+                            }
+                          }, "$boosted.boostSession.timeEnd"]
                         },
-                        then: true,
-                        else: "$taslimKONAG"
+                        then: [],
+                        else: '$boosted'
                       }
                     },
-                    "comments": "$pict.comments",
-                    "likes": "$pict.likes",
-                    "insight":
-                    {
-                      $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
-                    },
-                    "apsaraId": {
-                      $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
-                    },
-                    "isApsara": {
-                      $arrayElemAt: ['$pict.mediaSource.apsara', 0]
-                    },
-                    "viewed": "$pict.insight.views",
-                  }
-                },
-                {
-                  $lookup: {
-                    from: 'newUserBasics',
-                    localField: 'email',
-                    foreignField: 'email',
-                    as: 'userBasic',
-
-                  },
-
-                },
-                {
-                  $project: {
-                    "scorePict": 1,
-                    "boosted": 1,
                     "reportedStatus": 1,
+                    "insight": {
+                      "shares": "$shares",
+                      "comments": "$comments",
+                      "views": "$views",
+                      "likes": "$likes",
+
+                    },
+                    "views": "$views",
+                    "comments": "$comments",
+                    "likes": "$likes",
+                    "scorePict": 1,
                     "_id": 1,
-                    "mediaThumbEndpoint": 1,
-                    "mediaEndpoint": 1,
-                    "mediaType": 1,
+                    "postID": 1,
                     "createdAt": 1,
                     "updatedAt": 1,
-                    "postID": 1,
                     "email": 1,
                     "postType": 1,
                     "description": 1,
@@ -38380,47 +38434,6 @@ export class NewPostService {
                     "isViewed": 1,
                     "allowComments": 1,
                     "saleAmount": 1,
-                    "monetize": 1,
-                    "comments": 1,
-                    "likes": 1,
-                    "insight": 1,
-                    "apsaraId": 1,
-                    "isApsara": 1,
-                    "viewed": 1,
-                    "fullName": {
-                      $arrayElemAt: ["$userBasic.fullName", 0]
-                    },
-                    "username": {
-                      $arrayElemAt: ["$userBasic.username", 0]
-                    },
-                    "avatar":
-                    {
-                      "mediaBasePath": {
-                        $arrayElemAt: ["$userBasic.mediaBasePath", 0]
-                      },
-                      "mediaUri": {
-                        $arrayElemAt: ["$userBasic.mediaUri", 0]
-                      },
-                      "originalName": {
-                        $arrayElemAt: ["$userBasic.originalName", 0]
-                      },
-                      "fsSourceUri": {
-                        $arrayElemAt: ["$userBasic.fsSourceUri", 0]
-                      },
-                      "fsSourceName": {
-                        $arrayElemAt: ["$userBasic.fsSourceName", 0]
-                      },
-                      "fsTargetUri": {
-                        $arrayElemAt: ["$userBasic.fsTargetUri", 0]
-                      },
-                      "mediaType": {
-                        $arrayElemAt: ["$userBasic.mediaType", 0]
-                      },
-                      "mediaEndpoint": {
-                        $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
-                      },
-
-                    },
 
                   }
                 },
@@ -38429,12 +38442,204 @@ export class NewPostService {
                     scorePict: - 1,
                     comments: - 1,
                     likes: - 1,
-                    viewed: -1
+                    views: -1
                   }
                 },
-
+                {
+                  $skip: skip
+                },
+                {
+                  $limit: limit
+                },
               ],
-            "vid":
+              as: "pict"
+            },
+
+          },
+
+          {
+            $unwind: {
+              path: "$pict",
+              preserveNullAndEmptyArrays: true
+            }
+          },
+
+          {
+            $project: {
+              mediaSource:  "$pict.mediaSource",
+              "userLike":"$pict.userLike",
+              "userView":"$pict.userView",
+              "viewer": "$pict.viewer",
+              "scorePict": "$pict.scorePict",
+              "boosted": "$pict.boosted",
+              "reportedStatus": "$pict.reportedStatus",
+              "_id": "$pict._id",
+              "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
+              {
+                "$concat": ["/thumb/", "$pict.postID"]
+              },
+              mediaEndpoint: {
+                "$cond":
+                {
+                  if:
+                  {
+                    "$eq":
+                      [
+                        "$pict.postType", "pict"
+                      ]
+                  },
+                  then:
+                  {
+                    "$concat":
+                      [
+                        "/pict/",
+                        "$pict.postID"
+                      ]
+                  },
+                  else:
+                  {
+                    "$concat":
+                      [
+                        "/stream/",
+                        "$pict.postID"
+                      ]
+                  }
+                }
+              },
+              "mediaType": {
+                $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
+              },
+              "createdAt": "$pict.createdAt",
+              "updatedAt": "$pict.updatedAt",
+              "postID": "$pict.postID",
+              "email": "$pict.email",
+              "postType": "$pict.postType",
+              "description": "$pict.description",
+              "active": "$pict.active",
+              "metadata": "$pict.metadata",
+              "location": "$pict.location",
+              "isOwned": "$pict.isOwned",
+              "visibility": "$pict.visibility",
+              "isViewed": "$pict.isViewed",
+              "allowComments": "$pict.allowComments",
+              "saleAmount": "$pict.saleAmount",
+              "monetize":
+              {
+                $cond: {
+                  if: {
+                    $gte: ["$pict.saleAmount", 1]
+                  },
+                  then: true,
+                  else: "$taslimKONAG"
+                }
+              },
+              "comments": "$pict.comments",
+              "likes": "$pict.likes",
+              "insight":
+              {
+                $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
+              },
+              "apsaraId": {
+                $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
+              },
+              "isApsara": {
+                $arrayElemAt: ['$pict.mediaSource.apsara', 0]
+              },
+              "viewed": "$pict.insight.views",
+            }
+          },
+          {
+            $lookup: {
+              from: 'newUserBasics',
+              localField: 'email',
+              foreignField: 'email',
+              as: 'userBasic',
+
+            },
+
+          },
+          {
+            $project: {
+              mediaSource:1,
+              "userLike":1,
+              "userView":1,
+              "viewer": 1,
+              "scorePict": 1,
+              "boosted": 1,
+              "reportedStatus": 1,
+              "_id": 1,
+              "mediaThumbEndpoint": 1,
+              "mediaEndpoint": 1,
+              "mediaType": 1,
+              "createdAt": 1,
+              "updatedAt": 1,
+              "postID": 1,
+              "email": 1,
+              "postType": 1,
+              "description": 1,
+              "active": 1,
+              "metadata": 1,
+              "location": 1,
+              "isOwned": 1,
+              "visibility": 1,
+              "isViewed": 1,
+              "allowComments": 1,
+              "saleAmount": 1,
+              "monetize": 1,
+              "comments": 1,
+              "likes": 1,
+              "insight": 1,
+              "apsaraId": 1,
+              "isApsara": 1,
+              "viewed": 1,
+              "fullName": {
+                $arrayElemAt: ["$userBasic.fullName", 0]
+              },
+              "username": {
+                $arrayElemAt: ["$userBasic.username", 0]
+              },
+              "avatar":
+              {
+                "mediaBasePath": {
+                  $arrayElemAt: ["$userBasic.mediaBasePath", 0]
+                },
+                "mediaUri": {
+                  $arrayElemAt: ["$userBasic.mediaUri", 0]
+                },
+                "originalName": {
+                  $arrayElemAt: ["$userBasic.originalName", 0]
+                },
+                "fsSourceUri": {
+                  $arrayElemAt: ["$userBasic.fsSourceUri", 0]
+                },
+                "fsSourceName": {
+                  $arrayElemAt: ["$userBasic.fsSourceName", 0]
+                },
+                "fsTargetUri": {
+                  $arrayElemAt: ["$userBasic.fsTargetUri", 0]
+                },
+                "mediaType": {
+                  $arrayElemAt: ["$userBasic.mediaType", 0]
+                },
+                "mediaEndpoint": {
+                  $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
+                },
+
+              },
+
+            }
+          },
+          {
+            $sort: {
+              scorePict: - 1,
+              comments: - 1,
+              likes: - 1,
+              viewed: -1
+            }
+          },
+
+        ],
+          "vid":
               [
                 {
                   $lookup: {
@@ -38486,6 +38691,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -38562,6 +38770,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -38652,6 +38864,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -38840,300 +39056,311 @@ export class NewPostService {
         {
           $facet:
           {
-            //pict
-            "pict":
-              [
-                {
-                  $lookup: {
-                    from: "newPosts",
-                    pipeline: [
-                      {
-                        $match:
-                        {
-                          $and: [
-                            {
-                              $text: {
-                                $search: key,
+             //pict
+             "pict":
+             [
+               {
+                 $lookup: {
+                   from: "newPosts",
+                   pipeline: [
+                     {
+                       $match:
+                       {
+                         $and: [
+                           {
+                             $text: {
+                               $search: key,
 
-                              }
-                            },
-                            {
-                              "reportedStatus": {
-                                $ne: "OWNED"
-                              }
-                            },
-                            {
-                              "visibility": "PUBLIC"
-                            },
-                            {
-                              "active": true
-                            },
-                            {
-                              "postType": "pict"
-                            },
-                            {
-                              "reportedUser.email": {
-                                $not: {
-                                  $regex: email
-                                }
-                              }
-                            },
+                             }
+                           },
+                           {
+                             "reportedStatus": {
+                               $ne: "OWNED"
+                             }
+                           },
+                           {
+                             "visibility": "PUBLIC"
+                           },
+                           {
+                             "active": true
+                           },
+                           {
+                             "postType": "pict"
+                           },
+                           {
+                             "reportedUser.email": {
+                               $not: {
+                                 $regex: email
+                               }
+                             }
+                           },
 
-                          ]
-                        },
+                         ]
+                       },
 
-                      },
-                      {
-                        $set: {
-                          scorePict: {
-                            $meta: "textScore"
-                          }
-                        }
-                      },
-                      {
-                        $project: {
-                          mediaSource: 1,
-                          "boosted":
-                          {
-                            $cond: {
-                              if: {
-                                $gt: [{
-                                  "$dateToString": {
-                                    "format": "%Y-%m-%d %H:%M:%S",
-                                    "date": {
-                                      $add: [new Date(), 25200000]
-                                    }
-                                  }
-                                }, "$boosted.boostSession.timeEnd"]
-                              },
-                              then: [],
-                              else: '$boosted'
-                            }
-                          },
-                          "reportedStatus": 1,
-                          "insight": {
-                            "shares": "$shares",
-                            "comments": "$comments",
-                            "views": "$views",
-                            "likes": "$likes",
+                     },
+                     {
+                       $set: {
+                         scorePict: {
+                           $meta: "textScore"
+                         }
+                       }
+                     },
+                     {
+                       $project: {
+                         mediaSource: 1,
+                         "userLike":1,
+                         "userView":1,
+                         "viewer":1,
+                         "boosted":
+                         {
+                           $cond: {
+                             if: {
+                               $gt: [{
+                                 "$dateToString": {
+                                   "format": "%Y-%m-%d %H:%M:%S",
+                                   "date": {
+                                     $add: [new Date(), 25200000]
+                                   }
+                                 }
+                               }, "$boosted.boostSession.timeEnd"]
+                             },
+                             then: [],
+                             else: '$boosted'
+                           }
+                         },
+                         "reportedStatus": 1,
+                         "insight": {
+                           "shares": "$shares",
+                           "comments": "$comments",
+                           "views": "$views",
+                           "likes": "$likes",
 
-                          },
-                          "views": "$views",
-                          "comments": "$comments",
-                          "likes": "$likes",
-                          "scorePict": 1,
-                          "_id": 1,
-                          "postID": 1,
-                          "createdAt": 1,
-                          "updatedAt": 1,
-                          "email": 1,
-                          "postType": 1,
-                          "description": 1,
-                          "active": 1,
-                          "metadata": 1,
-                          "location": 1,
-                          "isOwned": 1,
-                          "visibility": 1,
-                          "isViewed": 1,
-                          "allowComments": 1,
-                          "saleAmount": 1,
+                         },
+                         "views": "$views",
+                         "comments": "$comments",
+                         "likes": "$likes",
+                         "scorePict": 1,
+                         "_id": 1,
+                         "postID": 1,
+                         "createdAt": 1,
+                         "updatedAt": 1,
+                         "email": 1,
+                         "postType": 1,
+                         "description": 1,
+                         "active": 1,
+                         "metadata": 1,
+                         "location": 1,
+                         "isOwned": 1,
+                         "visibility": 1,
+                         "isViewed": 1,
+                         "allowComments": 1,
+                         "saleAmount": 1,
 
-                        }
-                      },
-                      {
-                        $sort: {
-                          scorePict: - 1,
-                          comments: - 1,
-                          likes: - 1,
-                          views: -1
-                        }
-                      },
-                      {
-                        $skip: skip
-                      },
-                      {
-                        $limit: limit
-                      },
-                    ],
-                    as: "pict"
-                  },
+                       }
+                     },
+                     {
+                       $sort: {
+                         scorePict: - 1,
+                         comments: - 1,
+                         likes: - 1,
+                         views: -1
+                       }
+                     },
+                     {
+                       $skip: skip
+                     },
+                     {
+                       $limit: limit
+                     },
+                   ],
+                   as: "pict"
+                 },
 
-                },
+               },
 
-                {
-                  $unwind: {
-                    path: "$pict",
-                    preserveNullAndEmptyArrays: true
-                  }
-                },
+               {
+                 $unwind: {
+                   path: "$pict",
+                   preserveNullAndEmptyArrays: true
+                 }
+               },
 
-                {
-                  $project: {
-                    "scorePict": "$pict.scorePict",
-                    "boosted": "$pict.boosted",
-                    "reportedStatus": "$pict.reportedStatus",
-                    "_id": "$pict._id",
-                    "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
-                    {
-                      "$concat": ["/thumb/", "$pict.postID"]
-                    },
-                    mediaEndpoint: {
-                      "$cond":
-                      {
-                        if:
-                        {
-                          "$eq":
-                            [
-                              "$pict.postType", "pict"
-                            ]
-                        },
-                        then:
-                        {
-                          "$concat":
-                            [
-                              "/pict/",
-                              "$pict.postID"
-                            ]
-                        },
-                        else:
-                        {
-                          "$concat":
-                            [
-                              "/stream/",
-                              "$pict.postID"
-                            ]
-                        }
-                      }
-                    },
-                    "mediaType": {
-                      $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
-                    },
-                    "createdAt": "$pict.createdAt",
-                    "updatedAt": "$pict.updatedAt",
-                    "postID": "$pict.postID",
-                    "email": "$pict.email",
-                    "postType": "$pict.postType",
-                    "description": "$pict.description",
-                    "active": "$pict.active",
-                    "metadata": "$pict.metadata",
-                    "location": "$pict.location",
-                    "isOwned": "$pict.isOwned",
-                    "visibility": "$pict.visibility",
-                    "isViewed": "$pict.isViewed",
-                    "allowComments": "$pict.allowComments",
-                    "saleAmount": "$pict.saleAmount",
-                    "monetize":
-                    {
-                      $cond: {
-                        if: {
-                          $gte: ["$pict.saleAmount", 1]
-                        },
-                        then: true,
-                        else: "$taslimKONAG"
-                      }
-                    },
-                    "comments": "$pict.comments",
-                    "likes": "$pict.likes",
-                    "insight":
-                    {
-                      $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
-                    },
-                    "apsaraId": {
-                      $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
-                    },
-                    "isApsara": {
-                      $arrayElemAt: ['$pict.mediaSource.apsara', 0]
-                    },
-                    "viewed": "$pict.insight.views",
-                  }
-                },
-                {
-                  $lookup: {
-                    from: 'newUserBasics',
-                    localField: 'email',
-                    foreignField: 'email',
-                    as: 'userBasic',
+               {
+                 $project: {
+                   mediaSource:  "$pict.mediaSource",
+                   "userLike":"$pict.userLike",
+                   "userView":"$pict.userView",
+                   "viewer": "$pict.viewer",
+                   "scorePict": "$pict.scorePict",
+                   "boosted": "$pict.boosted",
+                   "reportedStatus": "$pict.reportedStatus",
+                   "_id": "$pict._id",
+                   "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
+                   {
+                     "$concat": ["/thumb/", "$pict.postID"]
+                   },
+                   mediaEndpoint: {
+                     "$cond":
+                     {
+                       if:
+                       {
+                         "$eq":
+                           [
+                             "$pict.postType", "pict"
+                           ]
+                       },
+                       then:
+                       {
+                         "$concat":
+                           [
+                             "/pict/",
+                             "$pict.postID"
+                           ]
+                       },
+                       else:
+                       {
+                         "$concat":
+                           [
+                             "/stream/",
+                             "$pict.postID"
+                           ]
+                       }
+                     }
+                   },
+                   "mediaType": {
+                     $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
+                   },
+                   "createdAt": "$pict.createdAt",
+                   "updatedAt": "$pict.updatedAt",
+                   "postID": "$pict.postID",
+                   "email": "$pict.email",
+                   "postType": "$pict.postType",
+                   "description": "$pict.description",
+                   "active": "$pict.active",
+                   "metadata": "$pict.metadata",
+                   "location": "$pict.location",
+                   "isOwned": "$pict.isOwned",
+                   "visibility": "$pict.visibility",
+                   "isViewed": "$pict.isViewed",
+                   "allowComments": "$pict.allowComments",
+                   "saleAmount": "$pict.saleAmount",
+                   "monetize":
+                   {
+                     $cond: {
+                       if: {
+                         $gte: ["$pict.saleAmount", 1]
+                       },
+                       then: true,
+                       else: "$taslimKONAG"
+                     }
+                   },
+                   "comments": "$pict.comments",
+                   "likes": "$pict.likes",
+                   "insight":
+                   {
+                     $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
+                   },
+                   "apsaraId": {
+                     $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
+                   },
+                   "isApsara": {
+                     $arrayElemAt: ['$pict.mediaSource.apsara', 0]
+                   },
+                   "viewed": "$pict.insight.views",
+                 }
+               },
+               {
+                 $lookup: {
+                   from: 'newUserBasics',
+                   localField: 'email',
+                   foreignField: 'email',
+                   as: 'userBasic',
 
-                  },
+                 },
 
-                },
-                {
-                  $project: {
-                    "scorePict": 1,
-                    "boosted": 1,
-                    "reportedStatus": 1,
-                    "_id": 1,
-                    "mediaThumbEndpoint": 1,
-                    "mediaEndpoint": 1,
-                    "mediaType": 1,
-                    "createdAt": 1,
-                    "updatedAt": 1,
-                    "postID": 1,
-                    "email": 1,
-                    "postType": 1,
-                    "description": 1,
-                    "active": 1,
-                    "metadata": 1,
-                    "location": 1,
-                    "isOwned": 1,
-                    "visibility": 1,
-                    "isViewed": 1,
-                    "allowComments": 1,
-                    "saleAmount": 1,
-                    "monetize": 1,
-                    "comments": 1,
-                    "likes": 1,
-                    "insight": 1,
-                    "apsaraId": 1,
-                    "isApsara": 1,
-                    "viewed": 1,
-                    "fullName": {
-                      $arrayElemAt: ["$userBasic.fullName", 0]
-                    },
-                    "username": {
-                      $arrayElemAt: ["$userBasic.username", 0]
-                    },
-                    "avatar":
-                    {
-                      "mediaBasePath": {
-                        $arrayElemAt: ["$userBasic.mediaBasePath", 0]
-                      },
-                      "mediaUri": {
-                        $arrayElemAt: ["$userBasic.mediaUri", 0]
-                      },
-                      "originalName": {
-                        $arrayElemAt: ["$userBasic.originalName", 0]
-                      },
-                      "fsSourceUri": {
-                        $arrayElemAt: ["$userBasic.fsSourceUri", 0]
-                      },
-                      "fsSourceName": {
-                        $arrayElemAt: ["$userBasic.fsSourceName", 0]
-                      },
-                      "fsTargetUri": {
-                        $arrayElemAt: ["$userBasic.fsTargetUri", 0]
-                      },
-                      "mediaType": {
-                        $arrayElemAt: ["$userBasic.mediaType", 0]
-                      },
-                      "mediaEndpoint": {
-                        $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
-                      },
+               },
+               {
+                 $project: {
+                   mediaSource:1,
+                   "userLike":1,
+                   "userView":1,
+                   "viewer": 1,
+                   "scorePict": 1,
+                   "boosted": 1,
+                   "reportedStatus": 1,
+                   "_id": 1,
+                   "mediaThumbEndpoint": 1,
+                   "mediaEndpoint": 1,
+                   "mediaType": 1,
+                   "createdAt": 1,
+                   "updatedAt": 1,
+                   "postID": 1,
+                   "email": 1,
+                   "postType": 1,
+                   "description": 1,
+                   "active": 1,
+                   "metadata": 1,
+                   "location": 1,
+                   "isOwned": 1,
+                   "visibility": 1,
+                   "isViewed": 1,
+                   "allowComments": 1,
+                   "saleAmount": 1,
+                   "monetize": 1,
+                   "comments": 1,
+                   "likes": 1,
+                   "insight": 1,
+                   "apsaraId": 1,
+                   "isApsara": 1,
+                   "viewed": 1,
+                   "fullName": {
+                     $arrayElemAt: ["$userBasic.fullName", 0]
+                   },
+                   "username": {
+                     $arrayElemAt: ["$userBasic.username", 0]
+                   },
+                   "avatar":
+                   {
+                     "mediaBasePath": {
+                       $arrayElemAt: ["$userBasic.mediaBasePath", 0]
+                     },
+                     "mediaUri": {
+                       $arrayElemAt: ["$userBasic.mediaUri", 0]
+                     },
+                     "originalName": {
+                       $arrayElemAt: ["$userBasic.originalName", 0]
+                     },
+                     "fsSourceUri": {
+                       $arrayElemAt: ["$userBasic.fsSourceUri", 0]
+                     },
+                     "fsSourceName": {
+                       $arrayElemAt: ["$userBasic.fsSourceName", 0]
+                     },
+                     "fsTargetUri": {
+                       $arrayElemAt: ["$userBasic.fsTargetUri", 0]
+                     },
+                     "mediaType": {
+                       $arrayElemAt: ["$userBasic.mediaType", 0]
+                     },
+                     "mediaEndpoint": {
+                       $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
+                     },
 
-                    },
+                   },
 
-                  }
-                },
-                {
-                  $sort: {
-                    scorePict: - 1,
-                    comments: - 1,
-                    likes: - 1,
-                    viewed: -1
-                  }
-                },
+                 }
+               },
+               {
+                 $sort: {
+                   scorePict: - 1,
+                   comments: - 1,
+                   likes: - 1,
+                   viewed: -1
+                 }
+               },
 
-              ],
+             ],
             "vid":
               [
                 {
@@ -39186,6 +39413,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -39262,6 +39492,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -39352,6 +39586,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -39427,8 +39665,7 @@ export class NewPostService {
                 },
 
               ],
-
-            "diary":
+           "diary":
               [
                 {
                   $lookup: {
@@ -39480,6 +39717,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -39556,6 +39796,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -39646,6 +39890,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -39886,6 +40134,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -39962,6 +40213,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -40052,6 +40307,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -40127,7 +40386,7 @@ export class NewPostService {
                 },
 
               ],
-            "diary":
+          "diary":
               [
                 {
                   $lookup: {
@@ -40179,6 +40438,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -40255,6 +40517,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -40345,6 +40611,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -40673,300 +40943,311 @@ export class NewPostService {
                   $limit: limit
                 },
               ],
-            //pict
-            "pict":
-              [
-                {
-                  $lookup: {
-                    from: "newPosts",
-                    pipeline: [
-                      {
-                        $match:
-                        {
-                          $and: [
-                            {
-                              $text: {
-                                $search: key,
+             //pict
+             "pict":
+             [
+               {
+                 $lookup: {
+                   from: "newPosts",
+                   pipeline: [
+                     {
+                       $match:
+                       {
+                         $and: [
+                           {
+                             $text: {
+                               $search: key,
 
-                              }
-                            },
-                            {
-                              "reportedStatus": {
-                                $ne: "OWNED"
-                              }
-                            },
-                            {
-                              "visibility": "PUBLIC"
-                            },
-                            {
-                              "active": true
-                            },
-                            {
-                              "postType": "pict"
-                            },
-                            {
-                              "reportedUser.email": {
-                                $not: {
-                                  $regex: email
-                                }
-                              }
-                            },
+                             }
+                           },
+                           {
+                             "reportedStatus": {
+                               $ne: "OWNED"
+                             }
+                           },
+                           {
+                             "visibility": "PUBLIC"
+                           },
+                           {
+                             "active": true
+                           },
+                           {
+                             "postType": "pict"
+                           },
+                           {
+                             "reportedUser.email": {
+                               $not: {
+                                 $regex: email
+                               }
+                             }
+                           },
 
-                          ]
-                        },
+                         ]
+                       },
 
-                      },
-                      {
-                        $set: {
-                          scorePict: {
-                            $meta: "textScore"
-                          }
-                        }
-                      },
-                      {
-                        $project: {
-                          mediaSource: 1,
-                          "boosted":
-                          {
-                            $cond: {
-                              if: {
-                                $gt: [{
-                                  "$dateToString": {
-                                    "format": "%Y-%m-%d %H:%M:%S",
-                                    "date": {
-                                      $add: [new Date(), 25200000]
-                                    }
-                                  }
-                                }, "$boosted.boostSession.timeEnd"]
-                              },
-                              then: [],
-                              else: '$boosted'
-                            }
-                          },
-                          "reportedStatus": 1,
-                          "insight": {
-                            "shares": "$shares",
-                            "comments": "$comments",
-                            "views": "$views",
-                            "likes": "$likes",
+                     },
+                     {
+                       $set: {
+                         scorePict: {
+                           $meta: "textScore"
+                         }
+                       }
+                     },
+                     {
+                       $project: {
+                         mediaSource: 1,
+                         "userLike":1,
+                         "userView":1,
+                         "viewer":1,
+                         "boosted":
+                         {
+                           $cond: {
+                             if: {
+                               $gt: [{
+                                 "$dateToString": {
+                                   "format": "%Y-%m-%d %H:%M:%S",
+                                   "date": {
+                                     $add: [new Date(), 25200000]
+                                   }
+                                 }
+                               }, "$boosted.boostSession.timeEnd"]
+                             },
+                             then: [],
+                             else: '$boosted'
+                           }
+                         },
+                         "reportedStatus": 1,
+                         "insight": {
+                           "shares": "$shares",
+                           "comments": "$comments",
+                           "views": "$views",
+                           "likes": "$likes",
 
-                          },
-                          "views": "$views",
-                          "comments": "$comments",
-                          "likes": "$likes",
-                          "scorePict": 1,
-                          "_id": 1,
-                          "postID": 1,
-                          "createdAt": 1,
-                          "updatedAt": 1,
-                          "email": 1,
-                          "postType": 1,
-                          "description": 1,
-                          "active": 1,
-                          "metadata": 1,
-                          "location": 1,
-                          "isOwned": 1,
-                          "visibility": 1,
-                          "isViewed": 1,
-                          "allowComments": 1,
-                          "saleAmount": 1,
+                         },
+                         "views": "$views",
+                         "comments": "$comments",
+                         "likes": "$likes",
+                         "scorePict": 1,
+                         "_id": 1,
+                         "postID": 1,
+                         "createdAt": 1,
+                         "updatedAt": 1,
+                         "email": 1,
+                         "postType": 1,
+                         "description": 1,
+                         "active": 1,
+                         "metadata": 1,
+                         "location": 1,
+                         "isOwned": 1,
+                         "visibility": 1,
+                         "isViewed": 1,
+                         "allowComments": 1,
+                         "saleAmount": 1,
 
-                        }
-                      },
-                      {
-                        $sort: {
-                          scorePict: - 1,
-                          comments: - 1,
-                          likes: - 1,
-                          views: -1
-                        }
-                      },
-                      {
-                        $skip: skip
-                      },
-                      {
-                        $limit: limit
-                      },
-                    ],
-                    as: "pict"
-                  },
+                       }
+                     },
+                     {
+                       $sort: {
+                         scorePict: - 1,
+                         comments: - 1,
+                         likes: - 1,
+                         views: -1
+                       }
+                     },
+                     {
+                       $skip: skip
+                     },
+                     {
+                       $limit: limit
+                     },
+                   ],
+                   as: "pict"
+                 },
 
-                },
+               },
 
-                {
-                  $unwind: {
-                    path: "$pict",
-                    preserveNullAndEmptyArrays: true
-                  }
-                },
+               {
+                 $unwind: {
+                   path: "$pict",
+                   preserveNullAndEmptyArrays: true
+                 }
+               },
 
-                {
-                  $project: {
-                    "scorePict": "$pict.scorePict",
-                    "boosted": "$pict.boosted",
-                    "reportedStatus": "$pict.reportedStatus",
-                    "_id": "$pict._id",
-                    "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
-                    {
-                      "$concat": ["/thumb/", "$pict.postID"]
-                    },
-                    mediaEndpoint: {
-                      "$cond":
-                      {
-                        if:
-                        {
-                          "$eq":
-                            [
-                              "$pict.postType", "pict"
-                            ]
-                        },
-                        then:
-                        {
-                          "$concat":
-                            [
-                              "/pict/",
-                              "$pict.postID"
-                            ]
-                        },
-                        else:
-                        {
-                          "$concat":
-                            [
-                              "/stream/",
-                              "$pict.postID"
-                            ]
-                        }
-                      }
-                    },
-                    "mediaType": {
-                      $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
-                    },
-                    "createdAt": "$pict.createdAt",
-                    "updatedAt": "$pict.updatedAt",
-                    "postID": "$pict.postID",
-                    "email": "$pict.email",
-                    "postType": "$pict.postType",
-                    "description": "$pict.description",
-                    "active": "$pict.active",
-                    "metadata": "$pict.metadata",
-                    "location": "$pict.location",
-                    "isOwned": "$pict.isOwned",
-                    "visibility": "$pict.visibility",
-                    "isViewed": "$pict.isViewed",
-                    "allowComments": "$pict.allowComments",
-                    "saleAmount": "$pict.saleAmount",
-                    "monetize":
-                    {
-                      $cond: {
-                        if: {
-                          $gte: ["$pict.saleAmount", 1]
-                        },
-                        then: true,
-                        else: "$taslimKONAG"
-                      }
-                    },
-                    "comments": "$pict.comments",
-                    "likes": "$pict.likes",
-                    "insight":
-                    {
-                      $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
-                    },
-                    "apsaraId": {
-                      $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
-                    },
-                    "isApsara": {
-                      $arrayElemAt: ['$pict.mediaSource.apsara', 0]
-                    },
-                    "viewed": "$pict.insight.views",
-                  }
-                },
-                {
-                  $lookup: {
-                    from: 'newUserBasics',
-                    localField: 'email',
-                    foreignField: 'email',
-                    as: 'userBasic',
+               {
+                 $project: {
+                   mediaSource:  "$pict.mediaSource",
+                   "userLike":"$pict.userLike",
+                   "userView":"$pict.userView",
+                   "viewer": "$pict.viewer",
+                   "scorePict": "$pict.scorePict",
+                   "boosted": "$pict.boosted",
+                   "reportedStatus": "$pict.reportedStatus",
+                   "_id": "$pict._id",
+                   "mediaThumbEndpoint": //{ $arrayElemAt: ['$pict.mediaSource.mediaThumbEndpoint', 0] },
+                   {
+                     "$concat": ["/thumb/", "$pict.postID"]
+                   },
+                   mediaEndpoint: {
+                     "$cond":
+                     {
+                       if:
+                       {
+                         "$eq":
+                           [
+                             "$pict.postType", "pict"
+                           ]
+                       },
+                       then:
+                       {
+                         "$concat":
+                           [
+                             "/pict/",
+                             "$pict.postID"
+                           ]
+                       },
+                       else:
+                       {
+                         "$concat":
+                           [
+                             "/stream/",
+                             "$pict.postID"
+                           ]
+                       }
+                     }
+                   },
+                   "mediaType": {
+                     $arrayElemAt: ['$pict.mediaSource.mediaType', 0]
+                   },
+                   "createdAt": "$pict.createdAt",
+                   "updatedAt": "$pict.updatedAt",
+                   "postID": "$pict.postID",
+                   "email": "$pict.email",
+                   "postType": "$pict.postType",
+                   "description": "$pict.description",
+                   "active": "$pict.active",
+                   "metadata": "$pict.metadata",
+                   "location": "$pict.location",
+                   "isOwned": "$pict.isOwned",
+                   "visibility": "$pict.visibility",
+                   "isViewed": "$pict.isViewed",
+                   "allowComments": "$pict.allowComments",
+                   "saleAmount": "$pict.saleAmount",
+                   "monetize":
+                   {
+                     $cond: {
+                       if: {
+                         $gte: ["$pict.saleAmount", 1]
+                       },
+                       then: true,
+                       else: "$taslimKONAG"
+                     }
+                   },
+                   "comments": "$pict.comments",
+                   "likes": "$pict.likes",
+                   "insight":
+                   {
+                     $ifNull: ["$pict.insight", "$TaslimKAMPRET"]
+                   },
+                   "apsaraId": {
+                     $arrayElemAt: ['$pict.mediaSource.apsaraId', 0]
+                   },
+                   "isApsara": {
+                     $arrayElemAt: ['$pict.mediaSource.apsara', 0]
+                   },
+                   "viewed": "$pict.insight.views",
+                 }
+               },
+               {
+                 $lookup: {
+                   from: 'newUserBasics',
+                   localField: 'email',
+                   foreignField: 'email',
+                   as: 'userBasic',
 
-                  },
+                 },
 
-                },
-                {
-                  $project: {
-                    "scorePict": 1,
-                    "boosted": 1,
-                    "reportedStatus": 1,
-                    "_id": 1,
-                    "mediaThumbEndpoint": 1,
-                    "mediaEndpoint": 1,
-                    "mediaType": 1,
-                    "createdAt": 1,
-                    "updatedAt": 1,
-                    "postID": 1,
-                    "email": 1,
-                    "postType": 1,
-                    "description": 1,
-                    "active": 1,
-                    "metadata": 1,
-                    "location": 1,
-                    "isOwned": 1,
-                    "visibility": 1,
-                    "isViewed": 1,
-                    "allowComments": 1,
-                    "saleAmount": 1,
-                    "monetize": 1,
-                    "comments": 1,
-                    "likes": 1,
-                    "insight": 1,
-                    "apsaraId": 1,
-                    "isApsara": 1,
-                    "viewed": 1,
-                    "fullName": {
-                      $arrayElemAt: ["$userBasic.fullName", 0]
-                    },
-                    "username": {
-                      $arrayElemAt: ["$userBasic.username", 0]
-                    },
-                    "avatar":
-                    {
-                      "mediaBasePath": {
-                        $arrayElemAt: ["$userBasic.mediaBasePath", 0]
-                      },
-                      "mediaUri": {
-                        $arrayElemAt: ["$userBasic.mediaUri", 0]
-                      },
-                      "originalName": {
-                        $arrayElemAt: ["$userBasic.originalName", 0]
-                      },
-                      "fsSourceUri": {
-                        $arrayElemAt: ["$userBasic.fsSourceUri", 0]
-                      },
-                      "fsSourceName": {
-                        $arrayElemAt: ["$userBasic.fsSourceName", 0]
-                      },
-                      "fsTargetUri": {
-                        $arrayElemAt: ["$userBasic.fsTargetUri", 0]
-                      },
-                      "mediaType": {
-                        $arrayElemAt: ["$userBasic.mediaType", 0]
-                      },
-                      "mediaEndpoint": {
-                        $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
-                      },
+               },
+               {
+                 $project: {
+                   mediaSource:1,
+                   "userLike":1,
+                   "userView":1,
+                   "viewer": 1,
+                   "scorePict": 1,
+                   "boosted": 1,
+                   "reportedStatus": 1,
+                   "_id": 1,
+                   "mediaThumbEndpoint": 1,
+                   "mediaEndpoint": 1,
+                   "mediaType": 1,
+                   "createdAt": 1,
+                   "updatedAt": 1,
+                   "postID": 1,
+                   "email": 1,
+                   "postType": 1,
+                   "description": 1,
+                   "active": 1,
+                   "metadata": 1,
+                   "location": 1,
+                   "isOwned": 1,
+                   "visibility": 1,
+                   "isViewed": 1,
+                   "allowComments": 1,
+                   "saleAmount": 1,
+                   "monetize": 1,
+                   "comments": 1,
+                   "likes": 1,
+                   "insight": 1,
+                   "apsaraId": 1,
+                   "isApsara": 1,
+                   "viewed": 1,
+                   "fullName": {
+                     $arrayElemAt: ["$userBasic.fullName", 0]
+                   },
+                   "username": {
+                     $arrayElemAt: ["$userBasic.username", 0]
+                   },
+                   "avatar":
+                   {
+                     "mediaBasePath": {
+                       $arrayElemAt: ["$userBasic.mediaBasePath", 0]
+                     },
+                     "mediaUri": {
+                       $arrayElemAt: ["$userBasic.mediaUri", 0]
+                     },
+                     "originalName": {
+                       $arrayElemAt: ["$userBasic.originalName", 0]
+                     },
+                     "fsSourceUri": {
+                       $arrayElemAt: ["$userBasic.fsSourceUri", 0]
+                     },
+                     "fsSourceName": {
+                       $arrayElemAt: ["$userBasic.fsSourceName", 0]
+                     },
+                     "fsTargetUri": {
+                       $arrayElemAt: ["$userBasic.fsTargetUri", 0]
+                     },
+                     "mediaType": {
+                       $arrayElemAt: ["$userBasic.mediaType", 0]
+                     },
+                     "mediaEndpoint": {
+                       $arrayElemAt: ["$userBasic.mediaEndpoint", 0]
+                     },
 
-                    },
+                   },
 
-                  }
-                },
-                {
-                  $sort: {
-                    scorePict: - 1,
-                    comments: - 1,
-                    likes: - 1,
-                    viewed: -1
-                  }
-                },
+                 }
+               },
+               {
+                 $sort: {
+                   scorePict: - 1,
+                   comments: - 1,
+                   likes: - 1,
+                   viewed: -1
+                 }
+               },
 
-              ],
+             ],
             "tags":
               [
                 {
@@ -41283,6 +41564,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -41359,6 +41643,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -41449,6 +41737,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -41524,7 +41816,7 @@ export class NewPostService {
                 },
 
               ],
-            "vid":
+           "vid":
               [
                 {
                   $lookup: {
@@ -41576,6 +41868,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -41652,6 +41947,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -41742,6 +42041,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -42082,7 +42385,7 @@ export class NewPostService {
                   $limit: limit
                 },
               ],
-            "vid":
+           "vid":
               [
                 {
                   $lookup: {
@@ -42134,6 +42437,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -42210,6 +42516,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -42300,6 +42610,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -42376,7 +42690,7 @@ export class NewPostService {
 
               ],
 
-            "diary":
+           "diary":
               [
                 {
                   $lookup: {
@@ -42428,6 +42742,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -42504,6 +42821,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -42594,6 +42915,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -42846,6 +43171,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -42922,6 +43250,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -43012,6 +43344,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -43087,7 +43423,7 @@ export class NewPostService {
                 },
 
               ],
-            "vid":
+          "vid":
               [
                 {
                   $lookup: {
@@ -43139,6 +43475,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -43215,6 +43554,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -43305,6 +43648,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -43381,7 +43728,7 @@ export class NewPostService {
 
               ],
 
-            "diary":
+           "diary":
               [
                 {
                   $lookup: {
@@ -43433,6 +43780,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -43509,6 +43859,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -43599,6 +43953,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -43981,6 +44339,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -44057,6 +44418,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -44147,6 +44512,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -44222,7 +44591,7 @@ export class NewPostService {
                 },
 
               ],
-            "vid":
+          "vid":
               [
                 {
                   $lookup: {
@@ -44274,6 +44643,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -44350,6 +44722,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -44440,6 +44816,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -44515,8 +44895,7 @@ export class NewPostService {
                 },
 
               ],
-
-            "diary":
+          "diary":
               [
                 {
                   $lookup: {
@@ -44568,6 +44947,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -44644,6 +45026,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -44734,6 +45120,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -44987,6 +45377,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -45063,6 +45456,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -45153,6 +45550,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -45228,7 +45629,7 @@ export class NewPostService {
                 },
 
               ],
-            "vid":
+           "vid":
               [
                 {
                   $lookup: {
@@ -45280,6 +45681,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -45356,6 +45760,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -45446,6 +45854,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
@@ -45522,7 +45934,7 @@ export class NewPostService {
 
               ],
 
-            "diary":
+          "diary":
               [
                 {
                   $lookup: {
@@ -45574,6 +45986,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -45650,6 +46065,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -45740,6 +46159,10 @@ export class NewPostService {
                 },
                 {
                   $project: {
+                    mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                     "scorePict": 1,
                     "boosted": 1,
                     "reportedStatus": 1,
