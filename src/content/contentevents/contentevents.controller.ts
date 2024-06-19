@@ -3501,8 +3501,8 @@ export class ContenteventsController {
       );
     }
 
-    // this.synchInteractivev2(request, headers);
-    this.synchInteractivev2new(request, headers);
+    this.synchInteractivev2(request, headers);
+
     return {
       response_code: 202,
       messages: {
