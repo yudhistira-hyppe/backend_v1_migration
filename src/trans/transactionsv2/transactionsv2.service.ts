@@ -999,26 +999,35 @@ export class TransactionsV2Service {
                                                                     if (detail.length > 0) {
                                                                         for (let j = 0; j < detail.length; j++) {
                                                                             let dataDetail = detail[j];
+                                                                            if (dataDetail.biayPG != undefined) {
+                                                                                kas += Number(dataDetail.biayPG);
+                                                                            }
+                                                                            if (dataDetail.amount != undefined) {
+                                                                                kas += (-1 * Number(dataDetail.amount));
+                                                                            }
+                                                                            if (dataDetail.totalDiskon != undefined) {
+                                                                                kas += Number(dataDetail.totalDiskon);
+                                                                            }
                                                                             // if (dataDetail.transactionFees != undefined) {
                                                                             //     kas += (-1 * Number(dataDetail.transactionFees));
                                                                             // }
-                                                                            if (dataDetail.response != undefined) {
-                                                                                if (dataDetail.response.status != undefined) {
-                                                                                    if (dataDetail.response.code != undefined) {
-                                                                                        if (dataDetail.response.code == "000") {
-                                                                                            if (dataDetail.biayPG != undefined) {
-                                                                                                kas += Number(dataDetail.biayPG);
-                                                                                            }
-                                                                                            if (dataDetail.amount != undefined) {
-                                                                                                kas += (-1 * Number(dataDetail.amount));
-                                                                                            }
-                                                                                            if (dataDetail.totalDiskon != undefined) {
-                                                                                                kas += Number(dataDetail.totalDiskon);
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
+                                                                            // if (dataDetail.response != undefined) {
+                                                                            //     if (dataDetail.response.status != undefined) {
+                                                                            //         if (dataDetail.response.code != undefined) {
+                                                                            //             if (dataDetail.response.code == "000") {
+                                                                            //                 if (dataDetail.biayPG != undefined) {
+                                                                            //                     kas += Number(dataDetail.biayPG);
+                                                                            //                 }
+                                                                            //                 if (dataDetail.amount != undefined) {
+                                                                            //                     kas += (-1 * Number(dataDetail.amount));
+                                                                            //                 }
+                                                                            //                 if (dataDetail.totalDiskon != undefined) {
+                                                                            //                     kas += Number(dataDetail.totalDiskon);
+                                                                            //                 }
+                                                                            //             }
+                                                                            //         }
+                                                                            //     }
+                                                                            // }
                                                                         }
                                                                     }
                                                                 }
