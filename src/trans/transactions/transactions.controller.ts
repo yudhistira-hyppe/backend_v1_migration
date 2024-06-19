@@ -22720,7 +22720,7 @@ export class TransactionsController {
                 datawithdraw.bankDisbursmentCharge = mongoose.Types.ObjectId(idBankDisbursmentCharge);
                 datawithdraw.description = "Withdraw Coins from HYPPE";
                 datawithdraw.idUser = mongoose.Types.ObjectId(iduserstring);
-                datawithdraw.status = "Pending";
+                datawithdraw.status = "In progress";
                 datawithdraw.timestamp = dtnow.toISOString();
                 datawithdraw.verified = false;
                 datawithdraw.partnerTrxid = partnertrxid;
