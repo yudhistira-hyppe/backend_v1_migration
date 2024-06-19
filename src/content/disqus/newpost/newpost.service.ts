@@ -386,6 +386,42 @@ export class NewpostService {
         );
     }
 
+    async updateLike2( userlike: any[], postID: string) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        // var setinput = {};
+        // setinput['$inc'] = {
+        //     views: 1
+        // };
+        // var setCEViewer = getdata.userView;
+        // setCEViewer.push(email_target);
+        // setinput["$set"] = {
+        //     "userView": setCEViewer
+        // }
+        
+        this.PostsModel.updateOne(
+            {
+               
+                postID: postID,
+            },
+            {
+                "$inc":
+                {
+                    likes:1
+                },
+                
+                userLike:userlike
+                
+            },
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
+    }
+
     async updateReaction(email: string, postID: string) {
         this.PostsModel.updateOne(
             {
