@@ -47,6 +47,7 @@ import { BoostintervalService } from '../boostinterval/boostinterval.service';
 import { BoostsessionService } from '../boostsession/boostsession.service';
 import { transactionCoin } from 'src/trans/monetization/transactionCoin/schemas/transactionCoin.schema';
 import { transactionCoinService } from 'src/trans/monetization/transactionCoin/transactionCoin.service';
+import { TemplatesRepo } from '../../infra/templates_repo/schemas/templatesrepo.schema';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -5710,7 +5711,7 @@ export class NewPostController {
                 "_id": data.data[0]._id
             }
             this.editPostBoost(request_json.postId, detail);
-            // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
+            // this.sendCommentFCM("BOOST_SUCCES", request_json.postId, ubasic.email.toString(), data.data[0].idTransaction);
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
                 response_code: 202,
@@ -5722,6 +5723,42 @@ export class NewPostController {
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             throw new BadRequestException("Process error: " + e);
         }
+    }
+
+    async sendCommentFCM(type: string, postID: string, receiverParty: string, idtransaction?: string) {
+        try {
+            var Templates_ = new TemplatesRepo();
+            Templates_ = await this.utilsService.getTemplate_repo(type, 'NOTIFICATION');
+
+            var email = receiverParty;
+            var titlein = Templates_.subject.toString();
+            var titleen = Templates_.subject.toString();
+            var bodyin = "";
+            var bodyen = "";
+
+            var email_post = "";
+            var posts = await this.newPostService.findid(postID);
+            var bodyin_get = Templates_.body_detail_id.toString();
+            var bodyen_get = Templates_.body_detail.toString();
+            var post_type = "";
+            if (await this.utilsService.ceckData(posts)) {
+                post_type = posts.postType.toString();
+                email_post = posts.email.toString();
+            }
+            var new_bodyin_get = bodyin_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
+            var new_bodyen_get = bodyen_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
+
+            var bodyin = new_bodyin_get;
+            var bodyen = new_bodyen_get;
+
+            var eventType = "TRANSACTION";
+            var event = type;
+
+            await this.utilsService.sendFcmV2(email, email, eventType, event, type, postID, post_type, idtransaction);
+        } catch (e) {
+            console.log(e);
+        }
+        //await this.utilsService.sendFcm(email, titlein, titleen, bodyin, bodyen, eventType, event);
     }
 
     async editPostBoost(postid: string, detail: any[]) {
