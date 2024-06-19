@@ -11176,19 +11176,7 @@ export class TransactionsService {
                     let transactionv2Detail = getwithdraws[i].detail;
                     if (transactionv2Detail.length > 0) {
                         let getWidrawel = await this.withdrawsService.findOne(transactionv2Detail[0].withdrawId.toString());
-                        if (getWidrawel.status.toLowerCase() == "success") {
-                            await this.withdrawsService.updateonewithtracking(getWidrawel.partnerTrxid, "Success", getWidrawel.payload, getWidrawel.statusCode, {
-                                "title_id": "Penukaran Coins Berhasil",
-                                "title_en": "Coin Withdrawal Successful",
-                                "status": "SUCCESS",
-                                "action": "APPROVAL",
-                                "timestamp": await this.utilsService.getDateTimeISOString(),
-                                "description_id": `Rp${getWidrawel.payload.amount} berhasil ditransfer ke rekening tujuan`,
-                                "description_en": `Rp${getWidrawel.payload.amount} has been successfully transferred to the destination account`,
-                            });
-                            await this.transactionsV2Service.updateTransaction(getwithdraws[i].idTransaction, "SUCCESS", getWidrawel.payload);
-                        } else if (getWidrawel.status.toLowerCase() == "failed") {
-                        } else {
+                        if (getWidrawel.status.toLowerCase() == "Pending") {
                             console.log("==================================== START CECK STATUS " + getWidrawel.partnerTrxid + "====================================");
                             let OyDisbursementStatus_ = new OyDisbursementStatus();
                             OyDisbursementStatus_.partner_trx_id = getWidrawel.partnerTrxid;
@@ -11203,7 +11191,7 @@ export class TransactionsService {
                             console.log("RESPONSE STATUS CODE ", responseStatusCode);
                             try {
                                 if (currentStatusCode != responseStatusCode) {
-                                    console.log("STAUS ", "NOT THE SAME");
+                                    console.log("STATUS ", "NOT THE SAME");
                                     let CreateWithdrawsDto_ = new CreateWithdrawsDto();
                                     CreateWithdrawsDto_.statusCode = responseStatusCode;
                                     if (responseStatusCode == "000") {

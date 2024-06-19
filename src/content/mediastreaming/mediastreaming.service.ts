@@ -5254,65 +5254,65 @@ export class MediastreamingService {
   }
 
   async moderation(RequestConsoleModerationStream_: RequestConsoleModerationStream) {
-    // let pipeline = [];
-    // let $match = {};
-    // let $and = [];
-    // let $sort = {};
+    let pipeline = [];
+    let $match = {};
+    let $and = [];
+    let $sort = {};
 
-    // pipeline.push(
-    //   {
-    //     $set: {
-    //       report: { $ifNull: ["$report", []] }
-    //     }
-    //   },
-    //   {
-    //     $set: {
-    //       reportCount: { $size: "$report" }
-    //     }
-    //   },
-    //   {
-    //     $match: {
-    //       $gte: ["$reportCount",0]
-    //     }
-    //   },);
+    pipeline.push(
+      {
+        $set: {
+          report: { $ifNull: ["$report", []] }
+        }
+      },
+      {
+        $set: {
+          reportCount: { $size: "$report" }
+        }
+      },
+      {
+        $match: {
+          $gte: ["$reportCount",0]
+        }
+    },);
 
-    // //FILTER START END LIVE
-    // if (RequestConsoleModerationStream_.dateStart != undefined || RequestConsoleModerationStream_.dateEnd != undefined) {
-    //   let startLive = {};
-    //   //----------------START DATE----------------
-    //   var start_date = null;
-    //   if (RequestConsoleModerationStream_.dateStart != undefined) {
-    //     start_date = new Date(RequestConsoleModerationStream_.dateStart.toString());
-    //   }
+    //FILTER START END LIVE
+    if (RequestConsoleModerationStream_.dateStart != undefined || RequestConsoleModerationStream_.dateEnd != undefined) {
+      let startLive = {};
+      //----------------START DATE----------------
+      var start_date = null;
+      if (RequestConsoleModerationStream_.dateStart != undefined) {
+        start_date = new Date(RequestConsoleModerationStream_.dateStart.toString());
+      }
 
-    //   //----------------END DATE----------------
-    //   var end_date = null;
-    //   if (RequestConsoleModerationStream_.dateEnd != undefined) {
-    //     end_date = new Date(RequestConsoleModerationStream_.dateEnd.toString());
-    //     end_date = new Date(end_date.setDate(end_date.getDate() + 1));
-    //   }
+      //----------------END DATE----------------
+      var end_date = null;
+      if (RequestConsoleModerationStream_.dateEnd != undefined) {
+        end_date = new Date(RequestConsoleModerationStream_.dateEnd.toString());
+        end_date = new Date(end_date.setDate(end_date.getDate() + 1));
+      }
 
-    //   if (start_date != null) {
-    //     startLive["$gte"] = start_date.toISOString().replace('T', ' ').replace('.000Z', '');
-    //   }
+      if (start_date != null) {
+        startLive["$gte"] = start_date.toISOString().replace('T', ' ').replace('.000Z', '');
+      }
 
-    //   if (end_date != null) {
-    //     startLive["$lte"] = end_date.toISOString().replace('T', ' ').replace('.000Z', '');
-    //   }
-    //   $and.push({
-    //     startLive
-    //   })
-    // }
+      if (end_date != null) {
+        startLive["$lte"] = end_date.toISOString().replace('T', ' ').replace('.000Z', '');
+      }
+      $and.push({
+        startLive
+      })
+    }
 
-    // //FILTER LIVE DESC
-    // if (RequestConsoleModerationStream_.liveDesc != undefined) {
-    //   $and.push({
-    //     title: {
-    //       $regex: RequestConsoleModerationStream_.liveDesc.toString(),
-    //       $options: "i"
-    //     }
-    //   });
-    // }
+    //FILTER LIVE DESC
+    if (RequestConsoleModerationStream_.liveDesc != undefined) {
+      $and.push({
+        title: {
+          $regex: RequestConsoleModerationStream_.liveDesc.toString(),
+          $options: "i"
+        }
+      });
+    }
 
     // //FILTER STATUS
     // if (RequestConsoleStream_.status != undefined) {
