@@ -5383,7 +5383,7 @@ export class TransactionsController {
                 throw new BadRequestException("Unabled to proceed" + e);
             }
         }
-         else {
+        else {
             try {
                 dataV2 = await this.TransactionsV2Service.findByOneNova(iduserbuy.toString(), nova);
 
@@ -22289,7 +22289,7 @@ export class TransactionsController {
                 }
                 switch (x.coa) {
                     case "Paket Coin":
-                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_id = "Pembelian Coin";
                         x.desc_title_en = "Coins Added";
                         x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
                         x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
@@ -22388,7 +22388,7 @@ export class TransactionsController {
                         x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
                         break;
                     case "WD":
-                        x.desc_title_id = `Coins Ditukar`;
+                        x.desc_title_id = `Penukaran Coin`;
                         x.desc_title_en = `Coins Exchanged`;
                         x.desc_subtitle_id = `Melakukan Penukaran`;
                         x.desc_subtitle_en = `Exchange Done`;
