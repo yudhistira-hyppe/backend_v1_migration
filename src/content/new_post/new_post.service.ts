@@ -18633,6 +18633,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView": 1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -18710,6 +18713,10 @@ export class NewPostService {
                 {
                   $project: {
                     "scorePict": "$pict.scorePict",
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
                     "_id": "$pict._id",
@@ -19012,7 +19019,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -19090,6 +19100,10 @@ export class NewPostService {
                 {
                   $project: {
                     "scorePict": "$pict.scorePict",
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
                     "_id": "$pict._id",
@@ -19392,6 +19406,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -19469,6 +19486,10 @@ export class NewPostService {
                 {
                   $project: {
                     "scorePict": "$pict.scorePict",
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
                     "_id": "$pict._id",
@@ -19769,7 +19790,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -19846,6 +19870,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -19985,7 +20013,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -20062,6 +20093,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -20367,7 +20402,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:  1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -20444,6 +20482,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -20584,6 +20626,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -20660,6 +20705,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -20962,7 +21011,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -21039,6 +21091,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -21179,7 +21235,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:  1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -21256,6 +21315,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -21560,6 +21623,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -21636,6 +21702,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -21776,6 +21846,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -21852,6 +21925,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -21992,6 +22069,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -22068,6 +22148,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -22400,6 +22484,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -22476,6 +22563,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -22634,7 +22725,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -22711,6 +22805,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -22868,6 +22966,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -22944,6 +23045,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -23464,7 +23569,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -23541,6 +23649,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -23793,6 +23905,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -23869,6 +23984,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -24123,6 +24242,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -24199,6 +24321,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -24450,7 +24576,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:  1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -24527,6 +24656,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -24667,6 +24800,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -24743,6 +24879,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -24996,6 +25136,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -25072,6 +25215,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -25212,6 +25359,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -25288,6 +25438,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -25428,7 +25582,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -25505,6 +25662,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -25757,7 +25918,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:  1,
+                    "userLike":1,
+                    "userView":1,
+                    "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -25834,6 +25998,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -25973,7 +26141,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -26050,6 +26221,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -26436,7 +26611,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -26513,6 +26691,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -26909,7 +27091,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -26986,6 +27171,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -27126,6 +27315,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -27202,6 +27394,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -27599,6 +27795,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -27675,6 +27874,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -27815,6 +28018,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -27891,6 +28097,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -28156,6 +28366,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer":1,
                           "boosted":
                           {
                             $cond: {
@@ -28232,6 +28445,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -28372,6 +28589,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -28448,6 +28668,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -28587,7 +28811,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -28664,6 +28891,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -29051,7 +29282,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -29128,6 +29362,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -29267,7 +29505,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -29344,6 +29585,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -29484,6 +29729,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -29560,6 +29808,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -29825,7 +30077,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -29902,6 +30157,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -30042,6 +30301,9 @@ export class NewPostService {
                       {
                         $project: {
                           mediaSource: 1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -30118,6 +30380,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",
@@ -30258,7 +30524,10 @@ export class NewPostService {
                       },
                       {
                         $project: {
-                          mediaSource: 1,
+                          mediaSource:1,
+                          "userLike":1,
+                          "userView":1,
+                          "viewer": 1,
                           "boosted":
                           {
                             $cond: {
@@ -30335,6 +30604,10 @@ export class NewPostService {
 
                 {
                   $project: {
+                    mediaSource:  "$pict.mediaSource",
+                    "userLike":"$pict.userLike",
+                    "userView":"$pict.userView",
+                    "viewer": "$pict.viewer",
                     "scorePict": "$pict.scorePict",
                     "boosted": "$pict.boosted",
                     "reportedStatus": "$pict.reportedStatus",

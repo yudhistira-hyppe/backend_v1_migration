@@ -2361,9 +2361,11 @@ export class TransactionsController {
         };
         // const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
         // const datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
+        const ID_SETTING_DAILY_TRANSACTION_LIMIT = this.configService.get("ID_SETTING_DAILY_TRANSACTION_LIMIT");
+        const dailymaxdata = await this.settingsService.findOne(ID_SETTING_DAILY_TRANSACTION_LIMIT);
         // var max = datamaxmin.Max;
         // var min = datamaxmin.Min;
-        var dailymax = 50000000;
+        var dailymax = Number(dailymaxdata.value);
         // const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         // var dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
         // var valAdmin = Number(dataadmincoin.value);
@@ -22718,7 +22720,7 @@ export class TransactionsController {
                 datawithdraw.bankDisbursmentCharge = mongoose.Types.ObjectId(idBankDisbursmentCharge);
                 datawithdraw.description = "Withdraw Coins from HYPPE";
                 datawithdraw.idUser = mongoose.Types.ObjectId(iduserstring);
-                datawithdraw.status = "Pending";
+                datawithdraw.status = "In progress";
                 datawithdraw.timestamp = dtnow.toISOString();
                 datawithdraw.verified = false;
                 datawithdraw.partnerTrxid = partnertrxid;
