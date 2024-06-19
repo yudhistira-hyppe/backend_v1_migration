@@ -3292,6 +3292,18 @@ export class TempPOSTService {
                                 "$index"
                             ]
                         },
+                        "userView": {
+                            "$arrayElemAt": [
+                                "$all.userView",
+                                "$index"
+                            ]
+                        },
+                        "userLike": {
+                            "$arrayElemAt": [
+                                "$all.userLike",
+                                "$index"
+                            ]
+                        },
                         "viewerCount": {
                             "$size": {
                                 "$arrayElemAt": [
@@ -3672,6 +3684,8 @@ export class TempPOSTService {
                         "musicTitle": 1,
                         "postID": 1,
                         mediaSource:1,
+                        "userView":1,
+                        "userLike": 1,
                         urlLink: 1,
                         judulLink: 1,
                         "artistName": 1,
@@ -5397,6 +5411,18 @@ export class TempPOSTService {
                                 "$index"
                             ]
                         },
+                        "userLike": {
+                            "$arrayElemAt": [
+                                "$all.userLike",
+                                "$index"
+                            ]
+                        },
+                        "userView": {
+                            "$arrayElemAt": [
+                                "$all.userView",
+                                "$index"
+                            ]
+                        },
                         "viewerCount": {
                             "$size": {
                                 "$arrayElemAt": [
@@ -5777,6 +5803,8 @@ export class TempPOSTService {
                         "musicTitle": 1,
                         "postID": 1,
                         mediaSource:1,
+                        "userLike": 1,
+                        "userView": 1,
                         "urlLink": 1,
                         "judulLink": 1,
                         "artistName": 1,
@@ -7495,6 +7523,18 @@ export class TempPOSTService {
                                 "$index"
                             ]
                         },
+                        "userLike": {
+                            "$arrayElemAt": [
+                                "$all.userLike",
+                                "$index"
+                            ]
+                        },
+                        "userView": {
+                            "$arrayElemAt": [
+                                "$all.userView",
+                                "$index"
+                            ]
+                        },
                         "viewerCount": {
                             "$size": {
                                 "$arrayElemAt": [
@@ -7875,6 +7915,8 @@ export class TempPOSTService {
                         "musicTitle": 1,
                         "postID": 1,
                         mediaSource:1,
+                        "userLike": 1,
+                        "userView": 1,
                         "artistName": 1,
                         "albumName": 1,
                         "apsaraMusic": 1,
