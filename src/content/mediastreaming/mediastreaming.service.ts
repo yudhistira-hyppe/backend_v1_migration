@@ -1502,7 +1502,6 @@ export class MediastreamingService {
         }
       }
     ];
-    console.log(JSON.stringify(paramaggregate));
     const data = await this.MediastreamingModel.aggregate(paramaggregate);
     return data[0];
     // const data = await this.MediastreamingModel.findOne({ _id: new mongoose.Types.ObjectId(_id) });
@@ -4571,26 +4570,100 @@ export class MediastreamingService {
                       ]
                   }
                 },
-
+              },
+              {
+                $set: {
+                  following: { $ifNull: ["$following", []] }
+                }
+              },
+              {
+                $set: {
+                  follower: { $ifNull: ["$follower", []] }
+                }
+              },
+              {
+                $set: {
+                  friend: { $ifNull: ["$friend", []] }
+                }
               },
               {
                 $project:
                 {
                   _id: 1,
-                  email: 1,
                   fullName: 1,
                   username: 1,
-                  statesName: 1,
                   avatar: {
                     "mediaBasePath": "$mediaBasePath",
                     "mediaUri": "$mediaUri",
                     "mediaType": "$mediaType",
                     "mediaEndpoint": "$mediaEndpoint",
 
-                  }
+                  },
+                  email: 1,
+                  following: {
+                    $size: "$following"
+                  }, 
+                  follower: {
+                    $size: "$follower"
+                  }, 
+                  friend: {
+                    $size: "$friend"
+                  },
+                  gender: {
+                    "$switch": {
+                      "branches": [{
+                        "case": {
+                          "$or": [{
+                            "$eq": ["$gender", "Male"]
+                          }, {
+                            "$eq": ["$gender", "Laki-laki"]
+                          }, {
+                            "$eq": ["$gender", "MALE"]
+                          }]
+                        },
+                        "then": "Laki-laki"
+                      }, {
+                        "case": {
+                          "$or": [{
+                            "$eq": ["$gender", " Perempuan"]
+                          }, {
+                            "$eq": ["$gender", "Perempuan"]
+                          }, {
+                            "$eq": ["$gender", "PEREMPUAN"]
+                          }, {
+                            "$eq": ["$gender", "FEMALE"]
+                          }, {
+                            "$eq": ["$gender", " FEMALE"]
+                          }]
+                        },
+                        "then": "Perempuan"
+                      }],
+                      "default": "Lainnya"
+                    }
+                  },
+                  joinDate: "$createdAt",
+                  statesName: 1,
                 }
               }
             ]
+        }
+      },
+      {
+        $set: {
+          view_unique: { "$setUnion": ["$view.userId", []] }
+        }
+      },
+      {
+        $set: {
+          comment_active: {
+            $filter: {
+              input: "$comment",
+              as: "comment",
+              cond: {
+                $eq: ["$$comment.commentType", "MESSAGGES"]
+              }
+            }
+          },
         }
       },
       {
@@ -4601,6 +4674,11 @@ export class MediastreamingService {
       {
         $set: {
           gift: { $ifNull: ["$gift", []] }
+        }
+      },
+      {
+        $set: {
+          follower: { $ifNull: ["$follower", []] }
         }
       },
       {
@@ -4619,6 +4697,206 @@ export class MediastreamingService {
           }
         }
       },
+      {
+        $facet:
+        {
+          userStreamer: [
+              {
+                $project:{
+                  userStreamer: {
+                    "$arrayElemAt": ["$userbasicsStreamer", 0]
+                  },
+                  liveId: "$_id",
+                  title: 1,
+                  startLive: 1,
+                  durasi: 1,
+                  tautan: "$textUrl",
+                  feedBack: 1,
+                  feedbackText: 1, 
+                  newFollowers:{
+                    $size: "$follower"
+                  },
+                  totalLike: {
+                    $size: "$like"
+                  },
+                  totalView: {
+                    $size: "$view_unique"
+                  },
+                  totalComment: {
+                    $size: "$comment_active"
+                  },
+                  report: {
+                    $size: "$report"
+                  },
+                }
+              }
+          ],
+          lokasiViewer: [
+            {
+              '$unwind': '$view'
+            },
+            {
+              $group: {
+                _id: "$view.lokasi",
+                viewer: {
+                  $sum: 1
+                },
+
+              }
+            }
+          ],
+          reportDetail: [
+            {
+              '$unwind': '$report'
+            },
+            {
+              $group: {
+                _id: "$report.messages",
+                report: {
+                  $sum: 1
+                },
+
+              }
+            }
+          ],
+        }
+      },
+      {
+        $project:{
+          userStreamer: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.userStreamer"
+            }
+          },
+          liveId: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.liveId"
+            }
+          },
+          title: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.title"
+            }
+          },
+          startLive: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.startLive"
+            }
+          },
+          durasi: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.durasi"
+            }
+          },
+          tautan: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.tautan"
+            }
+          },
+          feedBack: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.feedBack"
+            }
+          },
+          feedbackText: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.feedbackText"
+            }
+          },
+          newFollowers: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.newFollowers"
+            }
+          },
+          totalLike: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.totalLike"
+            }
+          },
+          totalComment: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.totalComment"
+            }
+          },
+          totalView: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.totalView"
+            }
+          },
+          report: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userStreamer", 0]
+                }
+              },
+              "in": "$$tmp.report"
+            }
+          },
+          lokasiViewer: 1,
+          reportDetail: 1, 
+        }
+      }
     ];
     let query = await this.MediastreamingModel.aggregate(pipeline);
     return query;

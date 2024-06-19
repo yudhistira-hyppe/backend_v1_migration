@@ -47,6 +47,7 @@ import { BoostintervalService } from '../boostinterval/boostinterval.service';
 import { BoostsessionService } from '../boostsession/boostsession.service';
 import { transactionCoin } from 'src/trans/monetization/transactionCoin/schemas/transactionCoin.schema';
 import { transactionCoinService } from 'src/trans/monetization/transactionCoin/transactionCoin.service';
+import { TemplatesRepo } from '../../infra/templates_repo/schemas/templatesrepo.schema';
 @Controller('api/')
 export class NewPostController {
     private readonly logger = new Logger(NewPostController.name);
@@ -249,7 +250,7 @@ export class NewPostController {
             var transaction_fee = 0;
             var discount_id = null;
             var discount_fee = 0;
-            if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined) {
+            if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee >= 0 && CreatePostRequest_.transaction_fee != undefined) {
                 transaction_fee = Number(CreatePostRequest_.transaction_fee.toString());
                 if (CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined) {
                     discount_id = CreatePostRequest_.discount_id;
@@ -452,7 +453,7 @@ export class NewPostController {
                 var transaction_fee = 0;
                 var discount_id = null;
                 var discount_fee = 0;
-                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
+                if (body.transaction_fee != null && body.transaction_fee >= 0 && body.transaction_fee != undefined) {
                     transaction_fee = Number(body.transaction_fee.toString());
                     if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
                         discount_id = body.discount_id;
@@ -719,11 +720,11 @@ export class NewPostController {
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
                 this.TempPostService.updateByPostId(body, headers, dataUser);
-                
+
                 var transaction_fee = 0;
                 var discount_id = null;
                 var discount_fee = 0;
-                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
+                if (body.transaction_fee != null && body.transaction_fee >= 0 && body.transaction_fee != undefined) {
                     transaction_fee = body.transaction_fee;
                     if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
                         discount_id = body.discount_id;
@@ -736,16 +737,16 @@ export class NewPostController {
                             invoiceID: resultTrans.noInvoice,
                             totalPayment: resultTrans.detail[0].totalAmount,
                             transactionID: resultTrans.idTransaction,
-                            transactionTitle : resultTrans.transactionType,
-                            packageTitle : resultTrans.productionTitle,
-                            email : resultTrans.email,
-                            paymentMethod : resultTrans.paymentMethod,
-                            date:resultTrans.createdAt.split(" ")[0],
-                            time:resultTrans.createdAt.split(" ")[1],
+                            transactionTitle: resultTrans.transactionType,
+                            packageTitle: resultTrans.productionTitle,
+                            email: resultTrans.email,
+                            paymentMethod: resultTrans.paymentMethod,
+                            date: resultTrans.createdAt.split(" ")[0],
+                            time: resultTrans.createdAt.split(" ")[1],
                         }
                     }
                 }
-                
+
                 //tags
                 if (body.tags !== undefined && body.tags.length > 0) {
                     var tag2 = body.tags;
@@ -5333,7 +5334,7 @@ export class NewPostController {
                 "qty": 1,
                 "amount": Number(transaction_fee),
                 "discountCoin": discount_fee,
-                "totalAmount": transaction_fee - discount_fee
+                "totalAmount": (transaction_fee - discount_fee) >= 0 ? (transaction_fee - discount_fee) : 0
             }
         )
 
@@ -5710,7 +5711,7 @@ export class NewPostController {
                 "_id": data.data[0]._id
             }
             this.editPostBoost(request_json.postId, detail);
-            // this.sendCommentFCM("BOOST_SUCCES", request_json.detail[0].postID, emailbuyer.toString(), data.data[0].idTransaction);
+            // this.sendCommentFCM("BOOST_SUCCES", request_json.postId, ubasic.email.toString(), data.data[0].idTransaction);
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             return {
                 response_code: 202,
@@ -5722,6 +5723,42 @@ export class NewPostController {
             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
             throw new BadRequestException("Process error: " + e);
         }
+    }
+
+    async sendCommentFCM(type: string, postID: string, receiverParty: string, idtransaction?: string) {
+        try {
+            var Templates_ = new TemplatesRepo();
+            Templates_ = await this.utilsService.getTemplate_repo(type, 'NOTIFICATION');
+
+            var email = receiverParty;
+            var titlein = Templates_.subject.toString();
+            var titleen = Templates_.subject.toString();
+            var bodyin = "";
+            var bodyen = "";
+
+            var email_post = "";
+            var posts = await this.newPostService.findid(postID);
+            var bodyin_get = Templates_.body_detail_id.toString();
+            var bodyen_get = Templates_.body_detail.toString();
+            var post_type = "";
+            if (await this.utilsService.ceckData(posts)) {
+                post_type = posts.postType.toString();
+                email_post = posts.email.toString();
+            }
+            var new_bodyin_get = bodyin_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
+            var new_bodyen_get = bodyen_get.replace("${post_type}", "Hypper" + post_type[0].toUpperCase() + post_type.substring(1));
+
+            var bodyin = new_bodyin_get;
+            var bodyen = new_bodyen_get;
+
+            var eventType = "TRANSACTION";
+            var event = type;
+
+            await this.utilsService.sendFcmV2(email, email, eventType, event, type, postID, post_type, idtransaction);
+        } catch (e) {
+            console.log(e);
+        }
+        //await this.utilsService.sendFcm(email, titlein, titleen, bodyin, bodyen, eventType, event);
     }
 
     async editPostBoost(postid: string, detail: any[]) {
