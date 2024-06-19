@@ -11323,4 +11323,29 @@ export class TransactionsService {
             }
         }
     }
+    
+    async findtotaltransactiontoday(iduser: object) {
+        var startDate = await this.utilsService.getDateString();
+        var endDate = new Date(new Date(startDate).setDate(new Date(startDate).getDate() + 1)).toISOString();
+        console.log("Query inputs:", iduser, startDate, endDate);
+        const query = await this.transactionsModel.aggregate([
+            {
+                $match: {
+                    $and: [
+                        {
+                            "iduserbuyer": iduser,
+                        },
+                        {
+                            "timestamp": { $gte: startDate }
+                        },
+                        {
+                            "timestamp": { $lte: endDate }
+                        }
+                    ]
+                }
+            },
+            { $group: { _id: null, totaltransaction: { $sum: "$totalamount" } } }
+        ]);
+        return query;
+    }
 }

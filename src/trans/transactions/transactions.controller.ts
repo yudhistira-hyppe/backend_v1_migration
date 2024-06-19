@@ -64,11 +64,17 @@ import { TransactionsCreditsService } from '../transactionsv2/credit/transaction
 import { MonetizationService } from '../monetization/monetization.service';
 import { TransactionsDiscountsService } from 'src/trans/transactionsv2/discount/transactionsdiscount.service';
 import { TransactionsDiscounts } from 'src/trans/transactionsv2/discount/schema/transactionsdiscount.schema';
+import { temppostDISCUSS } from 'src/content/disqus/newpost/temppost.service';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 const cheerio = require('cheerio');
 const nodeHtmlToImage = require('node-html-to-image');
+
 @Controller()
 export class TransactionsController {
-    constructor(private readonly transactionsService: TransactionsService,
+    constructor(
+        @InjectQueue('transactions') private readonly transactionsQueue: Queue,
+        private readonly transactionsService: TransactionsService,
         private readonly userbasicsService: UserbasicsService,
         private readonly settingsService: Settings2Service,
         private readonly methodepaymentsService: MethodepaymentsService,
@@ -107,7 +113,8 @@ export class TransactionsController {
         private readonly transCreditSS: TransactionsCreditsService,
         private readonly monetizationService: MonetizationService,
         private readonly adsTypeService: AdsTypeService,
-        private readonly TransactionsDiscountsService: TransactionsDiscountsService
+        private readonly TransactionsDiscountsService: TransactionsDiscountsService,
+        private readonly temppostDiscuSS: temppostDISCUSS
     ) { }
 
     @UseGuards(JwtAuthGuard)
@@ -2341,6 +2348,74 @@ export class TransactionsController {
 
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Post('api/transactions/checkcoinmaxmin')
+    async checkcoinmaxmin(@Req() request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/checkcoinmaxmin';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
+        const datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
+        var max = datamaxmin.Max;
+        var min = datamaxmin.Min;
+        var dailymax = 50000000;
+        // const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
+        // var dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
+        // var valAdmin = Number(dataadmincoin.value);
+        var request_json = JSON.parse(JSON.stringify(request.body));
+        const userbasic = await this.basic2SS.findBymail(setemail);
+
+        var formatmax = new Intl.NumberFormat('en-DE').format(max);
+        var formatmin = new Intl.NumberFormat('en-DE').format(min);
+        var totalAmount = request_json.amount;
+        if (totalAmount >= min && totalAmount <= max) {
+            let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
+            console.log("totaltransaction:", totaltransaction);
+            if (totalAmount + totaltransaction[0].totaltransaction <= dailymax) {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                return {
+                    response_code: 202,
+                    data: {
+                        // totalAmountWithAdmin: totalAmount,
+                        valid: true
+                    },
+                    messages
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                return {
+                    response_code: 400,
+                    data: {
+                        // totalAmountWithAdmin: totalAmount,
+                        valid: false
+                    },
+                    messages: {
+                        info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
+                    }
+                }
+            }
+        } else {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 400,
+                data: {
+                    // totalAmountWithAdmin: totalAmount,
+                    valid: false
+                },
+                messages: {
+                    info: ["Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax, "Payment must be greater than or equal to IDR " + formatmin + " and less than or equal to IDR " + formatmax]
+                }
+            }
+        }
+    }
 
     @UseGuards(JwtAuthGuard)
     @Post('api/transactions/new')
@@ -2930,7 +3005,7 @@ export class TransactionsController {
 
                                         try {
 
-                                            await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                                            await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
                                         } catch (e) {
 
                                         }
@@ -3186,7 +3261,7 @@ export class TransactionsController {
 
                                     try {
 
-                                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                                        await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
                                     } catch (e) {
 
                                     }
@@ -3496,19 +3571,19 @@ export class TransactionsController {
 
             try {
 
-                await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
             } catch (e) {
 
             }
             if (dttr !== null) {
 
                 if (dttr.success == true) {
-                    try {
+                    // try {
 
-                        await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                    } catch (e) {
+                    //     await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
+                    // } catch (e) {
 
-                    }
+                    // }
                     let dttv2 = null;
                     try {
                         dttv2 = await this.TransactionsV2Service.findByOne(iduser.toString(), postIds);
@@ -3567,6 +3642,7 @@ export class TransactionsController {
 
                     try {
                         await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
+                        await this.temppostDiscuSS.updateemail(postIds, email.toString(), idbuyer, timedate)
                     } catch (e) {
 
                     }
@@ -3608,6 +3684,11 @@ export class TransactionsController {
                     }
 
                     // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
+
+                    // await this.transactionsQueue.add('content', {
+                
+                    //     data:  await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, ubasic)
+                    //   });
                     try {
                         await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, ubasic);
                     } catch (e) {
@@ -3807,7 +3888,7 @@ export class TransactionsController {
                 }
                 try {
 
-                    await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                    await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
                 } catch (e) {
 
                 }
@@ -3823,12 +3904,12 @@ export class TransactionsController {
 
                         }
 
-                        try {
+                        // try {
 
-                            await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
-                        } catch (e) {
+                        //     await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+                        // } catch (e) {
 
-                        }
+                        // }
                         let dttv2 = null;
                         try {
                             dttv2 = await this.TransactionsV2Service.findByOneCredit(iduser.toString(), postIds);
@@ -3907,6 +3988,1345 @@ export class TransactionsController {
 
 
     }
+
+    // @UseGuards(JwtAuthGuard)
+    // @Post('api/transactions/new')
+    // async create26(@Res() res, @Headers('x-auth-token') auth: string, @Headers('x-auth-user') email: string, @Body() CreateTransactionsDto: CreateTransactionsNewDto, @Request() request) {
+    //     var timestamps_start = await this.utilsService.getDateTimeString();
+    //     var fullurl = request.get("Host") + request.originalUrl;
+
+    //     var timestamps_start = await this.utilsService.getDateTimeString();
+    //     const messages = {
+    //         "info": ["The create successful"],
+    //     };
+
+    //     const messagesEror = {
+    //         "info": ["Todo is not found!"],
+    //     };
+    //     var postid = null;
+    //     var amount = 0;
+    //     var salelike = null;
+    //     var saleview = null;
+    //     var bankcode = null;
+    //     var paymentmethod = null;
+    //     var type = null;
+    //     var detail = null;
+    //     var arrayPostId = [];
+    //     var postidTR = null;
+    //     var qty = null;
+    //     var totalamount = 0;
+    //     var productCode = null;
+    //     var dataDiskon = null;
+    //     var idDiscount = null;
+    //     var discount = null;
+    //     var titleinsukses = "Selamat";
+    //     var titleensukses = "Congratulations";
+    //     var bodyinsukses = "Silahkan selesaikan pembayaran Anda Klik Di Sini untuk Melihat";
+    //     var bodyensukses = "Please complete your payment Click Here to View";
+    //     var eventType = "TRANSACTION";
+    //     var event = "TRANSACTION";
+    //     var platform = null;
+    //     var jmlcoin = null;
+    //     var platform = null;
+    //     var jmlcoin = null;
+    //     var detailTr = null;
+    //     var arrDt = [];
+    //     var product_id = null;
+
+    //     var langIso = null;
+    //     var titleinsukses2 = "Selamat!";
+    //     var titleensukses2 = "Congratulation!";
+    //     var bodyinsukses2 = "Konten Anda Telah Terjual Saldo akan diteruskan ke akun hype Anda.";
+    //     var bodyensukses2 = "Your Content Has Been Sold The balance will be forwarded to your Hyppe Account.";
+    //     var titleinsuksesbeli2 = "Selamat!";
+    //     var titleensuksesbeli2 = "Congratulation!";
+    //     var bodyinsuksesbeli2 = "Konten Berhasil Dibeli";
+    //     var bodyensuksesbeli2 = "Content Successfully Purchased";
+
+    //     var dt = new Date(Date.now());
+    //     dt.setHours(dt.getHours() + 7); // timestamp
+    //     dt = new Date(dt);
+    //     var strdate = dt.toISOString();
+    //     var repdate = strdate.replace('T', ' ');
+    //     var splitdate = repdate.split('.');
+    //     var timedate = splitdate[0];
+    //     var datapaket = null;
+    //     var namaproduk = null;
+    //     const mongoose = require('mongoose');
+    //     var ObjectId = require('mongodb').ObjectId;
+
+    //     var request_json = JSON.parse(JSON.stringify(request.body));
+    //     if (request_json["postid"] !== undefined) {
+    //         postid = request_json["postid"];
+    //     } else {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //         throw new BadRequestException("Unabled to proceed");
+    //     }
+    //     if (request_json["platform"] !== undefined) {
+    //         platform = request_json["platform"];
+    //     }
+    //     // if (request_json["amount"] !== undefined) {
+    //     //     amount = request_json["amount"];
+    //     // } else {
+    //     //     var timestamps_end = await this.utilsService.getDateTimeString();
+    //     //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //     //     throw new BadRequestException("Unabled to proceed");
+    //     // }
+    //     if (request_json["product_id"] !== undefined) {
+    //         product_id = request_json["product_id"];
+
+    //     }
+    //     if (request_json["productCode"] !== undefined) {
+    //         productCode = request_json["productCode"];
+    //     } else {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //         throw new BadRequestException("Unabled to proceed");
+    //     }
+    //     if (request_json["idDiscount"] !== undefined) {
+    //         idDiscount = mongoose.Types.ObjectId(request_json["idDiscount"]);
+    //     }
+
+    //     //var splitPostid = postid.split(',');
+    //     var lenghtpostid = postid.length;
+
+    //     salelike = request_json["salelike"];
+    //     saleview = request_json["saleview"];
+    //     if (request_json["paymentmethod"] !== undefined) {
+    //         paymentmethod = request_json["paymentmethod"];
+    //     }
+    //     else {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //         throw new BadRequestException("Unabled to proceed");
+    //     }
+
+    //     if (request_json["bankcode"] !== undefined) {
+    //         bankcode = request_json["bankcode"];
+    //     }
+    //     // else {
+    //     //     var timestamps_end = await this.utilsService.getDateTimeString();
+    //     //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //     //     throw new BadRequestException("Unabled to proceed");
+    //     // }
+
+    //     if (request_json["type"] !== undefined) {
+    //         type = request_json["type"];
+    //     } else {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //         throw new BadRequestException("Unabled to proceed");
+    //     }
+
+
+    //     detail = request_json["detail"];
+    //     var token = auth;
+    //     var reptoken = token.replace("Bearer ", "");
+    //     var x = await this.parseJwt(reptoken);
+    //     var datatrpending = null;
+
+
+
+    //     var email = email;
+
+    //     var datatransaction = await this.transactionsService.getcount();
+    //     var leng = datatransaction + 1;
+
+    //     var curdate = new Date(Date.now());
+    //     var beforedate = curdate.toISOString();
+
+    //     var substrtahun = beforedate.substring(0, 4);
+    //     var numtahun = parseInt(substrtahun);
+
+    //     var substrbulan = beforedate.substring(7, 5);
+    //     var numbulan = parseInt(substrbulan);
+    //     var substrtanggal = beforedate.substring(10, 8);
+    //     var numtanggal = parseInt(substrtanggal);
+
+    //     var rotahun = this.romawi(numtahun);
+    //     var robulan = this.romawi(numbulan);
+    //     var rotanggal = this.romawi(numtanggal);
+    //     var no = "INV/" + (await rotahun).toString() + "/" + (await robulan).toString() + "/" + (await rotanggal).toString() + "/" + leng;
+    //     var ubasic = null;
+    //     var iduser = null;
+    //     try {
+    //         ubasic = await this.basic2SS.findBymail(email);
+    //     } catch (e) {
+    //         ubasic = null;
+    //     }
+
+    //     if (ubasic !== null) {
+    //         iduser = ubasic._id;
+    //     } else {
+    //         throw new BadRequestException("User is not found...!");
+    //     }
+
+
+    //     var userbuyer = mongoose.Types.ObjectId(iduser);
+
+    //     var namapembeli = ubasic.fullName;
+    //     var dataconten = null;
+    //     var priceAmount = 0;
+    //     var dt = new Date(Date.now());
+    //     dt.setHours(dt.getHours() + 7); // timestamp
+    //     dt = new Date(dt);
+
+    //     var datapost = null;
+    //     var emailseller = null;
+    //     var ubasicseller = null;
+    //     var iduserseller = null;
+    //     var namapenjual = null;
+    //     var arraypostids = [];
+    //     var arraymount = [];
+    //     var arrayDetail = [];
+    //     var datavoucher = null;
+    //     var datasettingppn = null;
+    //     var datamradmin = null;
+    //     var databankvacharge = null;
+    //     var datasettingexpiredva = null;
+    //     var transactionVoucher = null;
+    //     var datamradmin = null;
+    //     var expiredvanew = null;
+    //     var databankvacharge = null;
+    //     var datawayting = null;
+    //     var statuswait = null;
+    //     var postType = null;
+    //     var arrDiskon = [];
+    //     var detailtrv2 = null;
+    //     var PostTask_ = new Posttask();
+    //     const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
+    //     const ID_SETTING_COST_PG_OY = this.configService.get("ID_SETTING_COST_PG_OY");
+    //     const ID_USER_HYPPE = this.configService.get("ID_USER_HYPPE");
+    //     const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
+    //     var idppn = "62bbbe43a7520000050077a3";
+    //     //  var idmdradmin = "62bd413ff37a00001a004369";
+    //     var idbankvacharge = "62bd40e0f37a00001a004366";
+    //     var idexpiredva = "62bbbe8ea7520000050077a4";
+
+    //     var datauserhyppe = null;
+    //     var datenow = new Date(Date.now());
+    //     var useridHyppe = null;
+    //     var last_stock = 0;
+    //     var used_stock = 0;
+    //     var tsTock = 0;
+    //     var minStock = 0;
+    //     var tsTockDiskon = 0;
+    //     var minStockDiskon = 0;
+    //     var amountTotal = 0;
+    //     var diskon = 0;
+    //     var stockDiskon = 0;
+    //     var last_stockDiskon = 0;
+    //     var used_stockDiskon = 0;
+    //     var dataadmincoin = null;
+    //     var dataadminoy = null;
+    //     var valAdmin = null;
+    //     var valAdminOy = null;
+    //     var arrDiskon = [];
+    //     var datav2 = null;
+    //     var invoicev2 = null;
+    //     var languages = null;
+    //     var idlanguages = null;
+    //     var datalanguage = null;
+    //     var langIso = null;
+    //     var datamaxmin = null;
+    //     var idTransactionv2 = null;
+    //     var max = 0;
+    //     var min = 0;
+
+    //     if (idDiscount !== undefined && idDiscount !== null) {
+    //         arrDiskon = [idDiscount];
+    //         try {
+    //             dataDiskon = await this.MonetizenewService.findByid(idDiscount);
+    //         } catch (e) {
+    //             dataDiskon = null;
+    //         }
+
+    //         if (dataDiskon !== null) {
+    //             try {
+    //                 diskon = dataDiskon._doc.nominal_discount;
+    //             } catch (e) {
+    //                 diskon = 0;
+    //             }
+
+    //             try {
+    //                 stockDiskon = dataDiskon._doc.stock;
+    //             } catch (e) {
+    //                 stockDiskon = 0;
+    //             }
+
+    //             try {
+    //                 last_stockDiskon = dataDiskon._doc.last_stock;
+    //             } catch (e) {
+    //                 last_stockDiskon = 0;
+    //             }
+    //             try {
+    //                 used_stockDiskon = dataDiskon._doc.used_stock;
+    //             } catch (e) {
+    //                 used_stockDiskon = 0;
+    //             }
+
+    //         }
+    //     } else {
+    //         arrDiskon = [];
+    //     }
+    //     try {
+
+    //         datauserhyppe = await this.settingsService.findOne(ID_USER_HYPPE);
+    //         useridHyppe = mongoose.Types.ObjectId(datauserhyppe._doc.value);
+
+    //     } catch (e) {
+    //         datauserhyppe = null;
+    //         useridHyppe = null;
+    //     }
+    //     try {
+
+    //         dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
+    //         valAdmin = dataadmincoin._doc.value;
+
+    //     } catch (e) {
+    //         dataadmincoin = null;
+    //         valAdmin = null;
+    //     }
+
+    //     try {
+
+    //         dataadminoy = await this.settingsService.findOne(ID_SETTING_COST_PG_OY);
+    //         valAdminOy = dataadminoy._doc.value;
+
+    //     } catch (e) {
+    //         dataadminoy = null;
+    //         valAdminOy = null;
+    //     }
+
+    //     try {
+
+    //         datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
+    //         max = datamaxmin._doc.Max;
+    //         min = datamaxmin._doc.Min;
+
+    //     } catch (e) {
+    //         datamaxmin = null;
+    //         max = 0;
+    //         min = 0;
+    //     }
+
+    //     var idmethode = null;
+    //     var idbank = null;
+    //     var datamethode = null;
+    //     var namamethode = "";
+
+
+    //     if (type === "COIN") {
+    //         try {
+    //             datamethode = await this.methodepaymentsService.findmethodename(paymentmethod);
+    //             namamethode = datamethode._doc.methodename;
+    //             idmethode = datamethode._doc._id;
+
+    //         } catch (e) {
+    //             var timestamps_end = await this.utilsService.getDateTimeString();
+    //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //             throw new BadRequestException("Methode payment not found...!");
+    //         }
+
+    //         var databank = null;
+    //         var namabank = "";
+    //         try {
+    //             databank = await this.banksService.findbankcode(bankcode);
+    //             namabank = databank._doc.bankname;
+    //             idbank = databank._doc._id;
+
+    //         } catch (e) {
+    //             var timestamps_end = await this.utilsService.getDateTimeString();
+    //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //             throw new BadRequestException("Banks not found...!");
+    //         }
+
+
+    //         try {
+    //             databankvacharge = await this.settingsService.findOne(idbankvacharge);
+    //             datasettingexpiredva = await this.settingsService.findOne(idexpiredva);
+    //             var valuevacharge = databankvacharge._doc.value;
+    //             var valueexpiredva = datasettingexpiredva._doc.value;
+
+    //         } catch (e) {
+    //             var timestamps_end = await this.utilsService.getDateTimeString();
+    //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //             throw new BadRequestException("Setting value not found..!");
+    //         }
+
+    //         var userbuy = iduser;
+    //         var name = ubasic.fullName;
+    //         var emailbuy = ubasic.email;
+    //         var stringId = (await this.generateNumber()).toString();
+    //         var expiredtimeva = null;
+    //         try {
+
+    //             datawayting = await this.transactionsService.findExpired(userbuyer);
+    //             statuswait = datawayting.status;
+    //             let expiredtimeva = datawayting.expiredtimeva;
+    //             expiredvanew = new Date(expiredtimeva);
+    //             expiredvanew.setHours(expiredvanew.getHours() - 7);
+
+    //         } catch (e) {
+    //             datawayting = null;
+    //             expiredva = null;
+    //             statuswait = null;
+    //         }
+    //         if (statuswait === "WAITING_PAYMENT" && datenow > expiredvanew) {
+    //             var timestamps_end = await this.utilsService.getDateTimeString();
+    //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //             throw new BadRequestException("Tidak dapat melanjutkan. Selesaikan pembayaran transaksi anda dahulu !");
+    //         }
+    //         else {
+
+
+    //             try {
+    //                 datapost = await this.MonetizenewService.findOne(postid[0].id);
+
+    //             } catch (e) {
+
+    //                 throw new BadRequestException("data not found..!");
+    //             }
+    //             try {
+
+    //                 dataconten = await this.MonetizenewService.findOne(postid[0].id);
+    //                 priceAmount = dataconten.price;
+    //                 postType = dataconten.postType;
+    //                 last_stock = dataconten.last_stock;
+    //                 used_stock = dataconten.used_stock;
+    //             } catch (e) {
+    //                 dataconten = null;
+    //                 priceAmount = 0;
+    //                 postType = "";
+    //                 last_stock = 0;
+    //                 used_stock = 0;
+    //             }
+
+    //             if (last_stock > 0) {
+    //                 try {
+
+    //                     datatrpending = await this.transactionsService.findPendingByUser(iduser.toString());
+
+    //                 } catch (e) {
+    //                     datatrpending = null;
+
+    //                 }
+
+
+    //                 var postIds = postid[0].id;
+
+    //                 //  var objid = mongoose.Types.ObjectId(postIds);
+    //                 var qty = postid[0].qty;
+    //                 tsTock = Number(qty) + Number(used_stock);
+    //                 minStock = Number(last_stock) - Number(qty);
+    //                 tsTockDiskon = 1 + Number(used_stockDiskon);
+    //                 minStockDiskon = Number(last_stockDiskon) - 1;
+    //                 totalamount = Number(postid[0].totalAmount) + Number(valAdmin);
+    //                 amountTotal = Number(totalamount) - Number(diskon);
+    //                 var arraydetailobj = { "id": postIds, "qty": qty, "totalAmount": totalamount };
+    //                 arrayDetail.push(arraydetailobj);
+
+    //                 postidTR = postIds;
+    //                 arraypostids.push(postid[0].id);
+
+    //                 try {
+    //                     jmlcoin = postid[0].jmlcoin;
+    //                 } catch (e) {
+    //                     jmlcoin = 0;
+    //                 }
+    //                 var formatmax = new Intl.NumberFormat('en-DE').format(max);
+    //                 var formatmin = new Intl.NumberFormat('en-DE').format(min);
+    //                 if (amountTotal >= min && amountTotal <= max) {
+    //                     if (datatrpending !== null) {
+
+    //                         let cekstatusva = await this.oyPgService.staticVaInfo(datatrpending.idva);
+    //                         var expiredva = cekstatusva.trx_expiration_time;
+    //                         var dex = new Date(expiredva);
+    //                         dex.setHours(dex.getHours() + 7); // timestamp
+    //                         dex = new Date(dex);
+
+    //                         if (cekstatusva.va_status === "WAITING_PAYMENT") {
+    //                             var timestamps_end = await this.utilsService.getDateTimeString();
+    //                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                             throw new BadRequestException("Tidak dapat melanjutkan. Konten ini sedang dalam proses pembelian");
+    //                         }
+    //                         else if (cekstatusva.va_status === "STATIC_TRX_EXPIRED" || cekstatusva.va_status === "EXPIRED") {
+
+    //                             var idtransaction = datatrpending._id;
+
+    //                             // if (datenow > dateVa) {
+
+    //                             var datava = {
+    //                                 "partner_user_id": userbuy.toString() + stringId,
+    //                                 "amount": amountTotal,
+    //                                 "bank_code": bankcode,
+    //                                 "is_open": false,
+    //                                 "is_single_use": true,
+    //                                 "is_lifetime": false,
+    //                                 "username_display": email,
+    //                                 "email": email,
+    //                                 "trx_expiration_time": valueexpiredva,
+    //                             }
+
+    //                             try {
+    //                                 var datareqva = await this.oyPgService.generateStaticVa(datava);
+    //                                 var idva = datareqva.id;
+    //                                 var statuscodeva = datareqva.status.code;
+    //                                 var statusmessage = datareqva.status.message;
+    //                                 var nova = datareqva.va_number;
+    //                                 var expiredva = datareqva.trx_expiration_time;
+    //                                 var d1 = new Date(expiredva);
+    //                                 d1.setHours(d1.getHours() + 7); // timestamp
+    //                                 d1 = new Date(d1);
+
+
+    //                             } catch (e) {
+    //                                 var timestamps_end = await this.utilsService.getDateTimeString();
+    //                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                                 throw new BadRequestException("Not process..!");
+
+    //                             }
+
+
+    //                             detailtrv2 = [
+    //                                 {
+    //                                     "biayPG": valAdminOy,
+    //                                     "transactionFees": valAdmin,
+    //                                     "amount": priceAmount,
+    //                                     "totalDiskon": diskon,
+    //                                     "totalAmount": amountTotal,
+    //                                     "payload": { "va_number": nova },
+    //                                     // "response": respon
+    //                                 }]
+
+
+    //                             if (statuscodeva == "000") {
+
+    //                                 try {
+
+    //                                     let cekstatusva = await this.oyPgService.staticVaInfo(idva);
+
+    //                                     CreateTransactionsDto.iduserbuyer = iduser;
+    //                                     CreateTransactionsDto.idusersell = useridHyppe;
+    //                                     CreateTransactionsDto.timestamp = dt.toISOString();
+    //                                     CreateTransactionsDto.updatedAt = dt.toISOString();
+    //                                     CreateTransactionsDto.noinvoice = no;
+    //                                     CreateTransactionsDto.amount = priceAmount;
+    //                                     CreateTransactionsDto.status = cekstatusva.va_status;
+    //                                     CreateTransactionsDto.bank = idbank;
+    //                                     CreateTransactionsDto.idva = idva;
+    //                                     CreateTransactionsDto.nova = nova;
+    //                                     CreateTransactionsDto.accountbalance = null;
+    //                                     CreateTransactionsDto.paymentmethod = idmethode;
+    //                                     // CreateTransactionsDto.ppn = mongoose.Types.ObjectId(idppn);
+    //                                     CreateTransactionsDto.ppn = null;
+    //                                     CreateTransactionsDto.totalamount = amountTotal;
+    //                                     CreateTransactionsDto.description = "buy " + type + " pending";
+    //                                     CreateTransactionsDto.payload = null;
+    //                                     CreateTransactionsDto.expiredtimeva = d1.toISOString();
+    //                                     CreateTransactionsDto.detail = arrayDetail;
+    //                                     CreateTransactionsDto.postid = postidTR;
+    //                                     CreateTransactionsDto.response = datareqva;
+    //                                     CreateTransactionsDto.productCode = productCode;
+    //                                     CreateTransactionsDto.platform = platform;
+    //                                     CreateTransactionsDto.idDiskon = idDiscount;
+    //                                     CreateTransactionsDto.diskon = diskon;
+    //                                     CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+    //                                     CreateTransactionsDto.product_id = product_id;
+    //                                     let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
+
+    //                                     try {
+    //                                         let getdata = await this.transactionsService.findOne(no);
+    //                                         var inserttransaksi = new transactionCoin();
+    //                                         inserttransaksi._id = new mongoose.Types.ObjectId();
+    //                                         inserttransaksi.idTransaction = new mongoose.Types.ObjectId(getdata._id.toString());
+    //                                         inserttransaksi.idUser = iduser;
+    //                                         let getdetail = JSON.parse(JSON.stringify(datatr.detail));
+    //                                         inserttransaksi.idPackage = new mongoose.Types.ObjectId(getdetail[0].id);
+    //                                         inserttransaksi.qty = 1;
+    //                                         inserttransaksi.status = "PENDING";
+    //                                         inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+    //                                         inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+
+    //                                         this.transCoinSS.create(inserttransaksi);
+    //                                     }
+    //                                     catch (e) {
+    //                                         console.log(e.message);
+    //                                     }
+
+
+    //                                     try {
+
+    //                                         await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+    //                                     } catch (e) {
+
+    //                                     }
+
+    //                                     try {
+
+    //                                         await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
+    //                                     } catch (e) {
+
+    //                                     }
+    //                                     let id = null;
+    //                                     try {
+    //                                         id = datatr._id.toString();
+    //                                     } catch (e) {
+    //                                         id = null;
+    //                                     }
+
+    //                                     try {
+    //                                         await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, priceAmount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
+    //                                     } catch (e) {
+
+    //                                     }
+
+    //                                     try {
+    //                                         datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
+
+    //                                     } catch (e) {
+    //                                         datav2 = null;
+
+    //                                     }
+
+    //                                     if (datav2 !== null) {
+    //                                         invoicev2 = datav2.noInvoice;
+    //                                         idTransactionv2 = datav2.idTransaction;
+    //                                         let createdAt = datav2.createdAt;
+
+    //                                         try {
+    //                                             var insertDatatransDiscount = new TransactionsDiscounts();
+    //                                             insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+    //                                             insertDatatransDiscount.idTransaction = idTransactionv2;
+    //                                             insertDatatransDiscount.idUser = iduser;
+    //                                             insertDatatransDiscount.idDiscount = idDiscount;
+    //                                             insertDatatransDiscount.totalPayment = amountTotal;
+    //                                             insertDatatransDiscount.transactionDate = createdAt;
+    //                                             insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+    //                                             insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+    //                                             await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+    //                                         } catch (e) {
+
+    //                                         }
+    //                                         try {
+    //                                             this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
+    //                                         } catch (e) {
+
+    //                                         }
+    //                                     }
+
+
+    //                                     await this.transactionsService.updatestatuscancel(idtransaction);
+
+
+    //                                     var data = {
+    //                                         "noinvoice": invoicev2,
+    //                                         "postid": postidTR,
+    //                                         "idusersell": datatr.idusersell,
+    //                                         "NamaPenjual": namapenjual,
+    //                                         "iduserbuyer": datatr.iduserbuyer,
+    //                                         "NamaPembeli": namapembeli,
+    //                                         "amount": datatr.amount,
+    //                                         "paymentmethod": namamethode,
+    //                                         "status": datatr.status,
+    //                                         "description": datatr.description,
+    //                                         "idva": datatr.idva,
+    //                                         "nova": datatr.nova,
+    //                                         "expiredtimeva": datatr.expiredtimeva,
+    //                                         "salelike": datatr.saleview,
+    //                                         "saleview": datatr.salelike,
+    //                                         "bank": namabank,
+    //                                         "productCode": productCode,
+    //                                         "detail": arrayDetail,
+    //                                         "totalamount": datatr.totalamount,
+    //                                         "accountbalance": datatr.accountbalance,
+    //                                         "timestamp": datatr.timestamp,
+    //                                         "diskon": diskon,
+    //                                         "platform": platform,
+    //                                         "product_id": product_id,
+    //                                         "_id": datatr._id
+    //                                     };
+
+
+    //                                 } catch (e) {
+    //                                     var timestamps_end = await this.utilsService.getDateTimeString();
+    //                                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                                     return res.status(HttpStatus.BAD_REQUEST).json({
+
+    //                                         "message": messagesEror + " " + e.toString()
+    //                                     });
+    //                                 }
+
+    //                                 var timestamps_end = await this.utilsService.getDateTimeString();
+    //                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                                 return res.status(HttpStatus.OK).json({
+    //                                     response_code: 202,
+    //                                     "data": data,
+    //                                     "message": messages
+    //                                 });
+
+    //                             }
+    //                             else {
+
+    //                                 CreateTransactionsDto.iduserbuyer = iduser;
+    //                                 CreateTransactionsDto.idusersell = useridHyppe;
+    //                                 CreateTransactionsDto.timestamp = dt.toISOString();
+    //                                 CreateTransactionsDto.updatedAt = dt.toISOString();
+    //                                 CreateTransactionsDto.noinvoice = no;
+    //                                 CreateTransactionsDto.amount = priceAmount;
+    //                                 CreateTransactionsDto.status = statusmessage;
+    //                                 CreateTransactionsDto.bank = idbank;
+    //                                 CreateTransactionsDto.idva = idva;
+    //                                 CreateTransactionsDto.nova = nova;
+    //                                 CreateTransactionsDto.accountbalance = null;
+    //                                 CreateTransactionsDto.paymentmethod = idmethode;
+    //                                 CreateTransactionsDto.ppn = null;
+    //                                 CreateTransactionsDto.totalamount = amountTotal;
+    //                                 CreateTransactionsDto.description = statusmessage;
+    //                                 CreateTransactionsDto.payload = null;
+    //                                 CreateTransactionsDto.expiredtimeva = d1.toISOString();
+    //                                 CreateTransactionsDto.detail = arrayDetail;
+    //                                 CreateTransactionsDto.postid = postidTR;
+    //                                 CreateTransactionsDto.response = datareqva;
+    //                                 CreateTransactionsDto.productCode = productCode;
+    //                                 CreateTransactionsDto.platform = platform;
+    //                                 CreateTransactionsDto.idDiskon = idDiscount;
+    //                                 CreateTransactionsDto.diskon = diskon;
+    //                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+    //                                 CreateTransactionsDto.product_id = product_id;
+    //                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
+
+    //                                 var timestamps_end = await this.utilsService.getDateTimeString();
+    //                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                                 return res.status(HttpStatus.BAD_REQUEST).json({
+    //                                     response_code: statuscodeva,
+    //                                     message: statusmessage
+    //                                 });
+
+    //                             }
+
+    //                         }
+
+
+
+    //                     }
+    //                     else {
+
+    //                         var datava = {
+    //                             "partner_user_id": userbuy.toString() + stringId,
+    //                             "amount": totalamount,
+    //                             "bank_code": bankcode,
+    //                             "is_open": false,
+    //                             "is_single_use": true,
+    //                             "is_lifetime": false,
+    //                             "username_display": email,
+    //                             "email": email,
+    //                             "trx_expiration_time": valueexpiredva,
+    //                         }
+
+    //                         try {
+    //                             var datareqva = await this.oyPgService.generateStaticVa(datava);
+    //                             var idva = datareqva.id;
+    //                             var statuscodeva = datareqva.status.code;
+    //                             var statusmessage = datareqva.status.message;
+    //                             var nova = datareqva.va_number;
+    //                             var expiredva = datareqva.trx_expiration_time;
+    //                             var d1 = new Date(expiredva);
+    //                             d1.setHours(d1.getHours() + 7); // timestamp
+    //                             d1 = new Date(d1);
+
+
+    //                         } catch (e) {
+    //                             var timestamps_end = await this.utilsService.getDateTimeString();
+    //                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                             throw new BadRequestException("Not process..!");
+
+    //                         }
+
+    //                         detailtrv2 = [
+    //                             {
+    //                                 "biayPG": valAdminOy,
+    //                                 "transactionFees": valAdmin,
+    //                                 "amount": priceAmount,
+    //                                 "totalDiskon": diskon,
+    //                                 "totalAmount": amountTotal,
+    //                                 "payload": { "va_number": nova },
+    //                                 // "response": respon
+    //                             }]
+
+    //                         if (statuscodeva == "000") {
+
+    //                             try {
+
+    //                                 let cekstatusva = await this.oyPgService.staticVaInfo(idva);
+
+    //                                 CreateTransactionsDto.iduserbuyer = iduser;
+    //                                 CreateTransactionsDto.idusersell = useridHyppe;
+    //                                 CreateTransactionsDto.timestamp = dt.toISOString();
+    //                                 CreateTransactionsDto.updatedAt = dt.toISOString();
+    //                                 CreateTransactionsDto.noinvoice = no;
+    //                                 CreateTransactionsDto.amount = priceAmount;
+    //                                 CreateTransactionsDto.status = cekstatusva.va_status;
+    //                                 CreateTransactionsDto.bank = idbank;
+    //                                 CreateTransactionsDto.idva = idva;
+    //                                 CreateTransactionsDto.nova = nova;
+    //                                 CreateTransactionsDto.accountbalance = null;
+    //                                 CreateTransactionsDto.paymentmethod = idmethode;
+    //                                 CreateTransactionsDto.ppn = null;
+    //                                 CreateTransactionsDto.totalamount = amountTotal;
+    //                                 CreateTransactionsDto.description = "buy " + type + " pending";
+    //                                 CreateTransactionsDto.payload = null;
+    //                                 CreateTransactionsDto.expiredtimeva = d1.toISOString();
+    //                                 CreateTransactionsDto.detail = arrayDetail;
+    //                                 CreateTransactionsDto.postid = postidTR;
+    //                                 CreateTransactionsDto.response = datareqva;
+    //                                 CreateTransactionsDto.productCode = productCode;
+    //                                 CreateTransactionsDto.platform = platform;
+    //                                 CreateTransactionsDto.idDiskon = idDiscount;
+    //                                 CreateTransactionsDto.diskon = diskon;
+    //                                 CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+    //                                 CreateTransactionsDto.product_id = product_id;
+    //                                 let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
+
+    //                                 try {
+    //                                     let getdata = await this.transactionsService.findOne(no);
+    //                                     var inserttransaksi = new transactionCoin();
+    //                                     inserttransaksi._id = new mongoose.Types.ObjectId();
+    //                                     inserttransaksi.idTransaction = new mongoose.Types.ObjectId(getdata._id.toString());
+    //                                     inserttransaksi.idUser = iduser;
+    //                                     let getdetail = JSON.parse(JSON.stringify(datatr.detail));
+    //                                     inserttransaksi.idPackage = new mongoose.Types.ObjectId(getdetail[0].id);
+    //                                     inserttransaksi.qty = 1;
+    //                                     inserttransaksi.status = "PENDING";
+    //                                     inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+    //                                     inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+
+    //                                     this.transCoinSS.create(inserttransaksi);
+    //                                 }
+    //                                 catch (e) {
+    //                                     console.log(e.message);
+    //                                 }
+
+    //                                 try {
+
+    //                                     await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+    //                                 } catch (e) {
+
+    //                                 }
+
+    //                                 try {
+
+    //                                     await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
+    //                                 } catch (e) {
+
+    //                                 }
+
+    //                                 let id = null;
+    //                                 try {
+    //                                     id = datatr._id.toString();
+    //                                 } catch (e) {
+    //                                     id = null;
+    //                                 }
+
+    //                                 try {
+    //                                     await this.TransactionsV2Service.insertTransaction(platform, productCode, "BUY", jmlcoin, 0, priceAmount, diskon, iduser.toString(), useridHyppe.toString(), arrDiskon, detailtrv2, "PENDING");
+    //                                 } catch (e) {
+
+    //                                 }
+
+    //                                 try {
+    //                                     datav2 = await this.TransactionsV2Service.findByOneNova(iduser.toString(), nova);
+
+    //                                 } catch (e) {
+    //                                     datav2 = null;
+
+    //                                 }
+
+    //                                 if (datav2 !== null) {
+    //                                     invoicev2 = datav2.noInvoice;
+    //                                     idTransactionv2 = datav2.idTransaction;
+    //                                     let createdAt = datav2.createdAt;
+
+    //                                     try {
+    //                                         var insertDatatransDiscount = new TransactionsDiscounts();
+    //                                         insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+    //                                         insertDatatransDiscount.idTransaction = idTransactionv2;
+    //                                         insertDatatransDiscount.idUser = iduser;
+    //                                         insertDatatransDiscount.idDiscount = idDiscount;
+    //                                         insertDatatransDiscount.totalPayment = amountTotal;
+    //                                         insertDatatransDiscount.transactionDate = createdAt;
+    //                                         insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+    //                                         insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+    //                                         await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+    //                                     } catch (e) {
+
+    //                                     }
+    //                                     try {
+    //                                         this.notifbuy2(emailbuy.toString(), titleinsukses, titleensukses, bodyinsukses, bodyensukses, eventType, "TOPUP_COIN", invoicev2, invoicev2);
+    //                                     } catch (e) {
+
+    //                                     }
+    //                                 }
+
+
+    //                                 var data = {
+    //                                     "noinvoice": invoicev2,
+    //                                     "postid": postidTR,
+    //                                     "idusersell": datatr.idusersell,
+    //                                     "NamaPenjual": namapenjual,
+    //                                     "iduserbuyer": datatr.iduserbuyer,
+    //                                     "NamaPembeli": namapembeli,
+    //                                     "amount": datatr.amount,
+    //                                     "paymentmethod": namamethode,
+    //                                     "status": datatr.status,
+    //                                     "description": datatr.description,
+    //                                     "idva": datatr.idva,
+    //                                     "nova": datatr.nova,
+    //                                     "expiredtimeva": datatr.expiredtimeva,
+    //                                     "salelike": datatr.saleview,
+    //                                     "saleview": datatr.salelike,
+    //                                     "bank": namabank,
+    //                                     "productCode": productCode,
+    //                                     "detail": arrayDetail,
+    //                                     "totalamount": datatr.totalamount,
+    //                                     "accountbalance": datatr.accountbalance,
+    //                                     "timestamp": datatr.timestamp,
+    //                                     "diskon": diskon,
+    //                                     "platform": platform,
+    //                                     "product_id": product_id,
+    //                                     "_id": datatr._id
+    //                                 };
+    //                             } catch (e) {
+    //                                 var timestamps_end = await this.utilsService.getDateTimeString();
+    //                                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                                 return res.status(HttpStatus.BAD_REQUEST).json({
+
+    //                                     "message": messagesEror + " " + e.toString()
+    //                                 });
+    //                             }
+
+    //                             var timestamps_end = await this.utilsService.getDateTimeString();
+    //                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                             return res.status(HttpStatus.OK).json({
+    //                                 response_code: 202,
+    //                                 "data": data,
+    //                                 "message": messages
+    //                             });
+    //                         }
+    //                         else {
+    //                             CreateTransactionsDto.iduserbuyer = iduser;
+    //                             CreateTransactionsDto.idusersell = useridHyppe;
+    //                             CreateTransactionsDto.timestamp = dt.toISOString();
+    //                             CreateTransactionsDto.updatedAt = dt.toISOString();
+    //                             CreateTransactionsDto.noinvoice = no;
+    //                             CreateTransactionsDto.amount = priceAmount;
+    //                             CreateTransactionsDto.status = statusmessage;
+    //                             CreateTransactionsDto.bank = idbank;
+    //                             CreateTransactionsDto.idva = idva;
+    //                             CreateTransactionsDto.nova = nova;
+    //                             CreateTransactionsDto.accountbalance = null;
+    //                             CreateTransactionsDto.paymentmethod = idmethode;
+    //                             CreateTransactionsDto.ppn = null;
+    //                             CreateTransactionsDto.totalamount = amountTotal;
+    //                             CreateTransactionsDto.description = statusmessage;
+    //                             CreateTransactionsDto.payload = null;
+    //                             CreateTransactionsDto.expiredtimeva = d1.toISOString();
+    //                             CreateTransactionsDto.detail = arrayDetail;
+    //                             CreateTransactionsDto.postid = postidTR;
+    //                             CreateTransactionsDto.response = datareqva;
+    //                             CreateTransactionsDto.productCode = productCode;
+    //                             CreateTransactionsDto.platform = platform;
+    //                             CreateTransactionsDto.idDiskon = idDiscount;
+    //                             CreateTransactionsDto.diskon = diskon;
+    //                             CreateTransactionsDto.jmlCoin = Number(jmlcoin);
+    //                             CreateTransactionsDto.product_id = product_id;
+    //                             let datatr = await this.transactionsService.createNew(CreateTransactionsDto);
+
+    //                             var timestamps_end = await this.utilsService.getDateTimeString();
+    //                             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //                             return res.status(HttpStatus.BAD_REQUEST).json({
+    //                                 response_code: statuscodeva,
+    //                                 message: statusmessage
+    //                             });
+    //                         }
+
+    //                     }
+    //                 } else {
+    //                     throw new BadRequestException("Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax);
+    //                 }
+
+
+
+    //             }
+    //             else {
+    //                 throw new BadRequestException("stock habis");
+    //             }
+
+
+    //         }
+    //     }
+    //     else if (type === "CONTENT") {
+
+    //         let saleAmount = 0;
+    //         // var dUser = null;
+    //         var idbuyer = null;
+    //         let postType = null;
+    //         var dataTr = null;
+    //         var like = 0;
+    //         var view = 0;
+    //         var datainsight = null;
+    //         var postIds = postid[0].id;
+    //         var qty = postid[0].qty;
+    //         var totalAmount = postid[0].totalAmount;
+
+    //         try {
+    //             languages = ubasic.languages;
+    //             idlanguages = languages.oid.toString();
+    //             datalanguage = await this.languagesService.findOne(idlanguages)
+    //             langIso = datalanguage.langIso;
+    //         } catch (e) {
+    //             languages = null;
+    //             idlanguages = "";
+    //             datalanguage = null;
+    //             langIso = "";
+    //         }
+
+
+    //         if (ubasic !== null) {
+    //             idbuyer = ubasic._id;
+    //         }
+
+    //         const messages = {
+    //             "info": ["The process was successful"],
+    //         };
+
+    //         // if (request_json.pin && request_json.pin != "") {
+    //         //     if (await this.utilsService.ceckData(ubasic)) {
+    //         //         if (ubasic.pin && ubasic.pin != "") {
+    //         //             let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+    //         //             if (pinDecrypt != request_json.pin) {
+    //         //                 var timestamps_end = await this.utilsService.getDateTimeString();
+    //         //                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //         //                 throw new BadRequestException("Unable to proceed: PIN mismatch");
+    //         //             }
+    //         //         } else {
+    //         //             var timestamps_end = await this.utilsService.getDateTimeString();
+    //         //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //         //             throw new BadRequestException("Unable to proceed: Please create a PIN first");
+    //         //         }
+    //         //     } else {
+    //         //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //         //         throw new BadRequestException("Unable to proceed: User data not found");
+    //         //     }
+    //         // } else {
+    //         //     var timestamps_end = await this.utilsService.getDateTimeString();
+    //         //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //         //     throw new BadRequestException("Unable to proceed: Missing param: pin");
+    //         // }
+
+    //       await this.transactionsQueue.add('content', {
+                
+    //                     data:   await this.trConten(postIds, fullurl,timestamps_start,email,request_json,qty,totalAmount,diskon,used_stockDiskon,last_stockDiskon,salelike,saleview,idbuyer,iduser,arrDiskon,idDiscount,timedate,platform,titleinsukses2,titleensukses2,bodyinsukses2,bodyensukses2,eventType,event,titleinsuksesbeli2,titleensuksesbeli2,bodyinsuksesbeli2,bodyensuksesbeli2,ubasic,langIso,messages,res)
+    //                   });
+
+    //     }
+    //     else if (type === "CREDIT") {
+
+
+    //         let idbuyer = null;
+    //         var dataTr = null;
+    //         let datavoucher = null;
+    //         let namapembeli = null
+    //         let jmlcoin = 0;
+
+
+
+    //         if (ubasic !== null) {
+    //             idbuyer = ubasic._id;
+    //             namapembeli = ubasic.username;
+    //         }
+
+    //         const messages = {
+    //             "info": ["The process was successful"],
+    //         };
+
+
+    //         if (request_json.pin && request_json.pin != "") {
+    //             if (await this.utilsService.ceckData(ubasic)) {
+    //                 if (ubasic.pin && ubasic.pin != "") {
+    //                     let pinDecrypt = await this.utilsService.decrypt(ubasic.pin.toString());
+    //                     if (pinDecrypt != request_json.pin) {
+    //                         var timestamps_end = await this.utilsService.getDateTimeString();
+    //                         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //                         throw new BadRequestException("Unable to proceed: PIN mismatch");
+    //                     }
+    //                 } else {
+    //                     var timestamps_end = await this.utilsService.getDateTimeString();
+    //                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //                     throw new BadRequestException("Unable to proceed: Please create a PIN first");
+    //                 }
+    //             } else {
+    //                 var timestamps_end = await this.utilsService.getDateTimeString();
+    //                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //                 throw new BadRequestException("Unable to proceed: User data not found");
+    //             }
+    //         } else {
+    //             var timestamps_end = await this.utilsService.getDateTimeString();
+    //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //             throw new BadRequestException("Unable to proceed: Missing param: pin");
+    //         }
+
+    //         try {
+
+    //             ubasicseller = await this.basic2SS.findOne(useridHyppe);
+    //             iduserseller = ubasicseller._id;
+    //             namapenjual = ubasicseller.fullName;
+    //             emailseller = ubasicseller.email;
+
+
+    //         } catch (e) {
+    //             var timestamps_end = await this.utilsService.getDateTimeString();
+    //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //             throw new BadRequestException("User not found..!");
+    //         }
+
+    //         try {
+    //             jmlcoin = postid[0].jmlcoin;
+    //         } catch (e) {
+    //             jmlcoin = 0;
+    //         }
+
+    //         var postIds = postid[0].id;
+    //         var qty = postid[0].qty;
+    //         var totalAmount = postid[0].totalAmount;
+    //         amountTotal = Number(totalAmount) - Number(diskon);
+    //         tsTockDiskon = 1 + Number(used_stockDiskon);
+    //         minStockDiskon = Number(last_stockDiskon) - 1;
+
+
+    //         detailTr = {
+    //             "paketID": postIds,
+    //             "typeData": "CREDIT",
+    //             "qty": qty,
+    //             "credit": jmlcoin,
+    //             "amount": totalAmount,
+    //             "discountCoin": diskon,
+    //             "totalAmount": amountTotal,
+    //         };
+
+    //         arrDt.push(detailTr)
+    //         var dttr = null;
+
+    //         try {
+
+    //             dataconten = await this.MonetizenewService.findByid(postIds);
+    //             priceAmount = dataconten.price;
+    //             postType = dataconten.postType;
+    //             last_stock = dataconten.last_stock;
+    //             used_stock = dataconten.used_stock;
+    //             namaproduk = dataconten.name;
+    //             tsTock = Number(qty) + Number(used_stock);
+    //             minStock = Number(last_stock) - Number(qty);
+    //         } catch (e) {
+    //             dataconten = null;
+    //             priceAmount = 0;
+    //             postType = "";
+    //             last_stock = 0;
+    //             used_stock = 0;
+    //             namaproduk = null;
+    //             tsTock = 0;
+    //             minStock = 0;
+    //         }
+
+
+    //         if (last_stock > 0) {
+
+    //             try {
+    //                 dttr = await this.TransactionsV2Service.insertTransaction(
+    //                     request_json.platform,
+    //                     request_json.productCode,
+    //                     null,
+    //                     totalAmount,
+    //                     diskon,
+    //                     0,
+    //                     0,
+    //                     iduser.toString(),
+    //                     iduserseller.toString(),
+    //                     arrDiskon,
+    //                     arrDt,
+    //                     "SUCCESS");
+
+    //                 var listtransaksi = [];
+    //                 var recordTransCOIN = null;
+    //                 if (dttr != false) {
+
+
+    //                     var getdataresulttrans = dttr.data;
+    //                     for (var i = 0; i < getdataresulttrans.length; i++) {
+    //                         var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+    //                         if (checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString()) {
+    //                             recordTransCOIN = getdataresulttrans[i];
+    //                         }
+    //                     }
+
+    //                     var inserttransaksi = new transactionCoin();
+    //                     inserttransaksi._id = new mongoose.Types.ObjectId();
+    //                     inserttransaksi.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
+    //                     inserttransaksi.idUser = new mongoose.Types.ObjectId(iduser.toString());
+    //                     inserttransaksi.qty = 1;
+    //                     inserttransaksi.status = "SUCCESS";
+    //                     inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+    //                     inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+
+    //                     this.transCoinSS.create(inserttransaksi);
+
+    //                     var inserttransaksi2 = new TransactionsCredits();
+    //                     inserttransaksi2._id = new mongoose.Types.ObjectId();
+    //                     inserttransaksi2.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
+    //                     inserttransaksi2.idUser = new mongoose.Types.ObjectId(iduser.toString());
+    //                     inserttransaksi2.type = recordTransCOIN.type;
+    //                     inserttransaksi2.noInvoice = recordTransCOIN.noInvoice;
+    //                     inserttransaksi2.category = recordTransCOIN.category;
+    //                     inserttransaksi2.voucherDiskon = recordTransCOIN.voucherDiskon;
+    //                     inserttransaksi2.creditDiscount = 0; // recordTransCOIN.voucherDiskon;
+    //                     inserttransaksi2.credit = 0; // recordTransCOIN.credit;
+    //                     inserttransaksi2.totalCredit = 0; // recordTransCOIN.totalCredit;
+    //                     inserttransaksi2.status = "SUCCESS";
+    //                     inserttransaksi2.detail = recordTransCOIN.detail;
+    //                     inserttransaksi2.remark = null; // recordTransCOIN.remark;
+    //                     inserttransaksi2.createdAt = await this.utilsService.getDateTimeString();
+    //                     inserttransaksi2.updatedAt = await this.utilsService.getDateTimeString();
+
+    //                     this.transCreditSS.create(inserttransaksi2);
+
+    //                 }
+    //             } catch (e) {
+    //                 dttr = null
+    //             }
+    //             try {
+
+    //                 await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
+    //             } catch (e) {
+
+    //             }
+
+    //             if (dttr !== null) {
+
+    //                 if (dttr.success == true) {
+
+    //                     try {
+
+    //                         await this.MonetizenewService.updateStock(postIds, minStock, tsTock);
+    //                     } catch (e) {
+
+    //                     }
+
+    //                     // try {
+
+    //                     //     await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+    //                     // } catch (e) {
+
+    //                     // }
+    //                     let dttv2 = null;
+    //                     try {
+    //                         dttv2 = await this.TransactionsV2Service.findByOneCredit(iduser.toString(), postIds);
+    //                     } catch (e) {
+    //                         dttv2 = null;
+    //                     }
+
+    //                     if (dttv2 !== null) {
+
+    //                         let noinvoic = null;
+
+    //                         try {
+    //                             noinvoic = dttv2.noInvoice;
+    //                         } catch (e) {
+    //                             noinvoic = null;
+    //                         }
+    //                         dataTr = {
+    //                             "transaksiId": noinvoic,
+    //                             "namaPaketKredit": namaproduk,
+    //                             "email": email,
+    //                             "jumlahKredit": jmlcoin,
+    //                             "jumlahPaket": qty,
+    //                             "amount": totalAmount,
+    //                             "paymentmethod": "Hyppe Coins",
+    //                             "diskon": diskon,
+    //                             "total": amountTotal
+
+    //                         };
+
+    //                         idTransactionv2 = dttv2.idTransaction;
+    //                         let createdAt = dttv2.createdAt;
+
+    //                         try {
+    //                             var insertDatatransDiscount = new TransactionsDiscounts();
+    //                             insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+    //                             insertDatatransDiscount.idTransaction = idTransactionv2;
+    //                             insertDatatransDiscount.idUser = iduser;
+    //                             insertDatatransDiscount.idDiscount = idDiscount;
+    //                             insertDatatransDiscount.totalPayment = amountTotal;
+    //                             insertDatatransDiscount.transactionDate = createdAt;
+    //                             insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+    //                             insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+    //                             await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+    //                         } catch (e) {
+
+    //                         }
+    //                         //this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
+    //                     }
+
+    //                     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //                     return res.status(HttpStatus.OK).json({
+    //                         response_code: 202,
+    //                         "data": dataTr,
+    //                         "message": messages
+    //                     });
+    //                 }
+
+
+    //             }
+
+    //             else {
+    //                 throw new BadRequestException("Cannot insert transaction");
+    //             }
+
+
+    //         } else {
+    //             throw new BadRequestException("Maaf quantity Voucher melebihi quota..");
+
+    //         }
+
+
+
+
+    //     }
+
+
+
+    // }
 
     @Post('api/transactions/detail/coin')
     @UseGuards(JwtAuthGuard)
@@ -5379,7 +6799,8 @@ export class TransactionsController {
             } catch (e) {
                 throw new BadRequestException("Unabled to proceed" + e);
             }
-        } else {
+        }
+        else {
             try {
                 dataV2 = await this.TransactionsV2Service.findByOneNova(iduserbuy.toString(), nova);
 
@@ -5391,10 +6812,11 @@ export class TransactionsController {
             if (dataV2 !== null) {
                 idTransactionv2 = dataV2.idTransaction
                 let detailtr = await this.TransactionsV2Service.getdetailtransaksinewincoince2(idTransactionv2);
-
+                let datatrlama = await this.transactionsService.findva(detailtr.va_number);
                 try {
-                    await this.TransactionsV2Service.updateTransaction(idTransactionv2.toString(), "FAILED", payload);
-                    this.notifbuyerCoin(emailbuyer.toString(), "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${detailtr["usernamebuyer"]}, transaksi ${detailtr.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${detailtr["usernamebuyer"]}, the ${detailtr.coa} transaction failed due to the payment period expiring. Click to see the details!`, eventType, "TOPUP_COIN", noInvoice2.toString(), noInvoice2);
+                    await this.transactionsService.updatecancel(datatrlama._id.toString());
+                    await this.TransactionsV2Service.updateTransaction(idTransactionv2, "FAILED", payload);
+                    this.notifbuyerCoin(emailbuyer.toString(), "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${detailtr["usernamebuyer"]}, transaksi ${detailtr.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${detailtr["usernamebuyer"]}, the ${detailtr.coa} transaction failed due to the payment period expiring. Click to see the details!`, eventType, "TOPUP_COIN", detailtr.post_id, noInvoice2);
                 } catch (e) {
 
                 }
@@ -19102,11 +20524,13 @@ export class TransactionsController {
     async updateslike2(postid: string) {
         await this.posts2SS.updatesalelike(postid);
         await this.posts2SS.updateeventlike(postid);
+        await this.temppostDiscuSS.updatesalelike(postid);
     }
 
     async updatesview2(postid: string) {
         await this.posts2SS.updatesaleview(postid);
         await this.posts2SS.updateeventview(postid);
+        await this.temppostDiscuSS.updatesaleview(postid);
     }
 
     async notifseller(emailseller: string, titleinsukses: string, titleensukses: string, bodyinsukses: string, bodyensukses: string, eventType: string, event: string, postid: string, noinvoice: string) {
@@ -22282,7 +23706,7 @@ export class TransactionsController {
                 }
                 switch (x.coa) {
                     case "Paket Coin":
-                        x.desc_title_id = "Coins Ditambahkan";
+                        x.desc_title_id = "Pembelian Coin";
                         x.desc_title_en = "Coins Added";
                         x.desc_subtitle_id = x.package ? `Pembelian Coins ${x.package}` : `Pembelian Coins`;
                         x.desc_subtitle_en = x.package ? `${x.package} Coins Purchase` : `Coins Purchase`;
@@ -22381,7 +23805,7 @@ export class TransactionsController {
                         x.desc_content_en = `for ${dataBuyer.post_type} - until ${x.detail[0].datedateEnd}`;
                         break;
                     case "WD":
-                        x.desc_title_id = `Coins Ditukar`;
+                        x.desc_title_id = `Penukaran Coin`;
                         x.desc_title_en = `Coins Exchanged`;
                         x.desc_subtitle_id = `Melakukan Penukaran`;
                         x.desc_subtitle_en = `Exchange Done`;
@@ -22618,6 +24042,66 @@ export class TransactionsController {
         }
     }
 
+    @Post('api/transactions/updatevafailed')
+    @UseGuards(JwtAuthGuard)
+    async updateTransactionFailed(@Req() request: Request, @Headers() headers) {
+        var timestamps_start = await this.utilsService.getDateTimeString();
+        var fullurl = headers.host + '/api/transactions/updatefailed';
+        var token = headers['x-auth-token'];
+        var auth = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        var setemail = auth.email;
+        const messages = {
+            "info": ["The process was successful"],
+        };
+        try {
+            var request_json = JSON.parse(JSON.stringify(request.body));
+            let nova = "";
+            if (request_json.nova) {
+                nova = request_json.nova;
+                let datatr = await this.transactionsService.findva(nova);
+                let idva = datatr.idva;
+                let oyresponse = await this.oyPgService.staticVaInfo(idva);
+                if (oyresponse.va_status == "EXPIRED") {
+                    let datatr2 = await this.TransactionsV2Service.findByOneNova(datatr.iduserbuyer.toString(), nova);
+                    let detailtr2 = await this.TransactionsV2Service.getdetailtransaksinewincoince2(datatr2.idTransaction);
+                    await this.transactionsService.updatecancel(datatr._id.toString());
+                    await this.TransactionsV2Service.updateTransaction(datatr2.idTransaction, "FAILED", oyresponse);
+                    this.notifbuy2(detailtr2["emailbuyer"], "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${detailtr2["usernamebuyer"]}, transaksi ${detailtr2.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${detailtr2["usernamebuyer"]}, the ${detailtr2.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", detailtr2.post_id, detailtr2.noInvoice);
+                    var timestamps_end = await this.utilsService.getDateTimeString();
+                    this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                    return {
+                        response_code: 202,
+                        data: {
+                            expired: true,
+                            response: oyresponse
+                        },
+                        messages
+                    }
+                }
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+                return {
+                    response_code: 202,
+                    data: {
+                        expired: false,
+                        response: oyresponse
+                    },
+                    messages
+                }
+            } else {
+                var timestamps_end = await this.utilsService.getDateTimeString();
+                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+                throw new BadRequestException("Missing field: nova (string)");
+            }
+        } catch (e) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+
+            throw new BadRequestException("Process error: " + e);
+        }
+    }
+
     async posttaskUpdate(postID: string, Posttask_: Posttask) {
         var dataposttask = null;
 
@@ -22645,5 +24129,267 @@ export class TransactionsController {
 
 
     }
+
+    // async trConten(postid:string,fullurl:string,timestamps_start:string,email:string,request_json:any,qty:number,totalAmount:number,diskon:number,used_stockDiskon:number,last_stockDiskon:number,
+    //  salelike:boolean,saleview:boolean,idbuyer:any,iduser:Types.ObjectId,arrDiskon:any[],idDiscount:Types.ObjectId,timedate:string,platform:string,titleinsukses2:string,titleensukses2:string,
+    //  bodyinsukses2:string,bodyensukses2:string,eventType:string,event:string,titleinsuksesbeli2:string,titleensuksesbeli2:string,bodyinsuksesbeli2:string,bodyensuksesbeli2:string,ubasic:any,langIso:string,
+    //  messages:any,@Res() res
+    // ){
+    //     var datapost=null;
+    //     var amount = 0;
+    //     var saleAmount = null;
+    //     var emailseller = null;
+    //     var postType=null;
+    //     var like=null;
+    //     var view=null;
+    //     var datainsight=null;
+    //     var ubasicseller=null;
+    //     var iduserseller=null;
+    //     var namapenjual=null;
+    //     var amountTotal=0;
+    //     var tsTockDiskon=0;
+    //     var minStockDiskon=0;
+    //     var detailTr=null;
+    //     var arrDt=[];
+    //     var dataTr=null;
+    //     var idTransactionv2=null;
+    //     try {
+    //         datapost = await this.posts2SS.findOne(postid);
+
+    //         emailseller = datapost._doc.email;
+    //         saleAmount = datapost.saleAmount;
+    //         postType = datapost.postType;
+    //         like = datapost.likes;
+    //         view = datapost.views;
+
+    //     } catch (e) {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //         throw new BadRequestException("User not found..!");
+    //     }
+
+    //     datainsight = await this.insightsService.findemail(email.toString());
+    //     var idinsight = datainsight._id;
+    //     var likeinsig = datainsight.likes;
+    //     var viewinsigh = datainsight.views;
+    //     try {
+
+
+    //         ubasicseller = await this.basic2SS.findBymail(emailseller);
+    //         iduserseller = ubasicseller._id;
+    //         namapenjual = ubasicseller.username;
+
+    //     } catch (e) {
+    //         var timestamps_end = await this.utilsService.getDateTimeString();
+    //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+
+    //         throw new BadRequestException("User not found..!");
+    //     }
+
+
+    //     var postIds = postid;
+    //     var qty = qty;
+    //     amountTotal = Number(totalAmount) - Number(diskon);
+    //     tsTockDiskon = 1 + Number(used_stockDiskon);
+    //     minStockDiskon = Number(last_stockDiskon) - 1;
+
+    //     detailTr = {
+    //         "postID": postid,
+    //         "typeData": "POST",
+    //         "qty": qty,
+    //         "amount": totalAmount,
+    //         "discountCoin": diskon,
+    //         "totalAmount": amountTotal,
+    //         "like": salelike,
+    //         "view": saleview,
+    //         "pembeli": idbuyer
+    //     };
+
+    //     arrDt.push(detailTr)
+    //     var dttr = null;
+
+
+    //     try {
+    //         dttr = await this.TransactionsV2Service.insertTransaction(
+    //             request_json.platform,
+    //             request_json.productCode,
+    //             null,
+    //             totalAmount,
+    //             diskon,
+    //             0,
+    //             0,
+    //             iduser.toString(),
+    //             iduserseller.toString(),
+    //             arrDiskon,
+    //             arrDt,
+    //             "SUCCESS");
+
+    //         var listtransaksi = [];
+    //         var recordTransCOIN = null;
+    //         if (dttr != false) {
+    //             var getdataresulttrans = dttr.data;
+    //             for (var i = 0; i < getdataresulttrans.length; i++) {
+    //                 var checkexist = listtransaksi.includes(getdataresulttrans[i].idTransaction);
+    //                 if (checkexist == false && getdataresulttrans[i].idUser.toString() == iduser.toString()) {
+    //                     recordTransCOIN = getdataresulttrans[i];
+    //                 }
+    //             }
+
+    //             var inserttransaksi = new transactionCoin();
+    //             inserttransaksi._id = new mongoose.Types.ObjectId();
+    //             inserttransaksi.idTransaction = new mongoose.Types.ObjectId(recordTransCOIN._id.toString());
+    //             inserttransaksi.idUser = new mongoose.Types.ObjectId(iduser.toString());
+    //             inserttransaksi.qty = 1;
+    //             inserttransaksi.status = "SUCCESS";
+    //             inserttransaksi.createdAt = await this.utilsService.getDateTimeString();
+    //             inserttransaksi.updatedAt = await this.utilsService.getDateTimeString();
+
+    //             this.transCoinSS.create(inserttransaksi);
+    //         }
+    //     } catch (e) {
+    //         dttr = null
+    //     }
+
+    //     try {
+
+    //         await this.MonetizenewService.updateStock(idDiscount.toString(), minStockDiskon, tsTockDiskon);
+    //     } catch (e) {
+
+    //     }
+    //     if (dttr !== null) {
+
+    //         if (dttr.success == true) {
+    //             // try {
+
+    //             //     await this.MonetizenewService.updateStock(idDiscount, minStockDiskon, tsTockDiskon);
+    //             // } catch (e) {
+
+    //             // }
+    //             let dttv2 = null;
+    //             try {
+    //                 dttv2 = await this.TransactionsV2Service.findByOne(iduser.toString(), postIds);
+    //             } catch (e) {
+    //                 dttv2 = null;
+    //             }
+
+
+    //             if (dttv2 !== null) {
+
+    //                 let noinvoic = null;
+
+    //                 try {
+    //                     noinvoic = dttv2.noInvoice;
+    //                 } catch (e) {
+    //                     noinvoic = null;
+    //                 }
+    //                 dataTr = {
+    //                     "noinvoice": noinvoic,
+    //                     "postid": postIds,
+    //                     "email": email,
+    //                     "NamaPenjual": namapenjual,
+    //                     "waktu": timedate,
+    //                     "amount": totalAmount,
+    //                     "paymentmethod": "Hyppe Coins",
+    //                     "diskon": diskon,
+    //                     "jenisTransaksi": "Pembelian Konten",
+    //                     "platform": platform,
+    //                     "total": amountTotal
+
+    //                 };
+
+    //                 idTransactionv2 = dttv2.idTransaction;
+    //                 let createdAt = dttv2.createdAt;
+
+    //                 try {
+    //                     var insertDatatransDiscount = new TransactionsDiscounts();
+    //                     insertDatatransDiscount._id = new mongoose.Types.ObjectId();
+    //                     insertDatatransDiscount.idTransaction = idTransactionv2;
+    //                     insertDatatransDiscount.idUser = iduser;
+    //                     insertDatatransDiscount.idDiscount = idDiscount;
+    //                     insertDatatransDiscount.totalPayment = amountTotal;
+    //                     insertDatatransDiscount.transactionDate = createdAt;
+    //                     insertDatatransDiscount.createdAt = await this.utilsService.getDateTimeString();
+    //                     insertDatatransDiscount.updatedAt = await this.utilsService.getDateTimeString();
+    //                     await this.TransactionsDiscountsService.create(insertDatatransDiscount);
+    //                 } catch (e) {
+
+    //                 }
+
+    //                 this.notifseller(emailseller.toString(), titleinsukses2, titleensukses2, bodyinsukses2, bodyensukses2, eventType, event, noinvoic, noinvoic);
+    //                 this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
+    //             }
+
+
+
+    //             try {
+    //                 await this.posts2SS.updateemail(postIds, email.toString(), idbuyer, timedate);
+    //                 await this.temppostDiscuSS.updateemail(postIds, email.toString(), idbuyer, timedate)
+    //             } catch (e) {
+
+    //             }
+    //             var PostTask_ = new Posttask();
+    //             PostTask_.email = email.toString();
+    //             PostTask_.updatedAt = timedate;
+    //             try {
+    //                 this.posttaskUpdate(postIds, PostTask_)
+    //             } catch (e) {
+
+    //             }
+
+    //             try {
+    //                 await this.posts2SS.noneActiveAllDiscusnew(postIds);
+    //             } catch (e) {
+
+    //             }
+    //             try {
+    //                 this.posts2SS.noneActiveAllDiscusLognew(postIds);
+    //             } catch (e) {
+
+    //             }
+
+    //             if (salelike == false) {
+    //                 this.updateslike2(postIds);
+
+    //             } else {
+    //                 var totallike = like + likeinsig;
+    //                 await this.insightsService.updatesalelike(idinsight, totallike);
+
+
+    //             }
+
+    //             if (saleview == false) {
+    //                 this.updatesview2(postIds)
+    //             } else {
+    //                 var totalview = view + viewinsigh;
+    //                 await this.insightsService.updatesaleview(idinsight, totalview);
+    //             }
+
+
+    //             // await this.transactionsQueue.add('content', {
+            
+    //             //     data:  await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, ubasic)
+    //             //   });
+    //             try {
+    //                 await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, ubasic);
+    //             } catch (e) {
+
+    //             }
+
+    //             this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, email, null, null, request_json);
+    //             return res.status(HttpStatus.OK).json({
+    //                 response_code: 202,
+    //                 "data": dataTr,
+    //                 "message": messages
+    //             });
+    //         }
+
+
+    //     }
+
+    //     else {
+    //         throw new BadRequestException("Cannot insert transaction");
+    //     }
+    // }
 }
 

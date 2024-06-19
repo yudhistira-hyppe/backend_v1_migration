@@ -20,6 +20,28 @@ export class temppostDISCUSS {
         return this.PostsModel.findOne({ postID: postID }).exec();
     }
 
+    async updateemail(id: string, email: string, iduser: {
+        "$oid": string
+    }, createdAt: string): Promise<Object> {
+        let data = await this.PostsModel.updateOne({ "_id": id },
+            {
+                $set: {
+                    "email": email, "userProfile": {
+                        "$ref": "userbasics",
+                        "$id": iduser,
+                        "$db": "hyppe_trans_db"
+                    },
+                    "saleAmount": 0,
+                    "comments": 0,
+                    "certified": true,
+                    "createdAt": createdAt,
+                    "updatedAt": createdAt,
+                    "metadata.email": email
+                }
+            });
+        return data;
+    }
+
     async updatePostviewer(postid: string, email: string) {
         return await this.PostsModel.updateOne({ postID: postid }, { $push: { viewer: email } }).exec();
     }
@@ -43,11 +65,11 @@ export class temppostDISCUSS {
             {
                 "$inc":
                 {
-                    views:1
+                    views: 1
                 },
                 "$push":
                 {
-                    userView:email_target
+                    userView: email_target
                 }
             },
             function (err, docs) {
@@ -71,7 +93,7 @@ export class temppostDISCUSS {
         // setinput["$set"] = {
         //     "userView": setCEViewer
         // }
-        
+
         this.PostsModel.updateOne(
             {
                 email: email,
@@ -80,11 +102,11 @@ export class temppostDISCUSS {
             {
                 "$inc":
                 {
-                    likes:1
+                    likes: 1
                 },
                 "$push":
                 {
-                    userLike:email_target
+                    userLike: email_target
                 }
             },
             function (err, docs) {
@@ -114,7 +136,7 @@ export class temppostDISCUSS {
         );
     }
 
-    async updateUnLike(email: string, email_target: string, postID: string, array:any[]) {
+    async updateUnLike(email: string, email_target: string, postID: string, array: any[]) {
         // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
         // var setinput = {};
         // setinput['$inc'] = {
@@ -138,7 +160,7 @@ export class temppostDISCUSS {
                 },
                 "$set":
                 {
-                    userLike:array
+                    userLike: array
                 }
             },
             function (err, docs) {
@@ -156,6 +178,28 @@ export class temppostDISCUSS {
         if (!data) {
             throw new Error('Data is not found!');
         }
+        return data;
+    }
+
+    async updatesalelike(id: string): Promise<Object> {
+        let data = await this.PostsModel.updateOne({ "_id": id },
+            {
+                $set: {
+                    "salelike": false,
+                    "saleAmount": 0
+                }
+            });
+        return data;
+    }
+
+    async updatesaleview(id: string): Promise<Object> {
+        let data = await this.PostsModel.updateOne({ "_id": id },
+            {
+                $set: {
+                    "saleview": false,
+                    "saleAmount": 0
+                }
+            });
         return data;
     }
 }
