@@ -249,7 +249,7 @@ export class NewPostController {
             var transaction_fee = 0;
             var discount_id = null;
             var discount_fee = 0;
-            if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee != 0 && CreatePostRequest_.transaction_fee != undefined) {
+            if (CreatePostRequest_.transaction_fee != null && CreatePostRequest_.transaction_fee >= 0 && CreatePostRequest_.transaction_fee != undefined) {
                 transaction_fee = Number(CreatePostRequest_.transaction_fee.toString());
                 if (CreatePostRequest_.discount_id != null && CreatePostRequest_.discount_id != undefined && CreatePostRequest_.discount_fee != null && CreatePostRequest_.discount_fee != undefined) {
                     discount_id = CreatePostRequest_.discount_id;
@@ -452,7 +452,7 @@ export class NewPostController {
                 var transaction_fee = 0;
                 var discount_id = null;
                 var discount_fee = 0;
-                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
+                if (body.transaction_fee != null && body.transaction_fee >= 0 && body.transaction_fee != undefined) {
                     transaction_fee = Number(body.transaction_fee.toString());
                     if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
                         discount_id = body.discount_id;
@@ -719,11 +719,11 @@ export class NewPostController {
                 }
                 data = await this.newPostContentService.updatePost(body, headers, dataUser);
                 this.TempPostService.updateByPostId(body, headers, dataUser);
-                
+
                 var transaction_fee = 0;
                 var discount_id = null;
                 var discount_fee = 0;
-                if (body.transaction_fee != null && body.transaction_fee != 0 && body.transaction_fee != undefined) {
+                if (body.transaction_fee != null && body.transaction_fee >= 0 && body.transaction_fee != undefined) {
                     transaction_fee = body.transaction_fee;
                     if (body.discount_id != null && body.discount_id != undefined && body.discount_fee != null && body.discount_fee != undefined) {
                         discount_id = body.discount_id;
@@ -736,16 +736,16 @@ export class NewPostController {
                             invoiceID: resultTrans.noInvoice,
                             totalPayment: resultTrans.detail[0].totalAmount,
                             transactionID: resultTrans.idTransaction,
-                            transactionTitle : resultTrans.transactionType,
-                            packageTitle : resultTrans.productionTitle,
-                            email : resultTrans.email,
-                            paymentMethod : resultTrans.paymentMethod,
-                            date:resultTrans.createdAt.split(" ")[0],
-                            time:resultTrans.createdAt.split(" ")[1],
+                            transactionTitle: resultTrans.transactionType,
+                            packageTitle: resultTrans.productionTitle,
+                            email: resultTrans.email,
+                            paymentMethod: resultTrans.paymentMethod,
+                            date: resultTrans.createdAt.split(" ")[0],
+                            time: resultTrans.createdAt.split(" ")[1],
                         }
                     }
                 }
-                
+
                 //tags
                 if (body.tags !== undefined && body.tags.length > 0) {
                     var tag2 = body.tags;
@@ -5333,7 +5333,7 @@ export class NewPostController {
                 "qty": 1,
                 "amount": Number(transaction_fee),
                 "discountCoin": discount_fee,
-                "totalAmount": transaction_fee - discount_fee
+                "totalAmount": (transaction_fee - discount_fee) >= 0 ? (transaction_fee - discount_fee) : 0
             }
         )
 
