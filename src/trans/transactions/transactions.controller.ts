@@ -5382,7 +5382,8 @@ export class TransactionsController {
             } catch (e) {
                 throw new BadRequestException("Unabled to proceed" + e);
             }
-        } else {
+        }
+         else {
             try {
                 dataV2 = await this.TransactionsV2Service.findByOneNova(iduserbuy.toString(), nova);
 
