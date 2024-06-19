@@ -182,30 +182,47 @@ export class temppostDISCUSS {
     }
     async updateLike2( userlike: any[], postID: string) {
         // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
-        // var setinput = {};
-        // setinput['$inc'] = {
-        //     views: 1
-        // };
-        // var setCEViewer = getdata.userView;
-        // setCEViewer.push(email_target);
-        // setinput["$set"] = {
-        //     "userView": setCEViewer
-        // }
+        var setinput = {};
+        setinput['$inc'] = {
+            likes: 1
+        };
+       
+        setinput["$set"] = {
+            "userLike": userlike
+        }
         
         this.PostsModel.updateOne(
             {
                
                 postID: postID,
             },
-            {
-                "$inc":
-                {
-                    likes:1
-                },
-                
-                userLike:userlike
-                
+            setinput,
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
             },
+        );
+    }
+    async updateUnlikeLike2( userlike: any[], postID: string) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        var setinput = {};
+        setinput['$inc'] = {
+            likes: -1
+        };
+       
+        setinput["$set"] = {
+            "userLike": userlike
+        }
+        
+        this.PostsModel.updateOne(
+            {
+               
+                postID: postID,
+            },
+            setinput,
             function (err, docs) {
                 if (err) {
                     console.log(err);
@@ -235,5 +252,62 @@ export class temppostDISCUSS {
                 }
             });
         return data;
+    }
+   
+
+    async updateView2( userView: any[], postID: string,viewer: any[]) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        var setinput = {};
+        setinput['$inc'] = {
+            views: 1
+        };
+       
+        setinput["$set"] = {
+            "userView": userView,
+            "viewer":viewer
+        }
+        
+        this.PostsModel.updateOne(
+            {
+               
+                postID: postID,
+            },
+            setinput,
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
+    }
+
+    async updateView3( postID: string,viewer: any[]) {
+        // var getdata = await this.PostsModel.findOne({ postID: postID }).exec();
+        var setinput = {};
+        setinput['$inc'] = {
+            views: 1
+        };
+       
+        setinput["$set"] = {
+            
+            "viewer":viewer
+        }
+        
+        this.PostsModel.updateOne(
+            {
+               
+                postID: postID,
+            },
+            setinput,
+            function (err, docs) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(docs);
+                }
+            },
+        );
     }
 }

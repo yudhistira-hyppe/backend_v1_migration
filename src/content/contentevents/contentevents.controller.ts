@@ -10608,21 +10608,21 @@ export class ContenteventsController {
             var listviewer=viewer;
             listarray.push(email_user);
             listviewer.push(email_user);
-            var updatepost = new Newpost();
-            updatepost.userView = listarray;
-            updatepost.viewer=listviewer;
-            var updatetemp = new tempposts2();
-            updatetemp.userView = listarray;
-            updatetemp.viewer = listviewer;
+            // var updatepost = new Newpost();
+            // updatepost.userView = listarray;
+            // updatepost.viewer=listviewer;
+            // var updatetemp = new tempposts2();
+            // updatetemp.userView = listarray;
+            // updatetemp.viewer = listviewer;
 
             try{
-            await this.postDisqusSS.update(request.body.postID, updatepost);
+            await this.postDisqusSS.updateView2(listarray,request.body.postID,listviewer);
             }catch(e){
 
             }
             try
             {
-              await this.tempostSS.update(request.body.postID, updatetemp);
+              await this.tempostSS.updateView2(listarray,request.body.postID,listviewer);
             }
             catch(e)
             {
@@ -10856,24 +10856,25 @@ export class ContenteventsController {
             prosesdata = true;
             var listarray = viewer;
             listarray.push(email_user);
-            var updatepost = new Newpost();
-            updatepost.viewer = listarray;
-            var updatetemp = new tempposts2();
-            updatetemp.viewer = listarray;
+            // var updatepost = new Newpost();
+            // updatepost.viewer = listarray;
+            // var updatetemp = new tempposts2();
+            // updatetemp.viewer = listarray;
 
+          
             try{
-            await this.postDisqusSS.update(request.body.postID, updatepost);
-            }catch(e){
-
-            }
-            try
-            {
-              await this.tempostSS.update(request.body.postID, updatetemp);
-            }
-            catch(e)
-            {
-              // skip
-            }
+              await this.postDisqusSS.updateView3(request.body.postID,listarray);
+              }catch(e){
+  
+              }
+              try
+              {
+                await this.tempostSS.updateView3(request.body.postID,listarray);
+              }
+              catch(e)
+              {
+                // skip
+              }
             // var getpost = await this.postDisqusSS.findid(request.body.postID);
             // var result = getpost.userView.filter((email) => email === email_user);
             // if (result.length == 0) {
@@ -11006,10 +11007,10 @@ export class ContenteventsController {
           
           var listarray = request.body.userLike;
           listarray.push(email_user);
-          var updatepost = new Newpost();
-          updatepost.userLike = listarray;
-          var updatetemp = new tempposts2();
-          updatetemp.userLike = listarray;
+          // var updatepost = new Newpost();
+          // updatepost.userLike = listarray;
+          // var updatetemp = new tempposts2();
+          // updatetemp.userLike = listarray;
 
           try{
   
@@ -11181,19 +11182,19 @@ export class ContenteventsController {
 
           var listarray = request.body.userLike;
           var filterbuanguser = listarray.filter((email) => email != email_user);
-          var updatepost = new Newpost();
-          updatepost.userLike = filterbuanguser;
-          var updatetemp = new tempposts2();
-          updatetemp.userLike = filterbuanguser;
+          // var updatepost = new Newpost();
+          // updatepost.userLike = filterbuanguser;
+          // var updatetemp = new tempposts2();
+          // updatetemp.userLike = filterbuanguser;
 
           try{
-          await this.postDisqusSS.update(request.body.postID, updatepost);
+          await this.postDisqusSS.updateUnlikeLike2(filterbuanguser,request.body.postID);
           }catch(e){
 
           }
           try
           {
-            await this.tempostSS.update(request.body.postID, updatetemp);
+            await this.tempostSS.updateUnlikeLike2(filterbuanguser,request.body.postID);
           }
           catch(e)
           {
