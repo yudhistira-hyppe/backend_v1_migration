@@ -1431,15 +1431,15 @@ export class AuthController {
               insertSource.loginSource = data_userbasics.regSrc.toString();
             } else {
               insertSource.loginSrc = "android";
-              insertSource.loginSource = "android";
+              insertSource.loginSource = "MANUAL";
             }
           } else {
             insertSource.loginSrc = "android";
-            insertSource.loginSource = "android";
+            insertSource.loginSource = "MANUAL";
           }
         } else {
           insertSource.loginSrc = LoginRequest_.regSrc.toString();
-          insertSource.loginSource = LoginRequest_.regSrc.toString();
+          insertSource.loginSource = "MANUAL";
         }
         this.basic2SS.update(data_userbasics._id.toString(), insertSource);
 

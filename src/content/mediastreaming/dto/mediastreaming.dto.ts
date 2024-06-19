@@ -98,6 +98,9 @@ export class RequestConsoleStream {
   livePeriodeStart: mongoose.Types.ObjectId;
   livePeriodeEnd: String;
   liveDurasi: any[];
+  liveView: any[];
+  liveGift: any[];
+  status: String;
   page: number;
   limit: number;
   sortField: String;

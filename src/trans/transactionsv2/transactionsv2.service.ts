@@ -59,6 +59,14 @@ export class TransactionsV2Service {
         }).exec();
     }
 
+    async findBuyPending(): Promise<transactionsV2[]> {
+        return this.transactionsModel.find({
+            "type": "USER",
+            "typeCategory": "BUY",
+            'status': "PENDING"
+        }).exec();
+    }
+
     async findByOne(iduser: string, postid: string): Promise<transactionsV2> {
         return this.transactionsModel.findOne({
             "type": "USER",

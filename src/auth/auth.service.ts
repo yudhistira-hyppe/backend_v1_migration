@@ -13386,7 +13386,7 @@ export class AuthService {
       login_source = ((datauserbasicsService.loginSource != undefined)) ? datauserbasicsService.loginSource.toString() : "MANUAL";
     }
 
-    if (login_source != "MANUAL") {
+    if (login_source == "GMAIL" || login_source == "APPLE") {
       if (lang == "en") {
         var fullurl = req.get("Host") + req.originalUrl;
         var timestamps_end = await this.utilsService.getDateTimeString();
@@ -13395,7 +13395,7 @@ export class AuthService {
 
         await this.errorHandler.generateResponseCode(
           800,
-          "Your account is already registered. Please sign in using your Gmail account."
+          "Your account is already registered. Please sign in using your " + login_source +" account."
         );
       } else {
         var fullurl = req.get("Host") + req.originalUrl;
@@ -13405,7 +13405,7 @@ export class AuthService {
 
         await this.errorHandler.generateResponseCode(
           800,
-          "Akun Kamu Telah Terdaftar. Silakan masuk menggunakan akun Gmail."
+          "Akun Kamu Telah Terdaftar. Silakan masuk menggunakan akun " + login_source +"."
         );
       }
     }

@@ -11,6 +11,7 @@ import { MonetizationService } from './monetization/monetization.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
 import { UserbasicnewService } from 'src/trans/userbasicnew/userbasicnew.service';
 import { Status } from '../../paymentgateway/oypg/dto/OyDTO';
+import { pipeline } from 'stream';
 @Injectable()
 export class MediastreamingService {
   private readonly logger = new Logger(MediastreamingService.name);
@@ -4218,8 +4219,37 @@ export class MediastreamingService {
   async database(RequestConsoleStream_: RequestConsoleStream) {
     let pipeline = [];
     let $match = {};
-    let $expr = {};
+    //let $expr = {};
     let $and = [];
+    let $sort = {};
+
+    pipeline.push(
+      {
+        $set: {
+          views: { $ifNull: ["$views", []] }
+        }
+      },
+      {
+        $set: {
+          gift: { $ifNull: ["$gift", []] }
+        }
+      },
+      {
+        $set: {
+          totalView:
+          {
+            $size: "$views"
+          }
+        }
+      },
+      {
+        $set: {
+          totalGift:
+          {
+            $size: "$gift"
+          }
+        }
+      },);
 
     //FILTER LIVE DESC
     if (RequestConsoleStream_.liveDesc != undefined) {
@@ -4240,6 +4270,7 @@ export class MediastreamingService {
 
     //FILTER START END LIVE
     if (RequestConsoleStream_.livePeriodeStart != undefined || RequestConsoleStream_.livePeriodeEnd != undefined) {
+      let startLive = {};
       //----------------START DATE----------------
       var start_date = null;
       if (RequestConsoleStream_.livePeriodeStart != undefined) {
@@ -4254,19 +4285,21 @@ export class MediastreamingService {
       }
 
       if (start_date != null) {
-        $and.push({
-          $gte: ["$startLive", start_date.toISOString()]
-        })
+        // $and.push({
+        //   $gte: ["$startLive", start_date.toISOString()]
+        // })
+        startLive["$gte"] = start_date.toISOString().replace('T', ' ').replace('.000Z', '');
       }
 
       if (end_date != null) {
-        $and.push({
-          $gte: ["$startLive", start_date.toISOString()]
-        })
+        startLive["$lte"] = end_date.toISOString().replace('T', ' ').replace('.000Z', '');
       }
+      $and.push({
+        startLive
+      })
     }
 
-    //FILTER LIVE ID
+    //FILTER DURASI
     if (RequestConsoleStream_.liveDurasi != undefined) {
       if (RequestConsoleStream_.liveDurasi.length > 0) {
         var liveDurasiFilter = [];
@@ -4300,33 +4333,294 @@ export class MediastreamingService {
       }
     }
 
-    //SKIP
-    if (RequestConsoleStream_.page != undefined){
+    //FILTER VIEW
+    if (RequestConsoleStream_.liveView != undefined) {
+      if (RequestConsoleStream_.liveView.length > 0) {
+        var liveViewFilter = [];
+        //show_smaller_than_100
+        if (RequestConsoleStream_.liveView.includes("show_smaller_than_100")) {
+          liveViewFilter.push({
+            totalView: {
+              $gt: 0, $lt: 100
+            }
+          })
+        }
+        //show_100_smaller_than_200
+        if (RequestConsoleStream_.liveView.includes("show_100_smaller_than_200")) {
+          liveViewFilter.push({
+            totalView: {
+              $gt: 100, $lt: 200
+            }
+          })
+        }
+        //show_200_smaller_than_400
+        if (RequestConsoleStream_.liveView.includes("show_200_smaller_than_400")) {
+          liveViewFilter.push({
+            totalView: {
+              $gt: 200, $lt: 400
+            }
+          })
+        }
+        //show_greater_than_400
+        if (RequestConsoleStream_.liveView.includes("show_greater_than_400")) {
+          liveViewFilter.push({
+            totalView: {
+              $gt: 400
+            }
+          })
+        }
+        $and.push({
+          $or: liveViewFilter
+        });
+      }
+    }
 
+    //FILTER GIFT
+    if (RequestConsoleStream_.liveGift != undefined) {
+      if (RequestConsoleStream_.liveGift.length > 0) {
+        var liveGiftFilter = [];
+        //show_smaller_than_10
+        if (RequestConsoleStream_.liveGift.includes("show_smaller_than_10")) {
+          liveGiftFilter.push({
+            totalGift: {
+              $gt: 0, $lt: 10
+            }
+          })
+        }
+        //show_10_smaller_than_50
+        if (RequestConsoleStream_.liveGift.includes("show_10_smaller_than_50")) {
+          liveGiftFilter.push({
+            totalGift: {
+              $gt: 10, $lt: 50
+            }
+          })
+        }
+        //show_greater_than_50
+        if (RequestConsoleStream_.liveGift.includes("show_greater_than_50")) {
+          liveGiftFilter.push({
+            totalGift: {
+              $gt: 50
+            }
+          })
+        }
+        $and.push({
+          $or: liveGiftFilter
+        });
+      }
+    }
+
+    //FILTER STATUS
+    if (RequestConsoleStream_.status != undefined) {
+      if (RequestConsoleStream_.status.length > 0) {
+        var liveStatusFilter = [];
+        //BERLANGSUNG
+        if (RequestConsoleStream_.status.includes("BERLANGSUNG")) {
+          liveStatusFilter.push({
+            statusText: "ONGOING"
+          })
+        }
+        //SELESAI
+        if (RequestConsoleStream_.status.includes("SELESAI")) {
+          liveStatusFilter.push({
+            statusText: "FINISHED"
+          })
+        }
+        //DIHENTIKAN
+        if (RequestConsoleStream_.status.includes("DIHENTIKAN")) {
+          liveStatusFilter.push({
+            statusText: "STOPPED"
+          })
+        }
+        $and.push({
+          $or: liveStatusFilter
+        });
+      }
+    }
+
+    if ($and.length > 0) {
+      $match["$and"] = $and;
+      pipeline.push({ $match });
     }
 
     //LIMIT
     if (RequestConsoleStream_.limit != undefined) {
-
+      pipeline.push({
+        "$limit": RequestConsoleStream_.limit
+      });
+    } else{
+      RequestConsoleStream_.limit = 1;
     }
 
-    // if (page > 0) {
-    //   paramaggregate.push({
-    //     "$skip": (limit * page)
-    //   });
-    // }
-    // //LIMIT
-    // if (limit > 0) {
-    //   paramaggregate.push({
-    //     "$limit": limit
-    //   });
-    // }
+    //SKIP
+    if (RequestConsoleStream_.page != undefined){
+      pipeline.push({
+        "$skip": (RequestConsoleStream_.limit * RequestConsoleStream_.page)
+      });
+    }
 
-    // if (start_date != null || end_date != null) {
-    //   $expr["$and"] = $and;
-    //   $match["$expr"] = $expr;
-    //   pipeline.push({ $match });
-    // }
+    //SORT
+    if (RequestConsoleStream_.sortField!=undefined) {
+      let fieldSort = RequestConsoleStream_.sortField.toString();
+      if (RequestConsoleStream_.sort != undefined) {
+        if (RequestConsoleStream_.sort == "ASC") {
+          $sort[fieldSort] = 1;
+        } else if (RequestConsoleStream_.sort == "DESC") {
+          $sort[fieldSort] = -1;
+        } else {
+          $sort[fieldSort] = -1;
+        }
+      } else {
+        $sort[fieldSort] = -1;
+      }
+    }else{
+      if (RequestConsoleStream_.sort != undefined) {
+        if (RequestConsoleStream_.sort == "ASC") {
+          $sort['createAt'] = 1;
+        } else if (RequestConsoleStream_.sort == "DESC") {
+          $sort['createAt'] = -1;
+        } else {
+          $sort['createAt'] = -1;
+        }
+      } else {
+        $sort['createAt'] = -1;
+      }
+    }
+    pipeline.push({
+      "$sort": $sort
+    }); 
+    
+    pipeline.push(
+      {
+        $lookup:
+        {
+          from: "newUserBasics",
+          as: "userbasicsStreamer",
+          let:
+          {
+            userId: "$userId"
+          },
+          pipeline:
+            [
+              {
+                $match:
+                {
+                  $expr:
+                  {
+                    $eq:
+                      [
+                        "$_id",
+                        "$$userId"
+                      ]
+                  }
+                },
 
+              },
+              {
+                $project:
+                {
+                  _id: 1,
+                  email: 1,
+                  fullName: 1,
+                  username: 1,
+                  statesName: 1,
+                  avatar: {
+                    "mediaBasePath": "$mediaBasePath",
+                    "mediaUri": "$mediaUri",
+                    "mediaType": "$mediaType",
+                    "mediaEndpoint": "$mediaEndpoint",
+
+                  }
+                }
+              }
+            ]
+        }
+      },);
+
+    let query = await this.MediastreamingModel.aggregate(pipeline);
+    return query;
+
+  }
+
+  async databaseDetail(id: string) {
+    let pipeline = [
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(id)
+        }
+      },
+      {
+        $lookup:
+        {
+          from: "newUserBasics",
+          as: "userbasicsStreamer",
+          let:
+          {
+            userId: "$userId"
+          },
+          pipeline:
+            [
+              {
+                $match:
+                {
+                  $expr:
+                  {
+                    $eq:
+                      [
+                        "$_id",
+                        "$$userId"
+                      ]
+                  }
+                },
+
+              },
+              {
+                $project:
+                {
+                  _id: 1,
+                  email: 1,
+                  fullName: 1,
+                  username: 1,
+                  statesName: 1,
+                  avatar: {
+                    "mediaBasePath": "$mediaBasePath",
+                    "mediaUri": "$mediaUri",
+                    "mediaType": "$mediaType",
+                    "mediaEndpoint": "$mediaEndpoint",
+
+                  }
+                }
+              }
+            ]
+        }
+      },
+      {
+        $set: {
+          views: { $ifNull: ["$views", []] }
+        }
+      },
+      {
+        $set: {
+          gift: { $ifNull: ["$gift", []] }
+        }
+      },
+      {
+        $set: {
+          totalView:
+          {
+            $size: "$views"
+          }
+        }
+      },
+      {
+        $set: {
+          totalGift:
+          {
+            $size: "$gift"
+          }
+        }
+      },
+    ];
+    let query = await this.MediastreamingModel.aggregate(pipeline);
+    return query;
   }
 }

@@ -11297,4 +11297,30 @@ export class TransactionsService {
             console.log(e)
         }
     }
+
+    async ceckStatusBuy() {
+        let data = await this.transactionsModel.find({});
+        let getBuys: transactionsV2[] = await this.transactionsV2Service.findWDPending();
+        for (let k = 0; k < data.length; k++) {
+            let dataTransasction = data[k];
+
+            let dateNow = new Date(Date.now());
+            let dateExpired = new Date(dataTransasction.expiredtimeva);
+            dateExpired.setHours(dateExpired.getHours() - 7);
+            if (dataTransasction.status == "WAITING_PAYMENT" || dataTransasction.status == "PENDING") {
+                if (dateNow > dateExpired) {
+                    // try {
+                    //     await this.updatecancel(dataTransasction._id.toString());
+                    //     await this.transactionsV2Service.updateTransaction(dataTransasction._id.toString(), "FAILED", null);
+                    //     if (x.voucherDiskon.length > 0) await this.monetizationService.updateStock(x.voucherDiskon[0].toString(), 1, false);
+                    //     // x.status = "FAILED";
+                    //     this.notifbuy2(x.emailbuyer, "Ups, transaksi gagal 😔", "Oops, transaction failed 😔", `Hai @${x.usernamebuyer}, transaksi ${x.coa} gagal karena telah melewati batas waktu pembayaran. Klik untuk melihat detailnya!`, `Hi @${x.usernamebuyer}, the ${x.coa} transaction failed due to the payment period expiring. Click to see the details!`, "TRANSACTION", "TRANSACTION FAILED", x.detail[0].postID ? x.detail[0].postID : "-", x.noInvoice);
+                    //     if (!foundExpired) foundExpired = true;
+                    // } catch (e) {
+
+                    // }
+                }
+            }
+        }
+    }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Headers, Get, HttpStatus, Post, UseGuards, Query, Request } from '@nestjs/common';
+import { Body, Controller, HttpCode, Headers, Get, HttpStatus, Post, UseGuards, Query, Request, Param } from '@nestjs/common';
 import { MediastreamingService } from './mediastreaming.service';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { UtilsService } from '../../utils/utils.service';
@@ -1720,8 +1720,7 @@ export class MediastreamingController {
       return await this.errorHandler.generateAcceptResponseCodeWithData(
         "Get Live Stream Dashboard succesfully", live_dashboard,
       );
-    }
-    catch (e) {
+    } catch (e) {
       await this.errorHandler.generateInternalServerErrorException(
         'Unabled to proceed, ERROR ' + e,
       );
@@ -1729,11 +1728,38 @@ export class MediastreamingController {
 
   }
 
-
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/database')
   @HttpCode(HttpStatus.ACCEPTED)
   async database(@Body() RequestConsoleStream_: RequestConsoleStream, @Headers() headers) {
+    if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unauthorized',
+      );
+    }
+    if (!(await this.utilsService.validasiTokenEmail(headers))) {
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed email header dan token not match',
+      );
+    }
+
+    try {
+      const live_dashboard = await this.mediastreamingService.database(RequestConsoleStream_);
+      return await this.errorHandler.generateAcceptResponseCodeWithData(
+        "Get Live Stream database succesfully", live_dashboard,
+      );
+    } catch (e) {
+      await this.errorHandler.generateInternalServerErrorException(
+        'Unabled to proceed, ERROR ' + e,
+      );
+    }
+
+  }
+
+  //@UseGuards(JwtAuthGuard)
+  @Get('/database/detail/:id')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async databaseDetail(@Param('id') id: string, @Headers() headers) {
     // if (headers['x-auth-user'] == undefined || headers['x-auth-token'] == undefined) {
     //   await this.errorHandler.generateNotAcceptableException(
     //     'Unauthorized',
@@ -1746,12 +1772,11 @@ export class MediastreamingController {
     // }
 
     try {
-      const live_dashboard = await this.mediastreamingService.database(RequestConsoleStream_);
+      const live_dashboard = await this.mediastreamingService.databaseDetail(id);
       return await this.errorHandler.generateAcceptResponseCodeWithData(
-        "Get Live Stream Dashboard succesfully", live_dashboard,
+        "Get Live Stream database detail succesfully", live_dashboard,
       );
-    }
-    catch (e) {
+    } catch (e) {
       await this.errorHandler.generateInternalServerErrorException(
         'Unabled to proceed, ERROR ' + e,
       );
