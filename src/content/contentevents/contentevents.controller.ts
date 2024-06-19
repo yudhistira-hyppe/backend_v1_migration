@@ -3466,7 +3466,7 @@ export class ContenteventsController {
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
-  @Post('api/posts/interactive/v2')
+  @Post('api/posts/interactive/v2/backup')
   async interactive34(@Req() request: any, @Headers() headers) {
     var timestamps_start = await this.utilsService.getDateTimeString();
     console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify(request.body));
@@ -3513,7 +3513,7 @@ export class ContenteventsController {
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
-  @Post('api/posts/interactive/v2test')
+  @Post('api/posts/interactive/v2')
   async interactive35(@Req() request: any, @Headers() headers) {
     var timestamps_start = await this.utilsService.getDateTimeString();
     console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify(request.body));
@@ -10616,13 +10616,13 @@ export class ContenteventsController {
             // updatetemp.viewer = listviewer;
 
             try{
-            await this.postDisqusSS.updateView2(listarray,request.body.postID,listviewer);
+            await this.postDisqusSS.updateView4(email_user,request.body.postID);
             }catch(e){
 
             }
             try
             {
-              await this.tempostSS.updateView2(listarray,request.body.postID,listviewer);
+              await this.tempostSS.updateView4(email_user,request.body.postID);
             }
             catch(e)
             {
@@ -10863,13 +10863,13 @@ export class ContenteventsController {
 
           
             try{
-              await this.postDisqusSS.updateView3(request.body.postID,listarray);
+              await this.postDisqusSS.updateView5(email_user,request.body.postID);
               }catch(e){
   
               }
               try
               {
-                await this.tempostSS.updateView3(request.body.postID,listarray);
+                await this.tempostSS.updateView5(email_user,request.body.postID);
               }
               catch(e)
               {
@@ -11014,13 +11014,13 @@ export class ContenteventsController {
 
           try{
   
-          await this.postDisqusSS.updateLike2(listarray,request.body.postID);
+          await this.postDisqusSS.updateLike3(email_user,request.body.postID);
           }catch(e){
 
           }
           try
           {
-            await this.tempostSS.updateLike2(listarray,request.body.postID);
+            await this.tempostSS.updateLike3(email_user,request.body.postID);
           }
           catch(e)
           {
@@ -11188,13 +11188,13 @@ export class ContenteventsController {
           // updatetemp.userLike = filterbuanguser;
 
           try{
-          await this.postDisqusSS.updateUnlikeLike2(filterbuanguser,request.body.postID);
+          await this.postDisqusSS.updateUnLike3(email_user,request.body.postID);
           }catch(e){
 
           }
           try
           {
-            await this.tempostSS.updateUnlikeLike2(filterbuanguser,request.body.postID);
+            await this.tempostSS.updateUnLike3(email_user,request.body.postID);
           }
           catch(e)
           {
