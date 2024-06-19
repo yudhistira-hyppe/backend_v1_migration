@@ -40,9 +40,14 @@ import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.mo
 import { PosttaskModule } from '../../content/posttask/posttask.module';
 import { AdsTypesModule } from '../adsv2/adstype/adstype.module';
 import { NewpostModule } from 'src/content/disqus/newpost/newpost.module';
+import { BullModule } from '@nestjs/bull';
+import { TransactionsProcessor } from './transactions.processor';
 @Module({
 
     imports: [
+        BullModule.registerQueue({
+            name: 'transactions',
+          }),
         PosttaskModule,
         TransactionsV2Module,
         MonetizenewModule,
@@ -63,7 +68,7 @@ import { NewpostModule } from 'src/content/disqus/newpost/newpost.module';
     ],
     controllers: [TransactionsController],
     exports: [TransactionsService],
-    providers: [TransactionsService],
+    providers: [TransactionsService,TransactionsProcessor],
 
 })
 export class TransactionsModule { }
