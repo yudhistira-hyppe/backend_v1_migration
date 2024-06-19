@@ -50,6 +50,7 @@ export class MediastreamingDto {
   user: any;
   statusText: String;
   durasi: number;
+  liveId: String;
 }
 
 export class MediastreamingRequestDto{
@@ -93,6 +94,7 @@ export class RequestAppealStream {
   createAt: String;
 }
 export class RequestConsoleStream {
+  liveSearch: String;
   liveDesc: String;
   liveId: String;
   livePeriodeStart: mongoose.Types.ObjectId;
@@ -105,4 +107,15 @@ export class RequestConsoleStream {
   limit: number;
   sortField: String;
   sort: String;
+}
+export class RequestConsoleModerationStream {
+  dateStart: mongoose.Types.ObjectId;
+  dateEnd: String;
+  liveDesc: String;
+  status: String;
+  alasan: String;
+  banding: String;
+  email: String;
+  page: number;
+  limit: number;
 }

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Mediastreaming, MediastreamingDocument } from './schema/mediastreaming.schema';
-import { MediastreamingDto, RequestConsoleStream, RequestSoctDto } from './dto/mediastreaming.dto';
+import { MediastreamingDto, RequestConsoleModerationStream, RequestConsoleStream, RequestSoctDto } from './dto/mediastreaming.dto';
 import { UtilsService } from 'src/utils/utils.service';
 import { HttpService } from '@nestjs/axios';
 import { TransactionsV2Service } from 'src/trans/transactionsv2/transactionsv2.service';
@@ -30,6 +30,36 @@ export class MediastreamingService {
   async createStreaming(MediastreamingDto_: MediastreamingDto): Promise<Mediastreaming> {
     const DataSave = await this.MediastreamingModel.create(MediastreamingDto_);
     return DataSave;
+  }
+
+  async generateLiveId() {
+    let liveId = "";
+
+    //Date Code
+    const CurrentDate = new Date();
+    const Year = CurrentDate.getFullYear();
+    const Month = (CurrentDate.getMonth() < 10 ? '0' + CurrentDate.getMonth().toString() : CurrentDate.getMonth().toString());
+    const Day = (CurrentDate.getDate() < 10 ? '0' + CurrentDate.getDate().toString() : CurrentDate.getDate().toString());
+
+    //Transaction Code
+    let countLive = await this.MediastreamingModel.find().count();
+    let liveNumber = ""
+    if ((countLive.toString().length) == 6) {
+      liveNumber += countLive.toString();
+    } else if ((countLive.toString().length) == 5) {
+      liveNumber += "0" + countLive.toString();
+    } else if ((countLive.toString().length) == 4) {
+      liveNumber += "00" + countLive.toString();
+    } else if ((countLive.toString().length) == 3) {
+      liveNumber += "000" + countLive.toString();
+    } else if ((countLive.toString().length) == 2) {
+      liveNumber += "0000" + countLive.toString();
+    } else if ((countLive.toString().length) == 1) {
+      liveNumber += "00000" + countLive.toString();
+    }
+    liveId = "hyppers-" + Year.toString() + "" + Month.toString() + "" + Day.toString() + "-" + liveNumber;
+    return liveId;
+
   }
 
   async findById(id: string): Promise<Mediastreaming> {
@@ -4218,7 +4248,6 @@ export class MediastreamingService {
   async database(RequestConsoleStream_: RequestConsoleStream) {
     let pipeline = [];
     let $match = {};
-    //let $expr = {};
     let $and = [];
     let $sort = {};
 
@@ -4248,7 +4277,129 @@ export class MediastreamingService {
             $size: "$gift"
           }
         }
-      },);
+      }
+    );
+
+    pipeline.push(
+      {
+        $lookup:
+        {
+          from: "newUserBasics",
+          as: "userbasicsStreamer",
+          let:
+          {
+            userId: "$userId"
+          },
+          pipeline:
+            [
+              {
+                $match:
+                {
+                  $expr:
+                  {
+                    $eq:
+                      [
+                        "$_id",
+                        "$$userId"
+                      ]
+                  }
+                },
+
+              },
+              {
+                $project:
+                {
+                  _id: 1,
+                  email: 1,
+                  fullName: 1,
+                  username: 1,
+                  statesName: 1,
+                  avatar: {
+                    "mediaBasePath": "$mediaBasePath",
+                    "mediaUri": "$mediaUri",
+                    "mediaType": "$mediaType",
+                    "mediaEndpoint": "$mediaEndpoint",
+
+                  }
+                }
+              }
+            ]
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          startLive:1,
+          title: 1,
+          liveId: 1,
+          createAt: 1,
+          status: {
+            $switch:
+            {
+              branches: [
+                {
+                  case: { "$eq": ["$statusText", "FINISHED"] },
+                  then: "SELESAI"
+                },
+                {
+                  case: { "$eq": ["$statusText", "STOPPED"] },
+                  then: "DIHENTIKAN"
+                },
+                {
+                  case: { "$eq": ["$statusText", "ONGOING"] },
+                  then: "BERLANGSUNG"
+                },
+              ],
+              default: "SELESAI"
+            }
+          },
+          durasi:1,
+          user: {
+            "$arrayElemAt": ["$userbasicsStreamer", 0]
+          },
+          username: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userbasicsStreamer", 0]
+                }
+              },
+              "in": "$$tmp.username"
+            }
+          },
+          fullName: {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$userbasicsStreamer", 0]
+                }
+              },
+              "in": "$$tmp.fullName"
+            }
+          },
+        }
+      }
+    );
+
+    //FILTER LIVE SEARCH
+    if (RequestConsoleStream_.liveSearch != undefined) {
+      $and.push({
+        $or:[
+          {
+            username: {
+              $regex: RequestConsoleStream_.liveSearch.toString(),
+              $options: "i"
+            }
+          },
+          {
+            fullName: {
+              $regex: RequestConsoleStream_.liveSearch.toString(),
+              $options: "i"
+            }
+          }
+        ]
+      });
+    }
 
     //FILTER LIVE DESC
     if (RequestConsoleStream_.liveDesc != undefined) {
@@ -4263,7 +4414,10 @@ export class MediastreamingService {
     //FILTER LIVE ID
     if (RequestConsoleStream_.liveId != undefined) {
       $and.push({
-        _id: new mongoose.Types.ObjectId(RequestConsoleStream_.liveId.toString())
+        liveId: {
+          $regex: RequestConsoleStream_.liveId.toString(),
+          $options: "i"
+        }
       });
     }
 
@@ -4441,6 +4595,37 @@ export class MediastreamingService {
       pipeline.push({ $match });
     }
 
+    //SORT
+    if (RequestConsoleStream_.sortField != undefined) {
+      let fieldSort = RequestConsoleStream_.sortField.toString();
+      if (RequestConsoleStream_.sort != undefined) {
+        if (RequestConsoleStream_.sort == "ASC") {
+          $sort[fieldSort] = 1;
+        } else if (RequestConsoleStream_.sort == "DESC") {
+          $sort[fieldSort] = -1;
+        } else {
+          $sort[fieldSort] = -1;
+        }
+      } else {
+        $sort[fieldSort] = -1;
+      }
+    } else {
+      if (RequestConsoleStream_.sort != undefined) {
+        if (RequestConsoleStream_.sort == "ASC") {
+          $sort['createAt'] = 1;
+        } else if (RequestConsoleStream_.sort == "DESC") {
+          $sort['createAt'] = -1;
+        } else {
+          $sort['createAt'] = -1;
+        }
+      } else {
+        $sort['createAt'] = -1;
+      }
+    }
+    pipeline.push({
+      "$sort": $sort
+    }); 
+
     //LIMIT
     if (RequestConsoleStream_.limit != undefined) {
       pipeline.push({
@@ -4457,87 +4642,8 @@ export class MediastreamingService {
       });
     }
 
-    //SORT
-    if (RequestConsoleStream_.sortField!=undefined) {
-      let fieldSort = RequestConsoleStream_.sortField.toString();
-      if (RequestConsoleStream_.sort != undefined) {
-        if (RequestConsoleStream_.sort == "ASC") {
-          $sort[fieldSort] = 1;
-        } else if (RequestConsoleStream_.sort == "DESC") {
-          $sort[fieldSort] = -1;
-        } else {
-          $sort[fieldSort] = -1;
-        }
-      } else {
-        $sort[fieldSort] = -1;
-      }
-    }else{
-      if (RequestConsoleStream_.sort != undefined) {
-        if (RequestConsoleStream_.sort == "ASC") {
-          $sort['createAt'] = 1;
-        } else if (RequestConsoleStream_.sort == "DESC") {
-          $sort['createAt'] = -1;
-        } else {
-          $sort['createAt'] = -1;
-        }
-      } else {
-        $sort['createAt'] = -1;
-      }
-    }
-    pipeline.push({
-      "$sort": $sort
-    }); 
-    
-    pipeline.push(
-      {
-        $lookup:
-        {
-          from: "newUserBasics",
-          as: "userbasicsStreamer",
-          let:
-          {
-            userId: "$userId"
-          },
-          pipeline:
-            [
-              {
-                $match:
-                {
-                  $expr:
-                  {
-                    $eq:
-                      [
-                        "$_id",
-                        "$$userId"
-                      ]
-                  }
-                },
-
-              },
-              {
-                $project:
-                {
-                  _id: 1,
-                  email: 1,
-                  fullName: 1,
-                  username: 1,
-                  statesName: 1,
-                  avatar: {
-                    "mediaBasePath": "$mediaBasePath",
-                    "mediaUri": "$mediaUri",
-                    "mediaType": "$mediaType",
-                    "mediaEndpoint": "$mediaEndpoint",
-
-                  }
-                }
-              }
-            ]
-        }
-      },);
-
     let query = await this.MediastreamingModel.aggregate(pipeline);
     return query;
-
   }
 
   async databaseDetail(id: string) {
@@ -5069,7 +5175,7 @@ export class MediastreamingService {
               },
               "in": "$$tmp.animation"
             }
-          },
+          }, 
           "typeGift": {
             "$let": {
               "vars": {
@@ -5078,6 +5184,16 @@ export class MediastreamingService {
                 }
               },
               "in": "$$tmp.typeGift"
+            }
+          },
+          "price": {
+            "$let": {
+              "vars": {
+                "tmp": {
+                  "$arrayElemAt": ["$data_gift", 0]
+                }
+              },
+              "in": "$$tmp.price"
             }
           },
           "userId": {
@@ -5135,5 +5251,314 @@ export class MediastreamingService {
       },
     ]);
     return data;
+  }
+
+  async moderation(RequestConsoleModerationStream_: RequestConsoleModerationStream) {
+    // let pipeline = [];
+    // let $match = {};
+    // let $and = [];
+    // let $sort = {};
+
+    // pipeline.push(
+    //   {
+    //     $set: {
+    //       report: { $ifNull: ["$report", []] }
+    //     }
+    //   },
+    //   {
+    //     $set: {
+    //       reportCount: { $size: "$report" }
+    //     }
+    //   },
+    //   {
+    //     $match: {
+    //       $gte: ["$reportCount",0]
+    //     }
+    //   },);
+
+    // //FILTER START END LIVE
+    // if (RequestConsoleModerationStream_.dateStart != undefined || RequestConsoleModerationStream_.dateEnd != undefined) {
+    //   let startLive = {};
+    //   //----------------START DATE----------------
+    //   var start_date = null;
+    //   if (RequestConsoleModerationStream_.dateStart != undefined) {
+    //     start_date = new Date(RequestConsoleModerationStream_.dateStart.toString());
+    //   }
+
+    //   //----------------END DATE----------------
+    //   var end_date = null;
+    //   if (RequestConsoleModerationStream_.dateEnd != undefined) {
+    //     end_date = new Date(RequestConsoleModerationStream_.dateEnd.toString());
+    //     end_date = new Date(end_date.setDate(end_date.getDate() + 1));
+    //   }
+
+    //   if (start_date != null) {
+    //     startLive["$gte"] = start_date.toISOString().replace('T', ' ').replace('.000Z', '');
+    //   }
+
+    //   if (end_date != null) {
+    //     startLive["$lte"] = end_date.toISOString().replace('T', ' ').replace('.000Z', '');
+    //   }
+    //   $and.push({
+    //     startLive
+    //   })
+    // }
+
+    // //FILTER LIVE DESC
+    // if (RequestConsoleModerationStream_.liveDesc != undefined) {
+    //   $and.push({
+    //     title: {
+    //       $regex: RequestConsoleModerationStream_.liveDesc.toString(),
+    //       $options: "i"
+    //     }
+    //   });
+    // }
+
+    // //FILTER STATUS
+    // if (RequestConsoleStream_.status != undefined) {
+    //   if (RequestConsoleStream_.status.length > 0) {
+    //     var liveStatusFilter = [];
+    //     //BERLANGSUNG
+    //     if (RequestConsoleStream_.status.includes("BERLANGSUNG")) {
+    //       liveStatusFilter.push({
+    //         statusText: "ONGOING"
+    //       })
+    //     }
+    //     //SELESAI
+    //     if (RequestConsoleStream_.status.includes("SELESAI")) {
+    //       liveStatusFilter.push({
+    //         statusText: "FINISHED"
+    //       })
+    //     }
+    //     //DIHENTIKAN
+    //     if (RequestConsoleStream_.status.includes("DIHENTIKAN")) {
+    //       liveStatusFilter.push({
+    //         statusText: "STOPPED"
+    //       })
+    //     }
+    //     $and.push({
+    //       $or: liveStatusFilter
+    //     });
+    //   }
+    // }
+
+    // //FILTER LIVE ID
+    // if (RequestConsoleStream_.liveId != undefined) {
+    //   $and.push({
+    //     _id: new mongoose.Types.ObjectId(RequestConsoleStream_.liveId.toString())
+    //   });
+    // }
+
+    // //FILTER DURASI
+    // if (RequestConsoleStream_.liveDurasi != undefined) {
+    //   if (RequestConsoleStream_.liveDurasi.length > 0) {
+    //     var liveDurasiFilter = [];
+    //     //show_smaller_than_20
+    //     if (RequestConsoleStream_.liveDurasi.includes("show_smaller_than_20")) {
+    //       liveDurasiFilter.push({
+    //         durasi: {
+    //           $gt: 0, $lt: 14
+    //         }
+    //       })
+    //     }
+    //     //show_20_smaller_than_40
+    //     if (RequestConsoleStream_.liveDurasi.includes("show_20_smaller_than_40")) {
+    //       liveDurasiFilter.push({
+    //         durasi: {
+    //           $gt: 20, $lt: 40
+    //         }
+    //       })
+    //     }
+    //     //show_40_smaller_than_60
+    //     if (RequestConsoleStream_.liveDurasi.includes("show_40_smaller_than_60")) {
+    //       liveDurasiFilter.push({
+    //         durasi: {
+    //           $gt: 40, $lt: 60
+    //         }
+    //       })
+    //     }
+    //     $and.push({
+    //       $or: liveDurasiFilter
+    //     });
+    //   }
+    // }
+
+    // //FILTER VIEW
+    // if (RequestConsoleStream_.liveView != undefined) {
+    //   if (RequestConsoleStream_.liveView.length > 0) {
+    //     var liveViewFilter = [];
+    //     //show_smaller_than_100
+    //     if (RequestConsoleStream_.liveView.includes("show_smaller_than_100")) {
+    //       liveViewFilter.push({
+    //         totalView: {
+    //           $gt: 0, $lt: 100
+    //         }
+    //       })
+    //     }
+    //     //show_100_smaller_than_200
+    //     if (RequestConsoleStream_.liveView.includes("show_100_smaller_than_200")) {
+    //       liveViewFilter.push({
+    //         totalView: {
+    //           $gt: 100, $lt: 200
+    //         }
+    //       })
+    //     }
+    //     //show_200_smaller_than_400
+    //     if (RequestConsoleStream_.liveView.includes("show_200_smaller_than_400")) {
+    //       liveViewFilter.push({
+    //         totalView: {
+    //           $gt: 200, $lt: 400
+    //         }
+    //       })
+    //     }
+    //     //show_greater_than_400
+    //     if (RequestConsoleStream_.liveView.includes("show_greater_than_400")) {
+    //       liveViewFilter.push({
+    //         totalView: {
+    //           $gt: 400
+    //         }
+    //       })
+    //     }
+    //     $and.push({
+    //       $or: liveViewFilter
+    //     });
+    //   }
+    // }
+
+    // //FILTER GIFT
+    // if (RequestConsoleStream_.liveGift != undefined) {
+    //   if (RequestConsoleStream_.liveGift.length > 0) {
+    //     var liveGiftFilter = [];
+    //     //show_smaller_than_10
+    //     if (RequestConsoleStream_.liveGift.includes("show_smaller_than_10")) {
+    //       liveGiftFilter.push({
+    //         totalGift: {
+    //           $gt: 0, $lt: 10
+    //         }
+    //       })
+    //     }
+    //     //show_10_smaller_than_50
+    //     if (RequestConsoleStream_.liveGift.includes("show_10_smaller_than_50")) {
+    //       liveGiftFilter.push({
+    //         totalGift: {
+    //           $gt: 10, $lt: 50
+    //         }
+    //       })
+    //     }
+    //     //show_greater_than_50
+    //     if (RequestConsoleStream_.liveGift.includes("show_greater_than_50")) {
+    //       liveGiftFilter.push({
+    //         totalGift: {
+    //           $gt: 50
+    //         }
+    //       })
+    //     }
+    //     $and.push({
+    //       $or: liveGiftFilter
+    //     });
+    //   }
+    // }
+
+    // if ($and.length > 0) {
+    //   $match["$and"] = $and;
+    //   pipeline.push({ $match });
+    // }
+
+    // //LIMIT
+    // if (RequestConsoleStream_.limit != undefined) {
+    //   pipeline.push({
+    //     "$limit": RequestConsoleStream_.limit
+    //   });
+    // } else{
+    //   RequestConsoleStream_.limit = 1;
+    // }
+
+    // //SKIP
+    // if (RequestConsoleStream_.page != undefined){
+    //   pipeline.push({
+    //     "$skip": (RequestConsoleStream_.limit * RequestConsoleStream_.page)
+    //   });
+    // }
+
+    // //SORT
+    // if (RequestConsoleStream_.sortField!=undefined) {
+    //   let fieldSort = RequestConsoleStream_.sortField.toString();
+    //   if (RequestConsoleStream_.sort != undefined) {
+    //     if (RequestConsoleStream_.sort == "ASC") {
+    //       $sort[fieldSort] = 1;
+    //     } else if (RequestConsoleStream_.sort == "DESC") {
+    //       $sort[fieldSort] = -1;
+    //     } else {
+    //       $sort[fieldSort] = -1;
+    //     }
+    //   } else {
+    //     $sort[fieldSort] = -1;
+    //   }
+    // }else{
+    //   if (RequestConsoleStream_.sort != undefined) {
+    //     if (RequestConsoleStream_.sort == "ASC") {
+    //       $sort['createAt'] = 1;
+    //     } else if (RequestConsoleStream_.sort == "DESC") {
+    //       $sort['createAt'] = -1;
+    //     } else {
+    //       $sort['createAt'] = -1;
+    //     }
+    //   } else {
+    //     $sort['createAt'] = -1;
+    //   }
+    // }
+    // pipeline.push({
+    //   "$sort": $sort
+    // }); 
+    
+    // pipeline.push(
+    //   {
+    //     $lookup:
+    //     {
+    //       from: "newUserBasics",
+    //       as: "userbasicsStreamer",
+    //       let:
+    //       {
+    //         userId: "$userId"
+    //       },
+    //       pipeline:
+    //         [
+    //           {
+    //             $match:
+    //             {
+    //               $expr:
+    //               {
+    //                 $eq:
+    //                   [
+    //                     "$_id",
+    //                     "$$userId"
+    //                   ]
+    //               }
+    //             },
+
+    //           },
+    //           {
+    //             $project:
+    //             {
+    //               _id: 1,
+    //               email: 1,
+    //               fullName: 1,
+    //               username: 1,
+    //               statesName: 1,
+    //               avatar: {
+    //                 "mediaBasePath": "$mediaBasePath",
+    //                 "mediaUri": "$mediaUri",
+    //                 "mediaType": "$mediaType",
+    //                 "mediaEndpoint": "$mediaEndpoint",
+
+    //               }
+    //             }
+    //           }
+    //         ]
+    //     }
+    //   },);
+
+    // let query = await this.MediastreamingModel.aggregate(pipeline);
+    // return query;
   }
 }
