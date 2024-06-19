@@ -3634,8 +3634,8 @@ export class TransactionsController {
 
                         }
 
-                        this.notifseller(emailseller.toString(), titleinsukses2, titleensukses2, bodyinsukses2, bodyensukses2, eventType, event, noinvoic, noinvoic);
-                        this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, noinvoic, noinvoic);
+                        this.notifseller(emailseller.toString(), titleinsukses2, titleensukses2, bodyinsukses2, bodyensukses2, eventType, event, postIds, noinvoic);
+                        this.notifbuyer(email.toString(), titleinsuksesbeli2, titleensuksesbeli2, bodyinsuksesbeli2, bodyensuksesbeli2, eventType, event, postIds, noinvoic);
                     }
 
 
