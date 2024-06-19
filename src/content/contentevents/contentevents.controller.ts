@@ -3511,6 +3511,53 @@ export class ContenteventsController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Post('api/posts/interactive/v2test')
+  async interactive35(@Req() request: any, @Headers() headers) {
+    var timestamps_start = await this.utilsService.getDateTimeString();
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify(request.body));
+    if (headers['x-auth-user'] == undefined || headers['x-auth-user'] == null || headers['x-auth-user'] == '') {
+      var fullurl = request.get("Host") + request.originalUrl;
+      var timestamps_end = await this.utilsService.getDateTimeString();
+      var reqbody = JSON.parse(JSON.stringify(request.body));
+      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, null, null, null, reqbody);
+
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed auth-user undefined',
+      );
+    }
+    if (request.body.eventType == undefined || request.body.eventType == null || request.body.eventType == '') {
+      var fullurl = request.get("Host") + request.originalUrl;
+      var timestamps_end = await this.utilsService.getDateTimeString();
+      var reqbody = JSON.parse(JSON.stringify(request.body));
+      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, null);
+
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed, param eventType is required',
+      );
+    }
+    if (request.body.receiverParty == undefined || request.body.receiverParty == null || request.body.receiverParty == '') {
+      var fullurl = request.get("Host") + request.originalUrl;
+      var timestamps_end = await this.utilsService.getDateTimeString();
+      var reqbody = JSON.parse(JSON.stringify(request.body));
+      this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, headers['x-auth-user'], null, null, reqbody);
+
+      await this.errorHandler.generateNotAcceptableException(
+        'Unabled to proceed, param receiverParty is required',
+      );
+    }
+
+    this.synchInteractivev2new(request, headers);
+
+    return {
+      response_code: 202,
+      messages: {
+        info: ['Successful'],
+      },
+    }
+  }
+
   async sendInteractiveFCM2(email: string, type: string, postID: string, receiverParty: string, customText?: any) {
     // var Templates_ = new TemplatesRepo();
     // Templates_ = await this.utilsService.getTemplate_repo(type, 'NOTIFICATION');
@@ -10963,11 +11010,16 @@ export class ContenteventsController {
           updatepost.userLike = listarray;
           var updatetemp = new tempposts2();
           updatetemp.userLike = listarray;
+
+          try{
   
-          await this.postDisqusSS.update(request.body.postID, updatepost);
+          await this.postDisqusSS.updateLike2(listarray,request.body.postID);
+          }catch(e){
+
+          }
           try
           {
-            await this.tempostSS.update(request.body.postID, updatetemp);
+            await this.tempostSS.updateLike2(listarray,request.body.postID);
           }
           catch(e)
           {
