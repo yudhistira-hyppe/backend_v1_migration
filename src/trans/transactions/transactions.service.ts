@@ -11215,8 +11215,8 @@ export class TransactionsService {
                                             "status": "FAILED",
                                             "action": "APPROVAL",
                                             "timestamp": await this.utilsService.getDateTimeISOString(),
-                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
-                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
+                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.status.message}`,
+                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.status.message}`
                                         });
                                         CreateWithdrawsDto_.verified = false
                                         CreateWithdrawsDto_.status = "Failed";
@@ -11237,8 +11237,8 @@ export class TransactionsService {
                                             "status": "FAILED",
                                             "action": "APPROVAL",
                                             "timestamp": await this.utilsService.getDateTimeISOString(),
-                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
-                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
+                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.status.message}`,
+                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.status.message}`
                                         });
                                         CreateWithdrawsDto_.verified = false
                                         CreateWithdrawsDto_.status = "Failed";
@@ -11250,8 +11250,8 @@ export class TransactionsService {
                                             "status": "FAILED",
                                             "action": "APPROVAL",
                                             "timestamp": await this.utilsService.getDateTimeISOString(),
-                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.tx_status_description}`,
-                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.tx_status_description}`
+                                            "description_id": `Penukaran coins gagal dengan alasan ${OyDisbursementStatusResponse_.status.message}`,
+                                            "description_en": `Coin withdrawal failed with the following reason: ${OyDisbursementStatusResponse_.status.message}`
                                         });
                                         CreateWithdrawsDto_.verified = false
                                         CreateWithdrawsDto_.status = "Failed";

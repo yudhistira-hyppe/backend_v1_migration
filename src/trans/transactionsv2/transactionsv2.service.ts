@@ -278,7 +278,7 @@ export class TransactionsV2Service {
                 let transactionsV2_ = new transactionsV2();
                 transactionsV2_.status = status;
                 transactionsV2_.detail = dataDetail;
-                await this.transactionsModel.findByIdAndUpdate(dataTransaction._id.toString(), transactionsV2_, { new: true });
+                await this.transactionsModel.findByIdAndUpdate({ _id: dataTransaction._id.toString() }, transactionsV2_, { new: true });
             }
         }
 
