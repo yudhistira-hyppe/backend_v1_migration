@@ -3466,7 +3466,7 @@ export class ContenteventsController {
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
-  @Post('api/posts/interactive/v2/backup')
+  @Post('api/posts/interactive/v2')
   async interactive34(@Req() request: any, @Headers() headers) {
     var timestamps_start = await this.utilsService.getDateTimeString();
     console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify(request.body));
@@ -3513,7 +3513,7 @@ export class ContenteventsController {
 
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
-  @Post('api/posts/interactive/v2')
+  @Post('api/posts/interactive/v2test')
   async interactive35(@Req() request: any, @Headers() headers) {
     var timestamps_start = await this.utilsService.getDateTimeString();
     console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> interactive >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", JSON.stringify(request.body));

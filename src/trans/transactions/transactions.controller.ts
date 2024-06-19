@@ -2376,7 +2376,8 @@ export class TransactionsController {
         if (totalAmount >= min && totalAmount <= max) {
             let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
             console.log("totaltransaction:", totaltransaction);
-            if (totalAmount + totaltransaction[0].totaltransaction <= dailymax) {
+            let dailyTotal = totaltransaction.length > 0 ? totaltransaction[0].totaltransaction : 0
+            if (totalAmount + dailyTotal <= dailymax) {
                 var timestamps_end = await this.utilsService.getDateTimeString();
                 this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
                 return {
@@ -3686,7 +3687,7 @@ export class TransactionsController {
                     // var basicdatabypost = await this.basic2SS.findBymail(email.toString());
 
                     // await this.transactionsQueue.add('content', {
-                
+
                     //     data:  await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, ubasic)
                     //   });
                     try {
@@ -5046,7 +5047,7 @@ export class TransactionsController {
     //         // }
 
     //       await this.transactionsQueue.add('content', {
-                
+
     //                     data:   await this.trConten(postIds, fullurl,timestamps_start,email,request_json,qty,totalAmount,diskon,used_stockDiskon,last_stockDiskon,salelike,saleview,idbuyer,iduser,arrDiskon,idDiscount,timedate,platform,titleinsukses2,titleensukses2,bodyinsukses2,bodyensukses2,eventType,event,titleinsuksesbeli2,titleensuksesbeli2,bodyinsuksesbeli2,bodyensuksesbeli2,ubasic,langIso,messages,res)
     //                   });
 
@@ -24367,7 +24368,7 @@ export class TransactionsController {
 
 
     //             // await this.transactionsQueue.add('content', {
-            
+
     //             //     data:  await this.postsContent2SS.generateCertificate(postIds, langIso, datapost, ubasic)
     //             //   });
     //             try {
