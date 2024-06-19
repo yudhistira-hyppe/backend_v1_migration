@@ -627,7 +627,7 @@ export class NewpostService {
             {
                 "$inc":
                 {
-                    likes:1
+                    likes:-1
                 },
                 "$pull":
                 {

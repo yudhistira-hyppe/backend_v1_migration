@@ -442,7 +442,7 @@ export class temppostDISCUSS {
             {
                 "$inc":
                 {
-                    likes:1
+                    likes:-1
                 },
                 "$pull":
                 {
