@@ -2384,7 +2384,10 @@ export class TransactionsController {
                     response_code: 202,
                     data: {
                         // totalAmountWithAdmin: totalAmount,
-                        valid: true
+                        valid: true,
+                        trMin: min,
+                        trMax: max,
+                        dailyMax: dailymax
                     },
                     messages
                 }
@@ -2395,7 +2398,10 @@ export class TransactionsController {
                     response_code: 400,
                     data: {
                         // totalAmountWithAdmin: totalAmount,
-                        valid: false
+                        valid: false,
+                        trMin: min,
+                        trMax: max,
+                        dailyMax: dailymax
                     },
                     messages: {
                         info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
@@ -2409,7 +2415,10 @@ export class TransactionsController {
                 response_code: 400,
                 data: {
                     // totalAmountWithAdmin: totalAmount,
-                    valid: false
+                    valid: false,
+                    trMin: min,
+                    trMax: max,
+                    dailyMax: dailymax
                 },
                 messages: {
                     info: ["Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax, "Payment must be greater than or equal to IDR " + formatmin + " and less than or equal to IDR " + formatmax]
