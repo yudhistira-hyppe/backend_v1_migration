@@ -2359,10 +2359,10 @@ export class TransactionsController {
         const messages = {
             "info": ["The process was successful"],
         };
-        const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
-        const datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
-        var max = datamaxmin.Max;
-        var min = datamaxmin.Min;
+        // const ID_SETTING_MAX_MIN_TRANSACTION = this.configService.get("ID_SETTING_MAX_MIN_TRANSACTION");
+        // const datamaxmin = await this.settingsService.findOne(ID_SETTING_MAX_MIN_TRANSACTION);
+        // var max = datamaxmin.Max;
+        // var min = datamaxmin.Min;
         var dailymax = 50000000;
         // const ID_SETTING_COST_BUY_COIN = this.configService.get("ID_SETTING_COST_BUY_COIN");
         // var dataadmincoin = await this.settingsService.findOne(ID_SETTING_COST_BUY_COIN);
@@ -2370,43 +2370,77 @@ export class TransactionsController {
         var request_json = JSON.parse(JSON.stringify(request.body));
         const userbasic = await this.basic2SS.findBymail(setemail);
 
-        var formatmax = new Intl.NumberFormat('en-DE').format(max);
-        var formatmin = new Intl.NumberFormat('en-DE').format(min);
+        // var formatmax = new Intl.NumberFormat('en-DE').format(max);
+        // var formatmin = new Intl.NumberFormat('en-DE').format(min);
         var totalAmount = request_json.amount;
-        if (totalAmount >= min && totalAmount <= max) {
-            let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
-            console.log("totaltransaction:", totaltransaction);
-            let dailyTotal = totaltransaction.length > 0 ? totaltransaction[0].totaltransaction : 0
-            if (totalAmount + dailyTotal <= dailymax) {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-                return {
-                    response_code: 202,
-                    data: {
-                        // totalAmountWithAdmin: totalAmount,
-                        valid: true,
-                        trMin: min,
-                        trMax: max,
-                        dailyMax: dailymax
-                    },
-                    messages
-                }
-            } else {
-                var timestamps_end = await this.utilsService.getDateTimeString();
-                this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
-                return {
-                    response_code: 400,
-                    data: {
-                        // totalAmountWithAdmin: totalAmount,
-                        valid: false,
-                        trMin: min,
-                        trMax: max,
-                        dailyMax: dailymax
-                    },
-                    messages: {
-                        info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
-                    }
-                }
+        // if (totalAmount >= min && totalAmount <= max) {
+        //     let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
+        //     console.log("totaltransaction:", totaltransaction);
+        //     let dailyTotal = totaltransaction.length > 0 ? totaltransaction[0].totaltransaction : 0
+        //     if (totalAmount + dailyTotal <= dailymax) {
+        //         var timestamps_end = await this.utilsService.getDateTimeString();
+        //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //         return {
+        //             response_code: 202,
+        //             data: {
+        //                 // totalAmountWithAdmin: totalAmount,
+        //                 valid: true,
+        //                 trMin: min,
+        //                 trMax: max,
+        //                 dailyMax: dailymax
+        //             },
+        //             messages
+        //         }
+        //     } else {
+        //         var timestamps_end = await this.utilsService.getDateTimeString();
+        //         this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //         return {
+        //             response_code: 400,
+        //             data: {
+        //                 // totalAmountWithAdmin: totalAmount,
+        //                 valid: false,
+        //                 trMin: min,
+        //                 trMax: max,
+        //                 dailyMax: dailymax
+        //             },
+        //             messages: {
+        //                 info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
+        //             }
+        //         }
+        //     }
+        // } else {
+        //     var timestamps_end = await this.utilsService.getDateTimeString();
+        //     this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+        //     return {
+        //         response_code: 400,
+        //         data: {
+        //             // totalAmountWithAdmin: totalAmount,
+        //             valid: false,
+        //             trMin: min,
+        //             trMax: max,
+        //             dailyMax: dailymax
+        //         },
+        //         messages: {
+        //             info: ["Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax, "Payment must be greater than or equal to IDR " + formatmin + " and less than or equal to IDR " + formatmax]
+        //         }
+        //     }
+        // }
+        let totaltransaction = await this.transactionsService.findtotaltransactiontoday(userbasic._id);
+        console.log("totaltransaction:", totaltransaction);
+        let dailyTotal = totaltransaction.length > 0 ? totaltransaction[0].totaltransaction : 0
+        if (totalAmount + dailyTotal <= dailymax) {
+            var timestamps_end = await this.utilsService.getDateTimeString();
+            this.logapiSS.create2(fullurl, timestamps_start, timestamps_end, setemail, null, null, request_json);
+            return {
+                response_code: 202,
+                data: {
+                    // totalAmountWithAdmin: totalAmount,
+                    valid: true,
+                    // trMin: min,
+                    // trMax: max,
+                    dailyMax: dailymax
+                },
+                messages
             }
         } else {
             var timestamps_end = await this.utilsService.getDateTimeString();
@@ -2416,12 +2450,12 @@ export class TransactionsController {
                 data: {
                     // totalAmountWithAdmin: totalAmount,
                     valid: false,
-                    trMin: min,
-                    trMax: max,
+                    // trMin: min,
+                    // trMax: max,
                     dailyMax: dailymax
                 },
                 messages: {
-                    info: ["Pembayaran harus >= Rp " + formatmin + " dan <= Rp " + formatmax, "Payment must be greater than or equal to IDR " + formatmin + " and less than or equal to IDR " + formatmax]
+                    info: ["Kamu hanya dapat melakukan transaksi dengan batas maksimal Rp " + new Intl.NumberFormat('en-DE').format(dailymax) + " per harinya.", "You can only perform transactions up to IDR " + new Intl.NumberFormat('en-DE').format(dailymax) + " per day. Try again tomorrow!"]
                 }
             }
         }
