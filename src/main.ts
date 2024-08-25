@@ -34,7 +34,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
-  await app.listen(5002);
+  await app.listen(6001);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();
