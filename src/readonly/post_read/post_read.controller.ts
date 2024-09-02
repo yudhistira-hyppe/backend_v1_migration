@@ -33,7 +33,7 @@ export class PostsReadController {
 
     @Post('api/posts/getuserposts/my')
     @UseInterceptors(FileInterceptor('postContent'))
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     async contentlandingpagemy(@Body() body, @Headers('x-auth-user') email: string): Promise<any> {
         console.log('=============================================MY PAGE HIT=============================================')
         console.log('============================================= BODY =============================================', JSON.stringify(body))
@@ -418,7 +418,7 @@ export class PostsReadController {
 
     @Post('api/posts/getuserposts/byprofile')
     @UseInterceptors(FileInterceptor('postContent'))
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     async contentbyprofile(@Body() body, @Headers('x-auth-user') emailLogin: string): Promise<any> {
         console.log('=============================================BY PROFILE PAGE HIT=============================================')
         console.log('============================================= BODY =============================================', JSON.stringify(body))
@@ -820,7 +820,7 @@ export class PostsReadController {
 
     @Post('api/posts/getuserposts/byprofile/v2')
     @UseInterceptors(FileInterceptor('postContent'))
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     async contentbyprofilev2(@Body() body, @Headers('x-auth-user') emailLogin: string): Promise<any> {
         console.log('=============================================BY PROFILE PAGE HIT=============================================')
         console.log('============================================= BODY =============================================', JSON.stringify(body))
@@ -1630,7 +1630,7 @@ export class PostsReadController {
         return { response_code: 202, data: picts, version: version.toString(), version_ios: versionIos.toString(), messages };
     }
 
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     @Post('api/posts/getnotification2')
     @UseInterceptors(FileInterceptor('postContent'))
     async getNotification2(@Body() body, @Headers('x-auth-user') email: string, @Headers() headers) {
@@ -1867,7 +1867,7 @@ export class PostsReadController {
         return { response_code: 202, data, messages };
     }
 
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     @Post('api/posts/getnotification2/v2')
     @UseInterceptors(FileInterceptor('postContent'))
     async getNotification2V2(@Body() body, @Headers('x-auth-user') email: string, @Headers() headers) {
@@ -2173,7 +2173,7 @@ export class PostsReadController {
 
     @Post('api/posts/getuserposts/byprofile/index')
     @UseInterceptors(FileInterceptor('postContent'))
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     async contentbyprofilev24(@Body() body, @Headers('x-auth-user') emailLogin: string): Promise<any> {
         console.log('=============================================BY PROFILE PAGE HIT=============================================')
         console.log('============================================= BODY =============================================', JSON.stringify(body))
