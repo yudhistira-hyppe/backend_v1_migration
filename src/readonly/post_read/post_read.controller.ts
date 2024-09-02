@@ -1179,7 +1179,7 @@ export class PostsReadController {
     }
 
     @Post('api/getusercontents/landingpage')
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     async contentlandingpage(@Req() request: Request, @Headers() headers): Promise<any> {
         console.log('=============================================LANDING PAGE HITXX=============================================')
         console.log(JSON.stringify(request.headers));
