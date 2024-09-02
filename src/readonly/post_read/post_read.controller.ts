@@ -1182,7 +1182,7 @@ export class PostsReadController {
     @UseGuards(JwtAuthGuard)
     async contentlandingpage(@Req() request: Request, @Headers() headers): Promise<any> {
         console.log('=============================================LANDING PAGE HITXX=============================================')
-        console.log(JSON.stringify(request));
+        console.log(JSON.stringify(request.headers));
         var timestamps_start = await this.utilsService.getDateTimeString();
         var fullurl = request.get("Host") + request.originalUrl;
         var token = headers['x-auth-token'];
