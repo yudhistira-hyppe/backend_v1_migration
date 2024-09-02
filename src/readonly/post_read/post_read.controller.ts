@@ -1239,8 +1239,8 @@ export class PostsReadController {
 
 
         try {
-            data = await this.postsService.landingpage(email, type, skip, limit);
-            // data = await this.tempPOSTss.landingPagebaru(email, type, skip, limit);
+            // data = await this.postsService.landingpage(email, type, skip, limit);
+            data = await this.tempPOSTss.landingPagebaru(email, type, skip, limit);
             if (data.length < 5) {
                 data = await this.postsReadService.landingpage7(email, type, skip, limit);
             }
