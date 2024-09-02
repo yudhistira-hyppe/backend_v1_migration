@@ -1181,8 +1181,8 @@ export class PostsReadController {
     @Post('api/getusercontents/landingpage')
     @UseGuards(JwtAuthGuard)
     async contentlandingpage(@Req() request: Request, @Headers() headers): Promise<any> {
-        console.log('=============================================LANDING PAGE HIT=============================================')
-        console.log(JSON.stringify(headers));
+        console.log('=============================================LANDING PAGE HITXX=============================================')
+        console.log(JSON.stringify(request));
         var timestamps_start = await this.utilsService.getDateTimeString();
         var fullurl = request.get("Host") + request.originalUrl;
         var token = headers['x-auth-token'];
@@ -1272,111 +1272,7 @@ export class PostsReadController {
             var tempapsaraId_result = null;
             var tempapsaraThumbId_result = null;
 
-            // console.log(tempdatapict);
-            // if (type == "pict") {
-
-            //     for (let i = 0; i < lengpict; i++) {
-
-            //         uploadSource = data[i].uploadSource;
-            //         isApsara = data[i].isApsara;
-            //         try {
-            //             apsaraId = data[i].apsaraId;
-            //         } catch (e) {
-            //             apsaraId = "";
-            //         }
-            //         try {
-            //             apsaraThumbId = data[i].apsaraThumbId;
-            //         } catch (e) {
-            //             apsaraThumbId = "";
-            //         }
-
-            //         if (apsaraId !== undefined && apsaraThumbId !== undefined) {
-            //             tempdatapict.push(data[i].apsaraId);
-
-            //         }
-            //         else if (apsaraId !== undefined && apsaraThumbId === undefined) {
-            //             tempdatapict.push(data[i].apsaraId);
-
-            //         }
-            //         else if (apsaraId === undefined && apsaraThumbId !== undefined) {
-            //             tempdatapict.push(data[i].apsaraThumbId);
-
-            //         }
-            //     }
-            //     resultpictapsara = await this.postContentService.getImageApsara(tempdatapict);
-            //     let gettempresultpictapsara = resultpictapsara.ImageInfo;
-            //     for (let i = 0; i < lengpict; i++) {
-            //         emailreceiver = data[i].email;
-            //         boosted = data[i].boosted;
-            //         boostCount = data[i].boostCount;
-            //         var checkpictketemu = false;
-            //         uploadSource = data[i].uploadSource;
-
-
-            //         if (isApsara !== undefined && isApsara == false) {
-            //             data[i].mediaThumbEndpoint = data[i].mediaEndpoint;
-
-            //         } else {
-
-            //             for (var j = 0; j < gettempresultpictapsara.length; j++) {
-
-            //                 if (gettempresultpictapsara[j].ImageId == data[i].apsaraThumbId) {
-            //                     // checkpictketemu = true;
-            //                     data[i].media =
-            //                     {
-            //                         "ImageInfo": [gettempresultpictapsara[j]]
-            //                     }
-
-            //                     data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-            //                     data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
-
-
-
-            //                 }
-            //                 else if (gettempresultpictapsara[j].ImageId == data[i].apsaraId) {
-            //                     checkpictketemu = true;
-            //                     data[i].media =
-            //                     {
-            //                         "ImageInfo": [gettempresultpictapsara[j]]
-            //                     }
-
-            //                     data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-            //                     data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
-
-            //                 }
-            //             }
-            //         }
-
-
-
-
-            //         if (boosted !== null || boosted.length > 0) {
-            //             console.log("boosted: " + data[i].postID);
-            //             this.postsService.updateBoostViewer(data[i].postID, email);
-            //             //pd.boostJangkauan = this.countBoosted(obj, email);
-            //             if (boosted.length > 0) {
-            //                 if (boosted[0] != undefined) {
-            //                     boostCount = (boosted[0].boostViewer != undefined) ? boosted[0].boostViewer.length : 0;
-            //                     boosted = boosted;
-            //                     await this.postsService.updateBoostCount(data[i].postID, boostCount + 1);
-            //                 } else {
-            //                     boostCount = 0;
-            //                     boosted = [];
-            //                 }
-            //             } else {
-            //                 boostCount = 0;
-            //                 boosted = [];
-            //             }
-            //         } else {
-            //             boostCount = 0;
-            //             boosted = [];
-            //         }
-            //         //  this.PostBoostService.markViewedNew(data[i].postID, email, emailreceiver);
-
-            //         picts.push(data[i]);
-            //     }
-
-            // } 
+            
             if (type == "pict") {
                 for (let i = 0; i < lengpict; i++) {
                     uploadSource = data[i].uploadSource;
@@ -1405,36 +1301,7 @@ export class PostsReadController {
 
                 let gettempresultpictapsara_tempapsaraId = tempapsaraId_result.ImageInfo;
                 let gettempresultpictapsara_tempapsaraThumbId = tempapsaraThumbId_result.ImageInfo;
-                // for (let i = 0; i < lengpict; i++) {
-
-                //     uploadSource = data[i].uploadSource;
-                //     try {
-                //         apsaraId = data[i].apsaraId;
-                //     } catch (e) {
-                //         apsaraId = "";
-                //     }
-                //     try {
-                //         apsaraThumbId = data[i].apsaraThumbId;
-                //     } catch (e) {
-                //         apsaraThumbId = "";
-                //     }
-
-                //     if (apsaraId !== undefined && apsaraThumbId !== undefined) {
-                //         tempdatapict.push(data[i].apsaraThumbId);
-                //         // tempdatapict.push(data[i].apsaraId);
-
-                //     }
-                //     else if (apsaraId !== undefined && apsaraThumbId === undefined) {
-                //         tempdatapict.push(data[i].apsaraId);
-
-                //     }
-                //     else if (apsaraId === undefined && apsaraThumbId !== undefined) {
-                //         tempdatapict.push(data[i].apsaraThumbId);
-
-                //     }
-                // }
-                // resultpictapsara = await this.postContentService.getImageApsara(tempdatapict);
-                // let gettempresultpictapsara = resultpictapsara.ImageInfo;
+                
                 for (let i = 0; i < lengpict; i++) {
                     emailreceiver = data[i].email;
                     boosted = data[i].boosted;
@@ -1454,70 +1321,11 @@ export class PostsReadController {
                                 }
                             }
                         }
-                        // for (var j = 0; j < gettempresultpictapsara_tempapsaraThumbId.length; j++) {
-                        //     if (gettempresultpictapsara_tempapsaraThumbId[j].ImageId == data[i].apsaraThumbId) {
-                        //         data[i].mediaThumbEndpoint = gettempresultpictapsara_tempapsaraThumbId[j].URL;
-                        //         if (!dataUpsara) {
-                        //             data[i].mediaThumbEndpoint = gettempresultpictapsara_tempapsaraThumbId[j].URL;
-                        //         }
-                        //     }
-                        // }
+                        
                     } else {
                         data[i].mediaThumbEndpoint = data[i].mediaEndpoint;
 
                     }
-                    // emailreceiver = data[i].email;
-                    // boosted = data[i].boosted;
-                    // boostCount = data[i].boostCount;
-                    // var checkpictketemu = false;
-                    // uploadSource = data[i].uploadSource;
-                    // var dataUpsaraThum = (data[i].apsaraThumbId != undefined);
-                    // var dataUpsara = (data[i].apsaraId != undefined);
-
-                    // if (data[i].isApsara) {
-                    //     for (var j = 0; j < gettempresultpictapsara.length; j++) {
-
-                    //         if (gettempresultpictapsara[j].ImageId == data[i].apsaraThumbId) {
-                    //             if (data[i].apsaraThumbId == data[i].apsaraId) {
-                    //                 data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
-                    //             }
-                    //             if (!dataUpsara) {
-                    //                 data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
-                    //             }
-                    //             // checkpictketemu = true;
-                    //             data[i].media =
-                    //             {
-                    //                 "ImageInfo": [gettempresultpictapsara[j]]
-                    //             }
-
-                    //             data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-
-
-
-                    //         }
-                    //         else if (gettempresultpictapsara[j].ImageId == data[i].apsaraId) {
-                    //             if (data[i].apsaraThumbId == data[i].apsaraId) {
-                    //                 data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-                    //             }
-                    //             if (!dataUpsaraThum) {
-                    //                 data[i].mediaThumbEndpoint = gettempresultpictapsara[j].URL;
-                    //             }
-                    //             checkpictketemu = true;
-                    //             data[i].media =
-                    //             {
-                    //                 "ImageInfo": [gettempresultpictapsara[j]]
-                    //             }
-
-                    //             data[i].mediaEndpoint = gettempresultpictapsara[j].URL;
-
-                    //         }
-                    //     }
-                    // } else {
-                    //     data[i].mediaThumbEndpoint = data[i].mediaEndpoint;
-                    // }
-
-
-
 
                     if (boosted !== null && boosted !== undefined) {
 
@@ -1544,7 +1352,6 @@ export class PostsReadController {
                         boostCount = 0;
                         boosted = [];
                     }
-                    //  this.PostBoostService.markViewedNew(data[i].postID, email, emailreceiver);
 
                     picts.push(data[i]);
                 }
@@ -1552,11 +1359,7 @@ export class PostsReadController {
             }
             else {
                 for (let i = 0; i < lengpict; i++) {
-                    //ini buat produksion
-                    // postType = data[i].postType;
-                    // if (postType === "diary") {
-                    //     data[i].saleAmount = 0;
-                    // }
+                    
 
                     if (data[i].isApsara == true) {
                         tempdatapict.push(data[i].apsaraId);
@@ -1613,7 +1416,6 @@ export class PostsReadController {
                         boostCount = 0;
                         boosted = [];
                     }
-                    // this.PostBoostService.markViewedNew(data[i].postID, email, emailreceiver);
 
 
                     picts.push(data[i]);
