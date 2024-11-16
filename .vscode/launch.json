@@ -1,25 +1,26 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "command": "npm start",
-            "name": "Run npm start",
-            "request": "launch",
-            "type": "node-terminal"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Backend Console dan Bussines",
-            "runtimeArgs": [
-                "--nolazy",
-                "-r",
-                "ts-node/register"
-            ],
-            "args": [
-                "${workspaceFolder}/src/main.ts"
-            ],
-            "autoAttachChildProcesses": true
-        }
-    ]
+  "configurations": [
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Remote",
+      "port": 9229,
+      "address": "localhost",
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/root/backend-hyppe/backend_v1_migration", // Use exact path from pwd command
+      "sourceMapPathOverrides": {
+        "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
+        "webpack:////*": "/*",
+        "webpack:///?:*/*": "${workspaceFolder}/*"
+      },
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "backend local Debug",
+      "type": "node-terminal", // Use node-terminal to run npm start
+      "request": "launch",
+      "command": "npm run start:watch", // Command to run your application
+      "cwd": "${workspaceFolder}" // Current working directory
+    }
+  ]
 }

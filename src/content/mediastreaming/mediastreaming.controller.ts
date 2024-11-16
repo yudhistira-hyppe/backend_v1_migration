@@ -166,7 +166,7 @@ export class MediastreamingController {
     }
     _MediastreamingDto_.status = true;
     _MediastreamingDto_.startLive = currentDate.dateString;
-    _MediastreamingDto_.tokenAgora = generateToken.token;
+    // _MediastreamingDto_.tokenAgora = generateToken.token;
 
     const data = await this.mediastreamingService.createStreaming(_MediastreamingDto_);
     if (data.title != undefined) {
