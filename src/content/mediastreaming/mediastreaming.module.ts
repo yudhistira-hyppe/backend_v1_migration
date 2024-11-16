@@ -17,6 +17,7 @@ import { MediastreamingAgoraService } from './mediastreamingagora.service';
 import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.module';
 import { MonetizationService } from './monetization/monetization.service';
 import { Monetize, monetizeSchema } from 'src/trans/monetization/schemas/monetization.schema';
+import { CloudStreamingModule } from 'src/stream/tencent/cloudstreaming.module';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { Monetize, monetizeSchema } from 'src/trans/monetization/schemas/monetiz
         UserauthsModule,
         UserbasicsModule,
         UtilsModule,
+        CloudStreamingModule,
         ConfigModule.forRoot(),
         MongooseModule.forFeature([
             { name: Mediastreaming.name, schema: MediastreamingSchema }, 

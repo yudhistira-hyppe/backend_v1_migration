@@ -9,12 +9,34 @@ export class CloudStreamingService {
     createPushLiveUrl(streamName: string) {
         const domainName = process.env.CSS_PUSH_LIVE_DOMAIN;
         const appName = process.env.CSS_LIVE_APP_NAME;
-        const tencentSecretKey = process.env.CSS_PUSH_AUTH_KEY;
+        const tencentSecretKey = process.env.CSS_DOMAIN_AUTH_KEY;
+        
         const hexExpirationTime = this.createHexExpirationTime();
         const inputString = tencentSecretKey + streamName + hexExpirationTime;
         const txSecret = this.createMd5TxSecret(inputString);
+        const formatUrl = `${domainName}/${appName}/${streamName}?txSecret=${txSecret}&txTime=${hexExpirationTime}`
+
+        const result = {
+            rtmpUrl: `rtmp://${formatUrl}`,
+            webrtcUrl: `webrtc://${formatUrl}`,
+        }
     
-        return `rtmp://${domainName}/${appName}/${streamName}?txSecret=${txSecret}&txTime=${hexExpirationTime}`;
+        return result;
+    }
+
+    createPlaybackLiveUrl(streamName: string) {
+        const domainName = process.env.CSS_PLAYBACK_LIVE_DOMAIN;
+        const appName = process.env.CSS_LIVE_APP_NAME;
+        const transcode = process.env.CSS_TRANSCODING_TEMPLATE;
+
+        const formatUrl = `${domainName}/${appName}/${streamName}_${transcode}`
+
+        const result = {
+            rtmpUrl: `rtmp://${formatUrl}`,
+            webrtcUrl: `webrtc://${formatUrl}`,
+        }
+
+        return result;
     }
 
     createMd5TxSecret(inputString: string) {

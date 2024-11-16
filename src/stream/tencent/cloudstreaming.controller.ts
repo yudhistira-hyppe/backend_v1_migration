@@ -6,7 +6,7 @@ import {
     Res,
     HttpStatus,
   } from '@nestjs/common';
-import { PushLiveDto } from './dtos/push-live.dto';
+import { PushPlaybackLiveDto } from './dtos/push-live.dto';
 import { CloudStreamingService } from './cloudstreming.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Response } from 'express';
@@ -19,10 +19,24 @@ import { Response } from 'express';
 
     @Post('/push-live')
     @UseGuards(JwtAuthGuard)
-    createPushLiveUrl(@Body() body: PushLiveDto, @Res() res: Response) {
+    createPushLiveUrl(@Body() body: PushPlaybackLiveDto, @Res() res: Response) {
       const streamName = body.streamName;
 
       const data = this.cloudStreamingService.createPushLiveUrl(streamName)
+
+      return res.status(HttpStatus.CREATED).json({
+        statusCode: HttpStatus.CREATED,
+        message: "url created",
+        data,
+      });
+    }
+
+    @Post('/playback-live')
+    @UseGuards(JwtAuthGuard)
+    createPlaybackLiveUrl(@Body() body: PushPlaybackLiveDto, @Res() res: Response){
+      const streamName = body.streamName;
+
+      const data = this.cloudStreamingService.createPlaybackLiveUrl(streamName);
 
       return res.status(HttpStatus.CREATED).json({
         statusCode: HttpStatus.CREATED,

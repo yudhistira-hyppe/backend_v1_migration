@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class PushLiveDto {
+export class PushPlaybackLiveDto {
   @IsString()
   @IsNotEmpty()
   streamName: string;

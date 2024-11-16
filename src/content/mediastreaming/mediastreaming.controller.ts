@@ -15,6 +15,7 @@ import { MediastreamingAgoraService } from './mediastreamingagora.service';
 import { Userbasicnew } from 'src/trans/userbasicnew/schemas/userbasicnew.schema';
 import { Disqus } from '../disqus/schemas/disqus.schema';
 import { log } from 'console';
+import { CloudStreamingService } from 'src/stream/tencent/cloudstreming.service';
 
 @Controller("api/live") 
 export class MediastreamingController {
@@ -22,6 +23,7 @@ export class MediastreamingController {
     private readonly utilsService: UtilsService,
     private readonly errorHandler: ErrorHandler,
     private readonly configService: ConfigService,
+    private readonly cloudStreamingService: CloudStreamingService,
     private readonly mediastreamingService: MediastreamingService,
     private readonly mediastreamingalicloudService: MediastreamingalicloudService,
     private readonly mediastreamingAgoraService: MediastreamingAgoraService,
@@ -139,6 +141,11 @@ export class MediastreamingController {
     const generateLiveId = await this.mediastreamingService.generateLiveId();
     //const generateToken = await this.mediastreamingAgoraService.generateToken(profile._id.toString(), expireTime);
     //const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
+
+    // using tencent cloud streaming service
+    const pusliveUrls = this.cloudStreamingService.createPushLiveUrl(profile.username);
+    const playbackUrls = this.cloudStreamingService.createPlaybackLiveUrl(profile.username);
+
     let _MediastreamingDto_ = new MediastreamingDto();
     _MediastreamingDto_._id = generateId;
     _MediastreamingDto_.url = MediastreamingDto_.url;
@@ -151,8 +158,8 @@ export class MediastreamingController {
     _MediastreamingDto_.share = [];
     _MediastreamingDto_.follower = [];
     _MediastreamingDto_.liveId = generateLiveId;
-    // _MediastreamingDto_.urlStream = getUrl.urlStream;
-    // _MediastreamingDto_.urlIngest = getUrl.urlIngest;
+    _MediastreamingDto_.urlStream = playbackUrls.rtmpUrl;
+    _MediastreamingDto_.urlIngest = pusliveUrls.rtmpUrl;
     _MediastreamingDto_.createAt = currentDate.dateString;
     if (MediastreamingDto_.title != undefined) {
       _MediastreamingDto_.title = MediastreamingDto_.title;
