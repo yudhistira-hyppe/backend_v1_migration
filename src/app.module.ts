@@ -132,6 +132,7 @@ import { AppController } from './app.controller';
 import { MonetizationModule } from './trans/monetization/monetization.module';
 import { LogMigrationsModule } from './trans/logmigrations/logmigrations.module'; 
 import { TransactionsV2Module } from './trans/transactionsv2/transactionsv2.module';
+import { CloudStreamingModule } from './stream/tencent/cloudstreaming.module';
 @Module({
   imports: [
     TransactionsV2Module,
@@ -287,7 +288,8 @@ import { TransactionsV2Module } from './trans/transactionsv2/transactionsv2.modu
     NewPostModule,
     FiltercategoryModule,
     GuidelineModule,
-    MonetizationModule
+    MonetizationModule,
+    CloudStreamingModule
     //  ChallengeModule
   ], providers: [],
 })

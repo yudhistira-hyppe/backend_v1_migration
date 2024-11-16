@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "start:local": "NODE_ENV=local npm run start",
-    "start:dev": "NODE_ENV=dev npm run start"
+    "start:dev": "NODE_ENV=dev npm run start",
+    "start:watch": "nest start --watch"
   },
   "dependencies": {
     "@alicloud/live20161101": "^1.1.1",
@@ -64,7 +65,7 @@
     "debug-mode": "^2.0.2",
     "dotenv": "^16.0.2",
     "express-session": "^1.17.3",
-    "firebase-admin": "^11.0.0",
+    "firebase-admin": "^12.7.0",
     "fluent-ffmpeg": "^2.1.2",
     "form-data": "^4.0.0",
     "fs-extra": "^10.1.0",

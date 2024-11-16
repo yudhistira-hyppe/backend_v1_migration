@@ -1158,63 +1158,56 @@ export class UtilsService {
         pid = "";
       }
 
-      var option = {
-        priority: "high",
-        contentAvailable: true
+      var options = {
+         priority: "high" as "high" | "normal",
       }
-      if (langIso === "id") {
 
-        payload = {
-          data: {
+      const payload = {
+        data: {
+          title: langIso === "en" ? titleen : titlein,
+          body: langIso === "en" ? bodyen : bodyin,
+          postID: pid,
+          postType: postType,
+        },
+      };
 
-            title: titlein,
-            body: bodyin,
-            postID: pid,
-            postType: postType
-          }
-        }
-
-
-      }
-      else if (langIso === "en") {
-
-        payload = {
-          data: {
-
-            title: titleen,
-            body: bodyen,
-            postID: pid,
-            postType: postType
-          }
-        }
-      } else {
-        payload = {
-          data: {
-
-            title: titlein,
-            body: bodyin,
-            postID: pid,
-            postType: postType
-          }
-        }
-      }
 
       console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> payload', JSON.stringify(payload));
 
 
       var arraydevice = [];
       datadevice = await this.userdevicesService.findActive(emailuserbasic);
-      for (var i = 0; i < datadevice.length; i++) {
-        var deviceid = datadevice[i].deviceID;
-        try {
-          await admin.messaging().sendToDevice(deviceid, payload, option);
-        } catch (e) {
+          for (const device of datadevice) {
+              const deviceid = device.deviceID;
+              const message = {
+                token: deviceid,
+                notification: {
+                  title: payload.data.title,
+                  body: payload.data.body,
+                },
+                data: payload.data,
+                android: options,
+                apns: {
+                  headers: {
+                    "apns-priority": "10",
+                  },
+                  payload: {
+                    aps: {
+                      contentAvailable: true,
+                    },
+                  },
+                },
+              };
 
-        }
+              try {
+                await admin.messaging().send(message);
+                console.log(`Successfully sent message to device: ${deviceid}`);
+              } catch (e) {
+                console.log('Error sending message to device:', e);
+              }
 
-        arraydevice.push(deviceid);
-
-      }
+              arraydevice.push(deviceid);
+    }
       var generateID = await this.generateId();
       createNotificationsDto._id = generateID;
       createNotificationsDto.notificationID = generateID;
