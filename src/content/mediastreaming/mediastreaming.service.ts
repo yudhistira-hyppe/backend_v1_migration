@@ -351,20 +351,20 @@ export class MediastreamingService {
     //const ID_SETTING_JENIS_REPORT = this.configService.get("ID_SETTING_JENIS_REPORT");
     const DataList = await this.MediastreamingModel.aggregate(
       [
-        {
-          $set: {
-            idStream: arrayId
-          },
+        // {
+        //   $set: {
+        //     idStream: arrayId
+        //   },
 
-        },
+        // },
         {
           $match: {
             $and: [
-              {
-                $expr: {
-                  $in: ['$_id', '$idStream']
-                }
-              },
+              // {
+              //   $expr: {
+              //     $in: ['$_id', { $ifNull: ['$idStream', []] }]
+              //   }
+              // },
               { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
             ]
           },
@@ -466,7 +466,7 @@ export class MediastreamingService {
                 {
                   $size: {
                     $setUnion: [
-                      "$ints",
+                      { $ifNull: ["$ints", []] },
                       []
                     ]
                   }
@@ -521,14 +521,17 @@ export class MediastreamingService {
 
           }
         },
-        {
-          $set: {
-            friend: {
-              $arrayElemAt: ["$userStream.friend", 0]
-            },
-
-          }
-        },
+    {
+  $set: {
+    friend: {
+      $cond: {
+        if: { $eq: [{ $type: { $arrayElemAt: ["$userStream.friend", 0] } }, "object"] },
+        then: [{ $arrayElemAt: ["$userStream.friend", 0] }],
+        else: { $arrayElemAt: ["$userStream.friend", 0] }
+      }
+    }
+  }
+},
         {
           $set: {
             totalFollower:
@@ -552,7 +555,7 @@ export class MediastreamingService {
                   $cond:
                   {
                     if: {
-                      $in: [email, "$follower"]
+                      $in: [email, { $ifNull: ["$follower", []] }]
                     },
                     then: 1,
                     else: 0
@@ -619,7 +622,7 @@ export class MediastreamingService {
           $set: {
             totalGift:
             {
-              $size: "$gift"
+              $size: { $ifNull: ["$gift", []] }
             }
           }
         },
@@ -688,7 +691,7 @@ export class MediastreamingService {
                     $cond: {
                       if: {
                         $gt: [{
-                          $size: '$friendlist'
+                          $size: { $ifNull: ['$friendlist', []] }
                         }, 0]
                       },
                       then: 3,

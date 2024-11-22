@@ -1624,29 +1624,47 @@ export class MediastreamingController {
     let skip_ = (Number(MediastreamingDto_.page) > 0) ? (Number(MediastreamingDto_.page) * Number(MediastreamingDto_.limit)) : Number(MediastreamingDto_.page);
     let limit_ = Number(MediastreamingDto_.limit);
     try {
-      let _id: mongoose.Types.ObjectId[] = [];
-      const data = await this.mediastreamingAgoraService.getChannelList();
-      console.log(data);
-      if (data != null) {
-        let dataChannel = data.data.channels;
-        console.log(dataChannel);
-        if (dataChannel.length>0){
-          dataChannel = dataChannel.slice(skip_, skip_ + limit_);
-          _id = dataChannel.map(function (item) {
-            console.log("channel_name", item['channel_name'])
-            return new mongoose.Types.ObjectId(item['channel_name']);
-          });
-        }
-        dataList = await this.mediastreamingService.getDataListAgora(profile._id.toString(), headers['x-auth-user'], _id, MediastreamingDto_.page, MediastreamingDto_.limit)
-        return await this.errorHandler.generateAcceptResponseCodeWithData(
-          "Get stream succesfully", dataList,
-        );
-      }
-    } catch (e) {
-      return await this.errorHandler.generateAcceptResponseCodeWithData(
-        "Get stream succesfully", dataList,
-      );
-    }
+    let _id: mongoose.Types.ObjectId[] = [];
+    // Bypass getChannelList and directly call getDataListAgora
+    dataList = await this.mediastreamingService.getDataListAgora(
+        profile._id.toString(),
+        headers['x-auth-user'],
+        _id, // Pass an empty array or any default value if needed
+        MediastreamingDto_.page,
+        MediastreamingDto_.limit
+    );
+    return await this.errorHandler.generateAcceptResponseCodeWithData(
+        "Get stream successfully", dataList,
+    );
+} catch (e) {
+    return await this.errorHandler.generateAcceptResponseCodeWithData(
+        "Get stream successfully", dataList,
+    );
+}
+    // try {
+    //   let _id: mongoose.Types.ObjectId[] = [];
+    //   const data = await this.mediastreamingAgoraService.getChannelList();
+    //   console.log(data);
+    //   if (data != null) {
+    //     let dataChannel = data.data.channels;
+    //     console.log(dataChannel);
+    //     if (dataChannel.length>0){
+    //       dataChannel = dataChannel.slice(skip_, skip_ + limit_);
+    //       _id = dataChannel.map(function (item) {
+    //         console.log("channel_name", item['channel_name'])
+    //         return new mongoose.Types.ObjectId(item['channel_name']);
+    //       });
+    //     }
+    //     dataList = await this.mediastreamingService.getDataListAgora(profile._id.toString(), headers['x-auth-user'], _id, MediastreamingDto_.page, MediastreamingDto_.limit)
+    //     return await this.errorHandler.generateAcceptResponseCodeWithData(
+    //       "Get stream succesfully", dataList,
+    //     );
+    //   }
+    // } catch (e) {
+    //   return await this.errorHandler.generateAcceptResponseCodeWithData(
+    //     "Get stream succesfully", dataList,
+    //   );
+    // }
   }
 
   @UseGuards(JwtAuthGuard)
