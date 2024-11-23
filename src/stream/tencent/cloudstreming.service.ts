@@ -45,6 +45,16 @@ export class CloudStreamingService {
         return hash.digest('hex');
     }
 
+    sha256(message: string, secret: string = "", encoding: crypto.BinaryToTextEncoding) {
+        const hmac = crypto.createHmac("sha256", secret)
+        return hmac.update(message).digest(encoding)
+      }
+
+    getHash(message: string, encoding: crypto.BinaryToTextEncoding = "hex") {
+        const hash = crypto.createHash("sha256")
+        return hash.update(message).digest(encoding)
+    }
+
     createHexExpirationTime() {
         // create expiration datenya dulu
         const expirationDateUTC = new Date();
@@ -60,4 +70,16 @@ export class CloudStreamingService {
         // convert to hexadecimal
         return unixTimestampExpDateInSeconds.toString(16).toUpperCase();
     }
+
+    // async describeLiveOnlineList(pageNum: number, pageSize: number) {
+    //     try {
+    //         const domainName = process.env.CSS_PUSH_LIVE_DOMAIN
+    //         const appName = process.env.CSS_LIVE_APP_NAME
+    //         const timestamp = Date.now()
+    //         const nonce = 10
+    //         const secretId = 
+    //     } catch (error) {
+            
+    //     }
+    // }
 }
