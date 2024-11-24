@@ -1,6 +1,6 @@
-
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
+import axios from 'axios';
 
 @Injectable()
 export class CloudStreamingService {
@@ -48,7 +48,7 @@ export class CloudStreamingService {
     // ini gua kagak tau encoding defaultnya dia mau apa coba cek yang di line 131 itu dia mau pake default encoding.
     // di docsnya kagak ada ini dia mau default encodingnya apa. kalo ngikutin yang di docs dia error yang 131nya karena kagak ada dfault encoding
     // https://console.intl.cloud.tencent.com/api/explorer?Product=live&Version=2018-08-01&Action=DescribeLiveStreamOnlineList
-    sha256(message: string, secret: string = "", encoding: crypto.BinaryToTextEncoding = "hex") {
+    sha256(message: string, secret: string = "", encoding:crypto.BinaryToTextEncoding= "hex") {
         const hmac = crypto.createHmac("sha256", secret)
         return hmac.update(message).digest(encoding)
       }
@@ -82,106 +82,37 @@ export class CloudStreamingService {
         return `${year}-${month}-${day}`
     }
 
-    async describeLiveOnlineList(pageNum: number, pageSize: number) {
-        try {
-            const secretId = process.env.CSS_SECRET_ID
-            const secretKey = process.env.CSS_SECRET_KEY
-            const token = ""
-            const region = ""
-            const host = process.env.CSS_HOST
-            const service = "live"
-            const action = "DescribeLiveStreamOnlineList"
-            const version = "2018-08-01"
-            const timestamp = parseInt(String(new Date().getTime() / 1000))
-            const date = this.getDate(timestamp)
-            const domainName = process.env.CSS_PUSH_LIVE_DOMAIN
-            const appName = process.env.CSS_LIVE_APP_NAME
-            const nonce = 10
-            const payload = {
-                "DomainName": domainName,
-                "AppName": appName,
-                "PageNum": pageNum,
-                "PageSize": pageSize
-            }
+    async describeLiveOnlineList() {
+        const tencentcloud = require("tencentcloud-sdk-nodejs-intl-en");
 
-            const stringifyPayload = JSON.stringify(payload)
+        const LiveClient = tencentcloud.live.v20180801.Client;
+        const models = tencentcloud.live.v20180801.Models;
 
-            // step 1 Concatenate the CanonicalRequest string
-            const signedHeaders = "content-type;host"
-            const hashedRequestPayload = this.getHash(stringifyPayload)
-            const httpRequestMethod = "POST"
-            const canonicalUri = "/"
-            const canonicalQueryString = ""
-            const canonicalHeaders =
-            "content-type:application/json; charset=utf-8\n" + "host:" + host + "\n"
+        const Credential = tencentcloud.common.Credential;
+        const ClientProfile = tencentcloud.common.ClientProfile;
+        const HttpProfile = tencentcloud.common.HttpProfile;
 
-            const canonicalRequest =
-            httpRequestMethod +
-            "\n" +
-            canonicalUri +
-            "\n" +
-            canonicalQueryString +
-            "\n" +
-            canonicalHeaders +
-            "\n" +
-            signedHeaders +
-            "\n" +
-            hashedRequestPayload
+        let cred = new Credential(process.env.CSS_SECRET_ID, process.env.CSS_SECRET_KEY);
+        let httpProfile = new HttpProfile();
+        httpProfile.endpoint = "live.tencentcloudapi.com";
+        let clientProfile = new ClientProfile();
+        clientProfile.httpProfile = httpProfile;
 
-            // Step 2: Concatenate the string to sign
-            const algorithm = "TC3-HMAC-SHA256"
-            const hashedCanonicalRequest = this.getHash(canonicalRequest)
-            const credentialScope = date + "/" + service + "/" + "tc3_request"
-            const stringToSign =
-            algorithm +
-            "\n" +
-            timestamp +
-            "\n" +
-            credentialScope +
-            "\n" +
-            hashedCanonicalRequest
+        let client = new LiveClient(cred, "", clientProfile);
+        let req = new models.DescribeLiveStreamOnlineListRequest();
 
-            // Step 3: Calculate the Signature
-            const kDate = this.sha256(date, "TC3" + secretKey)
-            const kService = this.sha256(service, kDate)
-            const kSigning = this.sha256("tc3_request", kService)
-            const signature = this.sha256(stringToSign, kSigning, "hex")
+        let params = {};
+        req.from_json_string(JSON.stringify(params));
 
-            // Step 4: Concatenate the Authorization
-            const authorization =
-            algorithm +
-            " " +
-            "Credential=" +
-            secretId +
-            "/" +
-            credentialScope +
-            ", " +
-            "SignedHeaders=" +
-            signedHeaders +
-            ", " +
-            "Signature=" +
-            signature
-
-            // Step 5: build and send request
-            const headers = {
-                Authorization: authorization,
-                "Content-Type": "application/json; charset=utf-8",
-                Host: host,
-                "X-TC-Action": action,
-                "X-TC-Timestamp": timestamp,
-                "X-TC-Version": version,
-            }
-            
-            if (region) {
-                headers["X-TC-Region"] = region
-            }
-            if (token) {
-                headers["X-TC-Token"] = token
-            }
-
-            // tinggal buat callnya
-        } catch (error) {
-            throw(error)
-        }
+        // Return a promise that resolves with the response
+        return new Promise((resolve, reject) => {
+            client.DescribeLiveStreamOnlineList(req, function(err, response) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(response.to_json_string());
+            });
+        });
     }
 }

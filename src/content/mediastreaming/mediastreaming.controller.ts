@@ -1626,6 +1626,7 @@ export class MediastreamingController {
     try {
     let _id: mongoose.Types.ObjectId[] = [];
     // Bypass getChannelList and directly call getDataListAgora
+    const data = await this.cloudStreamingService.describeLiveOnlineList();
     dataList = await this.mediastreamingService.getDataListAgora(
         profile._id.toString(),
         headers['x-auth-user'],
