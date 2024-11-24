@@ -351,20 +351,20 @@ export class MediastreamingService {
     //const ID_SETTING_JENIS_REPORT = this.configService.get("ID_SETTING_JENIS_REPORT");
     const DataList = await this.MediastreamingModel.aggregate(
       [
-        // {
-        //   $set: {
-        //     idStream: arrayId
-        //   },
+        {
+          $set: {
+            idStream: arrayId
+          },
 
-        // },
+        },
         {
           $match: {
             $and: [
-              // {
-              //   $expr: {
-              //     $in: ['$_id', { $ifNull: ['$idStream', []] }]
-              //   }
-              // },
+              {
+                $expr: {
+                  $in: ['$_id', { $ifNull: ['$idStream', []] }]
+                }
+              },
               { "kick.userId": { $ne: new mongoose.Types.ObjectId(userId) } }
             ]
           },

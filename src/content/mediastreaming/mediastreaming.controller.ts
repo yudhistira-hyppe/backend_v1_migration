@@ -143,8 +143,8 @@ export class MediastreamingController {
     //const getUrl = await this.mediastreamingService.generateUrl(generateId.toString(), expireTime);
 
     // using tencent cloud streaming service
-    const pusliveUrls = this.cloudStreamingService.createPushLiveUrl(profile.username);
-    const playbackUrls = this.cloudStreamingService.createPlaybackLiveUrl(profile.username);
+    const pusliveUrls = this.cloudStreamingService.createPushLiveUrl(generateId.toString());
+    const playbackUrls = this.cloudStreamingService.createPlaybackLiveUrl(generateId.toString());
 
     let _MediastreamingDto_ = new MediastreamingDto();
     _MediastreamingDto_._id = generateId;
@@ -1147,17 +1147,18 @@ export class MediastreamingController {
 
           //SET Setting REPORT
           const getUserViewLanguage = await this.utilsService.getUserlanguages(profile.email.toString());
-          let remarkSetting = [];
-          if (getUserViewLanguage == "id") {
-            remarkSetting = dataSetting.filter(function (el) {
-              return el.language == "ID";
-            });
-          }
-          if (getUserViewLanguage == "en") {
-            remarkSetting = dataSetting.filter(function (el) {
-              return el.language == "EN";
-            });
-          }
+          let remarkSetting = dataSetting;
+          // comment existing codes
+          // if (getUserViewLanguage == "id") {
+          //   remarkSetting = dataSetting.filter(function (el) {
+          //     return el.language == "ID";
+          //   });
+          // }
+          // if (getUserViewLanguage == "en") {
+          //   remarkSetting = dataSetting.filter(function (el) {
+          //     return el.language == "EN";
+          //   });
+          // }
           console.log(dataStreamView)
           const getUser = await this.userbasicnewService.getUser(ceckId.userId.toString());
           const MediastreamingDto_Res = new MediastreamingDto();
@@ -1184,7 +1185,8 @@ export class MediastreamingController {
           MediastreamingDto_Res.comment = dataStreamPinned;
           MediastreamingDto_Res.commentDisabled = ceckId.commentDisabled;
           MediastreamingDto_Res.tokenAgora = ceckId.tokenAgora;
-          MediastreamingDto_Res.reportRemark = remarkSetting[0].value; 
+          // MediastreamingDto_Res.reportRemark = remarkSetting[0].value; // existing
+          MediastreamingDto_Res.reportRemark = remarkSetting; 
           MediastreamingDto_Res.viewCountUnic = dataStreamView[0].view_unique.length;
           return await this.errorHandler.generateAcceptResponseCodeWithData(
             "Update stream succesfully", MediastreamingDto_Res
@@ -1627,6 +1629,15 @@ export class MediastreamingController {
     let _id: mongoose.Types.ObjectId[] = [];
     // Bypass getChannelList and directly call getDataListAgora
     const data = await this.cloudStreamingService.describeLiveOnlineList();
+    if (data) {
+      const parsedData = JSON.parse(data)
+      if (parsedData.OnlineInfo && parsedData.OnlineInfo.length > 0) {
+        for (const streamData of parsedData.OnlineInfo) {
+          let id = new mongoose.Types.ObjectId(streamData.StreamName);
+          _id.push(id)
+        }
+      }
+    }
     dataList = await this.mediastreamingService.getDataListAgora(
         profile._id.toString(),
         headers['x-auth-user'],

@@ -105,7 +105,7 @@ export class CloudStreamingService {
         req.from_json_string(JSON.stringify(params));
 
         // Return a promise that resolves with the response
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
             client.DescribeLiveStreamOnlineList(req, function(err, response) {
                 if (err) {
                     reject(err);
