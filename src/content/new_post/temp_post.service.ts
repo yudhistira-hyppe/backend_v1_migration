@@ -22,6 +22,7 @@ import { pipeline } from 'stream';
 import { CreateUserplaylistDto } from 'src/trans/userplaylist/dto/create-userplaylist.dto';
 import { NewPostService } from './new_post.service';
 import { MediastreamingAgoraService } from '../mediastreaming/mediastreamingagora.service';
+import { CloudStreamingService } from 'src/stream/tencent/cloudstreming.service';
 
 @Injectable()
 export class TempPOSTService {
@@ -45,6 +46,7 @@ export class TempPOSTService {
         private readonly disquslogsService: DisquslogsService,
         private readonly disqusService: DisqusService,
         private readonly mediastreamingAgoraService: MediastreamingAgoraService,
+        private readonly cloudStreamingService: CloudStreamingService,  
     ) { }
 
     async create(CreatePostsDto: tempposts): Promise<tempposts> {
@@ -445,10 +447,11 @@ export class TempPOSTService {
     }
 
     async landingPagebaru(email: string, type: string, skip: number, limit: number) {
-        const dataStream = await this.mediastreamingAgoraService.getChannelList();
-        let statusSream = false;
+        const dataStream = await this.cloudStreamingService.describeLiveOnlineList();
+        let statusSream = true;
         if (dataStream != null) {
-            let dataChannel = dataStream.data.channels;
+            const parsedData = JSON.parse(dataStream);
+            let dataChannel = parsedData.OnlineInfo;
             if (dataChannel.length > 0) {
                 statusSream = true;
             }

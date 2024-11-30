@@ -18,6 +18,7 @@ import { TransactionsV2Module } from 'src/trans/transactionsv2/transactionsv2.mo
 import { MonetizationService } from './monetization/monetization.service';
 import { Monetize, monetizeSchema } from 'src/trans/monetization/schemas/monetization.schema';
 import { CloudStreamingModule } from 'src/stream/tencent/cloudstreaming.module';
+import { CloudStreamingService } from 'src/stream/tencent/cloudstreming.service';
 
 @Module({
     imports: [
@@ -37,7 +38,7 @@ import { CloudStreamingModule } from 'src/stream/tencent/cloudstreaming.module';
         ], 'SERVER_FULL')
     ],
     controllers: [MediastreamingController],
-    providers: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService, MonetizationService],
-    exports: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService, MonetizationService],
+    providers: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService, MonetizationService, CloudStreamingService],
+    exports: [MediastreamingService, MediastreamingalicloudService, MediastreamingrequestService, MediastreamingAgoraService, MonetizationService, CloudStreamingService],
 })
 export class MediastreamingModule { }

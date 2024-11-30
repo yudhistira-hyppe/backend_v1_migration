@@ -4,6 +4,7 @@ import mongoose, { Model } from 'mongoose';
 import { PostsRead, PostsReadDocument } from './schema/post_read.schema';
 import { SettingsReadService } from '../setting_read/setting_read.service';
 import { MediastreamingAgoraService } from 'src/content/mediastreaming/mediastreamingagora.service';
+import { CloudStreamingService } from 'src/stream/tencent/cloudstreming.service';
 
 
 @Injectable()
@@ -15,6 +16,7 @@ export class PostsReadService {
     private readonly PostsReadModel: Model<PostsReadDocument>,
     private readonly settingsReadService: SettingsReadService,
     private readonly mediastreamingAgoraService: MediastreamingAgoraService,
+    private readonly cloudStreamingService: CloudStreamingService,
   ) { }
 
   async updateBoostCount(id: string, countBoost: number) {
@@ -25527,14 +25529,16 @@ export class PostsReadService {
 
 
   async landingpage7(email: string, type: string, skip: number, limit: number) {
-    const dataStream = await this.mediastreamingAgoraService.getChannelList();
+
+    const dataStream = await this.cloudStreamingService.describeLiveOnlineList();
     let statusSream = false;
-    if (dataStream != null) {
-      let dataChannel = dataStream.data.channels;
-      if (dataChannel.length > 0) {
-        statusSream = true;
-      }
-    }
+    if (dataStream) {
+        const parsedData = JSON.parse(dataStream);
+        const dataChannel = parsedData.OnlineInfo;
+        if (dataChannel && dataChannel.length > 0) {
+            statusSream = true;
+        }
+    } 
     var pipeline = [];
     var dataseting = null;
     var sortObject = null;
